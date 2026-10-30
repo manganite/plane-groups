@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Symmetrie in der Ebene</title>
-<meta name="description" content="Vorlage für eine Lern-App der Familie: alle gemeinsamen Bausteine der Werkbank.">
+<meta name="description" content="Symmetrie periodischer Muster in der Ebene: die 17 Ebenengruppen mit Symmetrieelementen, Wyckoff-Lagen und asymmetrischer Einheit.">
 <link rel="icon" href="icons/favicon.ico" sizes="any">
 <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -15,8 +15,9 @@
 <link rel="stylesheet" href="lib/common/css/base.css">
 <link rel="stylesheet" href="lib/common/css/app.css">
 <style>
-/* Nur in dieser App: Anordnung der Tafeln. Muster wie in der App „Stereographische Projektion“:
-   links die Seitenleiste, rechts zwei gleich grosse Tafeln, darunter die Kenndaten. */
+/* Nur in dieser App: Anordnung der Tafeln (wie in der App „Stereographische Projektion“:
+   links die Seitenleiste, rechts zwei gleich grosse Tafeln, darunter die Kenndaten),
+   Tabellen der Kenndaten. Die gemeinsamen Bausteine stehen in lib/common/css/app.css. */
 .layout {
   max-width: 1480px; margin-inline: auto; display: grid; gap: 16px;
   grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr);
@@ -30,7 +31,8 @@
 @media (max-width: 999px) {
   .layout { grid-template-columns: 270px minmax(0, 1fr); grid-template-areas: "side a" "side b" "side info"; }
 }
-.bild { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.bild { display: block; width: 100%; height: auto; aspect-ratio: 1; user-select: none; -webkit-user-select: none; }
+#bild-a { touch-action: manipulation; cursor: crosshair; }
 @media (max-width: 719px) {
   .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "figs" "side" "info"; gap: 12px; }
   .figs {
@@ -41,22 +43,46 @@
   body[data-fig="a"] .p-b, body[data-fig="b"] .p-a { display: none; }
   .bild { width: min(100%, 38svh); margin-inline: auto; }
 }
+.tabs button:disabled { opacity: 0.5; cursor: not-allowed; }
+.lg .sym-icon { flex: none; }
+.koord { font-family: var(--font-display); font-size: 1.02em; white-space: nowrap; }
+.koord i { font-style: italic; }
+.wy { font-style: italic; }
+/* Tabellen der Kenndaten: Operationen und Wyckoff-Lagen wie in ITA */
+.itatab { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 2px 0 12px; }
+.itatab th { text-align: left; font-weight: 500; color: var(--muted); font-size: 0.8rem; padding: 3px 10px 3px 0; border-bottom: 1px solid var(--line); vertical-align: bottom; }
+.itatab td { padding: 4px 10px 4px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.itatab td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.itatab .koords { display: flex; flex-wrap: wrap; gap: 2px 14px; }
+.itatab tr.aktiv td { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.itatab tr.aktiv td:first-child { box-shadow: inset 3px 0 0 var(--accent); }
+.itatab .setzen { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 2px 8px; font: inherit; font-size: 0.82rem; cursor: pointer; }
+.itatab .setzen:hover { border-color: var(--muted); }
+.itatab tr.aktiv .setzen { border-color: var(--accent); color: var(--accent); }
+.itatab .zent td { color: var(--muted); font-size: 0.82rem; padding-top: 8px; }
+@media (pointer: coarse) { .itatab .setzen { min-height: 40px; } }
+.tabwrap { overflow-x: auto; }
+.lagebox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
+.lagebox strong { color: var(--accent); }
+.lagebox p { margin: 6px 0 0; }
+.cols { display: grid; gap: 4px 28px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 999px) { .cols { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body data-fig="a">
 <header class="top">
   <div class="brand">
     <h1>Symmetrie in der Ebene</h1>
-    <p>Alle gemeinsamen Bausteine der Werkbank</p>
+    <p>Die 17 Ebenengruppen: Symmetrieelemente, Lagen und Muster</p>
   </div>
   <div class="tabs" role="tablist" aria-label="Modus">
-    <button id="tab-a" role="tab" aria-selected="true">Modus A</button>
-    <button id="tab-b" role="tab" aria-selected="false">Modus B</button>
+    <button id="tab-eg" role="tab" aria-selected="true">Ebenengruppen</button>
+    <button id="tab-struktur" role="tab" aria-selected="false" disabled>Gitter und Basis</button>
   </div>
   <div class="headtools">
     <a class="linkcopy" href="skript.html">Skript</a>
     <a class="linkcopy" href="quiz.html">Quiz</a>
-    <button class="linkcopy" id="copy-link" type="button" title="Link auf genau diese Ansicht in die Zwischenablage kopieren (z. B. für Folien)">Link kopieren</button>
+    <button class="linkcopy" id="copy-link" type="button">Link kopieren</button>
     <button class="helpbtn" id="help-open" type="button" aria-label="Erste Schritte" aria-controls="intro" aria-expanded="false">?</button>
   </div>
 </header>
@@ -66,8 +92,9 @@
     <section class="card intro" id="intro" aria-labelledby="intro-title" hidden>
       <div class="intro-head"><h2 id="intro-title">Erste Schritte</h2><button class="intro-x" id="intro-close" type="button" aria-label="Erste Schritte schliessen">×</button></div>
       <ol class="steps">
-        <li><b>Gruppe wählen.</b> Ein Knopf je Gruppe, geordnet nach Kristallsystem. <button class="linkbtn" type="button" data-step="1">p4mm wählen</button></li>
-        <li><b>Darstellung ändern.</b> Weitere Optionen liegen in den eingeklappten Abschnitten. <button class="linkbtn" type="button" data-step="2">Darstellung öffnen</button></li>
+        <li><b>Ebenengruppe wählen.</b> Links das Symmetriegerüst einer Elementarzelle, rechts das Muster. <button class="linkbtn" type="button" data-step="1">p4gm wählen</button></li>
+        <li><b>Fähnchen ziehen.</b> Alle Bilder folgen. Auf einer Spiegellinie oder einem Drehpunkt rastet es ein: spezielle Lage. <button class="linkbtn" type="button" data-step="2">auf eine Spiegellinie setzen</button></li>
+        <li><b>Asymmetrische Einheit zeigen.</b> Aus ihr erzeugen die Operationen das ganze Muster. <button class="linkbtn" type="button" data-step="3">einblenden</button></li>
       </ol>
       <p class="intro-foot"><span class="only-fine">Tooltips erklären jedes Bedienelement.</span><span class="only-coarse">Das ⓘ neben den Überschriften erklärt die Bedienelemente.</span></p>
     </section>
@@ -75,45 +102,62 @@
     <div class="card">
       <section id="ctl-gruppe" class="stack">
         <h2>Ebenengruppe</h2>
-        <div id="picker" class="picker" role="group" aria-label="Gruppe wählen"></div>
+        <div id="picker" class="picker" role="group" aria-label="Ebenengruppe wählen"></div>
         <p class="group-title">Anzeigen</p>
-        <label class="check"><input type="checkbox" id="opt-elemente" checked>Symmetrieelemente</label>
-        <label class="check"><input type="checkbox" id="opt-motiv">Motiv in allgemeiner Lage<span class="why"></span></label>
-        <details class="subsect">
-          <summary>Weitere Optionen <span class="subhint">Zelle, Beschriftung</span></summary>
+        <label class="check"><input type="checkbox" id="opt-elemente">Symmetrieelemente</label>
+        <label class="check"><input type="checkbox" id="opt-objekt">Objekt in allgemeiner Lage</label>
+        <label class="check"><input type="checkbox" id="opt-ae">Asymmetrische Einheit</label>
+        <details class="subsect" id="sub-weitere">
+          <summary>Weitere Optionen <span class="subhint">Zellen, Objekt, Einrasten</span></summary>
           <div class="stack">
-            <label class="check"><input type="checkbox" id="opt-zelle" checked>Elementarzelle</label>
-            <label class="check" id="row-beschr"><input type="checkbox" id="opt-beschr" disabled><span>Beschriftung<span class="why">nur mit „Motiv in allgemeiner Lage“</span></span></label>
+            <label class="check"><input type="checkbox" id="opt-zellen">2 × 2 Zellen</label>
+            <div class="seg seg-text" id="seg-form" role="group" aria-label="Form des Objekts">
+              <button type="button" data-form="fahne" aria-pressed="true">Fähnchen</button>
+              <button type="button" data-form="komma" aria-pressed="false">Kreis mit Komma</button>
+            </div>
+            <label class="check" id="row-einrasten"><input type="checkbox" id="opt-einrasten"><span>Einrasten auf spezielle Lagen<span class="why"></span></span></label>
           </div>
         </details>
       </section>
     </div>
 
     <div class="card">
+      <details class="sect" id="sec-objekt">
+        <summary>Objekt<span class="sumhint">Lage x, y</span></summary>
+        <div class="stack">
+          <div class="range">
+            <label for="obj-x"><i>x</i></label><output id="obj-x-out"></output>
+            <input type="range" id="obj-x" min="0" max="1" step="0.001">
+          </div>
+          <div class="range">
+            <label for="obj-y"><i>y</i></label><output id="obj-y-out"></output>
+            <input type="range" id="obj-y" min="0" max="1" step="0.001">
+          </div>
+          <p class="hintline" id="obj-why"></p>
+          <button class="resetbtn" id="reset-objekt" type="button">Objekt zurücksetzen</button>
+        </div>
+      </details>
       <details class="sect" id="sec-gitter">
         <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
           <div class="range">
-            <label for="lat-ba">b/a</label><output id="lat-ba-out">1.00</output>
-            <input type="range" id="lat-ba" min="0.5" max="2" step="0.01" value="1">
+            <label for="lat-ba"><i>b</i>/<i>a</i></label><output id="lat-ba-out"></output>
+            <input type="range" id="lat-ba" min="0.6" max="1.6" step="0.01">
           </div>
-          <div class="seg seg-text" role="group" aria-label="Zellentyp">
-            <button type="button" aria-pressed="true">primitiv</button>
-            <button type="button" aria-pressed="false">zentriert</button>
+          <div class="range">
+            <label for="lat-gamma">γ</label><output id="lat-gamma-out"></output>
+            <input type="range" id="lat-gamma" min="95" max="125" step="0.5">
           </div>
-          <button class="resetbtn" type="button">Gitter zurücksetzen</button>
+          <p class="hintline" id="lat-why"></p>
+          <button class="resetbtn" id="reset-gitter" type="button">Gitter zurücksetzen</button>
         </div>
       </details>
       <details class="sect" id="sec-view">
-        <summary>Darstellung<span class="sumhint">Farben, Achsen</span></summary>
+        <summary>Darstellung<span class="sumhint">Farben, Muster</span></summary>
         <div class="stack">
-          <label class="check"><input type="checkbox" id="v-farben" checked>Symmetrieelemente nach Blickrichtung färben</label>
-          <label class="check"><input type="checkbox" id="v-achsen">Gitterachsen</label>
-          <div class="field">
-            <label for="v-wahl">Auswahl</label>
-            <select id="v-wahl"><option>erste Möglichkeit</option><option>zweite Möglichkeit</option></select>
-          </div>
-          <p class="hintline">Kurzer Hinweis unter einem Bedienelement.</p>
+          <label class="check"><input type="checkbox" id="v-farben">Nach Blickrichtung färben</label>
+          <label class="check"><input type="checkbox" id="v-muster-el">Symmetrieelemente im Muster</label>
+          <button class="resetbtn" id="reset-alles" type="button">Alle Einstellungen zurücksetzen</button>
         </div>
       </details>
     </div>
@@ -122,27 +166,26 @@
   <div class="figs">
     <figure class="panel p-a">
       <div class="panel-head">
-        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Tafel A</button><button type="button" data-fig="b" aria-pressed="false">Tafel B</button></div>
-        <span class="t">Tafel A<small>Untertitel</small></span>
-        <div class="tools export" role="group" aria-label="Exportieren"><button type="button">Kopieren</button><button type="button">SVG</button></div>
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Symmetriegerüst</button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
+        <span class="t">Symmetriegerüst<small id="sub-a"></small></span>
       </div>
-      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Muster einer Abbildung"></svg>
+      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
       <div class="legend" id="legend"></div>
     </figure>
     <figure class="panel p-b">
       <div class="panel-head">
-        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Tafel A</button><button type="button" data-fig="b" aria-pressed="false">Tafel B</button></div>
-        <span class="t">Tafel B</span>
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Symmetriegerüst</button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
+        <span class="t">Muster<small>Ausschnitt</small></span>
       </div>
-      <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Farben der Familie"></svg>
-      <div class="panel-foot">Fusszeile der Tafel, z. B. Bedienhinweis <span class="only-fine">für die Maus</span><span class="only-coarse">für Touch</span></div>
+      <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Muster der Ebenengruppe"></svg>
+      <div class="panel-foot">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</div>
     </figure>
   </div>
 
   <section class="info card" id="info" aria-live="polite"></section>
 </main>
 
-<footer>Vorlage aus crystallography-common. Entstanden aus der Vorlesung Kristallographie an der ETH Zürich. <span id="app-version"></span></footer>
+<footer>Konventionen nach International Tables for Crystallography, Vol. A: <i>a</i> zeigt nach unten, <i>b</i> nach rechts, Ursprung oben links. Entstanden aus der Vorlesung Kristallographie an der ETH Zürich. <span id="app-version"></span></footer>
 
 <script type="module" src="js/main.js"></script>
 </body>
