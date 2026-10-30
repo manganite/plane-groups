@@ -6,6 +6,12 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Hinzugefügt
+
+- **Daten der 17 Ebenengruppen** nach ITA Vol. A (2006), Part 6 (`js/ebenengruppen.js`): Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe, Ursprung, asymmetrische Einheit, Operationen und ihre Beschreibung, Erzeugende, Wyckoff-Lagen mit orientierter Lagesymmetrie und Koordinaten, Auslöschungsbedingungen.
+- **Rechenkern** (`js/symmetrie.js`): Operationen lesen, verknüpfen und beschreiben wie in ITA („m 1/4,y“, „g(1/2,1/2) x,x“), Abschluss aus Erzeugenden, Punktgruppe, alle Symmetrieelemente der Elementarzelle (auch die Gleitspiegellinien, die das Symbol nicht nennt), Stabilisator, orientierte Lagesymmetrie, Wyckoff-Lage eines Punktes, Bahn, Strukturfaktor und Auslöschungen.
+- **Tests gegen ITA** für alle 17 Gruppen (`tests/ebenengruppen.test.mjs`): Gruppeneigenschaften, Erzeugende, Beschreibung der Operationen, Punktgruppe, Wyckoff-Lagen (Zähligkeit, Lagesymmetrie, Koordinaten, Erkennung auf einem Raster), asymmetrische Einheit (Fläche, lückenlose Zerlegung), Auslöschungen allgemein und je Lage, Symmetrieelemente je Zelle, Beispiele p4mm und c2mm, Dreiecksbeispiel.
+
 ## [0.1.0] - 2026-10-30
 
 ### Hinzugefügt
