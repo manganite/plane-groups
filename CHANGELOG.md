@@ -8,6 +8,9 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Modus „Ebenengruppen“** (Kern): Gruppenwahl; Symmetriegerüst der Elementarzelle (wahlweise 2 × 2) mit den Symbolen der ITA; Objekt (Fähnchen oder Kreis mit Komma) mit allen Bildern, ziehbar, mit Einrasten auf spezielle Lagen; asymmetrische Einheit; Muster; Kenndaten wie eine ITA-Seite mit „setzen“ je Wyckoff-Lage; Gitterparameter innerhalb des Kristallsystems; Färbung nach Blickrichtung; Zustand in der Link-Adresse (`js/zustand.js`, Format im README); Hilfetexte und Erste Schritte.
+- `js/zeichnung.js` (SVG der Tafeln, ohne DOM), `js/text.js` (Schreibweise wie in ITA), Tests `tests/zeichnung.test.mjs`, `tests/zustand.test.mjs`, `tests/text.test.mjs`.
+
 - **Daten der 17 Ebenengruppen** nach ITA Vol. A (2006), Part 6 (`js/ebenengruppen.js`): Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe, Ursprung, asymmetrische Einheit, Operationen und ihre Beschreibung, Erzeugende, Wyckoff-Lagen mit orientierter Lagesymmetrie und Koordinaten, Auslöschungsbedingungen.
 - **Rechenkern** (`js/symmetrie.js`): Operationen lesen, verknüpfen und beschreiben wie in ITA („m 1/4,y“, „g(1/2,1/2) x,x“), Abschluss aus Erzeugenden, Punktgruppe, alle Symmetrieelemente der Elementarzelle (auch die Gleitspiegellinien, die das Symbol nicht nennt), Stabilisator, orientierte Lagesymmetrie, Wyckoff-Lage eines Punktes, Bahn, Strukturfaktor und Auslöschungen.
 - **Tests gegen ITA** für alle 17 Gruppen (`tests/ebenengruppen.test.mjs`): Gruppeneigenschaften, Erzeugende, Beschreibung der Operationen, Punktgruppe, Wyckoff-Lagen (Zähligkeit, Lagesymmetrie, Koordinaten, Erkennung auf einem Raster), asymmetrische Einheit (Fläche, lückenlose Zerlegung), Auslöschungen allgemein und je Lage, Symmetrieelemente je Zelle, Beispiele p4mm und c2mm, Dreiecksbeispiel.
