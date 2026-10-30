@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Skript: Symmetrie in der Ebene</title>
+<meta name="description" content="Vorlage für das Skript einer App der Familie.">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#eceff2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1318" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="lib/common/fonts/fonts.css">
+<link rel="stylesheet" href="lib/common/css/base.css">
+<link rel="stylesheet" href="lib/common/css/skript.css">
+<style>
+/* Nur in diesem Skript: Stile eigener Abbildungen. Alles Gemeinsame steht in lib/common/css/skript.css. */
+.musterfig { max-width: 420px; margin-inline: auto; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Symmetrie in der Ebene</h1>
+    <p>Skript zur Einführung in die Kristallographie</p>
+  </div>
+  <div class="headtools">
+    <a class="linkcopy" href="skript.pdf" title="Das Skript als PDF (A4), zum Ausdrucken oder offline Lesen">PDF</a>
+    <a class="linkcopy" href="quiz.html">Quiz</a>
+    <a class="linkcopy" href="index.html">Zur App</a>
+  </div>
+</header>
+
+<div class="page">
+  <nav class="toc" aria-label="Inhalt">
+    <div class="card">
+      <details open>
+        <summary>Inhalt</summary>
+        <ol>
+          <li><a href="#kapitel1"><span class="nr">1</span>Ein Kapitel des Grundstoffs</a>
+            <ol>
+              <li><a href="#abschnitt1">Ein Abschnitt</a></li>
+              <li><a href="#abschnitt2">Ein Abschnitt mit Vertiefung</a></li>
+            </ol>
+          </li>
+          <li class="toc-teil">Vertiefungen</li>
+          <li><a href="#kapitel2"><span class="nr">2</span>Ein Vertiefungskapitel</a></li>
+        </ol>
+        <p class="toc-foot">Begriffe nach Borchardt-Ott &amp; Sowa, <i>Kristallographie</i> (2018).</p>
+      </details>
+    </div>
+  </nav>
+
+  <main>
+  <article>
+    <div class="box aufbau">
+      <h4>So ist das Skript aufgebaut</h4>
+      <p>Skript und App sind aus der Vorlesung Kristallographie an der ETH Zürich entstanden. Sie richten sich an alle, die eine Einführung in die Kristallographie hören oder einen vergleichbaren Hintergrund haben.</p>
+      <p>Der Text ohne Kennzeichnung behandelt den Grundstoff. Vertiefungen zeigen, wie diese Inhalte weitergehen; beim ersten Lesen kann man sie überspringen.</p>
+      <dl>
+        <dt><span class="swatch v"></span>Vertiefung</dt><dd>Kasten oder Abschnitt, der über den Grundstoff hinausführt. Der erste Satz sagt, woran er anknüpft und wozu man ihn braucht; bei ganzen Kapiteln steht das im Kasten „Voraussetzungen“.</dd>
+        <dt><span class="swatch g"></span>Grundlagen</dt><dd>Kurz zusammengefasstes Grundwissen, auf dem der Text aufbaut. Es gehört zum Haupttext.</dd>
+        <dt><span class="swatch"></span>In der App</dt><dd>Hinweis zur Bedienung der App.</dd>
+      </dl>
+    </div>
+
+    <section id="kapitel1">
+      <h2><span class="nr">1</span>Ein Kapitel des Grundstoffs</h2>
+      <p class="lead">Einleitung des Kapitels in zwei Sätzen: worum es geht und wozu.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>ein Lernziel, als Tätigkeit formuliert</li>
+          <li>ein zweites Lernziel</li>
+        </ul>
+      </div>
+
+      <section id="abschnitt1">
+        <h3>Ein Abschnitt</h3>
+        <p>Text in kurzen Absätzen. Ein <span class="term">Fachbegriff</span> wird beim ersten Auftreten erklärt.</p>
+        <div class="box grundlagen">
+          <h4>Grundlagen · <b>Thema</b></h4>
+          <p>Grundwissen, auf dem der Text aufbaut.</p>
+        </div>
+        <figure class="fig-card musterfig" id="fig-1-1" data-app="#m=a&amp;g=p4mm">
+          <div class="fig-art"><svg viewBox="0 0 520 520" role="img" aria-label="Muster einer Abbildung"></svg></div>
+          <figcaption><b>Abb. 1.1</b> Abbildungen zeichnet die App mit ihrem eigenen Code; „In der App öffnen“ führt in genau diese Ansicht.</figcaption>
+        </figure>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Ein Merksatz.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Ein Hinweis zur Bedienung.</p>
+        </div>
+      </section>
+
+      <section id="abschnitt2">
+        <h3>Ein Abschnitt mit Vertiefung</h3>
+        <p>Grundstoff.</p>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Thema</b></h4>
+          <p>Der erste Satz sagt, welchen Grundstoff die Vertiefung weiterführt und wozu man sie braucht.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>drei bis fünf Punkte</li>
+        </ul>
+      </div>
+      <p class="quizlink">Lernziele prüfen im Quiz: <a href="quiz.html?kap=1&amp;stufe=1" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 1</a></p>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Borchardt-Ott &amp; Sowa (2018), Abschn. …, S. …</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="teil">
+      <p class="teil-titel">Vertiefungen</p>
+      <p>Die folgenden Kapitel gehen über den Grundstoff hinaus.</p>
+    </div>
+
+    <section id="kapitel2" data-level="vertiefung">
+      <h2><span class="nr">2</span>Ein Vertiefungskapitel</h2>
+      <div class="box bezug">
+        <h4>Voraussetzungen</h4>
+        <p>Woran das Kapitel anknüpft und wohin es führt.</p>
+      </div>
+      <p>Text.</p>
+    </section>
+  </article>
+  </main>
+</div>
+
+<footer>
+  Skript zur App „Symmetrie in der Ebene“, Version <span data-version></span>. Abbildungen mit dem Code der App erzeugt.
+  <a href="index.html">Zur App</a> · <a href="https://github.com/manganite/crystallography-common">Quellcode</a>
+</footer>
+
+<script type="module" src="js/skript.js"></script>
+</body>
+</html>

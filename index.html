@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Symmetrie in der Ebene</title>
+<meta name="description" content="Vorlage für eine Lern-App der Familie: alle gemeinsamen Bausteine der Werkbank.">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#eceff2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1318" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="lib/common/fonts/fonts.css">
+<link rel="stylesheet" href="lib/common/css/base.css">
+<link rel="stylesheet" href="lib/common/css/app.css">
+<style>
+/* Nur in dieser App: Anordnung der Tafeln. Muster wie in der App „Stereographische Projektion“:
+   links die Seitenleiste, rechts zwei gleich grosse Tafeln, darunter die Kenndaten. */
+.layout {
+  max-width: 1480px; margin-inline: auto; display: grid; gap: 16px;
+  grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "side a b" "side info info";
+  align-items: start;
+}
+.figs { display: contents; }
+.p-a { grid-area: a; }
+.p-b { grid-area: b; }
+.info { grid-area: info; }
+@media (max-width: 999px) {
+  .layout { grid-template-columns: 270px minmax(0, 1fr); grid-template-areas: "side a" "side b" "side info"; }
+}
+.bild { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+@media (max-width: 719px) {
+  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "figs" "side" "info"; gap: 12px; }
+  .figs {
+    display: block; grid-area: figs; position: sticky; top: 0; z-index: 5;
+    background: var(--bg); padding-top: 6px; margin-inline: -4px; padding-inline: 4px;
+    box-shadow: 0 8px 10px -10px rgb(0 0 0 / 0.35);
+  }
+  body[data-fig="a"] .p-b, body[data-fig="b"] .p-a { display: none; }
+  .bild { width: min(100%, 38svh); margin-inline: auto; }
+}
+</style>
+</head>
+<body data-fig="a">
+<header class="top">
+  <div class="brand">
+    <h1>Symmetrie in der Ebene</h1>
+    <p>Alle gemeinsamen Bausteine der Werkbank</p>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Modus">
+    <button id="tab-a" role="tab" aria-selected="true">Modus A</button>
+    <button id="tab-b" role="tab" aria-selected="false">Modus B</button>
+  </div>
+  <div class="headtools">
+    <a class="linkcopy" href="skript.html">Skript</a>
+    <a class="linkcopy" href="quiz.html">Quiz</a>
+    <button class="linkcopy" id="copy-link" type="button" title="Link auf genau diese Ansicht in die Zwischenablage kopieren (z. B. für Folien)">Link kopieren</button>
+    <button class="helpbtn" id="help-open" type="button" aria-label="Erste Schritte" aria-controls="intro" aria-expanded="false">?</button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="side" aria-label="Bedienung">
+    <section class="card intro" id="intro" aria-labelledby="intro-title" hidden>
+      <div class="intro-head"><h2 id="intro-title">Erste Schritte</h2><button class="intro-x" id="intro-close" type="button" aria-label="Erste Schritte schliessen">×</button></div>
+      <ol class="steps">
+        <li><b>Gruppe wählen.</b> Ein Knopf je Gruppe, geordnet nach Kristallsystem. <button class="linkbtn" type="button" data-step="1">p4mm wählen</button></li>
+        <li><b>Darstellung ändern.</b> Weitere Optionen liegen in den eingeklappten Abschnitten. <button class="linkbtn" type="button" data-step="2">Darstellung öffnen</button></li>
+      </ol>
+      <p class="intro-foot"><span class="only-fine">Tooltips erklären jedes Bedienelement.</span><span class="only-coarse">Das ⓘ neben den Überschriften erklärt die Bedienelemente.</span></p>
+    </section>
+
+    <div class="card">
+      <section id="ctl-gruppe" class="stack">
+        <h2>Ebenengruppe</h2>
+        <div id="picker" class="picker" role="group" aria-label="Gruppe wählen"></div>
+        <p class="group-title">Anzeigen</p>
+        <label class="check"><input type="checkbox" id="opt-elemente" checked>Symmetrieelemente</label>
+        <label class="check"><input type="checkbox" id="opt-motiv">Motiv in allgemeiner Lage<span class="why"></span></label>
+        <details class="subsect">
+          <summary>Weitere Optionen <span class="subhint">Zelle, Beschriftung</span></summary>
+          <div class="stack">
+            <label class="check"><input type="checkbox" id="opt-zelle" checked>Elementarzelle</label>
+            <label class="check" id="row-beschr"><input type="checkbox" id="opt-beschr" disabled><span>Beschriftung<span class="why">nur mit „Motiv in allgemeiner Lage“</span></span></label>
+          </div>
+        </details>
+      </section>
+    </div>
+
+    <div class="card">
+      <details class="sect" id="sec-gitter">
+        <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
+        <div class="stack">
+          <div class="range">
+            <label for="lat-ba">b/a</label><output id="lat-ba-out">1.00</output>
+            <input type="range" id="lat-ba" min="0.5" max="2" step="0.01" value="1">
+          </div>
+          <div class="seg seg-text" role="group" aria-label="Zellentyp">
+            <button type="button" aria-pressed="true">primitiv</button>
+            <button type="button" aria-pressed="false">zentriert</button>
+          </div>
+          <button class="resetbtn" type="button">Gitter zurücksetzen</button>
+        </div>
+      </details>
+      <details class="sect" id="sec-view">
+        <summary>Darstellung<span class="sumhint">Farben, Achsen</span></summary>
+        <div class="stack">
+          <label class="check"><input type="checkbox" id="v-farben" checked>Symmetrieelemente nach Blickrichtung färben</label>
+          <label class="check"><input type="checkbox" id="v-achsen">Gitterachsen</label>
+          <div class="field">
+            <label for="v-wahl">Auswahl</label>
+            <select id="v-wahl"><option>erste Möglichkeit</option><option>zweite Möglichkeit</option></select>
+          </div>
+          <p class="hintline">Kurzer Hinweis unter einem Bedienelement.</p>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+  <div class="figs">
+    <figure class="panel p-a">
+      <div class="panel-head">
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Tafel A</button><button type="button" data-fig="b" aria-pressed="false">Tafel B</button></div>
+        <span class="t">Tafel A<small>Untertitel</small></span>
+        <div class="tools export" role="group" aria-label="Exportieren"><button type="button">Kopieren</button><button type="button">SVG</button></div>
+      </div>
+      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Muster einer Abbildung"></svg>
+      <div class="legend" id="legend"></div>
+    </figure>
+    <figure class="panel p-b">
+      <div class="panel-head">
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Tafel A</button><button type="button" data-fig="b" aria-pressed="false">Tafel B</button></div>
+        <span class="t">Tafel B</span>
+      </div>
+      <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Farben der Familie"></svg>
+      <div class="panel-foot">Fusszeile der Tafel, z. B. Bedienhinweis <span class="only-fine">für die Maus</span><span class="only-coarse">für Touch</span></div>
+    </figure>
+  </div>
+
+  <section class="info card" id="info" aria-live="polite"></section>
+</main>
+
+<footer>Vorlage aus crystallography-common. Entstanden aus der Vorlesung Kristallographie an der ETH Zürich. <span id="app-version"></span></footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

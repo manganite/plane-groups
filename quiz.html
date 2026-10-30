@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz: Symmetrie in der Ebene</title>
+<meta name="description" content="Vorlage für das Quiz einer App der Familie.">
+<link rel="icon" href="icons/favicon.ico" sizes="any">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#eceff2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1318" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="lib/common/fonts/fonts.css">
+<link rel="stylesheet" href="lib/common/css/base.css">
+<link rel="stylesheet" href="lib/common/css/quiz.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Symmetrie in der Ebene</h1>
+    <p>Quiz zur Einführung in die Kristallographie</p>
+  </div>
+  <div class="headtools">
+    <a class="linkcopy" href="skript.html">Skript</a>
+    <a class="linkcopy" href="index.html">Zur App</a>
+  </div>
+</header>
+
+<main class="quiz">
+  <!-- Auswahl -->
+  <section id="start" aria-labelledby="start-title">
+    <h2 id="start-title">Quiz</h2>
+    <p class="lead">Prüfen Sie, ob Sie die Lernziele des Skripts erreichen. Nach jeder Antwort sehen Sie eine Erklärung und den passenden Abschnitt im Skript.</p>
+    <div class="card leer" id="leer" hidden>
+      <h3>Noch keine Fragen</h3>
+      <p>Die Fragen werden gerade geprüft und erscheinen hier, sobald sie freigegeben sind.</p>
+    </div>
+    <form id="auswahl">
+      <fieldset class="card">
+        <legend class="sr">Stufe</legend>
+        <h3>Stufe</h3>
+        <div class="stufen" id="stufen"></div>
+        <p class="hint">Stufe 3 bedeutet mehr Stoff, nicht unbedingt schwierigere Fragen: Sie nimmt die Vertiefungen des Skripts dazu. Eine räumliche Frage der Stufe 1 kann deshalb anspruchsvoller sein als eine Rechnung der Stufe 3.</p>
+      </fieldset>
+      <fieldset class="card">
+        <legend class="sr">Kapitel</legend>
+        <h3>Kapitel</h3>
+        <div class="chips" id="kapitel"></div>
+        <p class="hint">Ausgegraute Kapitel haben in dieser Stufe noch keine Fragen.</p>
+      </fieldset>
+      <div class="card">
+        <h3>Anzahl Fragen</h3>
+        <div class="row">
+          <div class="seg" role="radiogroup" aria-label="Anzahl Fragen">
+            <label><input type="radio" name="anzahl" value="5"><span>5</span></label>
+            <label><input type="radio" name="anzahl" value="10" checked><span>10</span></label>
+            <label><input type="radio" name="anzahl" value="20"><span>20</span></label>
+          </div>
+          <button class="btn" type="submit" id="los">Quiz starten</button>
+        </div>
+      </div>
+    </form>
+    <div class="vorschau" id="vorschau" hidden>
+      <label class="schalter"><input type="checkbox" id="entwurf-schalter"> Auch ungeprüfte Fragen zeigen</label>
+      <p class="hint" id="entwurf-hinweis"></p>
+    </div>
+    <div class="card" id="stand-card">
+      <h3>Ihr Stand · <span id="stand-stufe"></span></h3>
+      <ul class="stand" id="stand"></ul>
+      <p class="hint">Gezählt werden die Fragen der gewählten Stufe und der Stufen darunter, wie in der Auswahl oben, und davon die, deren letzte Antwort richtig war. Der Stand wird nur in diesem Browser gespeichert. <button class="linkbtn" type="button" id="reset">Zurücksetzen</button></p>
+    </div>
+  </section>
+
+  <!-- Frage -->
+  <section id="frage-view" hidden aria-live="polite">
+    <div class="kopf">
+      <div class="fort" aria-hidden="true"><i id="fort"></i></div>
+      <span id="zaehler"></span>
+      <span class="tag" id="tag-kap"></span>
+      <span class="tag" id="tag-stufe"></span>
+      <span class="tag entwurf" id="tag-entwurf" hidden>Entwurf</span>
+      <button class="linkbtn abbrechen" type="button" id="abbrechen">Quiz beenden</button>
+    </div>
+    <p class="frage" id="frage"></p>
+    <p class="mehrfach-hinweis" id="mehrfach" hidden>Mehrere Antworten können richtig sein. Wählen Sie alle zutreffenden aus.</p>
+    <figure class="bild" id="bild" hidden><div class="fig-art"></div></figure>
+    <ul class="antworten" id="antworten"></ul>
+    <div class="aktionen">
+      <button class="btn" type="button" id="pruefen" hidden>Antwort prüfen</button>
+    </div>
+    <div class="rueck" id="rueck" hidden>
+      <h3 id="urteil"></h3>
+      <div class="warum" id="warum"></div>
+      <p id="erklaerung"></p>
+      <p class="lernziel" id="lernziel"></p>
+      <p class="links" id="links"></p>
+      <p class="quelle" id="quelle"></p>
+      <div class="aktionen"><button class="btn" type="button" id="weiter">Weiter</button></div>
+    </div>
+  </section>
+
+  <!-- Auswertung -->
+  <section id="ende" hidden aria-labelledby="ende-title">
+    <h2 id="ende-title">Auswertung</h2>
+    <div class="card">
+      <p class="ergebnis" id="ergebnis"></p>
+      <ul class="stand" id="ende-kap"></ul>
+    </div>
+    <div class="card" id="falsch-card">
+      <h3>Zum Nachlesen</h3>
+      <ol class="falschliste" id="falschliste"></ol>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="wiederholen">Falsch beantwortete wiederholen</button>
+      <button class="btn zweit" type="button" id="neu">Neues Quiz</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Symmetrie in der Ebene, Version <span data-version></span> · Quellen je Frage · <a href="https://github.com/manganite/crystallography-common">Quelltext auf GitHub</a></p>
+</footer>
+<script type="module" src="js/quiz.js"></script>
+</body>
+</html>
