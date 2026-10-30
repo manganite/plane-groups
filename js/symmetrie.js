@@ -520,6 +520,23 @@ export function lage(g, p, tol = TOL_LAGE) {
   throw new Error(`keine Wyckoff-Lage für (${p}) in ${g.daten.symbol}`);
 }
 
+/**
+ * Punkt auf der Wyckoff-Lage mit dem Buchstaben b. Die freien Parameter kommen möglichst aus p
+ * (so bleibt das Objekt in der Nähe); liegt das Ergebnis dann auf einer spezielleren Lage
+ * (z. B. „x,x“ von (0, 0) aus), werden allgemeine Werte genommen.
+ */
+export function punktAufLage(g, b, p) {
+  const w = g.daten.wyckoff.find((x) => x.b === b);
+  if (!w) throw new Error(`keine Wyckoff-Lage ${b} in ${g.daten.symbol}`);
+  const o = liesOp(w.koord[0]);
+  const versuche = [p.map(mod1), [0.137, 0.291], [0.213, 0.389], [0.371, 0.173], [0.083, 0.447]];
+  for (const q of versuche) {
+    const r = anwenden(o, q).map(mod1);
+    if (lage(g, r).buchstabe === b) return r;
+  }
+  throw new Error(`kein Punkt auf ${b} in ${g.daten.symbol} gefunden`);
+}
+
 // ---------------------------------------------------------------------------------------------
 // Auslöschungen
 // ---------------------------------------------------------------------------------------------

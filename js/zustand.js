@@ -46,8 +46,25 @@ export function startzustand() {
 const SYMBOLE = new Set(EBENENGRUPPEN.map((g) => g.symbol));
 const B = (v) => (v ? '1' : '0');
 const an = (s) => s === '1' || s === 'ja' || s === 'true';
-const zahl = (s, lo, hi) => { const v = Number(s); return Number.isFinite(v) && v >= lo && v <= hi ? v : null; };
+/** Zahl aus der Adresse („0.25“ oder Bruch „1/3“); fehlend, leer oder ausserhalb [lo, hi]: null. */
+function zahl(s, lo, hi) {
+  if (s === null || s === undefined || String(s).trim() === '') return null;
+  const m = String(s).trim().match(/^(-?\d+)\/(\d+)$/);
+  const v = m ? Number(m[1]) / Number(m[2]) : Number(s);
+  return Number.isFinite(v) && v >= lo && v <= hi ? v : null;
+}
 const kurz = (v, n = 4) => String(Number(v.toFixed(n)));
+/**
+ * Koordinate für die Adresse: exakt als Bruch, wenn sie einer mit kleinem Nenner ist (spezielle
+ * Lagen wie 1/3 bleiben so beim Neuladen speziell), sonst mit sechs Stellen.
+ */
+export function koordText(v) {
+  for (let n = 1; n <= 12; n++) {
+    const z = Math.round(v * n);
+    if (Math.abs(v - z / n) < 1e-9) return n === 1 ? String(z) : `${z}/${n}`;
+  }
+  return kurz(v, 6);
+}
 const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
@@ -59,8 +76,8 @@ export function hashVon(z) {
   const q = new URLSearchParams();
   q.set('m', z.modus);
   q.set('g', z.gruppe);
-  q.set('x', kurz(z.punkt[0]));
-  q.set('y', kurz(z.punkt[1]));
+  q.set('x', koordText(z.punkt[0]));
+  q.set('y', koordText(z.punkt[1]));
   for (const [k, f] of SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
   if (z.zellen !== s.zellen) q.set('zellen', String(z.zellen));
   if (z.form !== s.form) q.set('form', z.form);
@@ -69,7 +86,7 @@ export function hashVon(z) {
     const v = z.gitter[sys][k];
     if (Math.abs(v - GITTER_START[sys][k]) > 1e-9) q.set(k, kurz(v, 3));
   }
-  return '#' + q.toString();
+  return '#' + q.toString().replace(/%2F/g, '/'); // Brüche lesbar: x=1/3
 }
 
 /**
@@ -83,8 +100,9 @@ export function hashAnwenden(z, hash) {
   Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)) });
   if (q.get('m') === 'eg') z.modus = 'eg';
   if (SYMBOLE.has(q.get('g'))) z.gruppe = q.get('g');
+  // Koordinaten einzeln: eine fehlende behält ihren Startwert
   const x = zahl(q.get('x'), -1e6, 1e6); const y = zahl(q.get('y'), -1e6, 1e6);
-  if (x !== null && y !== null && q.get('x') !== '' && q.get('y') !== '') z.punkt = [x, y];
+  z.punkt = [x ?? s.punkt[0], y ?? s.punkt[1]];
   for (const [k, f] of SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
   if (q.get('zellen') === '2') z.zellen = 2;
   if (['fahne', 'komma'].includes(q.get('form'))) z.form = q.get('form');

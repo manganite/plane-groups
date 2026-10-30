@@ -182,6 +182,13 @@ function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab) {
 // Tafeln
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * Stelle des Ausgangsobjekts in den Zellen [0, n]²: der Punkt selbst, wenn er dort liegt
+ * (auch in einer anderen als der ersten Zelle), sonst sein Bild in der ersten Zelle.
+ * Ring in Tafel A und Trefferprüfung beim Ziehen verwenden dieselbe Stelle.
+ */
+export const ausgangsstelle = (p, n) => (p.every((v) => v >= 0 && v <= n) ? [...p] : p.map(mod1));
+
 /** Zellumriss [i, i+1] × [j, j+1] als Polygon. */
 const zellPoly = (A, i, j, n = 1) => [[i, j], [i, j + n], [i + n, j + n], [i + n, j]].map((p) => pt(A.zuBild(p))).join(' ');
 
@@ -215,7 +222,7 @@ export function tafelA(id, z, farben) {
   if (z.elemente) teile.push(elementeSVG(g, elementeImBereich(g, n), A, farben, z.farben));
   if (z.objekt) {
     teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1)}</g>`);
-    const q = A.zuBild(z.punkt.map(mod1));
+    const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="15" fill="none" stroke="${farben.accent}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`);
   }
   return { svg: teile.join(''), ansicht: A };

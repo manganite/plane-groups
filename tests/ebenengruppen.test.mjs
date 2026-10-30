@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import {
   gruppe, erzeugende, abschluss, gleichModGitter, punktgruppe, beschreibe, verknuepfen, translation,
-  liesOp, opText, elemente, stabilisator, lagesymbol, lage, bahn, strukturfaktor, verletzt, mod1, art,
+  liesOp, opText, elemente, stabilisator, lagesymbol, lage, bahn, strukturfaktor, verletzt, mod1, art, punktAufLage,
 } from '../js/symmetrie.js';
 
 // Reproduzierbarer Zufall (LCG), damit Fehlschläge nachvollziehbar sind
@@ -199,6 +199,21 @@ test('Lage: nahe einer speziellen Lage wird eingerastet, Angaben passen zusammen
       }
     }
   }
+});
+
+test('punktAufLage: jede Lage von jedem Ausgangspunkt aus erreichbar (Review PR #2)', () => {
+  for (const id of ALLE) {
+    const g = gruppe(id);
+    const starts = [[0.12, 0.31], ...g.daten.wyckoff.map((w) => punktAufLage(g, w.b, [0.12, 0.31]))];
+    for (const p of starts) for (const w of g.daten.wyckoff) {
+      assert.equal(lage(g, punktAufLage(g, w.b, p)).buchstabe, w.b, `${id}: ${w.b} von (${p})`);
+    }
+  }
+  // Beispiel aus dem Review: p4mm von 1a aus auf 4f
+  const g = gruppe('p4mm');
+  const p = punktAufLage(g, 'f', [0, 0]);
+  assert.equal(lage(g, p).buchstabe, 'f');
+  assert.ok(Math.abs(p[0] - p[1]) < 1e-12 || Math.abs(p[0] + p[1] - 1) < 1e-12);
 });
 
 test('Symmetrieelemente: Zahl der Drehpunkte und Linien je Zelle (Rand eingeschlossen)', () => {

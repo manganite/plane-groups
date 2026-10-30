@@ -90,3 +90,15 @@ test('Bilder: in der Zelle so viele wie die Zähligkeit der allgemeinen Lage', (
     assert.equal(innen.length, d.wyckoff[0].n, d.symbol);
   }
 });
+
+test('Ausgangsobjekt: Ring folgt dem Objekt auch in der zweiten Zelle (Review PR #2)', async () => {
+  const { ausgangsstelle } = await import('../js/zeichnung.js');
+  assert.deepEqual(ausgangsstelle([1.3, 0.4], 2), [1.3, 0.4]);
+  const r = ausgangsstelle([1.3, 0.4], 1);
+  assert.ok(Math.abs(r[0] - 0.3) < 1e-12 && r[1] === 0.4);
+  const z = { ...startzustand(), gruppe: 'p2', zellen: 2, punkt: [1.3, 0.4] };
+  const { svg, ansicht: A } = tafelA('p2', z, FARBEN);
+  const [x, y] = A.zuBild([1.3, 0.4]);
+  const m = svg.match(/class="ausgang" cx="([\d.]+)" cy="([\d.]+)"/);
+  assert.ok(Math.abs(Number(m[1]) - x) < 0.01 && Math.abs(Number(m[2]) - y) < 0.01);
+});

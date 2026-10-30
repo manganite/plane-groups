@@ -39,10 +39,35 @@ test('ungültige Werte werden ignoriert, ohne Modus kein Link', () => {
   assert.equal(hashAnwenden(z, '#g=p6'), false);
   hashAnwenden(z, '#m=eg&g=p7&x=abc&y=0.2&zellen=5&form=stern&ba=9');
   assert.equal(z.gruppe, 'p2mg');
-  assert.deepEqual(z.punkt, startzustand().punkt);
+  assert.deepEqual(z.punkt, [startzustand().punkt[0], 0.2]); // x ungültig: Startwert; y gültig
   assert.equal(z.zellen, 1);
   assert.equal(z.form, 'fahne');
   assert.equal(z.gitter.rechteckig.ba, GITTER_START.rechteckig.ba);
+});
+
+test('spezielle Lagen bleiben beim Neuladen speziell (Brüche exakt in der Adresse; Review PR #2)', async () => {
+  const { gruppe, lage, punktAufLage } = await import('../js/symmetrie.js');
+  for (const d of EBENENGRUPPEN) {
+    const g = gruppe(d.symbol);
+    for (const w of d.wyckoff) {
+      const z = { ...startzustand(), gruppe: d.symbol, punkt: punktAufLage(g, w.b, [0.3, 0.2]) };
+      const z2 = startzustand();
+      hashAnwenden(z2, hashVon(z));
+      assert.equal(lage(g, z2.punkt).buchstabe, w.b, `${d.symbol} ${w.b}: ${hashVon(z)}`);
+    }
+  }
+  const z = { ...startzustand(), gruppe: 'p3', punkt: [1 / 3, 2 / 3] };
+  assert.match(hashVon(z), /x=1\/3&y=2\/3/);
+});
+
+test('fehlende Koordinaten behalten den Startwert (Review PR #2)', () => {
+  const z = startzustand();
+  hashAnwenden(z, '#m=eg&g=p4mm');
+  assert.deepEqual(z.punkt, startzustand().punkt);
+  hashAnwenden(z, '#m=eg&g=p4mm&x=0.4');
+  assert.deepEqual(z.punkt, [0.4, startzustand().punkt[1]]);
+  hashAnwenden(z, '#m=eg&g=p4mm&x=&y=1/4');
+  assert.deepEqual(z.punkt, [startzustand().punkt[0], 0.25]);
 });
 
 test('Beispiel aus dem Konzept: #m=eg&g=p4gm&x=0.12&y=0.31', () => {

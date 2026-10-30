@@ -31,7 +31,7 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 |---|---|---|
 | `m` | Modus | **`eg`** (Ebenengruppen) |
 | `g` | Ebenengruppe | Symbol wie in ITA, z. B. `p4gm`, `p31m`; **`p2mg`** |
-| `x`, `y` | Lage des Objekts in Bruchkoordinaten | Zahlen, **`0.12`**, **`0.31`** |
+| `x`, `y` | Lage des Objekts in Bruchkoordinaten | Zahl oder Bruch (z. B. `1/3`; spezielle Lagen werden als Bruch geschrieben), **`0.12`**, **`0.31`** |
 | `el` | Symmetrieelemente | `0`, **`1`** |
 | `obj` | Objekt in allgemeiner Lage | `0`, **`1`** |
 | `ae` | asymmetrische Einheit | **`0`**, `1` |

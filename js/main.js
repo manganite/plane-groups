@@ -5,8 +5,8 @@ import { offline } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
-import { gruppe as gruppeVon, lage, liesOp, mod1, punktgruppe } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, metrik } from './zeichnung.js';
+import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, metrik, ausgangsstelle } from './zeichnung.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 
@@ -245,7 +245,7 @@ function svgPunkt(e) {
 }
 function naheObjekt(e) {
   if (!z.objekt || !ansichtA) return false;
-  const q = ansichtA.zuBild(z.punkt);
+  const q = ansichtA.zuBild(ausgangsstelle(z.punkt, z.zellen));
   const s = svgPunkt(e.touches ? e.touches[0] : e);
   const w = $('bild-a').getBoundingClientRect().width;
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
@@ -296,12 +296,7 @@ function aktualisieren() {
 }
 
 function wyckoffSetzen(b) {
-  const w = ebenengruppe(z.gruppe).wyckoff.find((x) => x.b === b);
-  const op = liesOp(w.koord[0]);
-  const p = z.punkt.map(mod1);
-  // Ausdruck mit den aktuellen Koordinaten als freie Parameter auswerten (z. B. „1/4,y“ → (¼, y))
-  const q = [op.R[0][0] * p[0] + op.R[0][1] * p[1] + op.t[0], op.R[1][0] * p[0] + op.R[1][1] * p[1] + op.t[1]].map(mod1);
-  z.punkt = q;
+  z.punkt = punktAufLage(gruppeVon(z.gruppe), b, z.punkt);
   aktualisieren();
 }
 
