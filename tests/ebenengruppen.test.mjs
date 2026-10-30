@@ -163,6 +163,44 @@ for (const id of ALLE) {
   });
 }
 
+test('Lage: Punkte ausserhalb der Zelle und am Zellrand (Review PR #1)', () => {
+  // ganzzahlig verschoben: dieselbe Lage wie in der Zelle
+  const l = lage(gruppe('p2'), [3, 0]);
+  assert.equal(l.buchstabe, 'a'); assert.equal(l.zaehligkeit, 1); assert.deepEqual(l.punkt, [0, 0]);
+  assert.equal(lage(gruppe('p4mm'), [-0.5, 2.5]).buchstabe, 'b');
+  // Bahn: Bilder knapp beiderseits des Zellrands sind derselbe Punkt
+  assert.equal(bahn(gruppe('p2'), [1e-12, 0]).length, 1);
+  assert.equal(bahn(gruppe('p2mm'), [1 - 1e-12, 0.3]).length, 2);
+});
+
+test('Lage: nahe einer speziellen Lage wird eingerastet, Angaben passen zusammen (Review PR #1)', () => {
+  const p6 = lage(gruppe('p6'), [6e-7, 0]);
+  assert.equal(p6.buchstabe, 'a'); assert.equal(p6.zaehligkeit, 1); assert.equal(p6.symbol, '6..');
+  const pm = lage(gruppe('pm'), [3e-7, 0.25]);
+  assert.equal(pm.buchstabe, 'a'); assert.equal(pm.zaehligkeit, 1); assert.equal(pm.symbol, '.m.');
+  assert.deepEqual(pm.punkt, [0, 0.25]);
+  // ausserhalb der Toleranz: allgemeine Lage
+  assert.equal(lage(gruppe('pm'), [1e-3, 0.25]).buchstabe, 'c');
+  // für jede spezielle Lage aller Gruppen: leicht verschobene Punkte rasten auf dieselbe Lage
+  // ein, und Zähligkeit und Lagesymmetrie stimmen mit ITA überein
+  const rnd = zufall(7);
+  for (const id of ALLE) {
+    const g = gruppe(id);
+    for (const w of g.daten.wyckoff.slice(1)) {
+      const q = [0.05 + 0.4 * rnd(), 0.05 + 0.4 * rnd()];
+      const o = liesOp(w.koord[0]);
+      const p = [o.R[0][0] * q[0] + o.R[0][1] * q[1] + o.t[0], o.R[1][0] * q[0] + o.R[1][1] * q[1] + o.t[1]];
+      for (const d of [[3e-7, 0], [0, -3e-7], [2e-7, 2e-7]]) {
+        const l2 = lage(g, [p[0] + d[0], p[1] + d[1]]);
+        assert.equal(l2.buchstabe, w.b, `${id} ${w.b}`);
+        assert.equal(l2.zaehligkeit, w.n, `${id} ${w.b}: Zähligkeit`);
+        assert.equal(l2.symbol, w.sym, `${id} ${w.b}: Lagesymmetrie`);
+        assert.equal(bahn(g, l2.punkt).length, w.n, `${id} ${w.b}: Bahn`);
+      }
+    }
+  }
+});
+
 test('Symmetrieelemente: Zahl der Drehpunkte und Linien je Zelle (Rand eingeschlossen)', () => {
   // Abgezählt in den Diagrammen von ITA Part 6 (Elementarzelle mit Rand); Linien, die die Zelle
   // nur in einer Ecke berühren, zählen nicht

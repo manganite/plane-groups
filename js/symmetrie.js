@@ -389,13 +389,31 @@ export const SYMMETRIERICHTUNGEN = {
 
 const parallel = (u, v) => nahe(u[0] * v[1] - u[1] * v[0], 0);
 
-/** Operationen der Gruppe, die p festhalten (mit passender ganzzahliger Translation). */
-export function stabilisator(g, p) {
+/**
+ * Toleranz für das Einrasten auf eine spezielle Lage (in Bruchkoordinaten). Ein Punkt, der
+ * näher an einer speziellen Lage liegt, gilt als auf ihr; lage() rastet ihn dorthin ein.
+ */
+export const TOL_LAGE = 1e-6;
+/** Toleranz für exakte Vergleiche an bereits eingerasteten Punkten (nur Rundungsfehler). */
+const TOL_EXAKT = 1e-9;
+
+/** Abstand zweier Punkte modulo Gitter (komponentenweise, in Bruchkoordinaten). */
+const abstandModGitter = (p, q) => {
+  const d0 = p[0] - q[0]; const d1 = p[1] - q[1];
+  return Math.max(Math.abs(d0 - Math.round(d0)), Math.abs(d1 - Math.round(d1)));
+};
+
+/**
+ * Operationen der Gruppe, die p festhalten (mit passender ganzzahliger Translation).
+ * Gedacht für exakte Punkte; einen gezogenen oder gerundeten Punkt erst mit lage() einrasten,
+ * sonst bilden die gefundenen Operationen nicht sicher eine Untergruppe.
+ */
+export function stabilisator(g, p, tol = TOL_EXAKT) {
   const out = [];
   for (const op of g.alle) {
     const q = anwenden(op, p);
-    const d = [q[0] - p[0], q[1] - p[1]];
-    if (ganz(d[0]) && ganz(d[1])) out.push({ R: op.R, t: [op.t[0] - Math.round(d[0]), op.t[1] - Math.round(d[1])] });
+    if (abstandModGitter(q, p) >= tol) continue;
+    out.push({ R: op.R, t: [op.t[0] - Math.round(q[0] - p[0]), op.t[1] - Math.round(q[1] - p[1])] });
   }
   return out;
 }
@@ -427,12 +445,12 @@ export function lagesymbol(g, stab) {
   return s;
 }
 
-/** Bahn von p: alle äquivalenten Punkte in [0, 1)², ohne Doppelte. */
-export function bahn(g, p) {
+/** Bahn von p: alle äquivalenten Punkte in [0, 1)², ohne Doppelte (modulo Gitter verglichen). */
+export function bahn(g, p, tol = TOL_EXAKT) {
   const out = [];
   for (const op of g.alle) {
     const q = anwenden(op, p).map(mod1);
-    if (!out.some((r) => nahe(r[0], q[0]) && nahe(r[1], q[1]))) out.push(q);
+    if (!out.some((r) => abstandModGitter(r, q) < tol)) out.push(q);
   }
   return out;
 }
@@ -443,9 +461,13 @@ function liesKoord(text) {
   return { M: op.R, c: op.t };
 }
 
-/** Freie Parameter, für die M·q + c ≡ p (mod 1), oder null. */
-function parameterFuer(M, c, p) {
+/**
+ * Nächster Punkt der Menge { M·q + c } modulo Gitter zu p (p in [0, 1)²), wenn er näher als tol
+ * liegt; sonst null. Ergebnis: der eingerastete Punkt in [0, 1)².
+ */
+function einrasten(M, c, p, tol) {
   const spalten = [0, 1].filter((k) => !nahe(M[0][k], 0) || !nahe(M[1][k], 0));
+  // c liegt in ITA in [0, 1), p in [0, 1): Gitterverschiebungen −2 … 2 decken alle Fälle ab
   for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
     const v = [p[0] - c[0] - i, p[1] - c[1] - j];
     let q = [0, 0];
@@ -458,7 +480,9 @@ function parameterFuer(M, c, p) {
       q = [(M[1][1] * v[0] - M[0][1] * v[1]) / d, (-M[1][0] * v[0] + M[0][0] * v[1]) / d];
     }
     const r = matVec(M, q);
-    if (nahe(r[0], v[0], 1e-7) && nahe(r[1], v[1], 1e-7)) return q;
+    if (Math.abs(r[0] - v[0]) < tol && Math.abs(r[1] - v[1]) < tol) {
+      return [mod1(r[0] + c[0]), mod1(r[1] + c[1])];
+    }
   }
   return null;
 }
@@ -471,20 +495,26 @@ const freiheitsgrade = (text) => {
 };
 
 /**
- * Lage des Punktes p: Wyckoff-Lage nach ITA mit Buchstabe, Zähligkeit, Lagesymmetrie und
- * Freiheitsgraden, dazu die berechnete Lagesymmetrie und Zähligkeit.
+ * Lage des Punktes p. Der Punkt wird modulo Gitter reduziert und auf die speziellste
+ * Wyckoff-Lage eingerastet, die näher als tol liegt (Punkte vor Linien vor der allgemeinen
+ * Lage). Stabilisator, Lagesymmetrie und Zähligkeit gelten für den eingerasteten Punkt; damit
+ * passen sie immer zur gefundenen Wyckoff-Lage.
+ * Ergebnis: { punkt (eingerastet, in [0, 1)²), wyckoff, buchstabe, zaehligkeit, symbol,
+ *             freiheitsgrade, allgemein }
  */
-export function lage(g, p) {
-  const stab = stabilisator(g, p);
-  const symbol = lagesymbol(g, stab);
-  const zaehligkeit = g.ordnung / stab.length;
+export function lage(g, p, tol = TOL_LAGE) {
+  const p0 = p.map(mod1);
   const kandidaten = [...g.daten.wyckoff].sort((u, v) => freiheitsgrade(u.koord[0]) - freiheitsgrade(v.koord[0]));
   for (const w of kandidaten) {
     for (const z of g.zentr) for (const k of w.koord) {
       const { M, c } = liesKoord(k);
-      if (parameterFuer(M, [c[0] + z[0], c[1] + z[1]], p)) {
-        return { wyckoff: w, buchstabe: w.b, zaehligkeit, symbol, freiheitsgrade: freiheitsgrade(w.koord[0]), allgemein: stab.length === 1 };
-      }
+      const punkt = einrasten(M, [c[0] + z[0], c[1] + z[1]], p0, tol);
+      if (!punkt) continue;
+      const stab = stabilisator(g, punkt);
+      return {
+        punkt, wyckoff: w, buchstabe: w.b, zaehligkeit: g.ordnung / stab.length, symbol: lagesymbol(g, stab),
+        freiheitsgrade: freiheitsgrade(w.koord[0]), allgemein: stab.length === 1,
+      };
     }
   }
   throw new Error(`keine Wyckoff-Lage für (${p}) in ${g.daten.symbol}`);
