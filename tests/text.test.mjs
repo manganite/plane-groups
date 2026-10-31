@@ -35,3 +35,18 @@ test('Auslöschungen, Zahlen, Lagesymmetrie', () => {
   assert.equal(zahlText(0.123), '0.123');
   gleich(ohneTags(lageHTML('2mm.')), '2mm.');
 });
+
+test('Verweis in die Stereo-App: Pedion mit Flächenmuster für jede Punktgruppe der Ebene', async () => {
+  const { stereoLink, stereoHinweis, PEDION } = await import('../js/verweise.js');
+  const { EBENENGRUPPEN } = await import('../js/ebenengruppen.js');
+  // die 10 Punktgruppen der Ebene, je ein Pedion (Eintrag a1 der Stereo-App)
+  assert.equal(Object.keys(PEDION).length, 10);
+  for (const d of EBENENGRUPPEN) {
+    const l = stereoLink(d);
+    assert.match(l, /^https:\/\/manganite\.github\.io\/stereography\/#m=form&sys=[a-z]+&f=[0-9a-z]+:a1&muster=1$/, d.symbol);
+    assert.ok(!/undefined/.test(stereoHinweis(d)), d.symbol);
+  }
+  const p4mm = EBENENGRUPPEN.find((d) => d.symbol === 'p4mm');
+  assert.equal(stereoLink(p4mm), 'https://manganite.github.io/stereography/#m=form&sys=tetragonal&f=4mm:a1&muster=1');
+  assert.match(stereoHinweis(EBENENGRUPPEN.find((d) => d.symbol === 'p31m')), /3m1.*30°/);
+});

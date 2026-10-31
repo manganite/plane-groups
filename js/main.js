@@ -11,10 +11,10 @@ import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
+import { stereoLink, stereoHinweis } from './verweise.js';
 
 const $ = (id) => document.getElementById(id);
 const REPO = 'https://github.com/manganite/plane-groups';
-const STEREO = 'https://manganite.github.io/stereography/';
 const coarse = window.matchMedia('(pointer: coarse)');
 
 // ------------------------------------------------------------------ Zustand
@@ -192,11 +192,6 @@ function legende(f) {
 
 // ------------------------------------------------------------------ Kenndaten
 /** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
-const STEREO_ID = { 1: '1', 2: '2c', m: 'mb', '2mm': 'mm2', 4: '4', '4mm': '4mm', 3: '3', 6: '6', '6mm': '6mm' };
-function stereoId(daten) {
-  if (daten.punktgruppe === '3m') return daten.symbol === 'p31m' ? '31m' : '3m1';
-  return STEREO_ID[daten.punktgruppe];
-}
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
 const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
 const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
@@ -260,8 +255,7 @@ function kenndaten() {
       <td><button class="setzen" type="button" data-wy="${w.b}" ${z.objekt ? '' : 'disabled'} title="Objekt auf diese Lage setzen">setzen</button></td></tr>`;
   }).join('');
   const wyTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Zähligkeit, Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th>Koordinaten${zentriert ? ' (0, 0)+ (½, ½)+' : ''}</th><th>Auslöschungen</th><th></th></tr></thead><tbody>${wyZeilen}</tbody></table></div>`;
-  const sid = stereoId(d);
-  const pgLink = `<a href="${STEREO}#m=pg&amp;g=${encodeURIComponent(sid)}" target="_blank" rel="noopener" title="Punktgruppe in der App „Stereographische Projektion“ öffnen${d.punktgruppe === 'm' ? ' (dort mit Spiegelebene ⊥ b)' : ''}">${symbolHTML(d.punktgruppe)}</a>`;
+  const pgLink = `<a href="${stereoLink(d).replace(/&/g, '&amp;')}" target="_blank" rel="noopener" title="${stereoHinweis(d)}">${symbolHTML(d.punktgruppe)}</a>`;
   const fokus = fokusMerken();
   $('info').innerHTML = `
     <div class="info-head">
@@ -289,7 +283,7 @@ function kenndaten() {
     <h3>Lagen (Wyckoff-Lagen)</h3>${wyTab}
     <details class="explain"><summary>Erläuterungen</summary>
       <p class="note">Aufbau wie eine Seite in den International Tables for Crystallography, Vol. A, Part 6. Koordinaten in Bruchteilen von <i>a</i> und <i>b</i>; <span class="ov"><i>x</i></span> steht für −<i>x</i>. Die Lagesymmetrie ist orientiert: Die erste Stelle nennt die Drehung, die zweite und dritte die Spiegellinien, deren Normale in der jeweiligen Blickrichtung liegt; ein Punkt heisst „keine“.</p>
-      <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Sie führt in die App „Stereographische Projektion“, dort mit der Drehachse senkrecht zur Ebene.</p>
+      <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Der Link öffnet in der App „Stereographische Projektion“ das Pedion, eine einzelne Kristallfläche: Die 10 Punktgruppen der Ebene entsprechen den 10 polaren Punktgruppen, und das Muster auf dem Pedion hat genau die Punktgruppe der Ebene. Drehachsen stehen dort senkrecht auf der Fläche, Spiegelebenen enthalten ihre Normale.</p>
     </details>`;
   fokusWiederherstellen(fokus);
 }

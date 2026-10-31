@@ -26,6 +26,7 @@ const FILES = [
   'js/skript.js',
   'js/symmetrie.js',
   'js/text.js',
+  'js/verweise.js',
   'js/version.js',
   'js/warum.js',
   'js/zeichnung.js',
