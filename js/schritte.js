@@ -4,11 +4,11 @@
 // Zähligkeit der Wyckoff-Lage.
 
 import { opName } from './warum.js';
-import { koordHTML, zahlText } from './text.js';
+import { koordHTML, koordText } from './text.js';
 import { opNummer } from './zeichnung.js';
 
 /** Stelle wie in der Lage-Anzeige der Kenndaten: „(0.120, 0.310)“, Brüche exakt. */
-const stelle = (p) => `(${p.map((v) => zahlText(v).replace(/^-/, '−')).join(', ')})`;
+const stelle = (p) => koordText(p);
 
 /**
  * HTML des Kastens. d: schrittDaten(); daten: Gruppe aus ebenengruppen.js; l: lage() des Objekts;
