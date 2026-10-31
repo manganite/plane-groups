@@ -94,22 +94,24 @@ export function regel(A, B, C, M) {
  * M: Metrik; phase: angezeigter Schritt (0 … 3). Knöpfe: data-phase, data-abspielen,
  * data-erkl-zu (schliessen), data-erkl (Element von B wählen).
  */
-/** Wie C das Fähnchen bewegt, passend zum Weg in Tafel A (zeichnung.js, wegUnterC). */
-export function wegText(C) {
-  const a = art(C);
-  if (a.art === 'gleit') return 'zuerst gespiegelt an der Gleitspiegellinie (blasses Zwischenbild), dann um die Gleitkomponente entlang der Linie verschoben. Beide Teile gehören zu der einen Operation';
-  if (a.art === 'spiegel') return 'gespiegelt an der Spiegellinie';
-  if (a.art === 'dreh') return 'gedreht um den Drehpunkt';
-  return 'verschoben';
+/** Wie eine Operation das Fähnchen bewegt, passend zu ihrem Weg in Tafel A (zeichnung.js, weg). */
+export function wegText(op) {
+  const a = art(op);
+  if (a.art === 'gleit') return 'spiegelt es an der Gleitspiegellinie (blasses Zwischenbild) und verschiebt es dann um die Gleitkomponente entlang der Linie. Beide Teile gehören zu der einen Operation';
+  if (a.art === 'spiegel') return 'spiegelt es an der Spiegellinie';
+  if (a.art === 'dreh') return 'dreht es um den Drehpunkt';
+  return 'verschiebt es';
 }
 
 export function erklaerungHTML(g, d, M, phase) {
   const badge = (k) => `<span class="ab ${k.toLowerCase()}">${k}</span>`;
+  const stelle = (i, klasse = `st${i}`) => `<span class="st ${klasse}" title="Stelle ${i}">${i}</span>`;
   const kopf = `<h3>Warum ist da ${elementName(d.element, true)}?</h3>`;
   const phasen = (namen) => `<div class="phasen">${namen.map(([p, t]) => `<button type="button" data-phase="${p}" aria-pressed="${phase === p}">${t}</button>`).join('')}<button type="button" data-abspielen>Abspielen</button><button class="linkbtn" type="button" data-erkl-zu>Schliessen</button></div>`;
   if (d.erzeugende) {
     const nr = g.ops.findIndex((o) => o.R.every((r, i) => r.every((v, j) => v === d.C.R[i][j])) && o.t.every((v, i) => nahe(v, d.C.t[i])));
     return `${kopf}<p>Sie gehört zur ${opName(d.C)}. Diese Operation ist eine der Erzeugenden der Gruppe nach den International Tables${nr >= 0 ? ` („Generators selected“: (${nr + 1}))` : ''}. Aus den Erzeugenden und den Gittertranslationen folgen alle übrigen Symmetrieelemente.</p>
+      <ul class="wege"><li>${badge('C')} ${stelle(0)} → ${stelle(1, 'stc')}: ${wegText(d.C)}.</li></ul>
       ${phasen([[0, 'Ausgangsobjekt'], [3, 'Bild unter C']])}`;
   }
   const r = regel(d.A, d.B, d.C, M);
@@ -124,8 +126,12 @@ export function erklaerungHTML(g, d, M, phase) {
     <p class="gleichung">${badge('C')} = ${badge('A')} ∘ ${badge('B')}: zuerst ${badge('B')}, dann ${badge('A')}.</p>
     <p>${badge('B')} ${opName(d.B)}<br>${badge('A')} ${opName(d.A)}</p>
     ${r ? `<p class="regel">${r}</p>` : ''}
-    <p class="note">Das Fähnchen zeigt es: ${badge('B')} bringt es zur Stelle 1, ${badge('A')} von dort zur Stelle 2. ${badge('C')} führt es an dieselbe Stelle, mit derselben Orientierung: ${wegText(d.C)}.</p>
-    ${phasen([[0, 'Ausgangsobjekt'], [1, '1 zuerst B'], [2, '2 dann A'], [3, 'zusammen: C']])}
+    <ul class="wege">
+      <li>${badge('B')} ${stelle(0)} → ${stelle(1)}: ${wegText(d.B)}.</li>
+      <li>${badge('A')} ${stelle(1)} → ${stelle(2)}: ${wegText(d.A)}.</li>
+      <li>${badge('C')} ${stelle(0)} → ${stelle(2)}: ${wegText(d.C)}. Das Fähnchen landet an derselben Stelle, mit derselben Orientierung.</li>
+    </ul>
+    ${phasen([[0, 'Ausgangsobjekt'], [1, 'zuerst B'], [2, 'dann A'], [3, 'zusammen: C']])}
     ${woher ? `<p>${woher}</p>` : ''}
     ${kette}`;
 }

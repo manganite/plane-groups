@@ -161,20 +161,40 @@ test('Aufbau: Auswahl gilt der sichtbaren Zähligkeit (Review PR #3)', async () 
   assert.ok(sichtbar(g4, 1, 1).linien.length < elementeImBereich(g4, 1).linien.length);
 });
 
-test('Weg unter C wie die Operation wirkt: Gleitspiegelung in zwei Teilen, Drehung als Bogen', () => {
-  const weg = (id, art) => {
-    const g = gruppe(id);
-    const el = elementeImBereich(g, 1)[art === 'dreh' ? 'drehpunkte' : 'linien'].find((x) => (x.art ?? 'dreh') === art && herkunftVon(g, x).tiefe > 1);
-    const z = { ...startzustand(), gruppe: id, erkl: elementSchluessel(el) };
-    const svg = tafelA(id, z, FARBEN, { phase: 3 }).svg;
-    return svg.slice(svg.indexOf('class="erklaerung"'));
-  };
-  const gl = weg('p4mm', 'gleit');
-  assert.equal((gl.match(/<polyline/g) || []).length, 2, 'Spiegelung, dann Verschiebung');
-  assert.match(gl, /<g opacity="0.45">/, 'blasses Zwischenbild');
-  const dr = weg('p4mm', 'dreh');
-  const pl = dr.match(/<polyline points="([^"]+)"/g);
-  assert.equal(pl.length, 1);
-  assert.ok(pl[0].split(' ').length > 10, 'Bogen statt gerader Linie');
-  assert.match(erklaerungHTML(gruppe('p4mm'), erklaerungsDaten(gruppe('p4mm'), elementSchluessel(elementeImBereich(gruppe('p4mm'), 1).linien.find((x) => x.art === 'gleit')), [0.12, 0.31], 1, metrik(GITTER_START.quadratisch)), metrik(GITTER_START.quadratisch), 3), /zuerst gespiegelt an der Gleitspiegellinie/);
+test('Wege von B, A und C wie die Operationen wirken; Stellen nummeriert, Operationen mit Buchstaben', () => {
+  const svgVon = (id, k) => tafelA(id, { ...startzustand(), gruppe: id, erkl: k }, FARBEN, { phase: 3 }).svg;
+  const weg = (svg, name) => { const i = svg.indexOf(`class="weg weg-${name}"`); return i < 0 ? '' : svg.slice(i, svg.indexOf('class="weg ', i + 10) > 0 ? svg.indexOf('class="weg ', i + 10) : undefined); };
+  // p4gm, Gleitspiegellinie x, 1/4: B Drehung 180° (Bogen), A Gleitspiegelung (zwei Teile, Zwischenbild)
+  const svg = svgVon('p4gm', 'g;0,1/4;1,0');
+  const g = gruppe('p4gm');
+  const [s] = herleitung(g, herkunftVon(g, elementeImBereich(g, 1).linien.find((x) => elementSchluessel(x) === 'g;0,1/4;1,0')).schluessel);
+  assert.equal(beschreibe(s.b), '2 0,0');
+  assert.equal(beschreibe(s.a), 'b 1/4,y');
+  const b = weg(svg, 'b'); const a = weg(svg, 'a'); const c = weg(svg, 'c');
+  assert.ok(b.match(/<polyline points="([^"]+)"/)[1].split(' ').length > 10, 'B: Bogen');
+  assert.equal((a.match(/<polyline/g) || []).length, 2, 'A: Spiegelung, dann Verschiebung');
+  assert.match(a, /<g opacity="0.45">/, 'A: Zwischenbild');
+  assert.equal((c.match(/<polyline/g) || []).length, 2, 'C: Spiegelung, dann Verschiebung');
+  for (const [w, x] of [[b, 'B'], [a, 'A'], [c, 'C']]) assert.match(w, new RegExp(`>${x}</text>`), `Buchstabe ${x} am Weg`);
+  for (const i of ['0', '1', '2']) assert.match(svg, new RegExp(`class="stelle">.*?>${i}</text>`), `Stelle ${i}`);
+  // Text: Stellen mit Zahlen, Knöpfe ohne Nummern
+  const M = metrik(GITTER_START.quadratisch);
+  const html = erklaerungHTML(g, erklaerungsDaten(g, 'g;0,1/4;1,0', [0.12, 0.31], 1, M), M, 3);
+  assert.match(html, /dreht es um den Drehpunkt/);
+  assert.match(html, /spiegelt es an der Gleitspiegellinie/);
+  assert.match(html, />zuerst B</);
+  assert.match(html, />dann A</);
+  // die Ansicht enthält die ganzen Bögen
+  for (const id of ALLE) {
+    const gg = gruppe(id);
+    const d = EBENENGRUPPEN.find((x) => x.symbol === id);
+    for (const el of [...elementeImBereich(gg, 1).drehpunkte, ...elementeImBereich(gg, 1).linien]) {
+      const z = { ...startzustand(), gruppe: id, erkl: elementSchluessel(el) };
+      const { erklaerung: e, ansicht: An } = tafelA(id, z, FARBEN, { phase: 3 });
+      for (const w of Object.values(e.wege)) for (const p of w.teile.flat()) {
+        const q = An.zuBild(p);
+        assert.ok(q[0] > -1 && q[0] < 521 && q[1] > -1 && q[1] < 521, `${id} ${z.erkl} (${d.system})`);
+      }
+    }
+  }
 });

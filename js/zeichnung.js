@@ -263,7 +263,8 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
   let box = zellBox(M, n);
   if (erkl) {
-    for (const p of [erkl.start, anwenden(erkl.B, erkl.start), anwenden(erkl.C, erkl.start), ...(erkl.zwischen ? [erkl.zwischen] : [])]) {
+    // alle Punkte der Wege (Bögen, Zwischenbilder) und die Stellen der Fähnchen
+    for (const p of [erkl.start, ...Object.values(erkl.wege).flatMap((w) => w.teile.flat())]) {
       const c = kart(M, p); const r = 0.12 * Math.max(1, z.gitter[sys].ba);
       box = [Math.min(box[0], c[0] - r), Math.min(box[1], c[1] - r), Math.max(box[2], c[0] + r), Math.max(box[3], c[1] + r)];
     }
@@ -322,20 +323,27 @@ export function erklaerungsDaten(g, schluessel, p, n, M) {
   const kette = herleitung(g, e.schluessel);
   const erst = kette[0];
   const C = e.op; const A = erst.a; const B = erst.b;
+  const erzeugende = B.R[0][0] === 1 && B.R[1][1] === 1 && !B.R[0][1] && !B.R[1][0] && !B.t[0] && !B.t[1];
+  const wegeVon = (s) => {
+    const sB = anwenden(B, s);
+    return erzeugende ? { C: weg(C, s, M) } : { B: weg(B, s, M), A: weg(A, sB, M), C: weg(C, s, M) };
+  };
   const mitte = kart(M, [n / 2, n / 2]);
   const p0 = p.map(mod1);
   let best = null;
-  const zen = g.zentr;
-  for (const z of zen) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+  for (const z of g.zentr) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
     const s = [p0[0] + i + z[0], p0[1] + j + z[1]];
-    const m = spiegelanteil(C);
-    const kosten = [s, anwenden(B, s), anwenden(C, s), ...(m ? [anwenden(m, s)] : [])].reduce((sum, q) => {
+    // Stellen, Zwischenbilder und die Mitten der Wege möglichst nahe an der Mitte der Zellen
+    const punkte = [s];
+    for (const w of Object.values(wegeVon(s))) {
+      for (const t of w.teile) punkte.push(t[t.length - 1], t[Math.floor(t.length / 2)]);
+    }
+    const kosten = punkte.reduce((sum, q) => {
       const c = kart(M, q); return sum + (c[0] - mitte[0]) ** 2 + (c[1] - mitte[1]) ** 2;
     }, 0);
     if (!best || kosten < best.kosten - 1e-12) best = { s, kosten };
   }
-  const m = spiegelanteil(C);
-  return { schluessel, element: e.element, tiefe: e.tiefe, C, A, B, kette, start: best.s, zwischen: m ? anwenden(m, best.s) : null, erzeugende: B.R[0][0] === 1 && B.R[1][1] === 1 && !B.R[0][1] && !B.R[1][0] && !B.t[0] && !B.t[1] };
+  return { schluessel, element: e.element, tiefe: e.tiefe, C, A, B, kette, start: best.s, wege: wegeVon(best.s), erzeugende };
 }
 
 /** Element einer Operation als SVG (Drehpunkt oder Linie über den sichtbaren Bereich). */
@@ -350,20 +358,6 @@ function opElementSVG(g, op, A, farbe, papier, n, breit = false) {
   if (!s) return '';
   const [p, q] = s.map(A.zuBild);
   return `${linieSVG(p, q, 'spiegel', farbe, breit ? 11 : 8).replace('<line', '<line stroke-opacity="0.25"')}${linieSVG(p, q, el.typ, farbe, 3)}`;
-}
-
-/** Pfeil zwischen zwei Bildpunkten mit Nummer in der Mitte. */
-function pfeilSVG(p, q, farbe, papier, nummer, gestrichelt = false) {
-  const dx = q[0] - p[0]; const dy = q[1] - p[1]; const l = Math.hypot(dx, dy);
-  if (l < 4) return '';
-  const ux = dx / l; const uy = dy / l;
-  const e = [q[0] - 8 * ux, q[1] - 8 * uy]; // Spitze etwas vor dem Ziel
-  const a = [p[0] + 8 * ux, p[1] + 8 * uy];
-  const spitze = [[e[0], e[1]], [e[0] - 9 * ux + 4.5 * uy, e[1] - 9 * uy - 4.5 * ux], [e[0] - 9 * ux - 4.5 * uy, e[1] - 9 * uy + 4.5 * ux]];
-  const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
-  return `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(e[0] - 6 * ux)}" y2="${f2(e[1] - 6 * uy)}" stroke="${farbe}" stroke-width="2.2"${gestrichelt ? ' stroke-dasharray="5 4"' : ''}/>`
-    + `<polygon points="${spitze.map(pt).join(' ')}" fill="${farbe}"/>`
-    + (nummer ? `<circle cx="${f2(m[0])}" cy="${f2(m[1])}" r="9" fill="${papier}" stroke="${farbe}" stroke-width="1.6"/><text x="${f2(m[0])}" y="${f2(m[1] + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="${farbe}" text-anchor="middle" dominant-baseline="middle">${nummer}</text>` : '');
 }
 
 /** Gestrichelter Weg durch Bildpunkte mit Pfeilspitze am Ende (Spitze etwas vor dem Ziel). */
@@ -382,38 +376,57 @@ function wegSVG(punkte, farbe) {
 }
 
 /**
- * Weg des Fähnchens unter C, so wie die Operation wirkt: Translation gerade; Drehung als Bogen
- * um den Drehpunkt; Spiegelung senkrecht zur Linie; Gleitspiegelung in zwei Teilen, zuerst
- * gespiegelt (Zwischenbild blass), dann um die Gleitkomponente parallel zur Linie verschoben.
+ * Weg des Fähnchens von s unter einer Operation, so wie sie wirkt (Bruchkoordinaten):
+ * Translation gerade; Drehung als Bogen um den Drehpunkt; Spiegelung senkrecht zur Linie;
+ * Gleitspiegelung in zwei Teilen, zuerst gespiegelt (Zwischenbild), dann um die
+ * Gleitkomponente parallel zur Linie verschoben. teile: Liste von Punktfolgen;
+ * zwischen: { p, op } Zwischenbild der Gleitspiegelung oder null.
  */
-function wegUnterC(C, s, M, A, farbe, fahne) {
-  const det = C.R[0][0] * C.R[1][1] - C.R[0][1] * C.R[1][0];
-  const q0 = A.zuBild(s); const q1 = A.zuBild(anwenden(C, s));
+export function weg(op, s, M) {
+  const ziel = anwenden(op, s);
+  const det = op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0];
   if (det < 0) {
-    const m = spiegelanteil(C);
-    if (!m) return wegSVG([q0, q1], farbe);
-    const sm = anwenden(m, s); const qm = A.zuBild(sm);
-    return `<g opacity="0.45">${fahne(sm, m, farbe)}</g>${wegSVG([q0, qm], farbe)}${wegSVG([qm, q1], farbe)}`;
+    const m = spiegelanteil(op);
+    if (!m) return { teile: [[s, ziel]], zwischen: null };
+    const sm = anwenden(m, s);
+    return { teile: [[s, sm], [sm, ziel]], zwischen: { p: sm, op: m } };
   }
-  const istT = C.R[0][0] === 1 && C.R[1][1] === 1 && !C.R[0][1] && !C.R[1][0];
-  if (istT) return wegSVG([q0, q1], farbe);
-  // Drehpunkt: (I − R) c = t
-  const a = 1 - C.R[0][0]; const b = -C.R[0][1]; const c = -C.R[1][0]; const d = 1 - C.R[1][1];
+  const istT = op.R[0][0] === 1 && op.R[1][1] === 1 && !op.R[0][1] && !op.R[1][0];
+  if (istT) return { teile: [[s, ziel]], zwischen: null };
+  // Drehpunkt: (I − R) c = t; Bogen kartesisch um den Drehwinkel
+  const a = 1 - op.R[0][0]; const b = -op.R[0][1]; const c = -op.R[1][0]; const d = 1 - op.R[1][1];
   const D = a * d - b * c;
-  const qc = A.zuBild([(d * C.t[0] - b * C.t[1]) / D, (a * C.t[1] - c * C.t[0]) / D]);
-  const K = kartMatrix(M, C.R);
+  const cc = kart(M, [(d * op.t[0] - b * op.t[1]) / D, (a * op.t[1] - c * op.t[0]) / D]);
+  const cs = kart(M, s);
+  const K = kartMatrix(M, op.R);
   const theta = Math.atan2(K[1][0], K[0][0]);
   const N = 32;
-  const punkte = Array.from({ length: N + 1 }, (_, k) => {
-    const w = (theta * k) / N; const x = q0[0] - qc[0]; const y = q0[1] - qc[1];
-    return [qc[0] + Math.cos(w) * x - Math.sin(w) * y, qc[1] + Math.sin(w) * x + Math.cos(w) * y];
+  const bogen = Array.from({ length: N + 1 }, (_, k) => {
+    if (k === N) return ziel;
+    const w = (theta * k) / N; const x = cs[0] - cc[0]; const y = cs[1] - cc[1];
+    return bruchVon(M, [cc[0] + Math.cos(w) * x - Math.sin(w) * y, cc[1] + Math.sin(w) * x + Math.cos(w) * y]);
   });
-  return wegSVG(punkte, farbe);
+  return { teile: [bogen], zwischen: null };
+}
+
+/** Marke auf halber Länge eines Weges (Bildpunkte): Kreis mit Buchstabe der Operation. */
+function wegMarke(teile, farbe, papier, text) {
+  const pkte = teile.flat();
+  const seg = pkte.slice(1).map((q, i) => Math.hypot(q[0] - pkte[i][0], q[1] - pkte[i][1]));
+  let rest = seg.reduce((x, y) => x + y, 0) / 2;
+  let m = pkte[0];
+  for (let i = 0; i < seg.length; i++) {
+    if (rest <= seg[i] && seg[i] > 0) { const u = rest / seg[i]; m = [pkte[i][0] + u * (pkte[i + 1][0] - pkte[i][0]), pkte[i][1] + u * (pkte[i + 1][1] - pkte[i][1])]; break; }
+    rest -= seg[i];
+  }
+  return `<circle cx="${f2(m[0])}" cy="${f2(m[1])}" r="10" fill="${papier}" stroke="${farbe}" stroke-width="1.6"/><text x="${f2(m[0])}" y="${f2(m[1] + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="12" font-weight="700" fill="${farbe}" text-anchor="middle" dominant-baseline="middle">${text}</text>`;
 }
 
 /**
  * Überlagerung der Erklärung in Tafel A. phase 0: Ausgangsobjekt; 1: zuerst B; 2: dann A;
- * 3: zusammen: der Weg unter C, so wie C selbst wirkt (wegUnterC).
+ * 3: zusammen: C. Die Wege zeigen, wie die Operation wirkt (weg), beschriftet mit dem
+ * Buchstaben der Operation; die Stellen des Fähnchens sind nummeriert: 0 Ausgangsobjekt,
+ * 1 nach B, 2 nach A (bei einer Erzeugenden: 1 nach C).
  */
 function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
   const teile = ['<g class="erklaerung">'];
@@ -421,26 +434,36 @@ function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
   // Elemente: C hervorgehoben, A und B in ihren Farben (Translationen als Pfeil)
   teile.push(opElementSVG(g, d.C, A, fC, farben.paper, n, true));
   if (phase >= 1 && !d.erzeugende) teile.push(opElementSVG(g, d.B, A, fB, farben.paper, n));
-  if (phase >= 2) teile.push(opElementSVG(g, d.A, A, fA, farben.paper, n));
-  // Fähnchen
+  if (phase >= 2 && !d.erzeugende) teile.push(opElementSVG(g, d.A, A, fA, farben.paper, n));
   const s = d.start; const sB = anwenden(d.B, s); const sC = anwenden(d.C, s);
   const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
   const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
+  // Weg einer Operation: Zwischenbild blass, Teilwege mit Pfeil, Buchstabe auf halber Länge
+  const wegSVGvon = (w, farbe, name) => {
+    const bild = w.teile.map((t) => t.map(A.zuBild));
+    return `<g class="weg weg-${name.toLowerCase()}">${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
+  };
+  // Nummer einer Stelle, links oberhalb des Fähnchens
+  const nummer = (p, text, farbe) => {
+    const q = A.zuBild(p); const x = q[0] - 22; const y = q[1] - 20;
+    return `<g class="stelle"><circle cx="${f2(x)}" cy="${f2(y)}" r="8.5" fill="${farbe}"/><text x="${f2(x)}" y="${f2(y + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="700" fill="${farben.paper}" text-anchor="middle" dominant-baseline="middle">${text}</text></g>`;
+  };
+  // in der Gesamtansicht treten die Wege von B und A hinter den Weg unter C zurück
+  const blass = (svg) => (phase >= 3 ? `<g opacity="0.35">${svg}</g>` : svg);
+  if (phase >= 1 && !d.erzeugende) teile.push(blass(wegSVGvon(d.wege.B, fB, 'B')));
+  if (phase >= 2 && !d.erzeugende) teile.push(blass(wegSVGvon(d.wege.A, fA, 'A')));
+  if (phase >= 3) teile.push(wegSVGvon(d.wege.C, fC, 'C'));
+  // Fähnchen und Stellen
   teile.push(fahne(s, id, farben.ink));
   const q0 = A.zuBild(s);
   teile.push(`<circle cx="${f2(q0[0])}" cy="${f2(q0[1])}" r="16" fill="none" stroke="${farben.ink}" stroke-width="1.5" stroke-dasharray="3 2.5"/>`);
-  // in der Gesamtansicht treten die Pfeile von B und A hinter den Weg unter C zurück
-  const blass = (svg) => (phase >= 3 && svg ? `<g opacity="0.4">${svg}</g>` : svg);
-  if (phase >= 1 && !d.erzeugende) {
-    teile.push(blass(pfeilSVG(q0, A.zuBild(sB), fB, farben.paper, '1')));
-    teile.push(fahne(sB, d.B, fB));
-  }
-  if (phase >= 2) {
-    if (!d.erzeugende) teile.push(blass(pfeilSVG(A.zuBild(sB), A.zuBild(sC), fA, farben.paper, '2')));
+  teile.push(nummer(s, '0', farben.ink));
+  if (phase >= 1 && !d.erzeugende) { teile.push(fahne(sB, d.B, fB)); teile.push(nummer(sB, '1', fB)); }
+  if (d.erzeugende ? phase >= 3 : phase >= 2) {
     teile.push(fahne(sC, d.C, d.erzeugende ? fC : fA));
+    teile.push(nummer(sC, d.erzeugende ? '1' : '2', d.erzeugende ? fC : fA));
   }
   if (phase >= 3) {
-    teile.push(wegUnterC(d.C, s, M, A, fC, fahne));
     const qc = A.zuBild(sC);
     teile.push(`<circle cx="${f2(qc[0])}" cy="${f2(qc[1])}" r="18" fill="none" stroke="${fC}" stroke-width="2.2"/>`);
   }
