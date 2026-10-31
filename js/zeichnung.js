@@ -58,8 +58,8 @@ export function ansicht(M, box, groesse = 520, rand = 46) {
 }
 
 /** Kartesisches Rechteck um die Zellen [0, n]². */
-function zellBox(M, n) {
-  const ecken = [[0, 0], [n, 0], [0, n], [n, n]].map((p) => kart(M, p));
+function zellBox(M, n, r = 0) {
+  const ecken = [[-r, -r], [n + r, -r], [-r, n + r], [n + r, n + r]].map((p) => kart(M, p));
   const xs = ecken.map((c) => c[0]); const ys = ecken.map((c) => c[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
 }
@@ -195,6 +195,14 @@ export function aufbauElemente(g, n, schritt) {
 const FAHNE = { stange: [[0, 0], [0, -22]], fahne: [[0, -22], [11, -17], [0, -12]] };
 
 /** Alle Bilder des Punktes p in den Zellen [lo, hi]² mit Rand, je { punkt, R, eigentlich }. */
+/**
+ * Rand um die Zellen für „Bilder rund um die Zelle (wie ITA)“, in Bruchteilen der Zelle. Mit ⅓
+ * sind die Gruppen um die Elemente auf dem Zellrand vollständig, solange das Objekt höchstens ⅓
+ * von ihnen entfernt liegt (Startpunkt 0,12; 0,31). ITA nennt keine Regel; die Diagramme der
+ * allgemeinen Lage zeigen die Gruppen um die Ecken vollständig, mit einem Punkt nahe am Ursprung.
+ */
+export const ORBIT_RAND = 1 / 3;
+
 export function bilder(g, p, lo, hi, rand = 0.08) {
   const out = [];
   for (const op of g.alle) {
@@ -227,9 +235,9 @@ export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) 
     + `<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(2.3 * massstab)}" fill="${farbe}"/>`;
 }
 
-function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab) {
+function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined) {
   const out = [];
-  for (const b of bilder(g, p, lo, hi)) {
+  for (const b of bilder(g, p, lo, hi, rand)) {
     const Mc = kartMatrix(M, b.R);
     out.push(objektSVG(form, A.zuBild(b.punkt), Mc, b.eigentlich, b.eigentlich ? farben.upper : farben.accent2, farben.paper, massstab));
   }
@@ -292,7 +300,9 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   const n = z.zellen;
   const erkl = z.erkl ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
-  let box = zellBox(M, n);
+  // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
+  const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
+  let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   if (erkl) {
     // alle Punkte der Wege (Bögen, Zwischenbilder) und die Stellen der Fähnchen
     for (const p of [erkl.start, ...Object.values(erkl.wege).flatMap((w) => w.teile.flat())]) {
@@ -324,7 +334,7 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   }
   if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (z.objekt && !erkl) {
-    teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1)}</g>`);
+    teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined)}</g>`);
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="15" fill="none" stroke="${farben.accent}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`);
   }

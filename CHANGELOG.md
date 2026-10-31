@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Bilder rund um die Zelle (wie ITA)** (Schalter unter „Weitere Optionen“, Link-Adresse `orbit=1`): Tafel A zeigt auch die Bilder in einem Rand von ⅓ der Zelle, sodass die Gruppen um Ecken und Ränder vollständig sind.
 - **Aufbau aus Erzeugenden** und **„Warum ist das da?“** (Konzept §1b, Blickrichtung „Bedingen“):
   - `js/herkunft.js` sucht schrittweise, welche Operationen aus den Erzeugenden nach ITA und den Gittertranslationen folgen. Je Element merkt es sich die Zerlegung *C* = *A* ∘ *B*, Translationen zuerst.
   - Tafel A zeigt die Elemente Schritt für Schritt, neue hervorgehoben.
