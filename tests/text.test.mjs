@@ -1,7 +1,7 @@
 // Schreibweise wie in ITA: Querstrich nur für ein führendes Minus, Brüche als Zeichen.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { koordHTML, opHTML, bedingungHTML, zahlText, lageHTML } from '../js/text.js';
+import { koordHTML, opHTML, bedingungHTML, zahlText, lageHTML, koordText, dezimal } from '../js/text.js';
 
 // Querstrich als kombinierendes Zeichen, verglichen in Normalform NFC (ȳ ist auch vorkomponiert)
 const ohneTags = (s) => s.replace(/<span class="ov"><i>([xy])<\/i><\/span>/g, '$1̄').replace(/<[^>]+>/g, '').normalize('NFC');
@@ -32,7 +32,17 @@ test('Auslöschungen, Zahlen, Lagesymmetrie', () => {
   assert.equal(zahlText(0.25), '¼');
   assert.equal(zahlText(0), '0');
   assert.equal(zahlText(1 / 3), '⅓');
-  assert.equal(zahlText(0.123), '0.123');
+  assert.equal(zahlText(0.123), '0,123');
+  assert.equal(zahlText(0.12), '0,12');
+  assert.equal(zahlText(-0.31), '−0,31');
+  assert.equal(zahlText(-1 / 3), '−⅓');
+  assert.equal(koordText([0.12, 0.31]), '(0,12; 0,31)');
+  assert.equal(koordText([0.5, -0.25]), '(½, −¼)');
+  assert.equal(koordText([0.5, 0.31]), '(½; 0,31)');
+  assert.equal(dezimal(1.35, 2), '1,35');
+  assert.equal(dezimal(-0.001, 2), '0,00');
+  assert.equal(dezimal(105, 1), '105,0');
+  assert.equal(dezimal(30, 1, { kuerzen: true }), '30');
   gleich(ohneTags(lageHTML('2mm.')), '2mm.');
 });
 

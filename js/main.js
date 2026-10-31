@@ -11,7 +11,7 @@ import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
-import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
+import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
@@ -170,7 +170,7 @@ function bedienungAbgleichen() {
     $(`lat-${k}`).min = String(lo); $(`lat-${k}`).max = String(hi);
     $(`lat-${k}`).value = String(gi[k]);
     $(`lat-${k}`).disabled = !z.brechen && !FREI[sys].includes(k);
-    $(`lat-${k}-out`).textContent = k === 'ba' ? gi.ba.toFixed(2) : `${gi.gamma.toFixed(1)}°`;
+    $(`lat-${k}-out`).textContent = k === 'ba' ? dezimal(gi.ba, 2) : `${dezimal(gi.gamma, 1)}°`;
   }
   $('opt-brechen').checked = z.brechen;
   $('opt-brechen').disabled = sys === 'schiefwinklig' && !z.brechen;
@@ -303,7 +303,7 @@ function kenndaten() {
   const zentriert = g.zentr.length > 1;
   // Lage des Objekts
   const p = l.punkt;
-  const koord = `(${zahlText(p[0])}, ${zahlText(p[1])})`;
+  const koord = koordText(p);
   const fg = ['keiner', 'einer', 'zwei'][l.freiheitsgrade];
   const lagebox = !z.objekt ? '' : l.allgemein
     ? `<div class="lagebox"><strong>Allgemeine Lage ${d.wyckoff[0].n}<span class="wy">${l.buchstabe}</span></strong>, Objekt bei ${koord}
