@@ -4,7 +4,24 @@
 /** Tooltip-Texte je Element-ID. Bei Eingabefeldern erscheint der Tooltip an der ganzen Zeile. */
 export const TIPS = {
   'tab-eg': 'Die 17 Ebenengruppen: Symmetrieelemente, Lagen und Muster.',
-  'tab-struktur': 'Gitter und Basis: Symmetrie einer 2D-Kristallstruktur bestimmen (folgt).',
+  'tab-struktur': 'Gitter und Basis: eine Struktur aus Gitter und Motiven aufbauen; die App bestimmt ihre Ebenengruppe.',
+  's-vorgabe': 'Fertige Strukturen: Bravais-Gitter, ein Dreiecksbeispiel in drei Stufen, 2D-Materialien in Draufsicht, Archimedische Parkettierungen und künstliches Spin-Eis.',
+  's-zuruecksetzen': 'Gitter und Basis wieder wie in der gewählten Vorgabe.',
+  's-elemente': 'Symmetrieelemente der gefundenen Ebenengruppe über der Struktur, in der konventionellen Zelle.',
+  's-zelle': 'Konventionelle Zelle nach den International Tables (a′, b′), mit dem Ursprung nach ITA. Sie kann von der gegebenen Zelle abweichen.',
+  's-ae': 'Asymmetrische Einheit der gefundenen Ebenengruppe, in der konventionellen Zelle.',
+  's-bindungen': 'Linien zwischen nächsten Nachbarn: zwischen Atomen, deren Abstand der kleinste Atomabstand der Struktur ist (bis 5 % mehr). Nur für das Motiv „Atom“.',
+  's-werkzeug-verschieben': 'Werkzeug: Motiv antippen wählt es; Ziehen verschiebt es (alle Gitterbilder folgen).',
+  's-werkzeug-hinzufuegen': 'Werkzeug: Stelle antippen setzt ein neues Motiv mit den Einstellungen unter „Basis“.',
+  's-motiv': 'Form des Motivs, in Klammern seine eigene Symmetrie (Punktgruppe). Gilt für das gewählte Motiv oder für das nächste neue.',
+  's-farbe': 'Atomsorte: Motive verschiedener Farbe sind verschieden und werden nie aufeinander abgebildet.',
+  's-winkel': 'Drehung des Motivs im Uhrzeigersinn, ab der Richtung von b.',
+  's-groesse': 'Grösse des Motivs (in Einheiten von a).',
+  's-entfernen': 'Das gewählte Motiv aus der Basis entfernen.',
+  's-einrasten': 'Beim Ziehen springen die Koordinaten auf Vielfache von 1/12 (darunter ½, ⅓, ¼), die Drehung auf Vielfache von 15°.',
+  's-ba': 'Verhältnis b/a der gegebenen Zelle. Die Motive behalten ihre Bruchkoordinaten.',
+  's-gamma': 'Winkel γ zwischen a und b der gegebenen Zelle.',
+  's-metrik': 'Gitter auf quadratische oder hexagonale Metrik setzen.',
   'copy-link': 'Link auf genau diese Ansicht in die Zwischenablage kopieren.',
   'opt-elemente': 'Drehpunkte, Spiegellinien (durchgezogen) und Gleitspiegellinien (gestrichelt) der Elementarzelle, mit den Symbolen der International Tables.',
   'opt-objekt': 'Ein Objekt ohne eigene Symmetrie in allgemeiner Lage. Alle Operationen der Gruppe wirken darauf; das Ausgangsobjekt ist gestrichelt umkreist. Ausgeschaltet zeigt auch das Muster nur das selbst Gezeichnete.',
@@ -42,6 +59,9 @@ export const TIPS = {
 
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
+  { heading: '#ctl-struktur > h2', intro: 'Eine Struktur ist Gitter plus Basis. Die App bestimmt aus beiden die Ebenengruppe und zeigt sie mit konventioneller Zelle und Symmetrieelementen.', ids: ['s-vorgabe', 's-zuruecksetzen', 's-elemente', 's-zelle', 's-ae', 's-bindungen'] },
+  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Werkzeuge über der Struktur: „Wählen und ziehen“ und „Hinzufügen“.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 's-motiv', 's-farbe', 's-winkel', 's-groesse', 's-entfernen', 's-einrasten'] },
+  { heading: '#sec-sgitter > summary', intro: 'Gitter der gegebenen Zelle; anders als im Modus „Ebenengruppen“ ohne Bindung an ein Kristallsystem.', ids: ['s-ba', 's-gamma', 's-metrik'] },
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-einrasten', 'opt-orbit'] },
   { heading: '#sec-zeichnen > summary', intro: 'Was tut eine Ebenengruppe? Zeichnen Sie etwas: Die Gruppe macht daraus ein Muster.', ids: ['werkzeug-zeichnen', 'werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen', 'opt-fuell'] },
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
@@ -64,4 +84,8 @@ export const LABELS = {
   'zeichnen-loeschen': 'Alles löschen',
   'schritt-vor': 'weiter',
   'aufbau-vor': 'weiter',
+  's-farbe': 'Atomsorte',
+  's-metrik': 'Metrik setzen',
+  's-ba': 'b/a',
+  's-gamma': 'γ',
 };
