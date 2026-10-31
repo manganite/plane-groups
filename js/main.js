@@ -78,6 +78,9 @@ function bedienungAbgleichen() {
   $('opt-einrasten').checked = z.einrasten;
   $('opt-einrasten').disabled = !z.objekt;
   document.querySelector('#row-einrasten .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  $('opt-orbit').checked = z.orbit;
+  $('opt-orbit').disabled = !z.objekt;
+  document.querySelector('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
   document.querySelectorAll('#seg-form button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
   $('v-farben').checked = z.farben;
   // Aufbau aus Erzeugenden
@@ -448,6 +451,7 @@ function init() {
   bindeSchalter('opt-objekt', 'objekt');
   bindeSchalter('opt-ae', 'ae');
   bindeSchalter('opt-einrasten', 'einrasten');
+  bindeSchalter('opt-orbit', 'orbit');
   bindeSchalter('v-farben', 'farben');
   bindeSchalter('v-muster-el', 'musterElemente');
   $('opt-zellen').addEventListener('change', () => {

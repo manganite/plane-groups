@@ -11,6 +11,7 @@ export const TIPS = {
   'opt-ae': 'Kleinster Teil der Elementarzelle, aus dem die Operationen die ganze Zelle lückenlos erzeugen (nach International Tables).',
   'opt-zellen': 'Vier Elementarzellen statt einer: zeigt, wie sich die Symmetrieelemente mit dem Gitter wiederholen.',
   'seg-form': 'Fähnchen oder Kreis mit Komma wie in den International Tables. Das Komma bzw. die Fahne auf der anderen Seite kennzeichnet das Spiegelbild.',
+  'opt-orbit': 'Wie in den Diagrammen der allgemeinen Lage in ITA: auch die Bilder im Rand rund um die Zelle (⅓ der Zelle), damit die Gruppen um Ecken und Ränder vollständig sind.',
   'opt-einrasten': 'Nahe einem Drehpunkt oder einer Spiegellinie springt das Objekt beim Ziehen auf das Symmetrieelement (spezielle Lage).',
   'obj-x': 'Koordinate x des Ausgangsobjekts in Bruchteilen von a.',
   'obj-y': 'Koordinate y des Ausgangsobjekts in Bruchteilen von b.',
@@ -30,7 +31,7 @@ export const TIPS = {
 
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
-  { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-einrasten'] },
+  { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-einrasten', 'opt-orbit'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden? Hier erscheinen sie Schritt für Schritt.', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten.', ids: ['lat-ba', 'lat-gamma'] },

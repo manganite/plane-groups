@@ -138,3 +138,27 @@ test('Asymmetrische Einheit: gewählte Bedingungen in Tafel A und in der Link-Ad
   hashAnwenden(z2, '#m=eg&g=p4mm&aet=x');
   assert.deepEqual(z2.aeTeile, []);
 });
+
+test('Bilder rund um die Zelle (wie ITA): Gruppen um Ecken vollständig, Ansicht grösser', async () => {
+  const { bilder, ORBIT_RAND, tafelA } = await import('../js/zeichnung.js');
+  const { gruppe } = await import('../js/symmetrie.js');
+  const { startzustand, hashVon, hashAnwenden } = await import('../js/zustand.js');
+  const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };
+  const g = gruppe('p4mm');
+  const b = bilder(g, [0.12, 0.31], 0, 1, ORBIT_RAND).map((x) => x.punkt);
+  // die 8 Bilder um den Ursprung (Lagesymmetrie 4mm der Ecke), auch die ausserhalb der Zelle
+  for (const [x, y] of [[0.12, 0.31], [-0.12, 0.31], [0.12, -0.31], [-0.12, -0.31], [0.31, 0.12], [-0.31, 0.12], [0.31, -0.12], [-0.31, -0.12]]) {
+    assert.ok(b.some((q) => Math.abs(q[0] - x) < 1e-9 && Math.abs(q[1] - y) < 1e-9), `(${x}, ${y})`);
+  }
+  const zahl = (svg) => (svg.match(/class="objekte">.*?<\/g>/s)?.[0].match(/<circle|<path|<polygon/g) || []).length;
+  const aus = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', form: 'komma' }, F);
+  const an = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', form: 'komma', orbit: true }, F);
+  assert.ok(zahl(an.svg) > zahl(aus.svg), 'mehr Bilder');
+  assert.ok(an.ansicht.s < aus.ansicht.s, 'Zelle kleiner gezeichnet');
+  // Link-Adresse
+  const z = { ...startzustand(), orbit: true };
+  assert.match(hashVon(z), /orbit=1/);
+  const z2 = startzustand(); hashAnwenden(z2, '#m=eg&g=p4mm&orbit=1');
+  assert.equal(z2.orbit, true);
+  assert.doesNotMatch(hashVon(startzustand()), /orbit/);
+});

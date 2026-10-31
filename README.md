@@ -18,6 +18,7 @@ In Arbeit; das erste Release folgt.
 - **Modus „Ebenengruppen“:** Auswahl der 17 Ebenengruppen nach Kristallsystem.
   - **Symmetriegerüst:** Elementarzelle (wahlweise 2 × 2 Zellen) mit allen Symmetrieelementen und den Symbolen der International Tables for Crystallography, Vol. A. Dazu gehören die Gleitspiegellinien, die das Symbol nicht nennt (z. B. in c2mm und p4mm). Wahlweise nach Blickrichtung gefärbt.
   - **Objekt in allgemeiner Lage** (Fähnchen oder Kreis mit Komma wie in ITA) mit allen Bildern, ziehbar. Nahe einem Drehpunkt oder einer Spiegellinie rastet es ein. Die Kenndaten nennen dann Wyckoff-Lage, Lagesymmetrie und Zähligkeit.
+  - **Bilder rund um die Zelle** wahlweise wie in den Diagrammen der allgemeinen Lage in ITA: auch die Bilder im Rand um die Zelle, sodass die Gruppen um Ecken und Ränder vollständig sind.
   - **Asymmetrische Einheit** einblendbar. Ihre Bedingungen in den Kenndaten (z. B. „0 ≤ x ≤ ½“) lassen sich einzeln antippen: Das Symmetriegerüst schattiert, wo die gewählten Bedingungen erfüllt sind, und hebt ihre Grenzlinien hervor; alle zusammen ergeben die asymmetrische Einheit.
   - **Muster:** Ausschnitt des unendlichen Musters mit hervorgehobener Elementarzelle.
   - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“: dort das Pedion mit Flächenmuster und Blick senkrecht auf die Fläche; das Muster zeigt genau diese Punktgruppe), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen, Auslöschungen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
@@ -40,6 +41,7 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `zellen` | Zellen im Symmetriegerüst | **`1`**, `2` (2 × 2) |
 | `form` | Form des Objekts | **`fahne`**, `komma` |
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
+| `orbit` | Bilder rund um die Zelle (wie ITA) | **`0`**, `1` |
 | `farb` | nach Blickrichtung färben | `0`, **`1`** |
 | `mel` | Symmetrieelemente im Muster | **`0`**, `1` |
 | `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
