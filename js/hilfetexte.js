@@ -7,7 +7,7 @@ export const TIPS = {
   'tab-struktur': 'Gitter und Basis: Symmetrie einer 2D-Kristallstruktur bestimmen (folgt).',
   'copy-link': 'Link auf genau diese Ansicht in die Zwischenablage kopieren.',
   'opt-elemente': 'Drehpunkte, Spiegellinien (durchgezogen) und Gleitspiegellinien (gestrichelt) der Elementarzelle, mit den Symbolen der International Tables.',
-  'opt-objekt': 'Ein Objekt ohne eigene Symmetrie in allgemeiner Lage. Alle Operationen der Gruppe wirken darauf; das Ausgangsobjekt ist gestrichelt umkreist.',
+  'opt-objekt': 'Ein Objekt ohne eigene Symmetrie in allgemeiner Lage. Alle Operationen der Gruppe wirken darauf; das Ausgangsobjekt ist gestrichelt umkreist. Ausgeschaltet zeigt auch das Muster nur das selbst Gezeichnete.',
   'opt-ae': 'Kleinster Teil der Elementarzelle, aus dem die Operationen die ganze Zelle lückenlos erzeugen (nach International Tables).',
   'opt-zellen': 'Vier Elementarzellen statt einer: zeigt, wie sich die Symmetrieelemente mit dem Gitter wiederholen.',
   'seg-form': 'Fähnchen oder Kreis mit Komma wie in den International Tables. Das Komma bzw. die Fahne auf der anderen Seite kennzeichnet das Spiegelbild.',
@@ -21,6 +21,10 @@ export const TIPS = {
   'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen.',
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
+  'werkzeug-zeichnen': 'Werkzeug: Im Symmetriegerüst ziehen zeichnet einen Strich. Die Gruppe vervielfältigt ihn mit allen Operationen, auch im Muster.',
+  'zeichnen-zurueck': 'Den letzten Strich entfernen.',
+  'zeichnen-loeschen': 'Alle Striche entfernen.',
+  'opt-fuell': 'Die asymmetrische Einheit füllen und mit allen Operationen vervielfältigen: Ihre Bilder pflastern die Ebene ohne Lücken und Überlappungen.',
   'werkzeug-warum': 'Werkzeug: Ein Symmetrieelement antippen zeigt, aus welchen zwei Operationen es folgt, am Fähnchen Schritt für Schritt.',
   'opt-schritt': 'Das Objekt wird mit den Symmetrieoperationen einzeln abgebildet, in der Reihenfolge der International Tables; zuletzt verschieben die Gittertranslationen alle Bilder in die Zelle. Ein Zähler zeigt, wie viele verschiedene Stellen entstehen.',
   'schritt-regler': 'Schritt: Operation (1), (2), … der Liste, zuletzt die Gittertranslationen.',
@@ -37,6 +41,7 @@ export const TIPS = {
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-einrasten', 'opt-orbit'] },
+  { heading: '#sec-zeichnen > summary', intro: 'Was tut eine Ebenengruppe? Zeichnen Sie etwas: Die Gruppe macht daraus ein Muster.', ids: ['werkzeug-zeichnen', 'zeichnen-zurueck', 'zeichnen-loeschen', 'opt-fuell'] },
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden? Hier erscheinen sie Schritt für Schritt.', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y'] },
@@ -53,6 +58,8 @@ export const LABELS = {
   'lat-gamma': 'γ',
   'aufbau-zurueck': 'zurück',
   'schritt-zurueck': 'zurück',
+  'zeichnen-zurueck': 'Rückgängig',
+  'zeichnen-loeschen': 'Alles löschen',
   'schritt-vor': 'weiter',
   'aufbau-vor': 'weiter',
 };
