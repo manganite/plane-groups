@@ -257,10 +257,17 @@ export function bestimme(st) {
           // Operation im neuen Ursprung s: x'' = x' − s → {R | t + R·s − s}
           const verschoben = konv.map((o) => { const Rs = vek(o.R, s); return { R: o.R, t: [o.t[0] + Rs[0] - s[0], o.t[1] + Rs[1] - s[1]] }; });
           if (!gleicheMengen(verschoben, g.alle)) continue;
-          const u = vek(zelle, s).map(mod1);
-          const w = kart(u.map((x) => (x > 0.5 + 1e-9 ? x - 1 : x)));
-          const dist = Math.hypot(w[0], w[1]);
-          if (!best || dist < best.dist - 1e-9) best = { ursprung: u, dist };
+          // Werte knapp unter 1 (innerhalb der Toleranz der Erkennung) als 0
+          const u = vek(zelle, s).map((x) => { const m = mod1(x); return 1 - m < TOL ? 0 : m; });
+          // kleinster Abstand zu einem Gitterbild (in schiefen Zellen nicht je Koordinate)
+          let dist = Infinity;
+          for (let i = -2; i <= 1; i++) for (let j = -2; j <= 1; j++) {
+            const w = kart([u[0] + i, u[1] + j]);
+            dist = Math.min(dist, Math.hypot(w[0], w[1]));
+          }
+          // bei gleichem Abstand: kleinere Koordinaten zuerst, damit die Wahl eindeutig ist
+          const vorn = (x, y) => (Math.abs(x[0] - y[0]) > 1e-9 ? x[0] < y[0] : x[1] < y[1] - 1e-9);
+          if (!best || dist < best.dist - 1e-9 || (Math.abs(dist - best.dist) <= 1e-9 && vorn(u, best.ursprung))) best = { ursprung: u, dist };
         }
       }
       if (best) {

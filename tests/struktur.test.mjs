@@ -90,6 +90,19 @@ test('Ursprung nach ITA: bleibt, wenn erlaubt, sonst der nächste erlaubte Punkt
   assert.ok(nah(r.ursprung, [0.15, 0]), String(r.ursprung));
   // p2mg (Dreiecksbeispiel): der gegebene Ursprung liegt auf keinem 2-zähligen Drehpunkt
   assert.ok(nah(strukturSymmetrie(st('dreieck3')).ursprung, [0.25, 0.25]));
+  const e = (motiv, p, winkel = 0) => ({ motiv, farbe: 0, p, winkel });
+  const u = (ba, gamma, basis) => strukturSymmetrie({ ba, gamma, basis }).ursprung;
+  // Ursprung auf m: entlang der Linie bleibt er beim gegebenen, quer dazu die nächste Linie
+  assert.ok(nah(u(1.35, 90, [e('dreieck', [0.3, 0.2], 90)]), [0.8, 0]));
+  assert.ok(nah(u(1.35, 90, [e('dreieck', [0.3, 0.2], 0)]), [0, 0.2]));
+  // schiefe Zelle: Abstand zum nächsten Gitterbild, nicht je Koordinate
+  assert.ok(nah(u(2, 150, [e('w2', [0, 0.255])]), [0.5, 0.755]));
+  assert.ok(nah(u(0.5, 150, [e('w2', [0.15, 0.005])]), [0.15, 0.505]));
+  // Gleichstand: kleinere Koordinaten zuerst
+  assert.ok(nah(u(1, 90, [e('w2', [0.25, 0])]), [0.25, 0]));
+  assert.ok(nah(u(1, 90, [e('w2', [0.75, 0])]), [0.25, 0]));
+  // knapp unter 1 (innerhalb der Toleranz der Erkennung) wird 0
+  assert.ok(nah(u(1, 80, [e('w2', [0.1, 0.3]), e('w2', [0.89998, 0.7])]), [0, 0]));
 });
 
 test('konventionelle Zelle: Umrechnung hin und zurück; zentrierte Eingabe in primitiver Zelle', () => {
