@@ -18,7 +18,8 @@ export const TIPS = {
   'reset-objekt': 'Objekt zurück an die Ausgangslage.',
   'lat-ba': 'Verhältnis der Gitterkonstanten b/a. Frei im schiefwinkligen und im rechteckigen System.',
   'lat-gamma': 'Winkel γ zwischen a und b. Frei nur im schiefwinkligen System.',
-  'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen.',
+  'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen, mit Bindung an das System.',
+  'opt-brechen': 'b/a und γ ohne die Bindung an das Kristallsystem verändern: Es bleiben nur die Operationen, die die neue Metrik erhalten. Die Kenndaten nennen die verbleibende Symmetrie.',
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
   'werkzeug-zeichnen': 'Werkzeug: Im Symmetriegerüst ziehen zeichnet einen Strich. Die Gruppe vervielfältigt ihn mit allen Operationen, auch im Muster.',
@@ -45,7 +46,7 @@ export const SECTIONS = [
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden? Hier erscheinen sie Schritt für Schritt.', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y'] },
-  { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten.', ids: ['lat-ba', 'lat-gamma'] },
+  { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten. Ohne Bindung an das System bricht sie.', ids: ['lat-ba', 'lat-gamma', 'opt-brechen'] },
   { heading: '#sec-view > summary', ids: ['v-farben', 'v-muster-el'] },
 ];
 

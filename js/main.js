@@ -9,7 +9,7 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, FREI_BEREICH } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
@@ -125,17 +125,6 @@ function bedienungAbgleichen() {
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
-  // Symmetrie brechen: andere Werkzeuge beziehen sich auf die ursprüngliche Gruppe und ruhen
-  $('opt-brechen').checked = z.brechen;
-  for (const k of ['ba', 'gamma']) {
-    $(`frei-${k}`).disabled = !z.brechen;
-    $(`frei-${k}`).value = String(z.frei[k]);
-    $(`frei-${k}-out`).textContent = z.brechen ? (k === 'ba' ? z.frei.ba.toFixed(2) : `${z.frei.gamma.toFixed(1)}°`) : '–';
-  }
-  $('reset-brechen').disabled = !z.brechen;
-  $('brechen-hint').textContent = z.brechen
-    ? 'Die Objekte behalten ihre Lage in Bruchkoordinaten; es ändern sich nur Längen und Winkel. „Warum ist das da?“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
-    : 'Löst die Bindung von b/a und γ an das Kristallsystem. Die Kenndaten zeigen dann, welche Symmetrie bleibt.';
   // Werkzeug „Warum ist das da?“
   $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
   $('werkzeug-warum').disabled = !z.elemente;
@@ -165,18 +154,26 @@ function bedienungAbgleichen() {
   $('reset-objekt').disabled = !z.objekt;
   // Gitter
   const sys = systemJetzt();
-  const gi = z.gitter[sys];
+  // ohne Bindung (Symmetrie brechen) dieselben Regler mit grösserem Bereich und der freien Metrik
+  const gi = z.brechen ? z.frei : z.gitter[sys];
   for (const k of ['ba', 'gamma']) {
-    const frei = FREI[sys].includes(k);
+    const [lo, hi] = z.brechen ? FREI_BEREICH[k] : GITTER_BEREICH[k];
+    $(`lat-${k}`).min = String(lo); $(`lat-${k}`).max = String(hi);
     $(`lat-${k}`).value = String(gi[k]);
-    $(`lat-${k}`).disabled = !frei;
+    $(`lat-${k}`).disabled = !z.brechen && !FREI[sys].includes(k);
     $(`lat-${k}-out`).textContent = k === 'ba' ? gi.ba.toFixed(2) : `${gi.gamma.toFixed(1)}°`;
   }
+  $('opt-brechen').checked = z.brechen;
+  $('opt-brechen').disabled = sys === 'schiefwinklig' && !z.brechen;
+  document.querySelector('#row-brechen .why').textContent = sys === 'schiefwinklig' ? 'im schiefwinkligen System ist das Gitter schon frei' : '';
   const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
-  $('lat-why').textContent = fest[sys];
-  $('reset-gitter').disabled = FREI[sys].length === 0;
+  $('lat-why').textContent = z.brechen
+    ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. „Warum ist das da?“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
+    : `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.`.trim();
+  $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
+  $('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
   // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
-  if (z.brechen) for (const id of ['lat-ba', 'lat-gamma', 'reset-gitter', 'opt-aufbau', 'aufbau-schritt', 'aufbau-vor', 'aufbau-zurueck', 'opt-schritt', 'schritt-regler', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'opt-ae', 'opt-fuell', 'werkzeug-warum']) $(id).disabled = true;
+  if (z.brechen) for (const id of ['opt-aufbau', 'aufbau-schritt', 'aufbau-vor', 'aufbau-zurueck', 'opt-schritt', 'schritt-regler', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'opt-ae', 'opt-fuell', 'werkzeug-warum']) $(id).disabled = true;
 }
 
 // ------------------------------------------------------------------ Zeichnen
@@ -591,9 +588,14 @@ function init() {
   }
   $('reset-objekt').addEventListener('click', () => { z.punkt = startzustand().punkt; aktualisieren(); });
   for (const k of ['ba', 'gamma']) {
-    $(`lat-${k}`).addEventListener('input', () => { z.gitter[systemJetzt()][k] = Number($(`lat-${k}`).value); aktualisieren(); });
+    $(`lat-${k}`).addEventListener('input', () => {
+      const v = Number($(`lat-${k}`).value);
+      if (z.brechen) z.frei = { ...z.frei, [k]: v }; else z.gitter[systemJetzt()][k] = v;
+      aktualisieren();
+    });
   }
-  $('reset-gitter').addEventListener('click', () => { const s = systemJetzt(); z.gitter[s] = { ...GITTER_START[s] }; aktualisieren(); });
+  // zurücksetzen: Startmetrik des Systems, mit Bindung
+  $('reset-gitter').addEventListener('click', () => { const s = systemJetzt(); z.brechen = false; z.gitter[s] = { ...GITTER_START[s] }; aktualisieren(); });
   $('reset-alles').addEventListener('click', () => {
     Object.assign(z, startzustand());
     hashAktiv = false; basisHash = null;
@@ -623,15 +625,19 @@ function init() {
     if (wahl) { z.erkl = wahl.dataset.erkl; abspielen(); }
   });
   $('opt-brechen').addEventListener('change', () => {
+    const s = systemJetzt();
     z.brechen = $('opt-brechen').checked;
     if (z.brechen) {
-      z.frei = { ...z.gitter[systemJetzt()] };
+      z.frei = { ...z.gitter[s] };
       z.warum = false; z.erkl = null; z.aufbau = 0; z.schritt = 0; z.aeTeile = []; stoppeSchritte(); clearTimeout(ablauf); phase = 3;
+    } else {
+      // Bindung wieder an: die nächste Metrik des Systems (freie Parameter behalten, im Bereich)
+      const g0 = { ...GITTER_START[s] };
+      for (const k of FREI[s]) g0[k] = Math.min(Math.max(z.frei[k], GITTER_BEREICH[k][0]), GITTER_BEREICH[k][1]);
+      z.gitter[s] = g0;
     }
     aktualisieren();
   });
-  for (const k of ['ba', 'gamma']) $(`frei-${k}`).addEventListener('input', () => { z.frei = { ...z.frei, [k]: Number($(`frei-${k}`).value) }; aktualisieren(); });
-  $('reset-brechen').addEventListener('click', () => { z.frei = { ...z.gitter[systemJetzt()] }; aktualisieren(); });
   $('werkzeug-zeichnen').addEventListener('click', () => {
     z.zeichnen = !z.zeichnen;
     if (z.zeichnen) { z.warum = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }

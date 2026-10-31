@@ -59,10 +59,13 @@ test('Tafeln und Link-Adresse', () => {
   assert.ok(!/NaN/.test(tafelB('p4mm', z, F).svg));
   assert.equal(gebrochen(gruppe('p4mm'), z.frei).bleibt.length, 4);
   const h = hashVon(z);
-  assert.match(h, /brechen=1&fba=1\.2&fgamma=90/);
+  assert.match(h, /brechen=1&ba=1\.2&gamma=90/);
   const z2 = startzustand(); hashAnwenden(z2, h);
   assert.equal(z2.brechen, true);
   assert.deepEqual(z2.frei, { ba: 1.2, gamma: 90 });
-  hashAnwenden(z2, '#m=eg&g=p4mm&brechen=1&fba=9');
+  hashAnwenden(z2, '#m=eg&g=p4mm&brechen=1&ba=9');
   assert.deepEqual(z2.frei, GITTER_START.quadratisch, 'ungültig: Metrik des Systems');
+  // im schiefwinkligen System gibt es nichts zu brechen
+  hashAnwenden(z2, '#m=eg&g=p2&brechen=1&ba=1.3&gamma=80');
+  assert.equal(z2.brechen, false);
 });
