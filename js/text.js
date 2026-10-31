@@ -78,6 +78,12 @@ export function zahlText(v) {
 }
 
 /**
+ * Richtung [uv] als HTML, negative Indizes mit Querstrich wie in der Kristallographie üblich:
+ * [-1, 1] → [1̄1] (Querstrich als .ov, nicht als Minuszeichen).
+ */
+export const richtungHTML = (d) => `[${d.map((x) => (x < 0 ? `<span class="ov">${-x}</span>` : String(x))).join('')}]`;
+
+/**
  * Koordinaten als „(x, y)“. Enthält eine Koordinate ein Dezimalkomma, trennt ein Strichpunkt:
  * „(0,12; 0,31)“, sonst ein Komma wie in ITA: „(½, ¼)“.
  */

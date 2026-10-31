@@ -11,7 +11,7 @@ import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
-import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal } from './text.js';
+import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
@@ -205,9 +205,9 @@ function zeichnen() {
 }
 
 const RICHTUNG = {
-  rechteckig: ['[10]', '[01]'],
-  quadratisch: ['[10], [01]', '[11], [1̄1]'],
-  hexagonal: ['[10], [01], [11]', '[1̄1], [12], [21]'],
+  rechteckig: [[1, 0], [0, 1]].map(richtungHTML),
+  quadratisch: [[[1, 0], [0, 1]], [[1, 1], [-1, 1]]].map((r) => r.map(richtungHTML).join(', ')),
+  hexagonal: [[[1, 0], [0, 1], [1, 1]], [[-1, 1], [1, 2], [2, 1]]].map((r) => r.map(richtungHTML).join(', ')),
 };
 function legende(f) {
   const g = gruppeVon(z.gruppe);
@@ -226,7 +226,7 @@ function legende(f) {
     if (z.farben && sys !== 'schiefwinklig' && !(bruch && bruch.weg.length)) {
       const positionen = new Set(el.linien.map((l) => blickrichtung(sys, l.normale)));
       for (const pos of [2, 3]) {
-        if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i>Normale ∥ ${RICHTUNG[sys][pos - 2]}</span>`);
+        if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i><span>Normale ∥ ${RICHTUNG[sys][pos - 2]}</span></span>`);
       }
     }
   }
