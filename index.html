@@ -64,7 +64,7 @@
 .tabwrap { overflow-x: auto; }
 .panel-head .tools button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
 body.warum #bild-a { cursor: pointer; }
-body.zeichnen #bild-a { cursor: crosshair; touch-action: none; }
+body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: none; }
 /* „Warum ist das da?“ in den Kenndaten */
 .warumbox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
 .warumbox h3 { margin: 0 0 6px; color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 1rem; }
@@ -240,7 +240,7 @@ body.zeichnen #bild-a { cursor: crosshair; touch-action: none; }
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Symmetriegerüst</button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Symmetriegerüst<small id="sub-a"></small></span>
-        <div class="tools" role="group" aria-label="Werkzeug"><button type="button" id="werkzeug-warum" aria-pressed="false">Warum ist das da?</button><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button></div>
+        <div class="tools" role="group" aria-label="Werkzeug"><button type="button" id="werkzeug-warum" aria-pressed="false">Warum ist das da?</button><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" id="werkzeug-radieren" aria-pressed="false">Radieren</button></div>
       </div>
       <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
       <div class="legend" id="legend"></div>

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
-import { kopien, vereinfachen, tafelA, tafelB } from '../js/zeichnung.js';
+import { kopien, vereinfachen, tafelA, tafelB, radieren, metrik } from '../js/zeichnung.js';
 import { startzustand, hashVon, hashAnwenden } from '../js/zustand.js';
 
 const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };
@@ -56,4 +56,26 @@ test('Zeichnung in Tafel A und im Muster; Link: fuell, Striche bleiben beim Öff
   hashAnwenden(z2, '#m=eg&g=p2&fuell=1');
   assert.equal(z2.aeFuell, true);
   assert.equal(z2.striche.length, 1);
+});
+
+test('Radieren: nur das überfahrene Stück, auch an einer Kopie, Strich zerfällt', () => {
+  const M = metrik({ ba: 1, gamma: 90 });
+  const quer = [[[0.1, 0.5], [0.9, 0.5]]];
+  // in der Mitte: zwei Stücke, die Lücke so breit wie der Kreis
+  const r = radieren(quer, gruppe('p1'), M, [0.5, 0.5], 0.05);
+  assert.deepEqual(r, [[[0.1, 0.5], [0.45, 0.5]], [[0.55, 0.5], [0.9, 0.5]]]);
+  // daneben: nichts
+  assert.deepEqual(radieren(quer, gruppe('p1'), M, [0.5, 0.8], 0.05), quer);
+  // an einer Gitterkopie (eine Zelle weiter) wirkt es ebenso
+  assert.deepEqual(radieren(quer, gruppe('p1'), M, [1.5, 0.5], 0.05), r);
+  // pm: an der Spiegelkopie bei −x radiert, fehlt das Stück am Original
+  const senk = [[[0.2, 0.1], [0.2, 0.9]]];
+  assert.deepEqual(radieren(senk, gruppe('pm'), M, [-0.2, 0.5], 0.05), [[[0.2, 0.1], [0.2, 0.45]], [[0.2, 0.55], [0.2, 0.9]]]);
+  // p4: an der um 90° gedrehten Kopie
+  const g4 = gruppe('p4');
+  const kopie = kopien(g4, senk[0], 0, 1).find((k) => !k.urbild && Math.abs(k.punkte[0][1] - k.punkte[1][1]) > 0.5 === false);
+  const mitte = [(kopie.punkte[0][0] + kopie.punkte[1][0]) / 2, (kopie.punkte[0][1] + kopie.punkte[1][1]) / 2];
+  assert.equal(radieren(senk, g4, M, mitte, 0.05).length, 2, 'p4: Kopie radiert → Original geteilt');
+  // ganz überfahren: Strich weg
+  assert.deepEqual(radieren([[[0.5, 0.5], [0.52, 0.5]]], gruppe('p1'), M, [0.51, 0.5], 0.05), []);
 });
