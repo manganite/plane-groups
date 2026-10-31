@@ -15,6 +15,7 @@ const FILES = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
+  'js/asymmetrie.js',
   'js/ebenengruppen.js',
   'js/herkunft.js',
   'js/hilfetexte.js',

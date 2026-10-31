@@ -27,6 +27,8 @@ try {
     Object.assign(z, s.z, { gitter: { ...z.gitter, ...(g && typeof g === 'object' ? g : {}) } });
     if (!EBENENGRUPPEN.some((e) => e.symbol === z.gruppe)) z.gruppe = startzustand().gruppe;
     if (!Array.isArray(z.punkt) || z.punkt.length !== 2 || !z.punkt.every(Number.isFinite)) z.punkt = startzustand().punkt;
+    const zahlTeile = ebenengruppe(z.gruppe).ae.text.split(';').length;
+    z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
   }
 } catch { /* ohne Speicher weiter */ }
 if (location.hash.length > 1) hashAnwenden(z, location.hash); // Link hat Vorrang
@@ -172,6 +174,7 @@ function legende(f) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
+  if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
   if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
   if (erklaerung) {
     if (!erklaerung.erzeugende) items.push(`<span class="lg"><i class="sw" style="background:${f.fc3}"></i>B, zuerst</span>`);
@@ -193,6 +196,18 @@ function stereoId(daten) {
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
 const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
 const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
+/** Bedingungen der asymmetrischen Einheit als Knöpfe: Tafel A zeigt, wo sie erfüllt sind. */
+function aeBedingungen(d) {
+  const teile = d.ae.text.split(';').map((t) => t.trim());
+  const wahl = z.aeTeile ?? [];
+  const knoepfe = teile.map((t, i) => `<button type="button" class="aeteil" data-aeteil="${i}" aria-pressed="${wahl.includes(i)}" title="Zeigen, wo diese Bedingung erfüllt ist">${aeHTML(t)}</button>`).join('<span class="sep">;</span> ');
+  const hinweis = !wahl.length
+    ? 'Bedingung antippen: Das Symmetriegerüst zeigt, wo sie erfüllt ist.'
+    : wahl.length === teile.length
+      ? 'Alle Bedingungen zusammen: Das ist die asymmetrische Einheit.'
+      : `Schattiert: wo ${wahl.length === 1 ? 'diese Bedingung' : 'diese Bedingungen zusammen'} erfüllt ${wahl.length === 1 ? 'ist' : 'sind'}. Weitere antippen, bis alle gewählt sind.`;
+  return `<span class="aeteile">${knoepfe}</span><span class="note aehinweis">${hinweis}${wahl.length ? ' <button type="button" class="linkbtn" data-aeteil-aus>keine</button>' : ''}</span>`;
+}
 const aeHTML = (t) => t.replace(/([xy])/g, '<i>$1</i>').replace(/(\d+)\/(\d+)/g, (m) => ({ '1/2': '½', '1/4': '¼', '1/3': '⅓', '2/3': '⅔' }[m] ?? m));
 
 /** Fokus in den Kenndaten merken (über die Daten-Attribute des Knopfs), damit er ein Neuzeichnen übersteht. */
@@ -259,7 +274,7 @@ function kenndaten() {
       <div><dt>Punktgruppe</dt><dd>${pgLink}</dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${g.ordnung}</dd></div>
       <div><dt>Ursprung</dt><dd>${ursprungHTML(d.ursprung)}</dd></div>
-      <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeHTML(d.ae.text)}</dd></div>
+      <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeBedingungen(d)}</dd></div>
     </dl>
     <div class="cols">
       <div><h3>Symmetrieoperationen</h3>${opsTab}
@@ -427,7 +442,7 @@ function init() {
   $('picker').addEventListener('click', (e) => {
     const b = e.target.closest('.pgb');
     if (!b) return;
-    if (z.gruppe !== b.dataset.g) z.erkl = null;
+    if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; }
     z.gruppe = b.dataset.g;
     aktualisieren();
   });
@@ -463,6 +478,14 @@ function init() {
   $('info').addEventListener('click', (e) => {
     const b = e.target.closest('.setzen');
     if (b) wyckoffSetzen(b.dataset.wy);
+    const at = e.target.closest('[data-aeteil]');
+    if (at) {
+      const i = Number(at.dataset.aeteil); const wahl = new Set(z.aeTeile ?? []);
+      if (wahl.has(i)) wahl.delete(i); else wahl.add(i);
+      z.aeTeile = [...wahl].sort((u, v) => u - v);
+      aktualisieren();
+    }
+    if (e.target.closest('[data-aeteil-aus]')) { z.aeTeile = []; aktualisieren(); }
     const ph = e.target.closest('[data-phase]');
     if (ph) { clearTimeout(ablauf); phase = Number(ph.dataset.phase); aktualisieren(); }
     if (e.target.closest('[data-abspielen]')) abspielen();

@@ -16,6 +16,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
   - Link-Adresse mit `aufbau`, `warum`, `erkl`.
   - Tests `tests/herkunft.test.mjs`: Herkunft aller Elemente, Beispiele p4mm, c2mm und p6, Regeln.
 
+- **Bedingungen der asymmetrischen Einheit antippen** (`js/asymmetrie.js`): Jede Bedingung der ITA-Seite wird als Halbebenen gelesen; Tafel A schattiert, wo die gewählten erfüllt sind, und zeigt ihre Grenzlinien. Link-Adresse mit `aet`. Test: Alle Bedingungen zusammen ergeben für alle 17 Gruppen genau die asymmetrische Einheit der ITA (Fläche = Zellfläche / Zahl der Operationen).
+
 - **Modus „Ebenengruppen“** (Kern): Gruppenwahl; Symmetriegerüst der Elementarzelle (wahlweise 2 × 2) mit den Symbolen der ITA; Objekt (Fähnchen oder Kreis mit Komma) mit allen Bildern, ziehbar, mit Einrasten auf spezielle Lagen; asymmetrische Einheit; Muster; Kenndaten wie eine ITA-Seite mit „setzen“ je Wyckoff-Lage; Gitterparameter innerhalb des Kristallsystems; Färbung nach Blickrichtung; Zustand in der Link-Adresse (`js/zustand.js`, Format im README); Hilfetexte und Erste Schritte.
 - `js/zeichnung.js` (SVG der Tafeln, ohne DOM), `js/text.js` (Schreibweise wie in ITA), Tests `tests/zeichnung.test.mjs`, `tests/zustand.test.mjs`, `tests/text.test.mjs`.
 

@@ -9,6 +9,7 @@
 
 import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICHTUNGEN } from './symmetrie.js';
 import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp } from './herkunft.js';
+import { bedingungen, bereich } from './asymmetrie.js';
 
 // ---------------------------------------------------------------------------------------------
 // Metrik und Ansicht
@@ -250,6 +251,36 @@ export const ausgangsstelle = (p, n) => (p.every((v) => v >= 0 && v <= n) ? [...
 const zellPoly = (A, i, j, n = 1) => [[i, j], [i, j + n], [i + n, j + n], [i + n, j]].map((p) => pt(A.zuBild(p))).join(' ');
 
 /**
+ * Gewählte Bedingungen der asymmetrischen Einheit (Nummern in g.daten.ae.text): der Bereich in
+ * den Zellen, in dem alle erfüllt sind, schattiert (teil 'flaeche', unter den Elementen); die
+ * Grenzlinien jeder Bedingung als Band (teil 'grenzen', über den Elementen).
+ */
+export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
+  const alle = bedingungen(g.daten.ae.text);
+  const gewaehlt = auswahl.map((i) => alle[i]).filter(Boolean);
+  if (!gewaehlt.length) return '';
+  const box = [0, 0, n, n];
+  const flaecheSVG = bereich(gewaehlt.flatMap((b) => b.halbebenen), box);
+  const teile = [`<g class="ae-teile${teil === 'flaeche' ? '' : '-grenzen'}">`];
+  if (teil === 'flaeche' && flaecheSVG.length > 2) {
+    teile.push(`<polygon points="${flaecheSVG.map((p) => pt(A.zuBild(p))).join(' ')}" fill="${farben.accent2}" fill-opacity="0.22"/>`);
+  }
+  // Grenzlinien als Band über den Symmetrieelementen: sie liegen oft genau auf ihnen
+  if (teil === 'grenzen') for (const b of gewaehlt) {
+    for (const [cx, cy, c0] of b.halbebenen) {
+      // Grenzlinie cx·x + cy·y + c0 = 0: Punkt und Richtung
+      const l = cx * cx + cy * cy;
+      const s = clipLinie([(-c0 * cx) / l, (-c0 * cy) / l], [-cy, cx], box);
+      if (!s) continue;
+      const [p, q] = s.map(A.zuBild);
+      teile.push(`<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${farben.accent2}" stroke-width="7" stroke-opacity="0.5" stroke-linecap="round"/>`);
+    }
+  }
+  teile.push('</g>');
+  return teile.join('');
+}
+
+/**
  * Tafel A: Symmetriegerüst. Elementarzelle (oder 2 × 2 Zellen) mit den Symmetrieelementen,
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
  * Ergebnis: { svg (Inhalt des <svg>), ansicht }.
@@ -275,6 +306,7 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
     teile.push(`<polygon class="ae" points="${ecken}" fill="${farben.crystal}" fill-opacity="0.55" stroke="${farben.accent}" stroke-width="1.6" stroke-dasharray="5 3"/>`);
   }
+  if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben));
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     teile.push(`<polygon points="${zellPoly(A, i, j)}" fill="none" stroke="${farben.muted}" stroke-width="1.2"/>`);
   }
@@ -290,6 +322,7 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
     const el = z.aufbau > 0 ? aufbauElemente(g, n, z.aufbau) : elementeImBereich(g, n);
     teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl }));
   }
+  if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (z.objekt && !erkl) {
     teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1)}</g>`);
     const q = A.zuBild(ausgangsstelle(z.punkt, n));

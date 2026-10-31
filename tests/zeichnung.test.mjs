@@ -102,3 +102,39 @@ test('Ausgangsobjekt: Ring folgt dem Objekt auch in der zweiten Zelle (Review PR
   const m = svg.match(/class="ausgang" cx="([\d.]+)" cy="([\d.]+)"/);
   assert.ok(Math.abs(Number(m[1]) - x) < 0.01 && Math.abs(Number(m[2]) - y) < 0.01);
 });
+
+test('Asymmetrische Einheit: alle Bedingungen zusammen ergeben genau die Fläche der ITA (alle 17 Gruppen)', async () => {
+  const { bedingungen, bereich, flaeche } = await import('../js/asymmetrie.js');
+  const { EBENENGRUPPEN } = await import('../js/ebenengruppen.js');
+  const { gruppe } = await import('../js/symmetrie.js');
+  for (const d of EBENENGRUPPEN) {
+    const b = bedingungen(d.ae.text);
+    assert.equal(b.length, d.ae.text.split(';').length, d.symbol);
+    const poly = bereich(b.flatMap((x) => x.halbebenen));
+    // Fläche = Zellfläche / Zahl der Operationen je Zelle, und gleich der Fläche der Ecken
+    assert.ok(Math.abs(flaeche(poly) - 1 / gruppe(d.symbol).ordnung) < 1e-9, `${d.symbol}: ${flaeche(poly)}`);
+    assert.ok(Math.abs(flaeche(poly) - flaeche(d.ae.ecken)) < 1e-9, d.symbol);
+    // jede Ecke der ITA liegt auf dem berechneten Bereich und umgekehrt
+    for (const e of d.ae.ecken) assert.ok(b.every((x) => x.halbebenen.every(([cx, cy, c0]) => cx * e[0] + cy * e[1] + c0 > -1e-9)), `${d.symbol}: Ecke ${e}`);
+    // jede einzelne Bedingung lässt mehr zu als alle zusammen (sonst wäre sie allein schon die Einheit)
+    if (b.length > 1) for (const x of b) assert.ok(flaeche(bereich(x.halbebenen, [-1, -1, 2, 2])) > flaeche(poly) + 1e-9, `${d.symbol}: ${x.text}`);
+  }
+  assert.deepEqual(bedingungen('y ≤ min(1 − x, (1 + x)/2)')[0].halbebenen, [[-1, -1, 1], [0.5, -1, 0.5]]);
+});
+
+test('Asymmetrische Einheit: gewählte Bedingungen in Tafel A und in der Link-Adresse', async () => {
+  const { tafelA } = await import('../js/zeichnung.js');
+  const { startzustand, hashVon, hashAnwenden } = await import('../js/zustand.js');
+  const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };
+  const z = { ...startzustand(), gruppe: 'p4mm', aeTeile: [2] };
+  const svg = tafelA('p4mm', z, F).svg;
+  assert.match(svg, /class="ae-teile"><polygon/);
+  assert.equal((svg.match(/class="ae-teile-grenzen">.*?<\/g>/)[0].match(/<line/g) || []).length, 1, 'x ≤ y: eine Grenzlinie');
+  assert.ok(svg.indexOf('ae-teile-grenzen') > svg.indexOf('class="elemente'), 'Grenzen über den Elementen');
+  assert.match(hashVon(z), /aet=2/);
+  const z2 = startzustand();
+  hashAnwenden(z2, '#m=eg&g=p4mm&aet=2,0,9,2');
+  assert.deepEqual(z2.aeTeile, [0, 2]);
+  hashAnwenden(z2, '#m=eg&g=p4mm&aet=x');
+  assert.deepEqual(z2.aeTeile, []);
+});
