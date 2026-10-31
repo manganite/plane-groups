@@ -289,6 +289,38 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Symmetrie brechen: Gitter ohne die Bindung des Kristallsystems
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Die Operationen von g, die bei der freien Metrik frei = { ba, gamma } bleiben: genau die, deren
+ * Matrix die Metrik erhält (die Lagen der Objekte ändern sich nicht, nur Abstände und Winkel).
+ * Ergebnis: { M, H (Untergruppe wie gruppe(): alle, ordnung, zentr, daten), bleibt, weg }.
+ */
+export function gebrochen(g, frei) {
+  const M = metrik(frei);
+  const G = [[M.a[0] ** 2 + M.a[1] ** 2, M.a[0] * M.b[0] + M.a[1] * M.b[1]], [0, M.b[0] ** 2 + M.b[1] ** 2]];
+  G[1][0] = G[0][1];
+  const s = Math.max(G[0][0], G[1][1]);
+  const erhaelt = (R) => [0, 1].every((i) => [0, 1].every((j) => {
+    let h = 0;
+    for (let k = 0; k < 2; k++) for (let l = 0; l < 2; l++) h += R[k][i] * G[k][l] * R[l][j];
+    return Math.abs(h - G[i][j]) < 1e-6 * s;
+  }));
+  const bleibt = g.alle.filter((op) => erhaelt(op.R));
+  const weg = g.alle.filter((op) => !erhaelt(op.R));
+  return { M, H: { ...g, alle: bleibt, ordnung: bleibt.length }, bleibt, weg };
+}
+
+/** Motiv ohne eigene Symmetrie (drei Punkte verschiedener Art), vervielfältigt mit g. */
+export function motivBahn(g, p = [0.137, 0.291]) {
+  const motiv = [{ d: [0, 0], art: 'A' }, { d: [0.031, 0.007], art: 'B' }, { d: [-0.004, 0.043], art: 'C' }];
+  const out = [];
+  for (const op of g.alle) for (const m of motiv) out.push({ p: anwenden(op, [p[0] + m.d[0], p[1] + m.d[1]]), art: m.art });
+  return out;
+}
+
+// ---------------------------------------------------------------------------------------------
 // Selbst zeichnen: Striche und die asymmetrische Einheit, vervielfältigt mit allen Operationen
 // ---------------------------------------------------------------------------------------------
 
@@ -454,15 +486,17 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
 export function tafelA(id, z, farben, { phase = 3 } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
-  const M = metrik(z.gitter[sys]);
+  const brechen = z.brechen ? gebrochen(g, z.frei) : null;
+  const M = brechen ? brechen.M : metrik(z.gitter[sys]);
   const n = z.zellen;
-  const erkl = z.erkl ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
+  // beim freien Gitter gelten Erklärung, Aufbau, Schritte und asymmetrische Einheit nicht
+  const erkl = z.erkl && !brechen ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
-  const schritt = z.schritt > 0 && z.objekt && !erkl ? z.schritt : 0;
+  const schritt = z.schritt > 0 && z.objekt && !erkl && !brechen ? z.schritt : 0;
   const s0 = ausgangsstelle(z.punkt, n);
   if (schritt) {
     for (const e of itaOperationen(g)) {
@@ -479,15 +513,15 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   }
   const A = ansicht(M, box);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
-  if (z.ae) {
+  if (z.ae && !brechen) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
     teile.push(`<polygon class="ae" points="${ecken}" fill="${farben.crystal}" fill-opacity="0.55" stroke="${farben.accent}" stroke-width="1.6" stroke-dasharray="5 3"/>`);
   }
-  if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben));
+  if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben));
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     teile.push(`<polygon points="${zellPoly(A, i, j)}" fill="none" stroke="${farben.muted}" stroke-width="1.2"/>`);
   }
-  if (!erkl) teile.push(zeichnungSVG(g, A, z, -1, n + 1, farben));
+  if (!erkl) teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, -1, n + 1, farben));
   // Achsen: a und b am Ursprung beschriftet
   const o = A.zuBild([0, 0]);
   const pa = A.zuBild([n * 0.5, 0]); const pb = A.zuBild([0, n * 0.5]);
@@ -496,11 +530,15 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   const lb = aus(pb, [M.b[1], -M.b[0]]); // über der b-Kante
   teile.push(`<g font-family="Source Serif 4, serif" font-style="italic" font-size="19" fill="${farben.muted}" text-anchor="middle" dominant-baseline="middle"><text x="${f2(la[0])}" y="${f2(la[1])}">a</text><text x="${f2(lb[0])}" y="${f2(lb[1])}">b</text></g>`);
   teile.push(`<circle cx="${f2(o[0])}" cy="${f2(o[1])}" r="2.6" fill="${farben.muted}"/>`);
-  if (z.elemente) {
+  if (z.elemente && brechen) {
+    // ursprüngliche Elemente blass, die verbleibenden darüber
+    teile.push(`<g opacity="0.3">${elementeSVG(g, elementeImBereich(g, n), A, farben, false, {})}</g>`);
+    teile.push(elementeSVG(g, elementeImBereich(brechen.H, n), A, farben, z.farben, {}));
+  } else if (z.elemente) {
     const el = z.aufbau > 0 ? aufbauElemente(g, n, z.aufbau) : elementeImBereich(g, n);
     teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl }));
   }
-  if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
+  if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
   else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined)}</g>`);
   if (z.objekt && !erkl) {
@@ -763,9 +801,10 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
 export function tafelB(id, z, farben) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
-  const M = metrik(z.gitter[sys]);
+  const brechen = z.brechen ? gebrochen(g, z.frei) : null;
+  const M = brechen ? brechen.M : metrik(z.gitter[sys]);
   const mitte = kart(M, [0.5, 0.5]);
-  const w = 4.4 * Math.max(1, z.gitter[sys].ba);
+  const w = 4.4 * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba);
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt
@@ -775,7 +814,7 @@ export function tafelB(id, z, farben) {
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
   teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
   if (z.musterElemente) {
-    const e = elementeImBereich(g, 1);
+    const e = elementeImBereich(brechen ? brechen.H : g, 1);
     const alle = { drehpunkte: [], linien: [] };
     for (let i = lo; i < hi; i++) for (let j = lo; j < hi; j++) {
       for (const d of e.drehpunkte) alle.drehpunkte.push({ ...d, punkt: [d.punkt[0] + i, d.punkt[1] + j] });
@@ -783,7 +822,7 @@ export function tafelB(id, z, farben) {
     }
     teile.push(elementeSVG(g, alle, A, farben, z.farben));
   }
-  teile.push(zeichnungSVG(g, A, z, lo, hi, farben, 0.8));
+  teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8));
   if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
