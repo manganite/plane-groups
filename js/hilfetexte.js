@@ -20,12 +20,18 @@ export const TIPS = {
   'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen.',
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
+  'werkzeug-warum': 'Werkzeug: Ein Symmetrieelement antippen zeigt, aus welchen zwei Operationen es folgt, am Fähnchen Schritt für Schritt.',
+  'opt-aufbau': 'Die Symmetrieelemente der Reihe nach aus den Erzeugenden aufbauen: zuerst die Erzeugenden nach den International Tables, dann was aus ihren Verknüpfungen folgt.',
+  'aufbau-schritt': 'Schritt im Aufbau. Ein Schritt verknüpft jede bisherige Operation mit einer Erzeugenden oder einer Gittertranslation.',
+  'aufbau-zurueck': 'Einen Schritt zurück.',
+  'aufbau-vor': 'Einen Schritt weiter: Die neu hinzukommenden Elemente sind hervorgehoben.',
   'reset-alles': 'Alle Einstellungen auf den Startzustand zurücksetzen.',
 };
 
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-einrasten'] },
+  { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden? Hier erscheinen sie Schritt für Schritt.', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten.', ids: ['lat-ba', 'lat-gamma'] },
   { heading: '#sec-view > summary', ids: ['v-farben', 'v-muster-el'] },
@@ -38,4 +44,6 @@ export const LABELS = {
   'obj-y': 'y',
   'lat-ba': 'b/a',
   'lat-gamma': 'γ',
+  'aufbau-zurueck': 'zurück',
+  'aufbau-vor': 'weiter',
 };

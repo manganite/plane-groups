@@ -7,6 +7,8 @@ import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, metrik, ausgangsstelle } from './zeichnung.js';
+import { herkunft, elementSchluessel } from './herkunft.js';
+import { erklaerungHTML } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 
@@ -49,6 +51,7 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 const farben = () => ({
   paper: css('paper'), ink: css('ink'), muted: css('muted'), line: css('line'), accent: css('accent'), accent2: css('accent2'),
   upper: css('upper'), crystal: css('crystal'), dir: [css('dir1'), css('dir2'), css('dir3')],
+  fc3: css('fc3'), fc4: css('fc4'),
 });
 
 // ------------------------------------------------------------------ Gruppenwahl
@@ -75,6 +78,28 @@ function bedienungAbgleichen() {
   document.querySelector('#row-einrasten .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
   document.querySelectorAll('#seg-form button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
   $('v-farben').checked = z.farben;
+  // Aufbau aus Erzeugenden
+  const h = herkunft(gruppeVon(z.gruppe));
+  const maxS = h.maxTiefe;
+  if (z.aufbau > maxS) z.aufbau = maxS;
+  const aufbauMoeglich = z.elemente && maxS > 0;
+  $('opt-aufbau').checked = z.aufbau > 0;
+  $('opt-aufbau').disabled = !aufbauMoeglich;
+  document.querySelector('#row-aufbau .why').textContent = !z.elemente ? 'nur mit „Symmetrieelemente“' : maxS === 0 ? 'p1 hat ausser den Translationen keine Symmetrieelemente' : '';
+  $('aufbau-schritt').max = String(Math.max(1, maxS));
+  $('aufbau-schritt').value = String(Math.max(1, z.aufbau));
+  $('aufbau-schritt').disabled = z.aufbau === 0;
+  $('aufbau-schritt-out').textContent = z.aufbau > 0 ? `${z.aufbau} von ${maxS}` : '–';
+  $('aufbau-zurueck').disabled = z.aufbau <= 1;
+  $('aufbau-vor').disabled = z.aufbau === 0 || z.aufbau >= maxS;
+  const erz = ebenengruppe(z.gruppe).erzeugende;
+  $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
+    : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
+      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
+  // Werkzeug „Warum ist das da?“
+  $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
+  $('werkzeug-warum').disabled = !z.elemente;
+  document.body.classList.toggle('warum', z.warum && z.elemente);
   $('v-muster-el').checked = z.musterElemente;
   // Objekt
   const p = z.punkt.map(mod1);
@@ -101,10 +126,14 @@ function bedienungAbgleichen() {
 
 // ------------------------------------------------------------------ Zeichnen
 let ansichtA = null;
+let erklaerung = null;
+let phase = 3;
 function zeichnen() {
   const f = farben();
-  const a = tafelA(z.gruppe, z, f);
+  const a = tafelA(z.gruppe, z, f, { phase });
   ansichtA = a.ansicht;
+  erklaerung = a.erklaerung;
+  if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
   $('bild-a').innerHTML = a.svg;
   $('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
@@ -143,7 +172,14 @@ function legende(f) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
-  if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
+  if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
+  if (erklaerung) {
+    if (!erklaerung.erzeugende) items.push(`<span class="lg"><i class="sw" style="background:${f.fc3}"></i>B, zuerst</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
+  }
+  if (z.warum && z.elemente) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
+  else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
 }
 
@@ -197,7 +233,9 @@ function kenndaten() {
       <div class="hm-big">${symbolHTML(d.symbol)}</div>
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
-    ${lagebox}
+    ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
+    : z.warum && z.elemente ? '<div class="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen: Hier erscheint, aus welchen zwei Operationen es folgt.</p></div>' : ''}
+    ${erklaerung ? '' : lagebox}
     <dl class="facts">
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
       <div><dt>Kristallsystem</dt><dd>${SYSTEMNAMEN[d.system]}</dd></div>
@@ -251,12 +289,55 @@ function naheObjekt(e) {
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
   return Math.hypot(s[0] - q[0], s[1] - q[1]) < r;
 }
+/** Element unter dem Zeiger wählen (Drehpunkte vor Linien), sonst die Auswahl aufheben. */
+function elementWaehlen(e) {
+  if (!ansichtA) return;
+  const s = svgPunkt(e);
+  const g = gruppeVon(z.gruppe);
+  const el = elementeImBereich(g, z.zellen);
+  const w = $('bild-a').getBoundingClientRect().width || 520;
+  const r = (coarse.matches ? 22 : 12) * (520 / w) * (w < 520 ? 1 : 1);
+  let best = null;
+  for (const d of el.drehpunkte) {
+    const q = ansichtA.zuBild(d.punkt);
+    const dist = Math.hypot(s[0] - q[0], s[1] - q[1]);
+    if (dist < r * 1.2 && (!best || dist < best.dist)) best = { dist, el: d };
+  }
+  if (!best) {
+    for (const l of el.linien) {
+      const [p, q] = l.strecke.map(ansichtA.zuBild);
+      const vx = q[0] - p[0]; const vy = q[1] - p[1]; const ll = vx * vx + vy * vy;
+      const t = Math.max(0, Math.min(1, ((s[0] - p[0]) * vx + (s[1] - p[1]) * vy) / ll));
+      const dist = Math.hypot(s[0] - p[0] - t * vx, s[1] - p[1] - t * vy);
+      if (dist < r && (!best || dist < best.dist)) best = { dist, el: l };
+    }
+  }
+  z.erkl = best ? elementSchluessel(best.el) : null;
+  if (z.erkl) abspielen(); else aktualisieren();
+}
+
+/** Schritte der Erklärung nacheinander zeigen (0 → 3). */
+let ablauf = null;
+function abspielen() {
+  clearTimeout(ablauf);
+  phase = 0;
+  aktualisieren();
+  const weiter = () => {
+    if (phase >= 3 || !z.erkl) return;
+    phase += 1;
+    aktualisieren();
+    ablauf = setTimeout(weiter, 1100);
+  };
+  ablauf = setTimeout(weiter, 900);
+}
+
 let ziehen = false, bewegt = false, start = null;
 function zeigerEinrichten() {
   const svg = $('bild-a');
   svg.addEventListener('touchstart', (e) => { if (naheObjekt(e)) e.preventDefault(); }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
+    if (z.warum && z.elemente) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
     if (e.pointerType === 'mouse' || naheObjekt(e)) {
@@ -275,7 +356,7 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', () => { ziehen = false; });
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (!z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
+    if (z.warum || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
     const p = ansichtA.vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -309,6 +390,7 @@ function init() {
   $('picker').addEventListener('click', (e) => {
     const b = e.target.closest('.pgb');
     if (!b) return;
+    if (z.gruppe !== b.dataset.g) z.erkl = null;
     z.gruppe = b.dataset.g;
     aktualisieren();
   });
@@ -344,7 +426,22 @@ function init() {
   $('info').addEventListener('click', (e) => {
     const b = e.target.closest('.setzen');
     if (b) wyckoffSetzen(b.dataset.wy);
+    const ph = e.target.closest('[data-phase]');
+    if (ph) { clearTimeout(ablauf); phase = Number(ph.dataset.phase); aktualisieren(); }
+    if (e.target.closest('[data-abspielen]')) abspielen();
+    if (e.target.closest('[data-erkl-zu]')) { clearTimeout(ablauf); z.erkl = null; phase = 3; aktualisieren(); }
+    const wahl = e.target.closest('[data-erkl]');
+    if (wahl) { z.erkl = wahl.dataset.erkl; abspielen(); }
   });
+  $('werkzeug-warum').addEventListener('click', () => {
+    z.warum = !z.warum;
+    if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
+    aktualisieren();
+  });
+  $('opt-aufbau').addEventListener('change', () => { z.aufbau = $('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
+  $('aufbau-schritt').addEventListener('input', () => { z.aufbau = Number($('aufbau-schritt').value); aktualisieren(); });
+  $('aufbau-zurueck').addEventListener('click', () => { z.aufbau = Math.max(1, z.aufbau - 1); aktualisieren(); });
+  $('aufbau-vor').addEventListener('click', () => { z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, z.aufbau + 1); aktualisieren(); });
   zeigerEinrichten();
   // Telefon: eine Tafel oben, Umschalter
   document.querySelectorAll('.figswitch button').forEach((b) => b.addEventListener('click', () => {

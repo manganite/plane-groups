@@ -62,6 +62,24 @@
 .itatab .zent td { color: var(--muted); font-size: 0.82rem; padding-top: 8px; }
 @media (pointer: coarse) { .itatab .setzen { min-height: 40px; } }
 .tabwrap { overflow-x: auto; }
+.panel-head .tools button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+body.warum #bild-a { cursor: pointer; }
+/* „Warum ist das da?“ in den Kenndaten */
+.warumbox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
+.warumbox h3 { margin: 0 0 6px; color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 1rem; }
+.warumbox p { margin: 6px 0 0; }
+.warumbox .gleichung { font-size: 1.02rem; margin: 6px 0; }
+.warumbox .ab { display: inline-block; min-width: 1.6em; padding: 0 5px; border-radius: 4px; color: var(--paper); font-weight: 600; text-align: center; }
+.warumbox .ab.a { background: var(--fc4); } .warumbox .ab.b { background: var(--fc3); } .warumbox .ab.c { background: var(--accent); }
+.warumbox .regel { padding: 6px 10px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.warumbox ol { margin: 6px 0 0; padding-left: 1.4em; }
+.warumbox ol li { margin: 2px 0; }
+.phasen { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.phasen button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 3px 10px; font: inherit; font-size: 0.85rem; cursor: pointer; }
+.phasen button:hover { border-color: var(--muted); }
+.phasen button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.phasen .linkbtn { margin-left: auto; }
+@media (pointer: coarse) { .phasen button { min-height: 40px; } }
 .lagebox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
 .lagebox strong { color: var(--accent); }
 .lagebox p { margin: 6px 0 0; }
@@ -137,6 +155,21 @@
           <button class="resetbtn" id="reset-objekt" type="button">Objekt zurücksetzen</button>
         </div>
       </details>
+      <details class="sect" id="sec-aufbau">
+        <summary>Aufbau aus Erzeugenden<span class="sumhint">Schritt für Schritt</span></summary>
+        <div class="stack">
+          <label class="check" id="row-aufbau"><input type="checkbox" id="opt-aufbau"><span>Schrittweise aufbauen<span class="why"></span></span></label>
+          <div class="range">
+            <label for="aufbau-schritt">Schritt</label><output id="aufbau-schritt-out"></output>
+            <input type="range" id="aufbau-schritt" min="1" max="4" step="1">
+          </div>
+          <div class="seg seg-text" role="group" aria-label="Schritte">
+            <button type="button" id="aufbau-zurueck">◀ zurück</button>
+            <button type="button" id="aufbau-vor">weiter ▶</button>
+          </div>
+          <p class="hintline" id="aufbau-hint"></p>
+        </div>
+      </details>
       <details class="sect" id="sec-gitter">
         <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
@@ -168,6 +201,7 @@
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Symmetriegerüst</button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Symmetriegerüst<small id="sub-a"></small></span>
+        <div class="tools" role="group" aria-label="Werkzeug"><button type="button" id="werkzeug-warum" aria-pressed="false">Warum ist das da?</button></div>
       </div>
       <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
       <div class="legend" id="legend"></div>

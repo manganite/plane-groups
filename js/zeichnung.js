@@ -7,7 +7,8 @@
 // Drehpunkte als Linse (2), Dreieck (3), Raute (4), Sechseck (6); Spiegellinien durchgezogen,
 // Gleitspiegellinien gestrichelt.
 
-import { gruppe as gruppeVon, elemente, anwenden, mod1, SYMMETRIERICHTUNGEN } from './symmetrie.js';
+import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICHTUNGEN } from './symmetrie.js';
+import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp } from './herkunft.js';
 
 // ---------------------------------------------------------------------------------------------
 // Metrik und Ansicht
@@ -100,33 +101,78 @@ export function elementeImBereich(g, n) {
   return { drehpunkte: dreh, linien };
 }
 
-/** SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q. */
-export function drehSymbol(n, q, farbe, rand) {
+/** SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q, Grösse k (1 = normal). */
+export function drehSymbol(n, q, farbe, rand, k = 1) {
   const [x, y] = q;
   const stil = `fill="${farbe}" stroke="${rand}" stroke-width="1.2"`;
-  if (n === 2) return `<ellipse cx="${f2(x)}" cy="${f2(y)}" rx="4.6" ry="8.2" ${stil}/>`;
-  const poly = (r, k, phase) => Array.from({ length: k }, (_, i) => {
-    const w = phase + (2 * Math.PI * i) / k;
-    return `${f2(x + r * Math.cos(w))},${f2(y + r * Math.sin(w))}`;
+  if (n === 2) return `<ellipse cx="${f2(x)}" cy="${f2(y)}" rx="${f2(4.6 * k)}" ry="${f2(8.2 * k)}" ${stil}/>`;
+  const poly = (r, m, phase) => Array.from({ length: m }, (_, i) => {
+    const w = phase + (2 * Math.PI * i) / m;
+    return `${f2(x + r * k * Math.cos(w))},${f2(y + r * k * Math.sin(w))}`;
   }).join(' ');
   if (n === 3) return `<polygon points="${poly(9, 3, -Math.PI / 2)}" ${stil}/>`;
   if (n === 4) return `<polygon points="${poly(8.5, 4, 0)}" ${stil}/>`;
   return `<polygon points="${poly(8.5, 6, 0)}" ${stil}/>`;
 }
 
-/** SVG der Symmetrieelemente (Linien zuerst, Drehpunkte darüber). */
-function elementeSVG(g, el, A, farben, mitFarben) {
+/** SVG einer Linie (Spiegel- oder Gleitspiegellinie) zwischen zwei Bildpunkten. */
+function linieSVG(p, q, art, farbe, breite = null) {
+  const b = breite ?? (art === 'spiegel' ? 2.8 : 2);
+  return art === 'spiegel'
+    ? `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${farbe}" stroke-width="${b}" stroke-linecap="round"/>`
+    : `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${farbe}" stroke-width="${b}" stroke-dasharray="8 5"/>`;
+}
+
+/**
+ * SVG der Symmetrieelemente (Linien zuerst, Drehpunkte darüber). Ein Element kann markiert
+ * sein: neu: true (im Aufbau gerade hinzugekommen); Drehpunkte mit ordnungen: [3, 2] zeigen
+ * mehrere Symbole an derselben Stelle. gedimmt: alles blasser (bei einer Erklärung).
+ */
+function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false } = {}) {
   const sys = g.daten.system;
   const farbeVon = (pos) => (mitFarben ? farben.dir[pos - 1] : farben.ink);
   const linien = el.linien.map((l) => {
     const [p, q] = l.strecke.map(A.zuBild);
     const c = farbeVon(blickrichtung(sys, l.normale));
-    return l.art === 'spiegel'
-      ? `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${c}" stroke-width="2.8" stroke-linecap="round"/>`
-      : `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${c}" stroke-width="2" stroke-dasharray="8 5"/>`;
+    if (!l.neu) return linieSVG(p, q, l.art, c);
+    return `<g class="neu">${linieSVG(p, q, 'spiegel', farben.accent2, 9).replace('<line', '<line stroke-opacity="0.28"')}${linieSVG(p, q, l.art, c)}</g>`;
   });
-  const dreh = el.drehpunkte.map((d) => drehSymbol(d.n, A.zuBild(d.punkt), farbeVon(1), farben.paper));
-  return `<g class="elemente">${linien.join('')}${dreh.join('')}</g>`;
+  const dreh = el.drehpunkte.map((d) => {
+    const q = A.zuBild(d.punkt);
+    const ordn = [...(d.ordnungen ?? [d.n])].sort((u, v) => v - u);
+    const halo = d.neu ? `<circle class="neu" cx="${f2(q[0])}" cy="${f2(q[1])}" r="13" fill="${farben.accent2}" fill-opacity="0.3"/>` : '';
+    // mehrere Zähligkeiten am selben Punkt (Aufbau): die grösste vergrössert, die übrigen hell darin
+    if (ordn.length === 1) return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper);
+    return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, 1.45)
+      + ordn.slice(1).map((n) => drehSymbol(n, [q[0], q[1] + (ordn[0] === 3 ? 1.5 : 0)], farben.paper, farbeVon(1), 0.6)).join('');
+  });
+  return `<g class="elemente"${gedimmt ? ' opacity="0.35"' : ''}>${linien.join('')}${dreh.join('')}</g>`;
+}
+
+/** Echte Teiler > 1 und die Zahl selbst (Zähligkeiten an einem Drehpunkt): 6 → [6, 3, 2]. */
+const teiler = (n) => [6, 4, 3, 2].filter((k) => k <= n && n % k === 0);
+
+/**
+ * Elemente der Zellen [0, n]² im Aufbau aus Erzeugenden bis zum Schritt schritt (herkunft.js).
+ * An einem Drehpunkt erscheinen die Zähligkeiten, die bis dahin entstanden sind; eine, die
+ * eine andere teilt, entfällt (2 und 3 → beide, 2 und 6 → 6). neu: genau in diesem Schritt.
+ */
+export function aufbauElemente(g, n, schritt) {
+  const e = elementeImBereich(g, n);
+  const h = herkunft(g);
+  const drehpunkte = [];
+  for (const d of e.drehpunkte) {
+    const st = new Map(teiler(d.n).map((k) => [k, h.klassen.get(klassenSchluessel(g, { n: k, punkt: d.punkt }))]));
+    const da = [...st.keys()].filter((k) => st.get(k) <= schritt);
+    const zeigen = da.filter((k) => !da.some((m) => m !== k && m % k === 0));
+    if (zeigen.length) drehpunkte.push({ ...d, ordnungen: zeigen, neu: zeigen.some((k) => st.get(k) === schritt) });
+  }
+  const linien = [];
+  for (const l of e.linien) {
+    const s = schrittVon(g, l);
+    if (s <= schritt) linien.push({ ...l, neu: s === schritt });
+  }
+  return { drehpunkte, linien };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -197,12 +243,21 @@ const zellPoly = (A, i, j, n = 1) => [[i, j], [i, j + n], [i + n, j + n], [i + n
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
  * Ergebnis: { svg (Inhalt des <svg>), ansicht }.
  */
-export function tafelA(id, z, farben) {
+export function tafelA(id, z, farben, { phase = 3 } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const M = metrik(z.gitter[sys]);
   const n = z.zellen;
-  const A = ansicht(M, zellBox(M, n));
+  const erkl = z.erkl ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
+  // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
+  let box = zellBox(M, n);
+  if (erkl) {
+    for (const p of [erkl.start, anwenden(erkl.B, erkl.start), anwenden(erkl.C, erkl.start)]) {
+      const c = kart(M, p); const r = 0.12 * Math.max(1, z.gitter[sys].ba);
+      box = [Math.min(box[0], c[0] - r), Math.min(box[1], c[1] - r), Math.max(box[2], c[0] + r), Math.max(box[3], c[1] + r)];
+    }
+  }
+  const A = ansicht(M, box);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   if (z.ae) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
@@ -219,13 +274,110 @@ export function tafelA(id, z, farben) {
   const lb = aus(pb, [M.b[1], -M.b[0]]); // über der b-Kante
   teile.push(`<g font-family="Source Serif 4, serif" font-style="italic" font-size="19" fill="${farben.muted}" text-anchor="middle" dominant-baseline="middle"><text x="${f2(la[0])}" y="${f2(la[1])}">a</text><text x="${f2(lb[0])}" y="${f2(lb[1])}">b</text></g>`);
   teile.push(`<circle cx="${f2(o[0])}" cy="${f2(o[1])}" r="2.6" fill="${farben.muted}"/>`);
-  if (z.elemente) teile.push(elementeSVG(g, elementeImBereich(g, n), A, farben, z.farben));
-  if (z.objekt) {
+  if (z.elemente) {
+    const el = z.aufbau > 0 ? aufbauElemente(g, n, z.aufbau) : elementeImBereich(g, n);
+    teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl }));
+  }
+  if (z.objekt && !erkl) {
     teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1)}</g>`);
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="15" fill="none" stroke="${farben.accent}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`);
   }
-  return { svg: teile.join(''), ansicht: A };
+  if (erkl) teile.push(erklaerungSVG(g, M, A, erkl, phase, farben, z.form, n));
+  return { svg: teile.join(''), ansicht: A, erklaerung: erkl };
+}
+
+// ---------------------------------------------------------------------------------------------
+// „Warum ist das da?“: ein Element als Verknüpfung C = A ∘ B
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Daten der Erklärung eines Elements (Schlüssel aus herkunft.js) in den Zellen [0, n]²:
+ * C = A ∘ B (zuerst B, dann A), die Herleitungskette und der Startpunkt des Fähnchens. Der
+ * Startpunkt ist ein Gitterbild des Objekts p, bei dem Start, B(Start) und C(Start) möglichst
+ * nahe an der Mitte der Zellen liegen. null, wenn das Element nicht bekannt ist.
+ */
+export function erklaerungsDaten(g, schluessel, p, n, M) {
+  const e = herkunft(g).elemente.get(schluessel);
+  if (!e) return null;
+  const kette = herleitung(g, e.schluessel);
+  const erst = kette[0];
+  const C = e.op; const A = erst.a; const B = erst.b;
+  const mitte = kart(M, [n / 2, n / 2]);
+  const p0 = p.map(mod1);
+  let best = null;
+  const zen = g.zentr;
+  for (const z of zen) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+    const s = [p0[0] + i + z[0], p0[1] + j + z[1]];
+    const kosten = [s, anwenden(B, s), anwenden(C, s)].reduce((sum, q) => {
+      const c = kart(M, q); return sum + (c[0] - mitte[0]) ** 2 + (c[1] - mitte[1]) ** 2;
+    }, 0);
+    if (!best || kosten < best.kosten - 1e-12) best = { s, kosten };
+  }
+  return { schluessel, element: e.element, tiefe: e.tiefe, C, A, B, kette, start: best.s, erzeugende: B.R[0][0] === 1 && B.R[1][1] === 1 && !B.R[0][1] && !B.R[1][0] && !B.t[0] && !B.t[1] };
+}
+
+/** Element einer Operation als SVG (Drehpunkt oder Linie über den sichtbaren Bereich). */
+function opElementSVG(g, op, A, farbe, papier, n, breit = false) {
+  const el = elementVonOp(g, op);
+  if (!el) return '';
+  if (el.typ === 'dreh') {
+    const q = A.zuBild(el.punkt);
+    return `<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="${breit ? 17 : 14}" fill="none" stroke="${farbe}" stroke-width="3"/>${drehSymbol(el.n, q, farbe, papier)}`;
+  }
+  const s = clipLinie(el.punkt, el.richtung, [-1.5, -1.5, n + 1.5, n + 1.5]);
+  if (!s) return '';
+  const [p, q] = s.map(A.zuBild);
+  return `${linieSVG(p, q, 'spiegel', farbe, breit ? 11 : 8).replace('<line', '<line stroke-opacity="0.25"')}${linieSVG(p, q, el.typ, farbe, 3)}`;
+}
+
+/** Pfeil zwischen zwei Bildpunkten mit Nummer in der Mitte. */
+function pfeilSVG(p, q, farbe, papier, nummer, gestrichelt = false) {
+  const dx = q[0] - p[0]; const dy = q[1] - p[1]; const l = Math.hypot(dx, dy);
+  if (l < 4) return '';
+  const ux = dx / l; const uy = dy / l;
+  const e = [q[0] - 8 * ux, q[1] - 8 * uy]; // Spitze etwas vor dem Ziel
+  const a = [p[0] + 8 * ux, p[1] + 8 * uy];
+  const spitze = [[e[0], e[1]], [e[0] - 9 * ux + 4.5 * uy, e[1] - 9 * uy - 4.5 * ux], [e[0] - 9 * ux - 4.5 * uy, e[1] - 9 * uy + 4.5 * ux]];
+  const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+  return `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(e[0] - 6 * ux)}" y2="${f2(e[1] - 6 * uy)}" stroke="${farbe}" stroke-width="2.2"${gestrichelt ? ' stroke-dasharray="5 4"' : ''}/>`
+    + `<polygon points="${spitze.map(pt).join(' ')}" fill="${farbe}"/>`
+    + (nummer ? `<circle cx="${f2(m[0])}" cy="${f2(m[1])}" r="9" fill="${papier}" stroke="${farbe}" stroke-width="1.6"/><text x="${f2(m[0])}" y="${f2(m[1] + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="${farbe}" text-anchor="middle" dominant-baseline="middle">${nummer}</text>` : '');
+}
+
+/**
+ * Überlagerung der Erklärung in Tafel A. phase 0: Ausgangsobjekt; 1: zuerst B; 2: dann A;
+ * 3: zusammen: C führt das Ausgangsobjekt direkt dorthin.
+ */
+function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
+  const teile = ['<g class="erklaerung">'];
+  const fB = farben.fc3; const fA = farben.fc4; const fC = farben.accent;
+  // Elemente: C hervorgehoben, A und B in ihren Farben (Translationen als Pfeil)
+  teile.push(opElementSVG(g, d.C, A, fC, farben.paper, n, true));
+  if (phase >= 1 && !d.erzeugende) teile.push(opElementSVG(g, d.B, A, fB, farben.paper, n));
+  if (phase >= 2) teile.push(opElementSVG(g, d.A, A, fA, farben.paper, n));
+  // Fähnchen
+  const s = d.start; const sB = anwenden(d.B, s); const sC = anwenden(d.C, s);
+  const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
+  const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
+  teile.push(fahne(s, id, farben.ink));
+  const q0 = A.zuBild(s);
+  teile.push(`<circle cx="${f2(q0[0])}" cy="${f2(q0[1])}" r="16" fill="none" stroke="${farben.ink}" stroke-width="1.5" stroke-dasharray="3 2.5"/>`);
+  if (phase >= 1 && !d.erzeugende) {
+    teile.push(pfeilSVG(q0, A.zuBild(sB), fB, farben.paper, '1'));
+    teile.push(fahne(sB, d.B, fB));
+  }
+  if (phase >= 2) {
+    teile.push(pfeilSVG(A.zuBild(d.erzeugende ? s : sB), A.zuBild(sC), fA, farben.paper, d.erzeugende ? '' : '2'));
+    teile.push(fahne(sC, d.C, fA));
+  }
+  if (phase >= 3) {
+    if (!d.erzeugende) teile.push(pfeilSVG(q0, A.zuBild(sC), fC, farben.paper, '', true));
+    const qc = A.zuBild(sC);
+    teile.push(`<circle cx="${f2(qc[0])}" cy="${f2(qc[1])}" r="18" fill="none" stroke="${fC}" stroke-width="2.2"/>`);
+  }
+  teile.push('</g>');
+  return teile.join('');
 }
 
 /**

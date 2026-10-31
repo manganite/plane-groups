@@ -8,6 +8,13 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Aufbau aus Erzeugenden** und **„Warum ist das da?“** (Konzept §1b, Blickrichtung „Bedingen“):
+  - `js/herkunft.js` sucht schrittweise, welche Operationen aus den Erzeugenden nach ITA und den Gittertranslationen folgen. Je Element merkt es sich die Zerlegung *C* = *A* ∘ *B*, Translationen zuerst.
+  - Tafel A zeigt die Elemente Schritt für Schritt, neue hervorgehoben.
+  - Das Werkzeug „Warum ist das da?“ zeigt für ein angetipptes Element die Zerlegung mit Fähnchen, Regel (`js/warum.js`) und Herleitung.
+  - Link-Adresse mit `aufbau`, `warum`, `erkl`.
+  - Tests `tests/herkunft.test.mjs`: Herkunft aller Elemente, Beispiele p4mm, c2mm und p6, Regeln.
+
 - **Modus „Ebenengruppen“** (Kern): Gruppenwahl; Symmetriegerüst der Elementarzelle (wahlweise 2 × 2) mit den Symbolen der ITA; Objekt (Fähnchen oder Kreis mit Komma) mit allen Bildern, ziehbar, mit Einrasten auf spezielle Lagen; asymmetrische Einheit; Muster; Kenndaten wie eine ITA-Seite mit „setzen“ je Wyckoff-Lage; Gitterparameter innerhalb des Kristallsystems; Färbung nach Blickrichtung; Zustand in der Link-Adresse (`js/zustand.js`, Format im README); Hilfetexte und Erste Schritte.
 - `js/zeichnung.js` (SVG der Tafeln, ohne DOM), `js/text.js` (Schreibweise wie in ITA), Tests `tests/zeichnung.test.mjs`, `tests/zustand.test.mjs`, `tests/text.test.mjs`.
 

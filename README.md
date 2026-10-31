@@ -22,6 +22,8 @@ In Arbeit; das erste Release folgt.
   - **Muster:** Ausschnitt des unendlichen Musters mit hervorgehobener Elementarzelle.
   - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen, Auslöschungen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
   - **Gitterparameter** innerhalb des Kristallsystems frei: *b*/*a* (schiefwinklig, rechteckig), γ (schiefwinklig).
+  - **Aufbau aus Erzeugenden:** Die Symmetrieelemente erscheinen Schritt für Schritt. Zuerst kommen die Erzeugenden nach ITA („Generators selected“), dann, was aus ihren Verknüpfungen mit den Gittertranslationen folgt. Neue Elemente sind hervorgehoben.
+  - **„Warum ist das da?“:** Ein Element antippen zeigt, aus welchen zwei Operationen es folgt (*C* = *A* ∘ *B*). Das Fähnchen läuft die Schritte ab, die passende Regel wird genannt (z. B. „Spiegelung + Translation schräg zur Linie = Gleitspiegelung“), dazu die Herleitung aus den Erzeugenden.
 
 ## Links auf Ansichten
 
@@ -40,6 +42,9 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
 | `farb` | nach Blickrichtung färben | `0`, **`1`** |
 | `mel` | Symmetrieelemente im Muster | **`0`**, `1` |
+| `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
+| `warum` | Werkzeug „Warum ist das da?“ | **`0`**, `1` |
+| `erkl` | erklärtes Element | z. B. `4;1/2,1/2` (4-zähliger Drehpunkt bei ½, ½), `m;1/4,0;0,1` (Spiegellinie durch ¼, 0 in Richtung [01]), `g;…` (Gleitspiegellinie) |
 | `ba` | *b*/*a* (nur schiefwinklig, rechteckig) | 0.6–1.6; **1.25** bzw. **1.35** |
 | `gamma` | γ in Grad (nur schiefwinklig) | 95–125; **105** |
 
