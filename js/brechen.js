@@ -7,10 +7,11 @@ import { gebrochen, elementeImBereich, motivBahn } from './zeichnung.js';
 import { bestimme } from './bestimmung.js';
 import { elementSchluessel } from './herkunft.js';
 import { vektorText } from './warum.js';
+import { dezimal, richtungHTML } from './text.js';
 
 const SYSTEME = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
-const komma = (v, n = 2) => String(Number(v.toFixed(n))).replace('.', ',');
-const richtung = (d) => `[${d.map((x) => (x < 0 ? `${-x}̄` : String(x))).join('')}]`;
+const komma = (v, n = 2) => dezimal(v, n, { kuerzen: true });
+const richtung = richtungHTML;
 const kursiv = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
 
 /**

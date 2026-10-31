@@ -9,7 +9,7 @@ import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
 import { vektorText } from './warum.js';
-import { zahlText, lageHTML, symbolHTML } from './text.js';
+import { koordText, lageHTML, symbolHTML } from './text.js';
 
 const SYSTEMNAMEN = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
@@ -234,7 +234,7 @@ export function strukturHTML(st, r, vorher, farben) {
   const zeilen = st.basis.map((e, k) => {
     const l = lagen[k];
     return `<tr><td><i class="sw" style="background:${f[(e.farbe ?? 0) % f.length]}"></i> ${MOTIVE[e.motiv].name}</td><td>${lageHTML(MOTIVE[e.motiv].symmetrie)}</td>
-      <td>(${e.p.map((v) => zahlText(mod1(v))).join(', ')})</td><td>(${l.x.map((v) => zahlText(v)).join(', ')})</td>
+      <td>${koordText(e.p.map(mod1))}</td><td>${koordText(l.x)}</td>
       <td class="num">${l.zaehligkeit} <span class="wy">${l.buchstabe}</span></td><td>${lageHTML(l.symbol)}</td></tr>`;
   }).join('');
   return `
@@ -248,7 +248,7 @@ export function strukturHTML(st, r, vorher, farben) {
       <div><dt>Punktgruppe</dt><dd>${symbolHTML(d.punktgruppe)}</dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${r.ordnung}</dd></div>
       <div class="wide"><dt>Konventionelle Zelle nach ITA</dt><dd>${zelle ?? 'die gegebene Zelle (<i>a</i>, <i>b</i>)'}${r.primitiv > 1 ? `; die gegebene Zelle enthält ${r.primitiv} Gitterpunkte, die kleinste Zelle ist ${r.primitiv}-mal kleiner` : ''}</dd></div>
-      <div class="wide"><dt>Ursprung nach ITA</dt><dd>bei (${r.ursprung.map((v) => zahlText(v)).join(', ')}) der gegebenen Zelle</dd></div>
+      <div class="wide"><dt>Ursprung nach ITA</dt><dd>bei ${koordText(r.ursprung)} der gegebenen Zelle</dd></div>
     </dl>
     <h3>Basis</h3>
     <div class="tabwrap"><table class="itatab"><thead><tr><th>Motiv</th><th>Eigene Symmetrie</th><th>Lage (<i>a</i>, <i>b</i>)</th><th>Lage (<i>a</i>′, <i>b</i>′)</th><th>Wyckoff-Lage</th><th>Lagesymmetrie</th></tr></thead><tbody>${zeilen}</tbody></table></div>

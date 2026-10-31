@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Skript: Symmetrie in der Ebene</title>
-<meta name="description" content="Vorlage für das Skript einer App der Familie.">
+<meta name="description" content="Skript zur Einführung in die Kristallographie: Gitter, Elementarzelle und Basis, Symmetrie des Gitters, Gitter und Motiv, Gleitspiegelung, die 17 Ebenengruppen und Punktlagen.">
 <link rel="icon" href="icons/favicon.ico" sizes="any">
 <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="lib/common/css/skript.css">
 <style>
 /* Nur in diesem Skript: Stile eigener Abbildungen. Alles Gemeinsame steht in lib/common/css/skript.css. */
-.musterfig { max-width: 420px; margin-inline: auto; }
+.fig-mittel { max-width: 460px; margin-inline: auto; }
 </style>
 </head>
 <body>
@@ -38,14 +38,16 @@
       <details open>
         <summary>Inhalt</summary>
         <ol>
-          <li><a href="#kapitel1"><span class="nr">1</span>Ein Kapitel des Grundstoffs</a>
+          <li><a href="#gitter-basis"><span class="nr">1</span>Gitter, Elementarzelle und Basis</a>
             <ol>
-              <li><a href="#abschnitt1">Ein Abschnitt</a></li>
-              <li><a href="#abschnitt2">Ein Abschnitt mit Vertiefung</a></li>
+              <li><a href="#muster">Periodische Muster</a></li>
+              <li><a href="#gitter">Gitter und Gittervektoren</a></li>
+              <li><a href="#elementarzelle">Die Elementarzelle</a></li>
+              <li><a href="#koordinaten">Bruchkoordinaten</a></li>
+              <li><a href="#basis">Gitter und Basis</a></li>
+              <li><a href="#basis-gitter">Wenn die Basis das Gitter ändert</a></li>
             </ol>
           </li>
-          <li class="toc-teil">Vertiefungen</li>
-          <li><a href="#kapitel2"><span class="nr">2</span>Ein Vertiefungskapitel</a></li>
         </ol>
         <p class="toc-foot">Begriffe nach Borchardt-Ott &amp; Sowa, <i>Kristallographie</i> (2018).</p>
       </details>
@@ -60,86 +62,217 @@
       <p>Der Text ohne Kennzeichnung behandelt den Grundstoff. Vertiefungen zeigen, wie diese Inhalte weitergehen; beim ersten Lesen kann man sie überspringen.</p>
       <dl>
         <dt><span class="swatch v"></span>Vertiefung</dt><dd>Kasten oder Abschnitt, der über den Grundstoff hinausführt. Der erste Satz sagt, woran er anknüpft und wozu man ihn braucht; bei ganzen Kapiteln steht das im Kasten „Voraussetzungen“.</dd>
-        <dt><span class="swatch g"></span>Grundlagen</dt><dd>Kurz zusammengefasstes Grundwissen, auf dem der Text aufbaut. Es gehört zum Haupttext.</dd>
+        <dt><span class="swatch g"></span>Grundlagen</dt><dd>Kurz zusammengefasstes Grundwissen, auf dem der Text aufbaut, etwa zu Vektoren oder Gruppen. Es gehört zum Haupttext.</dd>
         <dt><span class="swatch"></span>In der App</dt><dd>Hinweis zur Bedienung der App.</dd>
       </dl>
     </div>
 
-    <section id="kapitel1">
-      <h2><span class="nr">1</span>Ein Kapitel des Grundstoffs</h2>
-      <p class="lead">Einleitung des Kapitels in zwei Sätzen: worum es geht und wozu.</p>
+    <section id="gitter-basis">
+      <h2><span class="nr">1</span>Gitter, Elementarzelle und Basis</h2>
+      <p class="lead">Ein Kristall ist aus gleichen Bausteinen aufgebaut, die sich periodisch wiederholen. In der Ebene zerlegt man ein solches Muster in ein Gitter, das angibt, wie es sich wiederholt, und eine Basis, die angibt, was sich wiederholt.</p>
 
       <div class="box ziele">
         <h4>Lernziele</h4>
         <ul>
-          <li>ein Lernziel, als Tätigkeit formuliert</li>
-          <li>ein zweites Lernziel</li>
+          <li>in einem periodischen Muster Gittervektoren und eine Elementarzelle angeben</li>
+          <li>primitive und nichtprimitive Elementarzellen unterscheiden und die Gitterpunkte je Zelle abzählen</li>
+          <li>Punkte in Bruchkoordinaten (<i>x</i>,&nbsp;<i>y</i>) angeben und erkennen, welche Punkte durch eine Gittertranslation auseinander hervorgehen</li>
+          <li>eine Kristallstruktur als Gitter und Basis beschreiben und begründen, warum die Atome des Graphens kein Gitter bilden</li>
+          <li>erkennen, wann eine Änderung der Basis neue Translationen und damit eine kleinere Elementarzelle erzeugt</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Abstände aus Bruchkoordinaten berechnen</li>
         </ul>
       </div>
 
-      <section id="abschnitt1">
-        <h3>Ein Abschnitt</h3>
-        <p>Text in kurzen Absätzen. Ein <span class="term">Fachbegriff</span> wird beim ersten Auftreten erklärt.</p>
-        <div class="box grundlagen">
-          <h4>Grundlagen · <b>Thema</b></h4>
-          <p>Grundwissen, auf dem der Text aufbaut.</p>
-        </div>
-        <figure class="fig-card musterfig" id="fig-1-1" data-app="#m=a&amp;g=p4mm">
-          <div class="fig-art"><svg viewBox="0 0 520 520" role="img" aria-label="Muster einer Abbildung"></svg></div>
-          <figcaption><b>Abb. 1.1</b> Abbildungen zeichnet die App mit ihrem eigenen Code; „In der App öffnen“ führt in genau diese Ansicht.</figcaption>
+      <section id="muster">
+        <h3>Periodische Muster</h3>
+        <p>Tapeten, Fliesenböden, Stoffe und Mauerwerk zeigen Muster, die sich in zwei Richtungen wiederholen. Denkt man sich ein solches Muster unendlich ausgedehnt, kann man es um bestimmte Strecken verschieben, und es sieht danach genauso aus wie vorher. Eine solche Verschiebung heisst <span class="term">Translation</span>. Sie ist eine Symmetrieoperation: Sie bringt das Muster mit sich selbst zur Deckung. Anders als eine Drehung oder Spiegelung lässt sie aber keinen Punkt an seinem Ort; sie ist keine Punktsymmetrieoperation (zum Begriff siehe <a href="https://manganite.github.io/stereography/skript.html#operationen">Skript „Stereographische Projektion“, Abschnitt 3.1</a>).</p>
+        <p>Die Muster in Abb. 1.1 bestehen aus Fähnchen. Ein Fähnchen hat keine eigene Symmetrie; das Muster wiederholt sich nur durch Translationen. Führt man zwei Translationen nacheinander aus, erhält man wieder eine: Wer zuerst um <i>a</i> und dann um <i>b</i> verschiebt, verschiebt insgesamt um <i>a</i> + <i>b</i>. Ein periodisches Muster hat deshalb unendlich viele Translationen.</p>
+        <p>Dass die Muster unendlich sind, ist eine Idealisierung. Ein Kristall ist zwar endlich, aber im Vergleich zum Abstand seiner Atome so gross, dass man seinen Rand für die Symmetrie ausser Acht lassen kann.</p>
+        <figure class="fig-card fig-mittel" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p1" data-alt="Muster aus Fähnchen, die sich nur durch Verschieben wiederholen">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 1.1</b> Ein Muster, das sich nur durch Translationen wiederholt. Hervorgehoben ist eine Elementarzelle (Abschnitt 1.3).</figcaption>
         </figure>
         <div class="box merke">
           <h4>Merke</h4>
-          <p>Ein Merksatz.</p>
-        </div>
-        <div class="box app">
-          <h4>In der App</h4>
-          <p>Ein Hinweis zur Bedienung.</p>
+          <p>Ein periodisches Muster geht durch Translationen in sich über. Eine Translation ist eine Symmetrieoperation ohne festen Punkt; zwei Translationen nacheinander ergeben wieder eine.</p>
         </div>
       </section>
 
-      <section id="abschnitt2">
-        <h3>Ein Abschnitt mit Vertiefung</h3>
-        <p>Grundstoff.</p>
+      <section id="gitter">
+        <h3>Gitter und Gittervektoren</h3>
+        <p>Man wählt im Muster einen beliebigen Punkt, zum Beispiel die Spitze eines Fähnchens, und markiert alle Punkte, in die ihn die Translationen des Musters bringen. Diese Punkte bilden das <span class="term">Gitter</span> des Musters; die einzelnen Punkte heissen <span class="term">Gitterpunkte</span>. In einem Gitter hat jeder Punkt dieselbe Umgebung, gleich ausgerichtet. Ein Gitter ist deshalb unendlich ausgedehnt: Ein Punkt am Rand hätte eine andere Umgebung als einer im Innern. Welchen Punkt man als Ausgangspunkt wählt, spielt keine Rolle. Ein anderer ergibt dasselbe Gitter, nur parallel verschoben.</p>
+        <p>Das Gitter ist eine gedachte, mathematische Konstruktion. Es gibt an, wie sich das Muster wiederholt, nicht woraus es besteht. Ein Gitter in der Ebene heisst auch <span class="term">Netzebene</span> oder Gitterebene; im räumlichen Gitter eines Kristalls ist es eine der Ebenen, in denen Gitterpunkte liegen.</p>
+        <p>Zwei Translationen genügen, um alle anderen zu beschreiben. Man wählt zwei Vektoren <i>a</i> und <i>b</i>, die von einem Gitterpunkt zu zwei anderen führen und nicht auf einer Geraden liegen, und zwar so, dass jede Translation des Gitters die Form</p>
+        <p class="formel"><i>t</i> = <i>u</i> <i>a</i> + <i>v</i> <i>b</i>  mit ganzen Zahlen <i>u</i>, <i>v</i></p>
+        <p>hat (Abb. 1.2). <i>a</i> und <i>b</i> heissen <span class="term">Gittervektoren</span>, genauer primitive Gittervektoren; manchmal wählt man auch längere (nächster Abschnitt). Ihre Längen <i>a</i> und <i>b</i> sind die <span class="term">Gitterkonstanten</span>, der Winkel γ zwischen ihnen ist der <span class="term">Gitterwinkel</span>. Zusammen heissen diese drei Zahlen die <span class="term">Gitterparameter</span> oder die Metrik des Gitters.</p>
+        <figure class="fig-card fig-mittel" data-kind="gitter" data-metrik="1.25,105" data-alt="Gitter mit den Gittervektoren a und b, dem Winkel γ und der Translation t = 2a + b">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 1.2</b> Ein Gitter mit den Gittervektoren <i>a</i> und <i>b</i> und dem Gitterwinkel γ. Jede Translation des Gitters ist eine ganzzahlige Kombination von <i>a</i> und <i>b</i>, hier <i>t</i> = 2<i>a</i> + <i>b</i>.</figcaption>
+        </figure>
+        <p>Für die Lage der Achsen gibt es eine Konvention. Die International Tables for Crystallography (ITA), das Standardwerk zur Symmetrie von Kristallen, zeichnen <i>a</i> nach unten und <i>b</i> nach rechts. Der Ursprung liegt oben links. App und Skript folgen dieser Konvention. Sie passt zur Aufstellung räumlicher Kristalle: Dort zeigt <i>a</i> nach vorn, <i>b</i> nach rechts und <i>c</i> nach oben; von oben gesehen zeigt <i>a</i> dann nach unten.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Das Gitter ist die Menge aller Punkte, die durch Translationen aus einem Punkt hervorgehen; alle Gitterpunkte haben dieselbe Umgebung. Mit primitiven Gittervektoren ist jede Translation <i>t</i> = <i>u</i> <i>a</i> + <i>v</i> <i>b</i> mit ganzen <i>u</i>, <i>v</i>. Gitterparameter: <i>a</i>, <i>b</i>, γ. Konvention nach ITA: <i>a</i> nach unten, <i>b</i> nach rechts.</p>
+        </div>
+      </section>
+
+      <section id="elementarzelle">
+        <h3>Die Elementarzelle</h3>
+        <p>Die Gittervektoren <i>a</i> und <i>b</i> spannen ein Parallelogramm auf, die <span class="term">Elementarzelle</span> (auch Elementarmasche). Verschiebt man sie um alle Translationen <i>u a</i> + <i>v b</i>, überdecken ihre Kopien die Ebene lückenlos und ohne Überlappung. Die Elementarzelle enthält damit alles, was man über das Muster wissen muss. Ihre Fläche ist die eines Parallelogramms:</p>
+        <p class="formel"><i>F</i> = <i>a</i> · <i>b</i> · sin γ.</p>
+        <p>Die Wahl der Elementarzelle ist nicht eindeutig. In Abb. 1.3 sind vier mögliche Zellen desselben Gitters eingezeichnet. Um zu sehen, wie viele Gitterpunkte eine Zelle enthält, zählt man anteilig. Ein Gitterpunkt im Innern gehört ganz zur Zelle. Einer auf einer Kante gehört zu den beiden Zellen, die dort aneinanderstossen, und zählt zur Hälfte. Ein Gitterpunkt an einer Ecke gehört zu allen vier Zellen, die sich dort treffen; jede erhält einen Anteil. Die Anteile der vier Ecken einer Zelle ergänzen sich zu einem ganzen Gitterpunkt. Gleich gross, je ¼, sind sie nur in einer rechtwinkligen Zelle; in einer schiefwinkligen erhält eine Ecke mit spitzem Winkel weniger, eine mit stumpfem mehr. Die Zellen I, II und III enthalten so je einen Gitterpunkt. Eine Zelle mit nur einem Gitterpunkt heisst <span class="term">primitiv</span>; sie wird von primitiven Gittervektoren aufgespannt. Alle primitiven Zellen eines Gitters haben dieselbe Fläche, gleich welche Gittervektoren man wählt: Ihre Kopien überdecken die Ebene, und auf jede Kopie kommt genau ein Gitterpunkt. Die Fläche je Gitterpunkt ist aber eine Eigenschaft des Gitters.</p>
+        <p>Ein Hinweis zum Zählen: Verschiebt man die Zelle in Gedanken ein wenig, bis kein Gitterpunkt mehr auf ihrem Rand liegt, muss man nur die Punkte im Innern zählen. Das Ergebnis ist dasselbe.</p>
+        <p>Zelle IV enthält dagegen zusätzlich einen Gitterpunkt in der Mitte, also 1 + 1 = 2 Gitterpunkte, und hat die doppelte Fläche. Eine solche Zelle heisst <span class="term">nichtprimitiv</span>. Aus demselben Grund ist die Fläche einer nichtprimitiven Zelle ein ganzzahliges Vielfaches der Fläche einer primitiven, so viele Male, wie sie Gitterpunkte enthält. Ihre Kopien überdecken die Ebene, wenn man sie um ganzzahlige Vielfache ihrer eigenen Kantenvektoren verschiebt; das Gitter hat aber weitere Translationen, etwa die zum Punkt in der Mitte von Zelle IV.</p>
+        <figure class="fig-card fig-mittel" data-kind="zellen" data-alt="Vier mögliche Elementarzellen desselben Gitters: drei primitive und eine nichtprimitive">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 1.3</b> Vier Elementarzellen desselben Gitters. I, II und III sind primitiv und haben dieselbe Fläche; IV ist nichtprimitiv, enthält zwei Gitterpunkte und hat die doppelte Fläche.</figcaption>
+        </figure>
+        <p>Weil alle primitiven Zellen gleich gut sind, braucht man Regeln für die Wahl: Die Gittervektoren sollen möglichst kurz sein und die Symmetrie des Gitters zeigen, also parallel oder senkrecht zu seinen Spiegellinien liegen (Kapitel 2) und möglichst einen Winkel von 90° oder 120° einschliessen. Manchmal widersprechen sich diese Regeln. Dann wählt man eine nichtprimitive Zelle, die die Symmetrie besser wiedergibt (Kapitel 2).</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die Elementarzelle ist das von <i>a</i> und <i>b</i> aufgespannte Parallelogramm, Fläche <i>F</i> = <i>a b</i> sin γ. Gitterpunkte zählen anteilig: im Innern ganz, auf einer Kante zur Hälfte; die Anteile der vier Ecken ergänzen sich zu einem Gitterpunkt. Eine primitive Zelle enthält einen Gitterpunkt. Alle primitiven Zellen eines Gitters haben dieselbe Fläche; nichtprimitive ein ganzzahliges Vielfaches davon.</p>
+        </div>
+      </section>
+
+      <section id="koordinaten">
+        <h3>Bruchkoordinaten</h3>
+        <p>Die Gittervektoren bilden zugleich ein Koordinatensystem. Jeder Punkt der Ebene lässt sich schreiben als</p>
+        <p class="formel"><i>r</i> = <i>x</i> <i>a</i> + <i>y</i> <i>b</i>.</p>
+        <p>Die Zahlen (<i>x</i>,&nbsp;<i>y</i>) heissen <span class="term">Bruchkoordinaten</span> (auch relative oder fraktionale Koordinaten): Sie messen in Bruchteilen der Gittervektoren, nicht in Ångström (1 Å = 0,1 nm, die übliche Einheit für Atomabstände). Der Punkt P in Abb. 1.4 liegt bei (¾,&nbsp;⅓): Man geht ¾ von <i>a</i> nach unten und dann ⅓ von <i>b</i> nach rechts.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="koord" data-nr="1" data-metrik="1,90" data-punkt="0.75,0.3333333333" data-alt="Punkt P bei (3/4, 1/3) in einer quadratischen Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 1.4a</b> Quadratische Zelle: P = ¾ <i>a</i> + ⅓ <i>b</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="koord" data-nr="2" data-metrik="1.25,105" data-punkt="0.75,0.3333333333" data-alt="Punkt P bei (3/4, 1/3) in einer schiefwinkligen Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Schiefwinklige Zelle: derselbe Punkt P = ¾ <i>a</i> + ⅓ <i>b</i>.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 1.4</b> Bruchkoordinaten sind unabhängig von der Metrik. In beiden Zellen liegt P bei (¾,&nbsp;⅓), obwohl sein Abstand vom Ursprung verschieden ist.</p>
+        <p>Weil Bruchkoordinaten in Einheiten der Gittervektoren messen, hängen sie nicht von der Metrik ab. Ändern sich die Gitterkonstanten oder der Gitterwinkel, behält ein Punkt seine Koordinaten; nur sein Ort in Ångström ändert sich (Abb. 1.4). Man kann sich die Zelle als Gummituch vorstellen, auf das die Koordinaten gezeichnet sind: Zieht man daran, wandern die Punkte mit. Dasselbe Bild verwendet das Skript „Stereographische Projektion“ für die Miller'schen Indizes (<a href="https://manganite.github.io/stereography/skript.html#indizes-gitter">Abschnitt 1.2</a>).</p>
+        <p>Drei Regeln braucht man ständig:</p>
+        <ul>
+          <li><b>Gitterpunkte</b> haben ganzzahlige Koordinaten (<i>u</i>,&nbsp;<i>v</i>). Die Ecken der Zelle sind (0,&nbsp;0), (1,&nbsp;0), (0,&nbsp;1) und (1,&nbsp;1).</li>
+          <li><b>Punkte in der Zelle</b> haben Koordinaten 0 ≤ <i>x</i> &lt; 1 und 0 ≤ <i>y</i> &lt; 1. Die Mitte der Zelle ist (½,&nbsp;½), die Mitten der Kanten sind (½,&nbsp;0) und (0,&nbsp;½).</li>
+          <li><b>Gleichwertige Punkte:</b> Unterscheiden sich zwei Punkte nur um ganze Zahlen, geht der eine durch eine Gittertranslation in den anderen über. In einem periodischen Muster sieht es an beiden Stellen gleich aus.</li>
+        </ul>
+        <p>Ein Beispiel zur dritten Regel: (¼,&nbsp;⅔) und (1¼,&nbsp;−⅓) unterscheiden sich um (1,&nbsp;−1); die Translation <i>t</i> = <i>a</i> − <i>b</i> führt den einen Punkt in den anderen über. Man darf deshalb ganze Zahlen addieren oder abziehen, bis 0 ≤ <i>x</i> &lt; 1 und 0 ≤ <i>y</i> &lt; 1 gilt. Die Regeln gelten für eine primitive Zelle. In einer nichtprimitiven Zelle liegen weitere Gitterpunkte bei nicht ganzzahligen Koordinaten, etwa bei (½,&nbsp;½); auch die Verschiebung zu ihnen ist dann eine Translation (Abschnitt 1.6).</p>
+        <p>Die International Tables schreiben ein Minuszeichen als Strich über dem Buchstaben: <span class="ov">x</span> steht für −<i>x</i>. Diese Schreibweise kommt bei den Symmetrieoperationen wieder vor (Kapitel 4).</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Bruchkoordinaten (<i>x</i>,&nbsp;<i>y</i>) beschreiben einen Punkt als <i>x a</i> + <i>y b</i>. Sie hängen nicht von der Metrik ab. In einer primitiven Zelle haben Gitterpunkte ganzzahlige Koordinaten; Punkte, die sich um ganze Zahlen unterscheiden, gehen durch eine Gittertranslation auseinander hervor.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Ebenengruppen“ stellen die Regler unter „Objekt“ die Bruchkoordinaten <i>x</i> und <i>y</i> des Fähnchens ein. Im Modus „Gitter und Basis“ nennen die Kenndaten die Lage jedes Motivs in Bruchkoordinaten.</p>
+        </div>
         <div class="box vertiefung">
-          <h4>Vertiefung · <b>Thema</b></h4>
-          <p>Der erste Satz sagt, welchen Grundstoff die Vertiefung weiterführt und wozu man sie braucht.</p>
+          <h4>Vertiefung · <b>Abstände aus Bruchkoordinaten</b></h4>
+          <p>Bruchkoordinaten sagen, wo ein Atom liegt, aber nicht direkt, wie weit es von einem anderen entfernt ist. Für Bindungslängen braucht man die Metrik. Liegen zwei Punkte um Δ<i>x</i> und Δ<i>y</i> auseinander, ist ihr Abstand nach dem Kosinussatz</p>
+          <p class="formel"><i>d</i>² = (Δ<i>x</i>)² <i>a</i>² + (Δ<i>y</i>)² <i>b</i>² + 2 Δ<i>x</i> Δ<i>y</i> <i>a b</i> cos γ.</p>
+          <p>Im rechtwinkligen Gitter fällt der letzte Term weg. Im hexagonalen Gitter (<i>a</i> = <i>b</i>, γ = 120°, cos γ = −½) wird daraus <i>d</i>² = ((Δ<i>x</i>)² + (Δ<i>y</i>)² − Δ<i>x</i> Δ<i>y</i>) <i>a</i>². Beispiel Graphen (nächster Abschnitt): Zwei benachbarte Kohlenstoffatome liegen bei (⅓,&nbsp;⅔) und (⅔,&nbsp;⅓), also Δ<i>x</i> = ⅓, Δ<i>y</i> = −⅓. Das ergibt <i>d</i>² = (1/9 + 1/9 + 1/9) <i>a</i>² = <i>a</i>²/3 und <i>d</i> = <i>a</i>/√3. Mit der Gitterkonstante des Graphits, <i>a</i> = 2,46 Å, ist der Abstand 1,42 Å.</p>
+        </div>
+      </section>
+
+      <section id="basis">
+        <h3>Gitter und Basis</h3>
+        <p>Ein Gitter allein ist noch kein Kristall. Erst wenn man jedem Gitterpunkt dieselbe Gruppe von Bausteinen zuordnet, entsteht eine Kristallstruktur. Die Anordnung der Bausteine in der Elementarzelle heisst <span class="term">Basis</span>; man gibt sie durch die Bruchkoordinaten der Bausteine an. Kurz:</p>
+        <p class="formel">Gitter + Basis = Kristallstruktur</p>
+        <p>Die Gittertranslationen wirken auf jeden Baustein gleich. Jeder Baustein der Basis bildet deshalb mit seinen Kopien ein Gitter, und diese Gitter sind gleich, nur gegeneinander verschoben. Wo man den Ursprung relativ zur Basis legt, ist frei: Ein anderer Ursprung verschiebt alle Koordinaten um denselben Betrag und ändert an der Struktur nichts.</p>
+        <p>In manchen Büchern heisst die Basis auch <span class="term">Motiv</span>. In der App ist ein Motiv ein einzelner Baustein der Basis, etwa ein Atom oder eine Form mit eigener Symmetrie; die Basis besteht aus einem oder mehreren Motiven. Das ist eine Festlegung der App.</p>
+        <p>Ein Beispiel zeigt, warum man Gitter und Basis auseinanderhalten muss. In einer Graphenschicht liegen die Kohlenstoffatome auf den Ecken von Sechsecken wie in einer Bienenwabe (Abb. 1.5). Jedes Atom hat drei Nachbarn im Winkel von 120°. Trotzdem bilden die Atome kein Gitter. Bei der Hälfte der Atome zeigen die drei Bindungen in bestimmte Richtungen, bei der anderen Hälfte genau in die Gegenrichtungen; die beiden Umgebungen gehen erst durch eine Drehung (etwa um 180°) oder eine Spiegelung ineinander über. Die Umgebung ist also gleich, aber nicht gleich ausgerichtet, und keine Translation bringt ein Atom der einen Hälfte auf eines der anderen.</p>
+        <p>Das Gitter des Graphens ist hexagonal (<i>a</i> = <i>b</i>, γ = 120°). Die Basis besteht aus zwei Kohlenstoffatomen, bei (⅓,&nbsp;⅔) und (⅔,&nbsp;⅓). Mit dieser Wahl des Ursprungs liegen die Gitterpunkte in den Mitten der Sechsecke; legt man den Ursprung auf ein Atom, lauten die Koordinaten (0,&nbsp;0) und (⅔,&nbsp;⅓).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=graphen&amp;sel=0" data-alt="Elementarzelle des Graphens mit zwei Kohlenstoffatomen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 1.5a</b> Elementarzelle des Graphens mit der Basis aus zwei Atomen; Linien: Bindungen.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=graphen&amp;sel=0" data-alt="Ausschnitt der Graphenschicht mit hervorgehobener Elementarzelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Ausschnitt der Schicht mit der Elementarzelle.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 1.5</b> Graphen: Gitter hexagonal, Basis zwei Atome. Die Atome selbst bilden kein Gitter (nach Hoffmann Abb. 2.72–2.75).</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Kristallstruktur = Gitter + Basis. Das Gitter sagt, wie sich die Struktur wiederholt, die Basis, was sich wiederholt. Gleich aussehende Atome bilden nur dann ein Gitter, wenn auch ihre Umgebung gleich ausgerichtet ist.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Der Modus „Gitter und Basis“ baut eine Struktur aus einem Gitter (<i>b</i>/<i>a</i> und γ unter „Gitter“) und einer Basis aus Motiven auf. „Vorgabe“ lädt fertige Strukturen, darunter Graphen. Mit „Hinzufügen“ setzt man weitere Motive, mit „Wählen und ziehen“ verschiebt man sie. „Bindungen (nächste Nachbarn)“ verbindet Atome im kleinsten Abstand.</p>
+        </div>
+      </section>
+
+      <section id="basis-gitter">
+        <h3>Wenn die Basis das Gitter ändert</h3>
+        <p>Wer eine Struktur aufbaut, beginnt oft mit einer Zelle und setzt die Basis hinein. In der App heisst diese Zelle die <span class="term">gegebene Zelle</span>. Ihre Translationen gehören immer zur Struktur, denn die Basis wird ja mit ihnen wiederholt. Es kann aber weitere Translationen geben, die man nicht hineingesteckt hat. Dann hat das Gitter der Struktur mehr Gitterpunkte als das der gegebenen Zelle, und die gegebene Zelle ist nichtprimitiv.</p>
+        <p>Abb. 1.6 zeigt das an zwei Dreiecken in einer rechteckigen Zelle, eines bei (0,&nbsp;0), eines bei (½,&nbsp;½). In Abb. 1.6a hat das Dreieck in der Mitte eine andere Farbe; es steht für eine andere Atomsorte. Verschiebt man die Struktur um ½<i>a</i> + ½<i>b</i>, kommt ein blaues Dreieck auf ein oranges. Das ist keine Symmetrieoperation. Die einzigen Translationen sind die der gegebenen Zelle, und sie ist primitiv.</p>
+        <p>In Abb. 1.6b sind beide Dreiecke gleich. Jetzt bringt die Verschiebung um ½<i>a</i> + ½<i>b</i> jedes Dreieck auf ein gleiches: Sie ist eine neue Translation. Die gegebene Zelle enthält damit zwei Gitterpunkte, bei (0,&nbsp;0) und bei (½,&nbsp;½), und ist nichtprimitiv. Eine primitive Zelle hat die halbe Fläche, etwa die von <i>a</i> und ½(<i>a</i> + <i>b</i>) aufgespannte. Warum man trotzdem meist die rechteckige Zelle verwendet, zeigt Kapitel 2.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=dreieck1&amp;sel=0" data-alt="Zwei verschiedenfarbige Dreiecke in einer rechteckigen Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 1.6a</b> Verschiedene Dreiecke: Die gegebene Zelle ist primitiv.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=dreieck2&amp;sel=0" data-alt="Zwei gleiche Dreiecke in einer rechteckigen Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Gleiche Dreiecke: Die Verschiebung um ½<i>a</i> + ½<i>b</i> ist eine Translation; die Zelle enthält zwei Gitterpunkte.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 1.6</b> Dieselbe gegebene Zelle, verschiedene Basis. Ob sie primitiv ist, entscheidet die Basis, nicht die Zelle.</p>
+        <p>Neue Translationen können die Elementarzelle auch drehen. Abb. 1.7a zeigt eine quadratische Zelle mit einem blauen Atom an der Ecke und zwei orangen Atomen auf den Kantenmitten. Entfernt man das blaue Atom, bleiben die orangen bei (½,&nbsp;0) und (0,&nbsp;½) übrig (Abb. 1.7b). Die Verschiebung um ½<i>a</i> + ½<i>b</i> bringt das eine auf das andere; sie ist eine neue Translation. Die neue primitive Zelle ist um 45° gedreht und hat die halbe Fläche. Ihre Gittervektoren sind <i>a</i>′ = ½(<i>a</i> − <i>b</i>) und <i>b</i>′ = ½(<i>a</i> + <i>b</i>).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=lieb&amp;sel=0" data-alt="Quadratische Zelle mit einem blauen und zwei orangen Atomen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 1.7a</b> Zwei Atomsorten: Die gegebene Zelle ist primitiv.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=atom,1,1/2,0,0;atom,1,0,1/2,0&amp;sel=0" data-alt="Nur die orangen Atome: kleinere, um 45 Grad gedrehte Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Ohne das blaue Atom: Die App zeichnet die kleinere Zelle <i>a</i>′, <i>b</i>′ ein; die gegebene Zelle ist gestrichelt.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 1.7</b> Ein Atom entfernt, doppelt so viele Gitterpunkte: Die neue Elementarzelle ist kleiner und um 45° gedreht.</p>
+        <p>Für die Beschreibung der Struktur heisst das: Die Struktur bleibt dieselbe, gleich in welcher Zelle man sie beschreibt. Was sich mit der Zelle ändert, sind die Gittervektoren, die Koordinaten der Atome und die Zahl der Atome je Zelle. Wie man unter den möglichen Zellen die richtige wählt, hängt von der Symmetrie ab. Die App wählt die Zelle nach den Regeln der International Tables und nennt sie die konventionelle Zelle; sie ist Thema von Kapitel 2.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Das Gitter gehört zur Struktur, nicht zur Zelle, mit der man sie aufgebaut hat. Werden zwei Bausteine der Basis durch eine Verschiebung aufeinander abgebildet, die mit allen anderen Bausteinen ebenfalls passt, ist diese Verschiebung eine neue Translation: Das Gitter erhält zusätzliche Gitterpunkte, und die gegebene Zelle ist nichtprimitiv.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Gitter und Basis“ prüft die App nach jeder Änderung, welche Translationen die Struktur hat. Enthält die gegebene Zelle mehr als einen Gitterpunkt, sagen es die Kenndaten unter „Konventionelle Zelle nach ITA“. Die gegebene Zelle ist gestrichelt, wenn die App eine andere Zelle wählt. Zum Ausprobieren: In der Vorgabe „Lieb-Gitter“ das blaue Atom wählen und „Gewähltes Motiv entfernen“.</p>
         </div>
       </section>
 
       <div class="box zusammen">
         <h4>Zusammenfassung</h4>
         <ul>
-          <li>drei bis fünf Punkte</li>
+          <li>Ein periodisches Muster geht durch Translationen in sich über. Alle Punkte, die aus einem Punkt durch Translationen hervorgehen, bilden das Gitter; jeder Gitterpunkt hat dieselbe, gleich ausgerichtete Umgebung.</li>
+          <li>Mit primitiven Gittervektoren ist jede Translation <i>u a</i> + <i>v b</i> mit ganzen <i>u</i>, <i>v</i>. Die Gittervektoren spannen die Elementarzelle auf; Gitterparameter <i>a</i>, <i>b</i>, γ; Fläche <i>a b</i> sin γ. <i>a</i> zeigt nach unten, <i>b</i> nach rechts (ITA).</li>
+          <li>Eine primitive Zelle enthält einen Gitterpunkt; alle primitiven Zellen haben dieselbe Fläche. Nichtprimitive Zellen enthalten mehrere Gitterpunkte.</li>
+          <li>Bruchkoordinaten (<i>x</i>,&nbsp;<i>y</i>) messen in Bruchteilen der Gittervektoren und hängen nicht von der Metrik ab. Punkte, die sich um ganze Zahlen unterscheiden, sind durch eine Gittertranslation verbunden.</li>
+          <li>Kristallstruktur = Gitter + Basis. Ändert man die Basis, können neue Translationen entstehen; das Gitter erhält zusätzliche Gitterpunkte, und die primitive Zelle wird kleiner und unter Umständen gedreht.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Abstände folgen aus Bruchkoordinaten und Metrik: <i>d</i>² = (Δ<i>x</i>)²<i>a</i>² + (Δ<i>y</i>)²<i>b</i>² + 2 Δ<i>x</i> Δ<i>y</i> <i>a b</i> cos γ.</li>
         </ul>
       </div>
-      <p class="quizlink">Lernziele prüfen im Quiz: <a href="quiz.html?kap=1&amp;stufe=1" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 1</a></p>
 
       <div class="quellen">
         <h4>Quellen</h4>
         <ul>
-          <li>Borchardt-Ott &amp; Sowa (2018), Abschn. …, S. …</li>
+          <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 3.2 (Gitterebene oder Netzebene, Elementarmasche, S. 12), 3.3 (Gitter unendlich, Aufstellung <i>a</i> nach vorn, <i>b</i> nach rechts, <i>c</i> nach oben; Elementarzelle; primitiv, ein Gitterpunkt an einer Ecke gehört zu allen dort zusammenstossenden Zellen, S. 12–13), 3.4.1 (Gitterpunkt <i>uvw</i>, S. 13–14), Kap. 4 (Basis; Gitter + Basis = Kristallstruktur; Koordinaten <i>x</i>, <i>y</i>, <i>z</i> mit 0 ≤ <i>x</i>, <i>y</i>, <i>z</i> &lt; 1; gleiche Bausteine auf kongruenten Gittern, Abb. 4.1–4.3, S. 25–27), Abschn. 6.2 (zentrierte Elementarmasche, Abb. 6.10, S. 73–74), Aufgabe 12.7 (Graphit, <i>a</i> = 2,46 Å; Atome einer Schicht bei 0, 0 und ⅔, ⅓, also mit dem Ursprung auf einem Atom; S. 323), Abschn. 15.3 (Atomabstände, Tab. 15.3, S. 357).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 1.9 (Gitter: alle Punkte mit derselben Umgebung, unendlich ausgedehnt; Gitter und Basis/Motiv; kongruente Gitter, Abb. 1.33–1.37, S. 28–31), 2.3.1 (primitive Elementarzellen; Regeln zur Wahl der Elementarzelle, Abb. 2.27–2.29, S. 52–56), 2.4 (fraktionale Koordinaten, S. 64–65), 2.7 (Bienenwabenmuster und Translationsgitter, Abb. 2.72–2.75, S. 82–84), Kap. 4 (Muster in Alltag und Kunst, S. 130).</li>
+          <li>International Tables for Crystallography, Vol. A, 5. Aufl., hrsg. von Th. Hahn, Springer, Dordrecht (2006), Abschn. 2.2.6.1 (Diagramme der Ebenengruppen: <i>a</i> nach unten, <i>b</i> nach rechts, S. 20), 2.2.6.4 (übliche Orientierung der Diagramme, Ursprung oben links, S. 22), Part 6 (Querstrich für das Minuszeichen in den Koordinaten, z. B. Ebenengruppe <i>p</i>2, S. 93).</li>
         </ul>
       </div>
-    </section>
-
-    <div class="teil">
-      <p class="teil-titel">Vertiefungen</p>
-      <p>Die folgenden Kapitel gehen über den Grundstoff hinaus.</p>
-    </div>
-
-    <section id="kapitel2" data-level="vertiefung">
-      <h2><span class="nr">2</span>Ein Vertiefungskapitel</h2>
-      <div class="box bezug">
-        <h4>Voraussetzungen</h4>
-        <p>Woran das Kapitel anknüpft und wohin es führt.</p>
-      </div>
-      <p>Text.</p>
     </section>
   </article>
   </main>
 </div>
-
 <footer>
   Skript zur App „Symmetrie in der Ebene“, Version <span data-version></span>. Abbildungen mit dem Code der App erzeugt.
   <a href="index.html">Zur App</a> · <a href="https://github.com/manganite/crystallography-common">Quellcode</a>

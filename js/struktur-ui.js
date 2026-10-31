@@ -8,6 +8,7 @@ import { metrik, drehSymbol, elementeImBereich } from './zeichnung.js';
 import { gruppe, mod1 } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben } from './struktur.js';
+import { dezimal } from './text.js';
 
 const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
 
@@ -63,10 +64,10 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     });
     const winkel = ((e.winkel ?? 0) % 360 + 360) % 360;
     $('s-winkel').value = String(winkel);
-    $('s-winkel-out').textContent = `${Math.round(winkel * 10) / 10}°`;
+    $('s-winkel-out').textContent = `${dezimal(winkel, 1, { kuerzen: true })}°`;
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
     $('s-groesse').value = String(gr);
-    $('s-groesse-out').textContent = gr.toFixed(3);
+    $('s-groesse-out').textContent = dezimal(gr, 3);
     $('s-entfernen').disabled = auswahl === null;
     $('s-basis-titel').textContent = auswahl !== null ? `Gewähltes Motiv (Nr. ${auswahl + 1} von ${s.basis.length})` : 'Neues Motiv';
     $('s-basis-hint').textContent = werkzeug === 'hinzufuegen'
@@ -77,8 +78,8 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
       $(`s-${k}`).min = String(STRUKTUR_BEREICH[k][0]); $(`s-${k}`).max = String(STRUKTUR_BEREICH[k][1]);
       $(`s-${k}`).value = String(s[k]);
     }
-    $('s-ba-out').textContent = s.ba.toFixed(2);
-    $('s-gamma-out').textContent = `${s.gamma.toFixed(1)}°`;
+    $('s-ba-out').textContent = dezimal(s.ba, 2);
+    $('s-gamma-out').textContent = `${dezimal(s.gamma, 1)}°`;
     $('s-zuruecksetzen').disabled = wieVorgabe(s);
   }
 

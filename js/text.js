@@ -54,11 +54,40 @@ export function bedingungHTML([klasse, bed]) {
   return `${kl}: ${b}`;
 }
 
-/** Zahl als Bruch mit kleinem Nenner, wenn sie einer ist, sonst mit drei Stellen. */
+/**
+ * Dezimalzahl in deutscher Schreibweise: Komma, echtes Minuszeichen, n Nachkommastellen
+ * (fest; mit kuerzen: true ohne Nullen am Ende). dezimal(-0.5, 2) → „−0,50“.
+ */
+export function dezimal(v, n = 2, { kuerzen = false } = {}) {
+  let t = v.toFixed(n);
+  if (kuerzen && t.includes('.')) t = t.replace(/0+$/, '').replace(/\.$/, '');
+  if (/^-0(\.0*)?$/.test(t)) t = t.slice(1); // keine „−0“
+  return t.replace('.', ',').replace(/^-/, '−');
+}
+
+/** Zahl als Bruch mit kleinem Nenner, wenn sie einer ist, sonst als Dezimalzahl mit bis zu drei Stellen. */
 export function zahlText(v) {
   for (const n of [1, 2, 3, 4, 6, 8, 12]) {
     const z = Math.round(v * n);
-    if (Math.abs(v - z / n) < 1e-9) return n === 1 ? String(z) : bruchZeichen(`${z}/${n}`) === `${z}/${n}` ? `${z}/${n}` : bruchZeichen(`${z}/${n}`);
+    if (Math.abs(v - z / n) < 1e-9) {
+      if (n === 1) return String(z).replace(/^-/, '−');
+      return `${z < 0 ? '−' : ''}${bruchZeichen(`${Math.abs(z)}/${n}`)}`;
+    }
   }
-  return v.toFixed(3);
+  return dezimal(v, 3, { kuerzen: true });
+}
+
+/**
+ * Richtung [uv] als HTML, negative Indizes mit Querstrich wie in der Kristallographie üblich:
+ * [-1, 1] → [1̄1] (Querstrich als .ov, nicht als Minuszeichen).
+ */
+export const richtungHTML = (d) => `[${d.map((x) => (x < 0 ? `<span class="ov">${-x}</span>` : String(x))).join('')}]`;
+
+/**
+ * Koordinaten als „(x, y)“. Enthält eine Koordinate ein Dezimalkomma, trennt ein Strichpunkt:
+ * „(0,12; 0,31)“, sonst ein Komma wie in ITA: „(½, ¼)“.
+ */
+export function koordText(werte) {
+  const t = werte.map(zahlText);
+  return `(${t.join(t.some((x) => x.includes(',')) ? '; ' : ', ')})`;
 }
