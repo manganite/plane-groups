@@ -286,7 +286,7 @@ export function beschreibe(op) {
 // ---------------------------------------------------------------------------------------------
 
 /** Kürzeste Gittertranslation (mit Zentrierung) entlang der ganzzahligen Richtung d. */
-function gitterperiode(g, d) {
+export function gitterperiode(g, d) {
   let best = 1;
   for (const z of g.zentr) {
     for (const lam of [z[0] / (d[0] || Infinity), z[1] / (d[1] || Infinity)]) {

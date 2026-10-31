@@ -6,13 +6,15 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, metrik, ausgangsstelle } from './zeichnung.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle } from './zeichnung.js';
+import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
+import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
+import { stereoLink, stereoHinweis } from './verweise.js';
 
 const $ = (id) => document.getElementById(id);
 const REPO = 'https://github.com/manganite/plane-groups';
-const STEREO = 'https://manganite.github.io/stereography/';
 const coarse = window.matchMedia('(pointer: coarse)');
 
 // ------------------------------------------------------------------ Zustand
@@ -25,6 +27,8 @@ try {
     Object.assign(z, s.z, { gitter: { ...z.gitter, ...(g && typeof g === 'object' ? g : {}) } });
     if (!EBENENGRUPPEN.some((e) => e.symbol === z.gruppe)) z.gruppe = startzustand().gruppe;
     if (!Array.isArray(z.punkt) || z.punkt.length !== 2 || !z.punkt.every(Number.isFinite)) z.punkt = startzustand().punkt;
+    const zahlTeile = ebenengruppe(z.gruppe).ae.text.split(';').length;
+    z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
   }
 } catch { /* ohne Speicher weiter */ }
 if (location.hash.length > 1) hashAnwenden(z, location.hash); // Link hat Vorrang
@@ -49,6 +53,7 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
 const farben = () => ({
   paper: css('paper'), ink: css('ink'), muted: css('muted'), line: css('line'), accent: css('accent'), accent2: css('accent2'),
   upper: css('upper'), crystal: css('crystal'), dir: [css('dir1'), css('dir2'), css('dir3')],
+  fc3: css('fc3'), fc4: css('fc4'),
 });
 
 // ------------------------------------------------------------------ Gruppenwahl
@@ -75,6 +80,28 @@ function bedienungAbgleichen() {
   document.querySelector('#row-einrasten .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
   document.querySelectorAll('#seg-form button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
   $('v-farben').checked = z.farben;
+  // Aufbau aus Erzeugenden
+  const h = herkunft(gruppeVon(z.gruppe));
+  const maxS = h.maxTiefe;
+  if (z.aufbau > maxS) z.aufbau = maxS;
+  const aufbauMoeglich = z.elemente && maxS > 0;
+  $('opt-aufbau').checked = z.aufbau > 0;
+  $('opt-aufbau').disabled = !aufbauMoeglich;
+  document.querySelector('#row-aufbau .why').textContent = !z.elemente ? 'nur mit „Symmetrieelemente“' : maxS === 0 ? 'p1 hat ausser den Translationen keine Symmetrieelemente' : '';
+  $('aufbau-schritt').max = String(Math.max(1, maxS));
+  $('aufbau-schritt').value = String(Math.max(1, z.aufbau));
+  $('aufbau-schritt').disabled = z.aufbau === 0;
+  $('aufbau-schritt-out').textContent = z.aufbau > 0 ? `${z.aufbau} von ${maxS}` : '–';
+  $('aufbau-zurueck').disabled = z.aufbau <= 1;
+  $('aufbau-vor').disabled = z.aufbau === 0 || z.aufbau >= maxS;
+  const erz = ebenengruppe(z.gruppe).erzeugende;
+  $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
+    : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
+      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
+  // Werkzeug „Warum ist das da?“
+  $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
+  $('werkzeug-warum').disabled = !z.elemente;
+  document.body.classList.toggle('warum', z.warum && z.elemente);
   $('v-muster-el').checked = z.musterElemente;
   // Objekt
   const p = z.punkt.map(mod1);
@@ -101,10 +128,14 @@ function bedienungAbgleichen() {
 
 // ------------------------------------------------------------------ Zeichnen
 let ansichtA = null;
+let erklaerung = null;
+let phase = 3;
 function zeichnen() {
   const f = farben();
-  const a = tafelA(z.gruppe, z, f);
+  const a = tafelA(z.gruppe, z, f, { phase });
   ansichtA = a.ansicht;
+  erklaerung = a.erklaerung;
+  if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
   $('bild-a').innerHTML = a.svg;
   $('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
@@ -143,21 +174,55 @@ function legende(f) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
-  if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
+  if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
+  if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
+  if (erklaerung?.art === 'kopie') {
+    items.push(`<span class="lg"><i class="sw" style="background:${f.fc3}"></i>V, Vorbild</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>t, Gittertranslation</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
+  } else if (erklaerung) {
+    if (!erklaerung.erzeugende) items.push(`<span class="lg"><i class="sw" style="background:${f.fc3}"></i>B, zuerst</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
+  }
+  if (z.warum && z.elemente) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
+  else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
 }
 
 // ------------------------------------------------------------------ Kenndaten
 /** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
-const STEREO_ID = { 1: '1', 2: '2c', m: 'mb', '2mm': 'mm2', 4: '4', '4mm': '4mm', 3: '3', 6: '6', '6mm': '6mm' };
-function stereoId(daten) {
-  if (daten.punktgruppe === '3m') return daten.symbol === 'p31m' ? '31m' : '3m1';
-  return STEREO_ID[daten.punktgruppe];
-}
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
 const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
 const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
+/** Bedingungen der asymmetrischen Einheit als Knöpfe: Tafel A zeigt, wo sie erfüllt sind. */
+function aeBedingungen(d) {
+  const teile = d.ae.text.split(';').map((t) => t.trim());
+  const wahl = z.aeTeile ?? [];
+  const knoepfe = teile.map((t, i) => `<button type="button" class="aeteil" data-aeteil="${i}" aria-pressed="${wahl.includes(i)}" title="Zeigen, wo diese Bedingung erfüllt ist">${aeHTML(t)}</button>`).join('<span class="sep">;</span> ');
+  const hinweis = !wahl.length
+    ? 'Bedingung antippen: Das Symmetriegerüst zeigt, wo sie erfüllt ist.'
+    : wahl.length === teile.length
+      ? 'Alle Bedingungen zusammen: Das ist die asymmetrische Einheit.'
+      : `Schattiert: wo ${wahl.length === 1 ? 'diese Bedingung' : 'diese Bedingungen zusammen'} erfüllt ${wahl.length === 1 ? 'ist' : 'sind'}. Weitere antippen, bis alle gewählt sind.`;
+  return `<span class="aeteile">${knoepfe}</span><span class="note aehinweis">${hinweis}${wahl.length ? ' <button type="button" class="linkbtn" data-aeteil-aus>keine</button>' : ''}</span>`;
+}
 const aeHTML = (t) => t.replace(/([xy])/g, '<i>$1</i>').replace(/(\d+)\/(\d+)/g, (m) => ({ '1/2': '½', '1/4': '¼', '1/3': '⅓', '2/3': '⅔' }[m] ?? m));
+
+/** Fokus in den Kenndaten merken (über die Daten-Attribute des Knopfs), damit er ein Neuzeichnen übersteht. */
+function fokusMerken() {
+  const a = document.activeElement;
+  if (!a || !$('info').contains(a)) return null;
+  for (const attr of ['data-phase', 'data-abspielen', 'data-erkl-zu', 'data-erkl', 'data-wy']) {
+    if (a.hasAttribute(attr)) return `[${attr}${a.getAttribute(attr) ? `="${CSS.escape(a.getAttribute(attr))}"` : ''}]`;
+  }
+  return null;
+}
+function fokusWiederherstellen(sel) {
+  if (!sel) return;
+  const el = $('info').querySelector(sel);
+  if (el) el.focus({ preventScroll: true });
+}
 
 function kenndaten() {
   const g = gruppeVon(z.gruppe);
@@ -190,14 +255,16 @@ function kenndaten() {
       <td><button class="setzen" type="button" data-wy="${w.b}" ${z.objekt ? '' : 'disabled'} title="Objekt auf diese Lage setzen">setzen</button></td></tr>`;
   }).join('');
   const wyTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Zähligkeit, Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th>Koordinaten${zentriert ? ' (0, 0)+ (½, ½)+' : ''}</th><th>Auslöschungen</th><th></th></tr></thead><tbody>${wyZeilen}</tbody></table></div>`;
-  const sid = stereoId(d);
-  const pgLink = `<a href="${STEREO}#m=pg&amp;g=${encodeURIComponent(sid)}" target="_blank" rel="noopener" title="Punktgruppe in der App „Stereographische Projektion“ öffnen${d.punktgruppe === 'm' ? ' (dort mit Spiegelebene ⊥ b)' : ''}">${symbolHTML(d.punktgruppe)}</a>`;
+  const pgLink = `<a href="${stereoLink(d).replace(/&/g, '&amp;')}" target="_blank" rel="noopener" title="${stereoHinweis(d)}">${symbolHTML(d.punktgruppe)}</a>`;
+  const fokus = fokusMerken();
   $('info').innerHTML = `
     <div class="info-head">
       <div class="hm-big">${symbolHTML(d.symbol)}</div>
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
-    ${lagebox}
+    ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
+    : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
+    ${erklaerung ? '' : lagebox}
     <dl class="facts">
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
       <div><dt>Kristallsystem</dt><dd>${SYSTEMNAMEN[d.system]}</dd></div>
@@ -205,7 +272,7 @@ function kenndaten() {
       <div><dt>Punktgruppe</dt><dd>${pgLink}</dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${g.ordnung}</dd></div>
       <div><dt>Ursprung</dt><dd>${ursprungHTML(d.ursprung)}</dd></div>
-      <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeHTML(d.ae.text)}</dd></div>
+      <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeBedingungen(d)}</dd></div>
     </dl>
     <div class="cols">
       <div><h3>Symmetrieoperationen</h3>${opsTab}
@@ -216,8 +283,9 @@ function kenndaten() {
     <h3>Lagen (Wyckoff-Lagen)</h3>${wyTab}
     <details class="explain"><summary>Erläuterungen</summary>
       <p class="note">Aufbau wie eine Seite in den International Tables for Crystallography, Vol. A, Part 6. Koordinaten in Bruchteilen von <i>a</i> und <i>b</i>; <span class="ov"><i>x</i></span> steht für −<i>x</i>. Die Lagesymmetrie ist orientiert: Die erste Stelle nennt die Drehung, die zweite und dritte die Spiegellinien, deren Normale in der jeweiligen Blickrichtung liegt; ein Punkt heisst „keine“.</p>
-      <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Sie führt in die App „Stereographische Projektion“, dort mit der Drehachse senkrecht zur Ebene.</p>
+      <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Die 10 Punktgruppen der Ebene entsprechen den 10 polaren Punktgruppen im Raum: Drehachsen stehen senkrecht auf der Ebene, Spiegelebenen enthalten ihre Normale. ${['1', 'm'].includes(d.punktgruppe) ? 'Der Link öffnet in der App „Stereographische Projektion“ das Symmetriegerüst dieser Punktgruppe mit Blick entlang c.' : 'Der Link öffnet in der App „Stereographische Projektion“ das Pedion, eine einzelne Kristallfläche, mit Blick senkrecht auf die Fläche: Ihr Muster hat genau die Punktgruppe der Ebene.'}</p>
     </details>`;
+  fokusWiederherstellen(fokus);
 }
 
 // ------------------------------------------------------------------ Objekt setzen und ziehen
@@ -251,12 +319,75 @@ function naheObjekt(e) {
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
   return Math.hypot(s[0] - q[0], s[1] - q[1]) < r;
 }
+/** Die in Tafel A sichtbaren Elemente (zeichnung.js), mit dem aktuellen Schritt im Aufbau. */
+const sichtbareElemente = (g, n = z.zellen) => sichtbar(g, n, z.aufbau);
+
+/** Element unter dem Zeiger wählen (Drehpunkte vor Linien), sonst die Auswahl aufheben. */
+function elementWaehlen(e) {
+  if (!ansichtA) return;
+  const s = svgPunkt(e);
+  const g = gruppeVon(z.gruppe);
+  const el = sichtbareElemente(g);
+  const w = $('bild-a').getBoundingClientRect().width || 520;
+  const r = (coarse.matches ? 22 : 12) * (520 / w);
+  let best = null;
+  for (const d of el.drehpunkte) {
+    const q = ansichtA.zuBild(d.punkt);
+    const dist = Math.hypot(s[0] - q[0], s[1] - q[1]);
+    if (dist < r * 1.2 && (!best || dist < best.dist)) best = { dist, el: d };
+  }
+  if (!best) {
+    for (const l of el.linien) {
+      const [p, q] = l.strecke.map(ansichtA.zuBild);
+      const vx = q[0] - p[0]; const vy = q[1] - p[1]; const ll = vx * vx + vy * vy;
+      const t = Math.max(0, Math.min(1, ((s[0] - p[0]) * vx + (s[1] - p[1]) * vy) / ll));
+      const dist = Math.hypot(s[0] - p[0] - t * vx, s[1] - p[1] - t * vy);
+      if (dist < r && (!best || dist < best.dist)) best = { dist, el: l };
+    }
+  }
+  z.erkl = best ? elementSchluessel(best.el) : null;
+  if (z.erkl) abspielen(); else aktualisieren();
+}
+
+/** Knöpfe für die sichtbaren Elemente der Zelle, eines je Klasse modulo Gitter (auch für die Tastatur). */
+function elementListe(g) {
+  const el = sichtbareElemente(g, 1);
+  const gesehen = new Set();
+  const knoepfe = [];
+  // an einem Drehpunkt jede sichtbare Zähligkeit (im Aufbau z. B. 3 und 2 am selben Punkt)
+  const einzeln = el.drehpunkte.flatMap((d) => (d.ordnungen ?? [d.n]).map((n) => ({ ...d, n })));
+  for (const e of [...einzeln, ...el.linien]) {
+    const k = klassenSchluessel(g, e);
+    if (gesehen.has(k)) continue;
+    gesehen.add(k);
+    const d = e.richtung ? { typ: e.art, punkt: e.punkt, richtung: e.richtung } : { typ: 'dreh', n: e.n, punkt: e.punkt };
+    knoepfe.push(`<li><button class="linkbtn" type="button" data-erkl="${elementSchluessel(e)}">${elementName(d)}</button></li>`);
+  }
+  return `<ul class="elemliste">${knoepfe.join('')}</ul>`;
+}
+
+/** Schritte der Erklärung nacheinander zeigen (0 → 3). */
+let ablauf = null;
+function abspielen() {
+  clearTimeout(ablauf);
+  phase = 0;
+  aktualisieren();
+  const weiter = () => {
+    if (phase >= 3 || !z.erkl) return;
+    phase += 1;
+    aktualisieren();
+    ablauf = setTimeout(weiter, 1100);
+  };
+  ablauf = setTimeout(weiter, 900);
+}
+
 let ziehen = false, bewegt = false, start = null;
 function zeigerEinrichten() {
   const svg = $('bild-a');
   svg.addEventListener('touchstart', (e) => { if (naheObjekt(e)) e.preventDefault(); }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
+    if (z.warum && z.elemente) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
     if (e.pointerType === 'mouse' || naheObjekt(e)) {
@@ -275,7 +406,7 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', () => { ziehen = false; });
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (!z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
+    if ((z.warum && z.elemente) || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
     const p = ansichtA.vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -309,6 +440,7 @@ function init() {
   $('picker').addEventListener('click', (e) => {
     const b = e.target.closest('.pgb');
     if (!b) return;
+    if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; }
     z.gruppe = b.dataset.g;
     aktualisieren();
   });
@@ -344,7 +476,30 @@ function init() {
   $('info').addEventListener('click', (e) => {
     const b = e.target.closest('.setzen');
     if (b) wyckoffSetzen(b.dataset.wy);
+    const at = e.target.closest('[data-aeteil]');
+    if (at) {
+      const i = Number(at.dataset.aeteil); const wahl = new Set(z.aeTeile ?? []);
+      if (wahl.has(i)) wahl.delete(i); else wahl.add(i);
+      z.aeTeile = [...wahl].sort((u, v) => u - v);
+      aktualisieren();
+    }
+    if (e.target.closest('[data-aeteil-aus]')) { z.aeTeile = []; aktualisieren(); }
+    const ph = e.target.closest('[data-phase]');
+    if (ph) { clearTimeout(ablauf); phase = Number(ph.dataset.phase); aktualisieren(); }
+    if (e.target.closest('[data-abspielen]')) abspielen();
+    if (e.target.closest('[data-erkl-zu]')) { clearTimeout(ablauf); z.erkl = null; phase = 3; aktualisieren(); }
+    const wahl = e.target.closest('[data-erkl]');
+    if (wahl) { z.erkl = wahl.dataset.erkl; abspielen(); }
   });
+  $('werkzeug-warum').addEventListener('click', () => {
+    z.warum = !z.warum;
+    if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
+    aktualisieren();
+  });
+  $('opt-aufbau').addEventListener('change', () => { z.aufbau = $('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
+  $('aufbau-schritt').addEventListener('input', () => { z.aufbau = Number($('aufbau-schritt').value); aktualisieren(); });
+  $('aufbau-zurueck').addEventListener('click', () => { z.aufbau = Math.max(1, z.aufbau - 1); aktualisieren(); });
+  $('aufbau-vor').addEventListener('click', () => { z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, z.aufbau + 1); aktualisieren(); });
   zeigerEinrichten();
   // Telefon: eine Tafel oben, Umschalter
   document.querySelectorAll('.figswitch button').forEach((b) => b.addEventListener('click', () => {

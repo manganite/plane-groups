@@ -8,6 +8,18 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Aufbau aus Erzeugenden** und **„Warum ist das da?“** (Konzept §1b, Blickrichtung „Bedingen“):
+  - `js/herkunft.js` sucht schrittweise, welche Operationen aus den Erzeugenden nach ITA und den Gittertranslationen folgen. Je Element merkt es sich die Zerlegung *C* = *A* ∘ *B*, Translationen zuerst.
+  - Tafel A zeigt die Elemente Schritt für Schritt, neue hervorgehoben.
+  - Das Werkzeug „Warum ist das da?“ zeigt für ein angetipptes Element die Zerlegung mit Fähnchen, Regel (`js/warum.js`) und Herleitung.
+  - Die Wege des Fähnchens unter *B*, *A* und *C* zeigen, wie die Operationen wirken: Drehung als Bogen um den Drehpunkt, Gleitspiegelung in zwei Teilen (Spiegelung, dann Verschiebung um die Gleitkomponente entlang der Linie). Stellen sind nummeriert (0, 1, 2), Wege tragen den Buchstaben der Operation.
+  - **Gitterkopien** werden einfacher erklärt: Ist ein Element nur ein vorhandenes, um einen Gittervektor verschoben (z. B. die 4-zähligen Drehpunkte an den Ecken, in c-Gruppen auch um die Zentrierung), zeigt „Warum ist das da?“ das Vorbild *V* und die Verschiebung *t* statt einer Verknüpfung (`vorbild()` in `js/herkunft.js`).
+  - Link-Adresse mit `aufbau`, `warum`, `erkl`.
+  - Tests `tests/herkunft.test.mjs`: Herkunft aller Elemente, Beispiele p4mm, c2mm und p6, Regeln.
+
+- **Verweis in die Stereo-App** (`js/verweise.js`, ab Stereo-App v1.12.0): Die Punktgruppe führt zum Pedion mit Flächenmuster und Blick senkrecht auf die Fläche (`blick`), aufgeräumte Ansicht mit Kristallachsen; p3m1 → 3m1, p31m → 31m. Bei 1 und m der Modus „Punktgruppen“ mit Blick entlang c. Die 10 Punktgruppen der Ebene entsprechen den 10 polaren Punktgruppen. Alle elf Links mit der Stereo-App v1.12.0 im Browser geprüft, Orientierung der Achsen und Spiegellinien abgeglichen.
+- **Bedingungen der asymmetrischen Einheit antippen** (`js/asymmetrie.js`): Jede Bedingung der ITA-Seite wird als Halbebenen gelesen; Tafel A schattiert, wo die gewählten erfüllt sind, und zeigt ihre Grenzlinien. Link-Adresse mit `aet`. Test: Alle Bedingungen zusammen ergeben für alle 17 Gruppen genau die asymmetrische Einheit der ITA (Fläche = Zellfläche / Zahl der Operationen).
+
 - **Modus „Ebenengruppen“** (Kern): Gruppenwahl; Symmetriegerüst der Elementarzelle (wahlweise 2 × 2) mit den Symbolen der ITA; Objekt (Fähnchen oder Kreis mit Komma) mit allen Bildern, ziehbar, mit Einrasten auf spezielle Lagen; asymmetrische Einheit; Muster; Kenndaten wie eine ITA-Seite mit „setzen“ je Wyckoff-Lage; Gitterparameter innerhalb des Kristallsystems; Färbung nach Blickrichtung; Zustand in der Link-Adresse (`js/zustand.js`, Format im README); Hilfetexte und Erste Schritte.
 - `js/zeichnung.js` (SVG der Tafeln, ohne DOM), `js/text.js` (Schreibweise wie in ITA), Tests `tests/zeichnung.test.mjs`, `tests/zustand.test.mjs`, `tests/text.test.mjs`.
 

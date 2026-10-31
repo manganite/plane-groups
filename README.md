@@ -18,10 +18,12 @@ In Arbeit; das erste Release folgt.
 - **Modus „Ebenengruppen“:** Auswahl der 17 Ebenengruppen nach Kristallsystem.
   - **Symmetriegerüst:** Elementarzelle (wahlweise 2 × 2 Zellen) mit allen Symmetrieelementen und den Symbolen der International Tables for Crystallography, Vol. A. Dazu gehören die Gleitspiegellinien, die das Symbol nicht nennt (z. B. in c2mm und p4mm). Wahlweise nach Blickrichtung gefärbt.
   - **Objekt in allgemeiner Lage** (Fähnchen oder Kreis mit Komma wie in ITA) mit allen Bildern, ziehbar. Nahe einem Drehpunkt oder einer Spiegellinie rastet es ein. Die Kenndaten nennen dann Wyckoff-Lage, Lagesymmetrie und Zähligkeit.
-  - **Asymmetrische Einheit** einblendbar.
+  - **Asymmetrische Einheit** einblendbar. Ihre Bedingungen in den Kenndaten (z. B. „0 ≤ x ≤ ½“) lassen sich einzeln antippen: Das Symmetriegerüst schattiert, wo die gewählten Bedingungen erfüllt sind, und hebt ihre Grenzlinien hervor; alle zusammen ergeben die asymmetrische Einheit.
   - **Muster:** Ausschnitt des unendlichen Musters mit hervorgehobener Elementarzelle.
-  - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen, Auslöschungen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
+  - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“: dort das Pedion mit Flächenmuster und Blick senkrecht auf die Fläche; das Muster zeigt genau diese Punktgruppe), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen, Auslöschungen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
   - **Gitterparameter** innerhalb des Kristallsystems frei: *b*/*a* (schiefwinklig, rechteckig), γ (schiefwinklig).
+  - **Aufbau aus Erzeugenden:** Die Symmetrieelemente erscheinen Schritt für Schritt. Zuerst kommen die Erzeugenden nach ITA („Generators selected“), dann, was aus ihren Verknüpfungen mit den Gittertranslationen folgt. Neue Elemente sind hervorgehoben.
+  - **„Warum ist das da?“:** Ein Element antippen zeigt, aus welchen zwei Operationen es folgt (*C* = *A* ∘ *B*). Das Fähnchen läuft die Schritte ab, die passende Regel wird genannt (z. B. „Spiegelung + Translation schräg zur Linie = Gleitspiegelung“), dazu die Herleitung aus den Erzeugenden. Ist das Element nur eine Gitterkopie eines anderen (z. B. die Drehpunkte an den Ecken der Zelle), zeigt die Erklärung stattdessen das Vorbild und die Verschiebung.
 
 ## Links auf Ansichten
 
@@ -40,6 +42,10 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
 | `farb` | nach Blickrichtung färben | `0`, **`1`** |
 | `mel` | Symmetrieelemente im Muster | **`0`**, `1` |
+| `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
+| `warum` | Werkzeug „Warum ist das da?“ | **`0`**, `1` |
+| `aet` | angetippte Bedingungen der asymmetrischen Einheit | Nummern ab `0` in der Reihenfolge der ITA-Seite, z. B. `0,2`; **leer** |
+| `erkl` | erklärtes Element | z. B. `4;1/2,1/2` (4-zähliger Drehpunkt bei ½, ½), `m;1/4,0;0,1` (Spiegellinie durch ¼, 0 in Richtung [01]), `g;…` (Gleitspiegellinie) |
 | `ba` | *b*/*a* (nur schiefwinklig, rechteckig) | 0.6–1.6; **1.25** bzw. **1.35** |
 | `gamma` | γ in Grad (nur schiefwinklig) | 95–125; **105** |
 

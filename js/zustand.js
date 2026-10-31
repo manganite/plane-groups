@@ -39,6 +39,10 @@ export function startzustand() {
     farben: true, // nach Blickrichtung färben
     einrasten: true,
     musterElemente: false, // Symmetrieelemente in Tafel B
+    warum: false, // Werkzeug „Warum ist das da?“: Antippen wählt ein Element
+    erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
+    aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
+    aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
   };
 }
@@ -81,12 +85,17 @@ export function hashVon(z) {
   for (const [k, f] of SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
   if (z.zellen !== s.zellen) q.set('zellen', String(z.zellen));
   if (z.form !== s.form) q.set('form', z.form);
+  if (z.warum) q.set('warum', '1');
+  if (z.erkl) q.set('erkl', z.erkl);
+  if (z.aufbau > 0) q.set('aufbau', String(z.aufbau));
+  if (z.aeTeile?.length) q.set('aet', z.aeTeile.join(','));
   const sys = systemVon(z.gruppe);
   for (const k of FREI[sys]) {
     const v = z.gitter[sys][k];
     if (Math.abs(v - GITTER_START[sys][k]) > 1e-9) q.set(k, kurz(v, 3));
   }
-  return '#' + q.toString().replace(/%2F/g, '/'); // Brüche lesbar: x=1/3
+  // lesbar: Brüche (x=1/3) und Elementschlüssel (erkl=m;1/4,0;0,1)
+  return '#' + q.toString().replace(/%2F/g, '/').replace(/%3B/g, ';').replace(/%2C/g, ',');
 }
 
 /**
@@ -106,6 +115,17 @@ export function hashAnwenden(z, hash) {
   for (const [k, f] of SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
   if (q.get('zellen') === '2') z.zellen = 2;
   if (['fahne', 'komma'].includes(q.get('form'))) z.form = q.get('form');
+  if (q.has('warum')) z.warum = an(q.get('warum'));
+  const erkl = q.get('erkl');
+  if (erkl && /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/.test(erkl)) z.erkl = erkl;
+  const aufbau = zahl(q.get('aufbau'), 0, 20);
+  if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
+  // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
+  const aet = q.get('aet');
+  if (aet && /^\d(,\d)*$/.test(aet)) {
+    const zahlTeile = EBENENGRUPPEN.find((d) => d.symbol === z.gruppe).ae.text.split(';').length;
+    z.aeTeile = [...new Set(aet.split(',').map(Number))].filter((i) => i < zahlTeile).sort((a, b) => a - b);
+  }
   const sys = systemVon(z.gruppe);
   z.gitter[sys] = { ...GITTER_START[sys] };
   for (const k of FREI[sys]) {
