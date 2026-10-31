@@ -149,7 +149,32 @@ function koordSkizze(fig, f) {
   return svg.join('');
 }
 
-const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze };
+/**
+ * Ein 5-zähliger Drehpunkt erzeugt aus einem Punkt ein regelmässiges Fünfeck; die parallelen
+ * Strecken II–V und III–IV haben das Längenverhältnis 1,618 (nach Borchardt-Ott & Sowa Abb. 6.8a).
+ */
+function fuenfSkizze(fig, f) {
+  const m = [260, 270]; const r = 175;
+  const p = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return [m[0] + r * Math.cos(w), m[1] + r * Math.sin(w)]; });
+  const namen = ['I', 'II', 'III', 'IV', 'V'];
+  const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
+  svg.push(`<polygon points="${p.map(pt).join(' ')}" fill="none" stroke="${f.line}" stroke-width="1.2"/>`);
+  svg.push(linie(p[1], p[4], `stroke="${f.accent}" stroke-width="3"`));
+  svg.push(linie(p[2], p[3], `stroke="${f.fc[1]}" stroke-width="3"`));
+  // Drehpunkt in der Mitte (Fünfeck, gefüllt) und Pfeil der Drehung um 72°
+  const fz = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return [m[0] + 11 * Math.cos(w), m[1] + 11 * Math.sin(w)]; });
+  svg.push(`<polygon points="${fz.map(pt).join(' ')}" fill="${f.ink}"/>`);
+  p.forEach((q, k) => {
+    svg.push(`<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="7" fill="${f.ink}"/>`);
+    const d = [q[0] - m[0], q[1] - m[1]]; const l = Math.hypot(...d);
+    svg.push(text([q[0] + (26 * d[0]) / l, q[1] + (26 * d[1]) / l + 6], namen[k], `font-family="Source Serif 4, serif" font-size="20" fill="${f.ink}" text-anchor="middle"`));
+  });
+  svg.push(text([m[0], (p[1][1] + p[4][1]) / 2 - 12], '1,618', `${SANS} font-size="17" fill="${f.accent}" text-anchor="middle"`));
+  svg.push(text([m[0], p[2][1] - 12], '1', `${SANS} font-size="17" fill="${f.fc[1]}" text-anchor="middle"`));
+  return svg.join('');
+}
+
+const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze };
 
 function abbildungen() {
   const f = farben();
