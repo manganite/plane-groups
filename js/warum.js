@@ -109,6 +109,13 @@ export function wegText(op) {
   return 'verschiebt es';
 }
 
+/** Nummer der Operation unter den Erzeugenden der ITA („Generators selected“), sonst 0. */
+function erzeugendeNummer(g, op) {
+  const gleich = (o) => o.R.every((r, i) => r.every((v, j) => v === op.R[i][j])) && o.t.every((v, i) => nahe(v, op.t[i]));
+  const i = g.ops.findIndex(gleich);
+  return i >= 0 && g.daten.erzeugende.includes(i + 1) ? i + 1 : 0;
+}
+
 export function erklaerungHTML(g, d, M, phase) {
   const badge = (k) => `<span class="ab ${k.toLowerCase()}">${k}</span>`;
   const stelle = (i, klasse = `st${i}`) => `<span class="st ${klasse}" title="Stelle ${i}">${i}</span>`;
@@ -128,7 +135,7 @@ export function erklaerungHTML(g, d, M, phase) {
     <p><button class="linkbtn" type="button" data-erkl="${d.vorbild.schluessel}">Woher kommt ${badge('V')}?</button></p>`;
   }
   if (d.erzeugende) {
-    const nr = g.ops.findIndex((o) => o.R.every((r, i) => r.every((v, j) => v === d.C.R[i][j])) && o.t.every((v, i) => nahe(v, d.C.t[i])));
+    const nr = erzeugendeNummer(g, d.C) - 1;
     return `${kopf}<p>Sie gehört zur ${opName(d.C)}. Diese Operation ist eine der Erzeugenden der Gruppe nach den International Tables${nr >= 0 ? ` („Generators selected“: (${nr + 1}))` : ''}. Aus den Erzeugenden und den Gittertranslationen folgen alle übrigen Symmetrieelemente.</p>
       <ul class="wege"><li>${badge('C')} ${stelle(0)} → ${stelle(1, 'stc')}: ${wegText(d.C)}.</li></ul>
       ${phasen([[0, 'Ausgangsobjekt'], [3, 'Bild unter C']])}`;
@@ -138,12 +145,19 @@ export function erklaerungHTML(g, d, M, phase) {
     ? `<details class="explain"><summary>Herleitung aus den Erzeugenden (${d.kette.length} Schritte)</summary><ol>${[...d.kette].reverse().map((s) => `<li>${opHTML(beschreibe(s.c))} = ${opHTML(beschreibe(s.a))} ∘ ${opHTML(beschreibe(s.b))}</li>`).join('')}</ol>
       <p class="note">Gelesen von rechts nach links: zuerst die rechte, dann die linke Operation. Die erste Zeile verknüpft Erzeugende nach den International Tables.</p></details>`
     : '';
+  // A ist nach der Suche (herkunft.js) immer eine Erzeugende oder eine Gittertranslation; nur B
+  // kann selbst hergeleitet sein. „Woher kommt …?“ nur, wo es etwas herzuleiten gibt.
+  const herkunftText = (op) => {
+    if (art(op).art === 't') return ' – Gittertranslation';
+    const nr = erzeugendeNummer(g, op);
+    return nr ? ` – Erzeugende (${nr}) nach ITA` : '';
+  };
   const elB = elementVonOp(g, d.B);
-  const woher = elB ? `<button class="linkbtn" type="button" data-erkl="${elementSchluessel(elB)}">Woher kommt ${badge('B')}?</button>` : '';
+  const woher = elB && !erzeugendeNummer(g, d.B) ? `<button class="linkbtn" type="button" data-erkl="${elementSchluessel(elB)}">Woher kommt ${badge('B')}?</button>` : '';
   return `${kopf}
     <p>Sie gehört zur Operation ${badge('C')} ${opName(d.C)}.</p>
     <p class="gleichung">${badge('C')} = ${badge('A')} ∘ ${badge('B')}: zuerst ${badge('B')}, dann ${badge('A')}.</p>
-    <p>${badge('B')} ${opName(d.B)}<br>${badge('A')} ${opName(d.A)}</p>
+    <p>${badge('B')} ${opName(d.B)}${herkunftText(d.B)}<br>${badge('A')} ${opName(d.A)}${herkunftText(d.A)}</p>
     ${r ? `<p class="regel">${r}</p>` : ''}
     <ul class="wege">
       <li>${badge('B')} ${stelle(0)} → ${stelle(1)}: ${wegText(d.B)}.</li>

@@ -236,3 +236,15 @@ test('Gitterkopien: Elemente, die nur verschobene Kopien sind, werden über ihr 
   for (const x of ['v', 't', 'c']) assert.match(svg, new RegExp(`class="weg weg-${x}"`));
   for (const i of ['0', '1', '2', '3']) assert.match(svg, new RegExp(`class="stelle">.*?>${i}</text>`));
 });
+
+test('Erzeugende in der Erklärung benannt; „Woher kommt B?“ nur, wenn B hergeleitet ist', () => {
+  const M = metrik(GITTER_START.quadratisch);
+  const html = (id, k) => { const g = gruppe(id); return erklaerungHTML(g, erklaerungsDaten(g, k, [0.12, 0.31], 1, M), M, 3); };
+  const a = html('p4gm', 'g;0,0;1,1');
+  assert.match(a, /Erzeugende \(3\) nach ITA/);
+  assert.match(a, /Erzeugende \(5\) nach ITA/);
+  assert.doesNotMatch(a, /Woher kommt/, 'A und B sind Erzeugende');
+  const b = html('p4mm', 'g;1/2,0;1,1');
+  assert.match(b, /Gittertranslation/);
+  assert.match(b, /Woher kommt/, 'B = m x, x ist hergeleitet');
+});
