@@ -223,6 +223,22 @@ body.zeichnen #bild-a { cursor: crosshair; touch-action: none; }
           <button class="resetbtn" id="reset-gitter" type="button">Gitter zurücksetzen</button>
         </div>
       </details>
+      <details class="sect" id="sec-brechen">
+        <summary>Symmetrie brechen<span class="sumhint">Gitter frei verändern</span></summary>
+        <div class="stack">
+          <label class="check"><input type="checkbox" id="opt-brechen">Gitter ohne Bindung an das Kristallsystem</label>
+          <div class="range">
+            <label for="frei-ba"><i>b</i>/<i>a</i></label><output id="frei-ba-out"></output>
+            <input type="range" id="frei-ba" min="0.5" max="2" step="0.01">
+          </div>
+          <div class="range">
+            <label for="frei-gamma">γ</label><output id="frei-gamma-out"></output>
+            <input type="range" id="frei-gamma" min="60" max="150" step="0.5">
+          </div>
+          <p class="hintline" id="brechen-hint"></p>
+          <button class="resetbtn" id="reset-brechen" type="button">Zurück zur Metrik des Systems</button>
+        </div>
+      </details>
       <details class="sect" id="sec-view">
         <summary>Darstellung<span class="sumhint">Farben, Muster</span></summary>
         <div class="stack">

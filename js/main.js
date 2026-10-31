@@ -9,10 +9,11 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, FREI_BEREICH } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
+import { brechAnalyse, brechHTML } from './brechen.js';
 
 const $ = (id) => document.getElementById(id);
 const REPO = 'https://github.com/manganite/plane-groups';
@@ -35,6 +36,9 @@ try {
     z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
     while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
     z.zeichnen = z.zeichnen === true;
+    z.brechen = z.brechen === true;
+    const fr = z.frei ?? {};
+    z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90 };
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
   }
 } catch { /* ohne Speicher weiter */ }
@@ -121,6 +125,17 @@ function bedienungAbgleichen() {
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
+  // Symmetrie brechen: andere Werkzeuge beziehen sich auf die ursprüngliche Gruppe und ruhen
+  $('opt-brechen').checked = z.brechen;
+  for (const k of ['ba', 'gamma']) {
+    $(`frei-${k}`).disabled = !z.brechen;
+    $(`frei-${k}`).value = String(z.frei[k]);
+    $(`frei-${k}-out`).textContent = z.brechen ? (k === 'ba' ? z.frei.ba.toFixed(2) : `${z.frei.gamma.toFixed(1)}°`) : '–';
+  }
+  $('reset-brechen').disabled = !z.brechen;
+  $('brechen-hint').textContent = z.brechen
+    ? 'Die Objekte behalten ihre Lage in Bruchkoordinaten; es ändern sich nur Längen und Winkel. „Warum ist das da?“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
+    : 'Löst die Bindung von b/a und γ an das Kristallsystem. Die Kenndaten zeigen dann, welche Symmetrie bleibt.';
   // Werkzeug „Warum ist das da?“
   $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
   $('werkzeug-warum').disabled = !z.elemente;
@@ -160,6 +175,8 @@ function bedienungAbgleichen() {
   const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
   $('lat-why').textContent = fest[sys];
   $('reset-gitter').disabled = FREI[sys].length === 0;
+  // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
+  if (z.brechen) for (const id of ['lat-ba', 'lat-gamma', 'reset-gitter', 'opt-aufbau', 'aufbau-schritt', 'aufbau-vor', 'aufbau-zurueck', 'opt-schritt', 'schritt-regler', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'opt-ae', 'opt-fuell', 'werkzeug-warum']) $(id).disabled = true;
 }
 
 // ------------------------------------------------------------------ Zeichnen
@@ -310,6 +327,7 @@ function kenndaten() {
     </div>
     ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
     : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
+    ${z.brechen ? `<div class="warumbox brechbox" id="brechbox">${brechHTML(d, z.frei, brechAnalyse(g, z.frei))}</div>` : ''}
     ${schrittbox}
     ${erklaerung ? '' : lagebox}
     <dl class="facts">
@@ -544,6 +562,7 @@ function init() {
     if (!b) return;
     if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; if (z.schritt > 0) z.schritt = 1; }
     z.gruppe = b.dataset.g;
+    if (z.brechen) z.frei = { ...z.gitter[systemJetzt()] };
     aktualisieren();
   });
   bindeSchalter('opt-elemente', 'elemente');
@@ -598,6 +617,16 @@ function init() {
     const wahl = e.target.closest('[data-erkl]');
     if (wahl) { z.erkl = wahl.dataset.erkl; abspielen(); }
   });
+  $('opt-brechen').addEventListener('change', () => {
+    z.brechen = $('opt-brechen').checked;
+    if (z.brechen) {
+      z.frei = { ...z.gitter[systemJetzt()] };
+      z.warum = false; z.erkl = null; z.aufbau = 0; z.schritt = 0; z.aeTeile = []; stoppeSchritte(); clearTimeout(ablauf); phase = 3;
+    }
+    aktualisieren();
+  });
+  for (const k of ['ba', 'gamma']) $(`frei-${k}`).addEventListener('input', () => { z.frei = { ...z.frei, [k]: Number($(`frei-${k}`).value) }; aktualisieren(); });
+  $('reset-brechen').addEventListener('click', () => { z.frei = { ...z.gitter[systemJetzt()] }; aktualisieren(); });
   $('werkzeug-zeichnen').addEventListener('click', () => {
     z.zeichnen = !z.zeichnen;
     if (z.zeichnen) { z.warum = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }

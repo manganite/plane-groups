@@ -17,6 +17,11 @@ export const GITTER_BEREICH = {
   ba: [0.6, 1.6],
   gamma: [95, 125],
 };
+/** Bereiche der Regler beim Brechen der Symmetrie (alle Metriken ausser fast entarteten). */
+export const FREI_BEREICH = {
+  ba: [0.5, 2],
+  gamma: [60, 150],
+};
 /** Freie Gitterparameter je System. */
 export const FREI = {
   schiefwinklig: ['ba', 'gamma'],
@@ -46,6 +51,8 @@ export function startzustand() {
     zeichnen: false, // Werkzeug „Zeichnen“ in Tafel A (nicht in der Link-Adresse)
     striche: [], // gezeichnete Striche in Bruchkoordinaten (nur im Browser gespeichert, nicht im Link)
     aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
+    brechen: false, // Symmetrie brechen: Gitter ohne die Bindung des Kristallsystems
+    frei: { ba: 1, gamma: 90 }, // freie Metrik beim Brechen
     schritt: 0, // Schritt für Schritt: 0 aus, sonst Operation 1 … N der ITA-Liste, N + 1 Gittertranslationen
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
@@ -94,6 +101,7 @@ export function hashVon(z) {
   if (z.erkl) q.set('erkl', z.erkl);
   if (z.aufbau > 0) q.set('aufbau', String(z.aufbau));
   if (z.schritt > 0) q.set('schritt', String(z.schritt));
+  if (z.brechen) { q.set('brechen', '1'); q.set('fba', kurz(z.frei.ba, 3)); q.set('fgamma', kurz(z.frei.gamma, 2)); }
   if (z.aeTeile?.length) q.set('aet', z.aeTeile.join(','));
   const sys = systemVon(z.gruppe);
   for (const k of FREI[sys]) {
@@ -127,6 +135,11 @@ export function hashAnwenden(z, hash) {
   if (erkl && /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
   if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
+  if (an(q.get('brechen') ?? '')) {
+    z.brechen = true;
+    const s0 = GITTER_START[systemVon(z.gruppe)];
+    z.frei = { ba: zahl(q.get('fba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: zahl(q.get('fgamma'), ...FREI_BEREICH.gamma) ?? s0.gamma };
+  }
   const schritt = zahl(q.get('schritt'), 0, 25);
   if (schritt !== null && Number.isInteger(schritt)) z.schritt = schritt;
   // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
