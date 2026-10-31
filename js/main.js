@@ -9,7 +9,8 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur } from './zustand.js';
+import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
@@ -41,6 +42,8 @@ try {
     const fr = z.frei ?? {};
     z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90 };
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
+    if (!['eg', 'struktur'].includes(z.modus)) z.modus = 'eg';
+    z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
   }
 } catch { /* ohne Speicher weiter */ }
 if (location.hash.length > 1) hashAnwenden(z, location.hash); // Link hat Vorrang
@@ -184,9 +187,11 @@ function bedienungAbgleichen() {
 
 // ------------------------------------------------------------------ Zeichnen
 let ansichtA = null;
+const sUI = strukturUI({ z, $, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
 let erklaerung = null;
 let phase = 3;
 function zeichnen() {
+  if (z.modus === 'struktur') { ansichtA = null; $('sub-a').textContent = 'gegebene und konventionelle Zelle'; sUI.zeichnen(); return; }
   const f = farben();
   const a = tafelA(z.gruppe, z, f, { phase });
   ansichtA = a.ansicht;
@@ -528,9 +533,13 @@ function strichBeenden() {
 }
 function zeigerEinrichten() {
   const svg = $('bild-a');
-  svg.addEventListener('touchstart', (e) => { if (z.zeichnen || z.radieren || naheObjekt(e)) e.preventDefault(); }, { passive: false });
+  svg.addEventListener('touchstart', (e) => {
+    if (z.modus === 'struktur') { sUI.touchstart(e); return; }
+    if (z.zeichnen || z.radieren || naheObjekt(e)) e.preventDefault();
+  }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
+    if (z.modus === 'struktur') { sUI.down(e); return; }
     if (z.zeichnen) { strichBeginnen(e); return; }
     if (z.radieren) { if (!ansichtA) return; merken(); $('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
     if (z.warum && z.elemente) { elementWaehlen(e); return; }
@@ -543,6 +552,7 @@ function zeigerEinrichten() {
     }
   });
   svg.addEventListener('pointermove', (e) => {
+    if (sUI.move(e)) return;
     if (strich) { strichWeiter(e); return; }
     if (radierStelle) { radierenAn(e); return; }
     if (!ziehen) return;
@@ -550,11 +560,11 @@ function zeigerEinrichten() {
     bewegt = true;
     setzePunkt(ansichtA.vonBild(svgPunkt(e)));
   });
-  svg.addEventListener('pointerup', () => { ziehen = false; strichBeenden(); });
-  svg.addEventListener('pointercancel', () => { ziehen = false; strichBeenden(); });
+  svg.addEventListener('pointerup', () => { ziehen = false; if (!sUI.up()) strichBeenden(); });
+  svg.addEventListener('pointercancel', () => { ziehen = false; if (!sUI.up()) strichBeenden(); });
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if ((z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
+    if (z.modus === 'struktur' || (z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
     const p = ansichtA.vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -564,6 +574,7 @@ function zeigerEinrichten() {
 let geplant = false;
 function aktualisieren() {
   bedienungAbgleichen();
+  sUI.abgleichen();
   if (geplant) return;
   geplant = true;
   requestAnimationFrame(() => {
@@ -585,6 +596,7 @@ function bindeSchalter(id, feld) {
 
 function init() {
   baueAuswahl();
+  sUI.init();
   $('picker').addEventListener('click', (e) => {
     const b = e.target.closest('.pgb');
     if (!b) return;
@@ -629,6 +641,12 @@ function init() {
     aktualisieren();
   });
   $('info').addEventListener('click', (e) => {
+    // Kenndaten „Gitter und Basis“: die gefundene Gruppe im Modus „Ebenengruppen“ öffnen
+    const eg = e.target.closest('[data-zu-eg]');
+    if (eg) {
+      z.modus = 'eg'; z.gruppe = eg.dataset.zuEg; z.brechen = false; z.erkl = null; z.aeTeile = []; z.schritt = 0;
+      aktualisieren(); window.scrollTo({ top: 0 }); return;
+    }
     const b = e.target.closest('.setzen');
     if (b) wyckoffSetzen(b.dataset.wy);
     const at = e.target.closest('[data-aeteil]');

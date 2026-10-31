@@ -93,6 +93,13 @@ body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: 
 .lagebox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
 .lagebox strong { color: var(--accent); }
 .lagebox p { margin: 6px 0 0; }
+/* Modus „Gitter und Basis“ */
+body.modus-struktur .nur-eg, body:not(.modus-struktur) .nur-struktur { display: none !important; }
+body.modus-struktur #bild-a { cursor: grab; touch-action: manipulation; }
+body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
+.farbwahl button { min-width: 40px; }
+.farbwahl .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: middle; }
+.farbwahl button[aria-pressed="true"] { background: var(--paper); color: var(--ink); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .cols { display: grid; gap: 4px 28px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 @media (max-width: 999px) { .cols { grid-template-columns: minmax(0, 1fr); } }
 </style>
@@ -105,7 +112,7 @@ body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: 
   </div>
   <div class="tabs" role="tablist" aria-label="Modus">
     <button id="tab-eg" role="tab" aria-selected="true">Ebenengruppen</button>
-    <button id="tab-struktur" role="tab" aria-selected="false" disabled>Gitter und Basis</button>
+    <button id="tab-struktur" role="tab" aria-selected="false">Gitter und Basis</button>
   </div>
   <div class="headtools">
     <a class="linkcopy" href="skript.html">Skript</a>
@@ -127,7 +134,61 @@ body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: 
       <p class="intro-foot"><span class="only-fine">Tooltips erklären jedes Bedienelement.</span><span class="only-coarse">Das ⓘ neben den Überschriften erklärt die Bedienelemente.</span></p>
     </section>
 
-    <div class="card">
+    <div class="card nur-struktur">
+      <section id="ctl-struktur" class="stack">
+        <h2>Gitter und Basis</h2>
+        <label class="group-title" for="s-vorgabe">Vorgabe</label>
+        <select id="s-vorgabe"></select>
+        <button class="resetbtn" id="s-zuruecksetzen" type="button">Vorgabe wiederherstellen</button>
+        <p class="group-title">Anzeigen</p>
+        <label class="check"><input type="checkbox" id="s-elemente">Symmetrieelemente</label>
+        <label class="check"><input type="checkbox" id="s-zelle">Konventionelle Zelle</label>
+        <label class="check"><input type="checkbox" id="s-ae">Asymmetrische Einheit</label>
+        <label class="check"><input type="checkbox" id="s-bindungen">Bindungen (nächste Nachbarn)</label>
+      </section>
+    </div>
+
+    <div class="card nur-struktur">
+      <details class="sect" id="sec-basis" open>
+        <summary>Basis<span class="sumhint">Motive wählen, setzen, drehen</span></summary>
+        <div class="stack">
+          <p class="group-title" id="s-basis-titel">Neues Motiv</p>
+          <select id="s-motiv" aria-label="Motiv"></select>
+          <div class="seg farbwahl" id="s-farbe" role="group" aria-label="Atomsorte (Farbe)"></div>
+          <div class="range">
+            <label for="s-winkel">Drehung</label><output id="s-winkel-out"></output>
+            <input type="range" id="s-winkel" min="0" max="359" step="1">
+          </div>
+          <div class="range">
+            <label for="s-groesse">Grösse</label><output id="s-groesse-out"></output>
+            <input type="range" id="s-groesse" min="0.02" max="0.4" step="0.005">
+          </div>
+          <button class="resetbtn" id="s-entfernen" type="button">Gewähltes Motiv entfernen</button>
+          <label class="check"><input type="checkbox" id="s-einrasten">Einrasten (Zwölftel der Zelle, 15°)</label>
+          <p class="hintline" id="s-basis-hint"></p>
+        </div>
+      </details>
+      <details class="sect" id="sec-sgitter">
+        <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
+        <div class="stack">
+          <div class="range">
+            <label for="s-ba"><i>b</i>/<i>a</i></label><output id="s-ba-out"></output>
+            <input type="range" id="s-ba" min="0.5" max="2" step="0.01">
+          </div>
+          <div class="range">
+            <label for="s-gamma">γ</label><output id="s-gamma-out"></output>
+            <input type="range" id="s-gamma" min="60" max="150" step="0.5">
+          </div>
+          <div class="seg seg-text" id="s-metrik" role="group" aria-label="Metrik setzen">
+            <button type="button" data-metrik="1,90"><i>b</i> = <i>a</i>, γ = 90°</button>
+            <button type="button" data-metrik="1,120"><i>b</i> = <i>a</i>, γ = 120°</button>
+          </div>
+          <p class="hintline">Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.</p>
+        </div>
+      </details>
+    </div>
+
+    <div class="card nur-eg">
       <section id="ctl-gruppe" class="stack">
         <h2>Ebenengruppe</h2>
         <div id="picker" class="picker" role="group" aria-label="Ebenengruppe wählen"></div>
@@ -150,7 +211,7 @@ body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: 
       </section>
     </div>
 
-    <div class="card">
+    <div class="card nur-eg">
       <details class="sect" id="sec-objekt">
         <summary>Objekt<span class="sumhint">Lage x, y</span></summary>
         <div class="stack">
@@ -238,20 +299,21 @@ body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: 
   <div class="figs">
     <figure class="panel p-a">
       <div class="panel-head">
-        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Symmetriegerüst</button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
-        <span class="t">Symmetriegerüst<small id="sub-a"></small></span>
-        <div class="tools" role="group" aria-label="Werkzeug"><button type="button" id="werkzeug-warum" aria-pressed="false">Warum ist das da?</button><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" id="werkzeug-radieren" aria-pressed="false">Radieren</button></div>
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
+        <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><small id="sub-a"></small></span>
+        <div class="tools nur-struktur" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button></div>
+        <div class="tools nur-eg" role="group" aria-label="Werkzeug"><button type="button" id="werkzeug-warum" aria-pressed="false">Warum ist das da?</button><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" id="werkzeug-radieren" aria-pressed="false">Radieren</button></div>
       </div>
       <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
       <div class="legend" id="legend"></div>
     </figure>
     <figure class="panel p-b">
       <div class="panel-head">
-        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true">Symmetriegerüst</button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Muster<small>Ausschnitt</small></span>
       </div>
       <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Muster der Ebenengruppe"></svg>
-      <div class="panel-foot">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</div>
+      <div class="panel-foot"><span class="nur-eg">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</span><span class="nur-struktur">Ausschnitt der Struktur; hervorgehoben ist die konventionelle Zelle.</span></div>
     </figure>
   </div>
 

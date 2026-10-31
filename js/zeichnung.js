@@ -68,8 +68,8 @@ function zellBox(M, n, r = 0) {
 // Symmetrieelemente
 // ---------------------------------------------------------------------------------------------
 
-const f2 = (v) => (Math.round(v * 100) / 100).toString();
-const pt = (q) => `${f2(q[0])},${f2(q[1])}`;
+export const f2 = (v) => (Math.round(v * 100) / 100).toString();
+export const pt = (q) => `${f2(q[0])},${f2(q[1])}`;
 
 /**
  * Position im Hermann-Mauguin-Symbol (1: Drehpunkt, 2: zweite, 3: dritte Stelle) einer
@@ -140,7 +140,7 @@ function linieSVG(p, q, art, farbe, breite = null) {
  * sein: neu: true (im Aufbau gerade hinzugekommen); Drehpunkte mit ordnungen: [3, 2] zeigen
  * mehrere Symbole an derselben Stelle. gedimmt: alles blasser (bei einer Erklärung).
  */
-function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false } = {}) {
+export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false } = {}) {
   const sys = g.daten.system;
   const farbeVon = (pos) => (mitFarben ? farben.dir[pos - 1] : farben.ink);
   const linien = el.linien.map((l) => {
