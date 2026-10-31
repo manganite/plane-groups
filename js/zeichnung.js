@@ -288,6 +288,90 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
   return teile.join('');
 }
 
+// ---------------------------------------------------------------------------------------------
+// Schritt für Schritt: das Objekt mit jeder Operation der ITA-Liste, dann die Gittertranslationen
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * Operationen in der Reihenfolge der ITA-Seite, ohne Reduktion modulo Gitter: zuerst die Liste
+ * für (0, 0)+, bei zentrierten Gruppen dann dieselbe Liste für (½, ½)+. nr: Nummer in der Liste.
+ */
+export function itaOperationen(g) {
+  const out = [];
+  g.zentr.forEach((z, zi) => g.ops.forEach((op, i) => out.push({ op: verknuepfen(translation(z), op), nr: i + 1, zentr: zi > 0 ? z : null })));
+  return out;
+}
+
+/**
+ * Schritt k (1 … N) wendet die Operationen 1 … k der ITA-Liste auf das Objekt p an; die Bilder
+ * liegen dort, wo die Koordinaten der Liste hinzeigen (ohne Gittertranslation, also auch
+ * ausserhalb der Zelle). Schritt N + 1: die Gittertranslationen. Je Bild: gleich = Index eines
+ * früheren Bildes an derselben Stelle (exakt) oder, mit gitter: true, an einer um einen
+ * Gittervektor verschobenen Stelle. verschieden: Zahl der Stellen bis auf Gittertranslationen.
+ */
+export function schrittDaten(g, p, k) {
+  const liste = itaOperationen(g);
+  const N = liste.length;
+  const bilder = [];
+  liste.slice(0, Math.min(Math.max(k, 0), N)).forEach((e, i) => {
+    const q = anwenden(e.op, p);
+    const diff = (b) => [q[0] - b.punkt[0], q[1] - b.punkt[1]];
+    let gleich = bilder.findIndex((b) => diff(b).every((x) => Math.abs(x) < 1e-6));
+    let gitter = false;
+    if (gleich < 0) {
+      gleich = bilder.findIndex((b) => diff(b).every((x) => Math.abs(x - Math.round(x)) < 1e-6));
+      gitter = gleich >= 0;
+    }
+    bilder.push({ ...e, punkt: q, index: i, gleich: gleich >= 0 ? gleich : null, gitter });
+  });
+  return { liste, bilder, N, k: Math.min(Math.max(k, 0), N + 1), verschieden: bilder.filter((b) => b.gleich === null).length, translationen: k > N };
+}
+
+/** Kurzname einer Operation der Liste: „3“ bzw. „3′“ für dieselbe Operation mit (½, ½)+. */
+export const opNummer = (e) => `${e.nr}${e.zentr ? '′' : ''}`;
+
+/** Überlagerung „Schritt für Schritt“ in Tafel A (statt der Bilder des Objekts). */
+function schrittSVG(g, M, A, s, k, n, form, farben) {
+  const d = schrittDaten(g, s, k);
+  const teile = ['<g class="schritte">'];
+  const fahne = (p, R, farbe, mass = 1) => objektSVG(form, A.zuBild(p), kartMatrix(M, R), R[0][0] * R[1][1] - R[0][1] * R[1][0] > 0, farbe, farben.paper, mass);
+  const marke = (p, text, farbe) => {
+    const q = A.zuBild(p);
+    return `<text x="${f2(q[0] + 13)}" y="${f2(q[1] + 15)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="${farbe}" stroke="${farben.paper}" stroke-width="3" paint-order="stroke">${text}</text>`;
+  };
+  if (d.translationen) {
+    // Gittertranslationen: jedes Bild in die Zelle (Pfeil), dann alle Bilder in den Zellen
+    for (const b of d.bilder) {
+      const z = b.punkt.map(mod1);
+      if (Math.hypot(z[0] - b.punkt[0], z[1] - b.punkt[1]) > 1e-6) {
+        teile.push(`<g opacity="0.35">${fahne(b.punkt, b.op.R, farben.muted)}</g>`);
+        teile.push(wegSVG([A.zuBild(b.punkt), A.zuBild(z)], farben.muted));
+      }
+    }
+    teile.push(objekteSVG(g, M, A, s, 0, n, form, farben, 1));
+  } else {
+    d.bilder.forEach((b, i) => {
+      const jetzt = i === d.bilder.length - 1;
+      const eigentlich = b.op.R[0][0] * b.op.R[1][1] - b.op.R[0][1] * b.op.R[1][0] > 0;
+      if (jetzt && i > 0) {
+        teile.push(opElementSVG(g, b.op, A, farben.accent, farben.paper, n, true));
+        const w = weg(b.op, s, M);
+        const bild = w.teile.map((t) => t.map(A.zuBild));
+        if (w.zwischen) teile.push(`<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op.R, farben.accent)}</g>`);
+        teile.push(bild.map((t) => wegSVG(t, farben.accent)).join(''));
+      }
+      teile.push(`<g${jetzt ? '' : ' opacity="0.8"'}>${fahne(b.punkt, b.op.R, eigentlich ? farben.upper : farben.accent2)}</g>`);
+      teile.push(marke(b.punkt, `(${opNummer(b)})`, jetzt ? farben.accent : farben.muted));
+      if (jetzt) {
+        const q = A.zuBild(b.punkt);
+        teile.push(`<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="18" fill="none" stroke="${farben.accent}" stroke-width="2.2"/>`);
+      }
+    });
+  }
+  teile.push('</g>');
+  return teile.join('');
+}
+
 /**
  * Tafel A: Symmetriegerüst. Elementarzelle (oder 2 × 2 Zellen) mit den Symmetrieelementen,
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
@@ -303,6 +387,15 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
+  // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
+  const schritt = z.schritt > 0 && z.objekt && !erkl ? z.schritt : 0;
+  const s0 = ausgangsstelle(z.punkt, n);
+  if (schritt) {
+    for (const e of itaOperationen(g)) {
+      const c = kart(M, anwenden(e.op, s0)); const r = 0.12 * Math.max(1, z.gitter[sys].ba);
+      box = [Math.min(box[0], c[0] - r), Math.min(box[1], c[1] - r), Math.max(box[2], c[0] + r), Math.max(box[3], c[1] + r)];
+    }
+  }
   if (erkl) {
     // alle Punkte der Wege (Bögen, Zwischenbilder) und die Stellen der Fähnchen
     for (const p of [erkl.start, ...Object.values(erkl.wege).flatMap((w) => w.teile.flat())]) {
@@ -333,8 +426,9 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
     teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl }));
   }
   if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
+  if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined)}</g>`);
   if (z.objekt && !erkl) {
-    teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined)}</g>`);
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="15" fill="none" stroke="${farben.accent}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`);
   }

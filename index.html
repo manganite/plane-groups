@@ -165,8 +165,23 @@ body.warum #bild-a { cursor: pointer; }
           <button class="resetbtn" id="reset-objekt" type="button">Objekt zurücksetzen</button>
         </div>
       </details>
+      <details class="sect" id="sec-schritte">
+        <summary>Schritt für Schritt<span class="sumhint">Objekt mit jeder Operation</span></summary>
+        <div class="stack">
+          <label class="check" id="row-schritt"><input type="checkbox" id="opt-schritt"><span>Operationen einzeln anwenden<span class="why"></span></span></label>
+          <div class="range">
+            <label for="schritt-regler">Schritt</label><output id="schritt-regler-out"></output>
+            <input type="range" id="schritt-regler" min="1" max="2" step="1">
+          </div>
+          <div class="seg seg-text" role="group" aria-label="Schritte">
+            <button type="button" id="schritt-zurueck">◀ zurück</button>
+            <button type="button" id="schritt-vor">weiter ▶</button>
+            <button type="button" id="schritt-abspielen">Abspielen</button>
+          </div>
+        </div>
+      </details>
       <details class="sect" id="sec-aufbau">
-        <summary>Aufbau aus Erzeugenden<span class="sumhint">Schritt für Schritt</span></summary>
+        <summary>Aufbau aus Erzeugenden<span class="sumhint">Elemente nacheinander</span></summary>
         <div class="stack">
           <label class="check" id="row-aufbau"><input type="checkbox" id="opt-aufbau"><span>Schrittweise aufbauen<span class="why"></span></span></label>
           <div class="range">
