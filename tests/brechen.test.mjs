@@ -48,14 +48,24 @@ test('Hexagonal und rechteckig', () => {
 
 test('Tafeln und Link-Adresse', () => {
   const z = { ...startzustand(), gruppe: 'p4mm', brechen: true, frei: { ba: 1.2, gamma: 90 } };
-  assert.match(tafelA('p4mm', z, F).svg, /opacity="0.3"/, 'ursprüngliche Elemente blass');
+  const svg = tafelA('p4mm', z, F).svg;
+  assert.doesNotMatch(svg, /opacity="0.3"/, 'keine blasse Vorlage: nur die Restsymmetrie');
+  // die Bilder zerfallen in 2 Bahnen: zwei Farben für die Fähnchen
+  const farben = new Set([...svg.matchAll(/class="objekte">(.*?)<\/g>/gs)].flatMap((m) => [...m[1].matchAll(/stroke="(#[0-9a-f]+)"/g)].map((x) => x[1])));
+  assert.ok(farben.size >= 2, 'Fähnchen nach Bahnen gefärbt');
+  assert.equal(brechAnalyse(gruppe('p4mm'), z.frei).bahnen, 2);
+  assert.equal(brechAnalyse(gruppe('p6mm'), { ba: 1, gamma: 110 }).bahnen, 3);
+  assert.match(brechHTML(gruppe('p4mm').daten, z.frei, brechAnalyse(gruppe('p4mm'), z.frei)), /zerfallen in <strong>2 Bahnen<\/strong>/);
   assert.ok(!/NaN/.test(tafelB('p4mm', z, F).svg));
   assert.equal(gebrochen(gruppe('p4mm'), z.frei).bleibt.length, 4);
   const h = hashVon(z);
-  assert.match(h, /brechen=1&fba=1\.2&fgamma=90/);
+  assert.match(h, /brechen=1&ba=1\.2&gamma=90/);
   const z2 = startzustand(); hashAnwenden(z2, h);
   assert.equal(z2.brechen, true);
   assert.deepEqual(z2.frei, { ba: 1.2, gamma: 90 });
-  hashAnwenden(z2, '#m=eg&g=p4mm&brechen=1&fba=9');
+  hashAnwenden(z2, '#m=eg&g=p4mm&brechen=1&ba=9');
   assert.deepEqual(z2.frei, GITTER_START.quadratisch, 'ungültig: Metrik des Systems');
+  // im schiefwinkligen System gibt es nichts zu brechen
+  hashAnwenden(z2, '#m=eg&g=p2&brechen=1&ba=1.3&gamma=80');
+  assert.equal(z2.brechen, false);
 });

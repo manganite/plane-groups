@@ -101,12 +101,18 @@ export function hashVon(z) {
   if (z.erkl) q.set('erkl', z.erkl);
   if (z.aufbau > 0) q.set('aufbau', String(z.aufbau));
   if (z.schritt > 0) q.set('schritt', String(z.schritt));
-  if (z.brechen) { q.set('brechen', '1'); q.set('fba', kurz(z.frei.ba, 3)); q.set('fgamma', kurz(z.frei.gamma, 2)); }
   if (z.aeTeile?.length) q.set('aet', z.aeTeile.join(','));
   const sys = systemVon(z.gruppe);
-  for (const k of FREI[sys]) {
-    const v = z.gitter[sys][k];
-    if (Math.abs(v - GITTER_START[sys][k]) > 1e-9) q.set(k, kurz(v, 3));
+  if (z.brechen) {
+    // Gitter ohne Bindung an das System: beide Parameter, auch wo sie dem Start gleichen
+    q.set('brechen', '1');
+    q.set('ba', kurz(z.frei.ba, 3));
+    q.set('gamma', kurz(z.frei.gamma, 2));
+  } else {
+    for (const k of FREI[sys]) {
+      const v = z.gitter[sys][k];
+      if (Math.abs(v - GITTER_START[sys][k]) > 1e-9) q.set(k, kurz(v, 3));
+    }
   }
   // lesbar: Brüche (x=1/3) und Elementschlüssel (erkl=m;1/4,0;0,1)
   return '#' + q.toString().replace(/%2F/g, '/').replace(/%3B/g, ';').replace(/%2C/g, ',');
@@ -135,11 +141,6 @@ export function hashAnwenden(z, hash) {
   if (erkl && /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
   if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
-  if (an(q.get('brechen') ?? '')) {
-    z.brechen = true;
-    const s0 = GITTER_START[systemVon(z.gruppe)];
-    z.frei = { ba: zahl(q.get('fba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: zahl(q.get('fgamma'), ...FREI_BEREICH.gamma) ?? s0.gamma };
-  }
   const schritt = zahl(q.get('schritt'), 0, 25);
   if (schritt !== null && Number.isInteger(schritt)) z.schritt = schritt;
   // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
@@ -150,6 +151,13 @@ export function hashAnwenden(z, hash) {
   }
   const sys = systemVon(z.gruppe);
   z.gitter[sys] = { ...GITTER_START[sys] };
+  // brechen=1: ba und gamma ohne Bindung an das System (im schiefwinkligen System ist nichts zu brechen)
+  if (an(q.get('brechen') ?? '') && sys !== 'schiefwinklig') {
+    z.brechen = true;
+    const s0 = GITTER_START[sys];
+    z.frei = { ba: zahl(q.get('ba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: zahl(q.get('gamma'), ...FREI_BEREICH.gamma) ?? s0.gamma };
+    return true;
+  }
   for (const k of FREI[sys]) {
     const v = zahl(q.get(k), ...GITTER_BEREICH[k]);
     if (v !== null) z.gitter[sys][k] = v;
