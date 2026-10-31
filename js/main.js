@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE } from './zeichnung.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, FREI_BEREICH } from './zustand.js';
@@ -203,9 +203,10 @@ const RICHTUNG = {
 };
 function legende(f) {
   const g = gruppeVon(z.gruppe);
+  const bruch = z.brechen ? brechAnalyse(g, z.frei) : null;
   const sys = g.daten.system;
   const items = [];
-  const el = elementeImBereich(g, 1);
+  const el = elementeImBereich(bruch ? gebrochen(g, z.frei).H : g, 1); // beim Brechen nur die Restsymmetrie
   const farbe = (pos) => (z.farben ? f.dir[pos - 1] : f.ink);
   if (z.elemente) {
     const ordnungen = [...new Set(el.drehpunkte.map((d) => d.n))].sort();
@@ -214,16 +215,20 @@ function legende(f) {
     const linie = (dash) => `<svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.ink}" stroke-width="${dash ? 2 : 2.8}" ${dash ? 'stroke-dasharray="6 4"' : 'stroke-linecap="round"'}/></svg>`;
     if (arten.has('spiegel')) items.push(`<span class="lg">${linie(false)}Spiegellinie</span>`);
     if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
-    if (z.farben && sys !== 'schiefwinklig') {
+    if (z.farben && sys !== 'schiefwinklig' && !(bruch && bruch.weg.length)) {
       const positionen = new Set(el.linien.map((l) => blickrichtung(sys, l.normale)));
       for (const pos of [2, 3]) {
         if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i>Normale ∥ ${RICHTUNG[sys][pos - 2]}</span>`);
       }
     }
   }
-  if (z.objekt) {
+  if (z.objekt && bruch && bruch.bahnen > 1) {
+    items.push('<span class="lg"><em>Farben der Objekte: Bahnen der Restsymmetrie</em></span>');
+  } else if (z.objekt) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);
     if (g.alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
+  }
+  if (z.objekt) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);

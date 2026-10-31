@@ -205,13 +205,13 @@ export const ORBIT_RAND = 1 / 3;
 
 export function bilder(g, p, lo, hi, rand = 0.08) {
   const out = [];
-  for (const op of g.alle) {
+  for (const [index, op] of g.alle.entries()) {
     const q0 = anwenden(op, p).map(mod1);
     const d = op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0];
     for (let i = Math.floor(lo - 1); i <= Math.ceil(hi); i++) for (let j = Math.floor(lo - 1); j <= Math.ceil(hi); j++) {
       const q = [q0[0] + i, q0[1] + j];
       if (q[0] < lo - rand || q[0] > hi + rand || q[1] < lo - rand || q[1] > hi + rand) continue;
-      out.push({ punkt: q, R: op.R, eigentlich: d > 0 });
+      out.push({ punkt: q, R: op.R, eigentlich: d > 0, index });
     }
   }
   return out;
@@ -235,11 +235,16 @@ export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) 
     + `<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(2.3 * massstab)}" fill="${farbe}"/>`;
 }
 
-function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined) {
+/**
+ * Bilder des Objekts als SVG. farbeVon(bild): eigene Farbe je Bild (z. B. nach Bahnen der
+ * Restsymmetrie beim Brechen), sonst nach Händigkeit.
+ */
+function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined, farbeVon = null) {
   const out = [];
   for (const b of bilder(g, p, lo, hi, rand)) {
     const Mc = kartMatrix(M, b.R);
-    out.push(objektSVG(form, A.zuBild(b.punkt), Mc, b.eigentlich, b.eigentlich ? farben.upper : farben.accent2, farben.paper, massstab));
+    const farbe = farbeVon ? farbeVon(b) : b.eigentlich ? farben.upper : farben.accent2;
+    out.push(objektSVG(form, A.zuBild(b.punkt), Mc, b.eigentlich, farbe, farben.paper, massstab));
   }
   return out.join('');
 }
@@ -309,8 +314,19 @@ export function gebrochen(g, frei) {
   }));
   const bleibt = g.alle.filter((op) => erhaelt(op.R));
   const weg = g.alle.filter((op) => !erhaelt(op.R));
-  return { M, H: { ...g, alle: bleibt, ordnung: bleibt.length }, bleibt, weg };
+  // Bahnen der Restgruppe H: Die Bilder unter o₁ und o₂ sind gleichwertig, wenn o₂ ∘ o₁⁻¹ in H
+  // liegt (modulo Gitter). bahn[i]: Nummer der Bahn des Bildes unter g.alle[i].
+  const inH = (op) => bleibt.some((h) => h.R.every((z, i) => z.every((w, j) => w === op.R[i][j])) && [0, 1].every((i) => { const d = h.t[i] - op.t[i]; return Math.abs(d - Math.round(d)) < 1e-6; }));
+  const bahn = []; const vertreter = [];
+  for (const [i, o] of g.alle.entries()) {
+    const k = vertreter.findIndex((v) => inH(verknuepfen(o, invers(v))));
+    if (k >= 0) bahn[i] = k; else { bahn[i] = vertreter.length; vertreter.push(o); }
+  }
+  return { M, H: { ...g, alle: bleibt, ordnung: bleibt.length }, bleibt, weg, bahn, bahnen: vertreter.length };
 }
+
+/** Farben der Bahnen beim Brechen: die erste wie bisher, dann gut unterscheidbare. */
+export const bahnFarben = (farben) => [farben.upper, farben.accent2, farben.dir[0], farben.dir[1], farben.dir[2], farben.fc3];
 
 /** Motiv ohne eigene Symmetrie (drei Punkte verschiedener Art), vervielfältigt mit g. */
 export function motivBahn(g, p = [0.137, 0.291]) {
@@ -478,6 +494,13 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
   return teile.join('');
 }
 
+/** Farbe je Bild nach der Bahn der Restsymmetrie, nur wenn das Objekt in mehrere Bahnen zerfällt. */
+function bahnFarbe(brechen, farben) {
+  if (!brechen || brechen.bahnen < 2) return null;
+  const f = bahnFarben(farben);
+  return (b) => f[brechen.bahn[b.index] % f.length];
+}
+
 /**
  * Tafel A: Symmetriegerüst. Elementarzelle (oder 2 × 2 Zellen) mit den Symmetrieelementen,
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
@@ -531,16 +554,16 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   teile.push(`<g font-family="Source Serif 4, serif" font-style="italic" font-size="19" fill="${farben.muted}" text-anchor="middle" dominant-baseline="middle"><text x="${f2(la[0])}" y="${f2(la[1])}">a</text><text x="${f2(lb[0])}" y="${f2(lb[1])}">b</text></g>`);
   teile.push(`<circle cx="${f2(o[0])}" cy="${f2(o[1])}" r="2.6" fill="${farben.muted}"/>`);
   if (z.elemente && brechen) {
-    // ursprüngliche Elemente blass, die verbleibenden darüber
-    teile.push(`<g opacity="0.3">${elementeSVG(g, elementeImBereich(g, n), A, farben, false, {})}</g>`);
-    teile.push(elementeSVG(g, elementeImBereich(brechen.H, n), A, farben, z.farben, {}));
+    // nur die verbleibenden Elemente (wie in der Stereo-App); nach Blickrichtung gefärbt nur,
+    // solange die Gruppe bleibt (sonst andere Gruppe, andere Aufstellung)
+    teile.push(elementeSVG(g, elementeImBereich(brechen.H, n), A, farben, z.farben && !brechen.weg.length, {}));
   } else if (z.elemente) {
     const el = z.aufbau > 0 ? aufbauElemente(g, n, z.aufbau) : elementeImBereich(g, n);
     teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl }));
   }
   if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
-  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined)}</g>`);
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
   if (z.objekt && !erkl) {
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="15" fill="none" stroke="${farben.accent}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`);
@@ -823,7 +846,7 @@ export function tafelB(id, z, farben) {
     teile.push(elementeSVG(g, alle, A, farben, z.farben));
   }
   teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8, undefined, bahnFarbe(brechen, farben)));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

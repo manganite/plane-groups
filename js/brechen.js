@@ -34,7 +34,7 @@ export function brechAnalyse(g, frei) {
     if (bleibenLinien.has(elementSchluessel(l))) continue;
     if (!linienWeg.some((x) => x.art === l.art && x.richtung[0] === l.richtung[0] && x.richtung[1] === l.richtung[1])) linienWeg.push({ art: l.art, richtung: l.richtung });
   }
-  return { bleibt: b.bleibt, weg: b.weg, ergebnis, drehWeg, linienWeg };
+  return { bleibt: b.bleibt, weg: b.weg, ergebnis, drehWeg, linienWeg, bahnen: b.bahnen };
 }
 
 /** Konventionelle Zelle in a, b: „a′ = a + 2b“ usw., null wenn sie (bis auf Vorzeichen) a, b ist. */
@@ -62,5 +62,6 @@ export function brechHTML(daten, frei, an) {
   return `${kopf}
     <p>Das Gitter passt nicht mehr zum Kristallsystem ${SYSTEME[daten.system]}. Es bleiben nur die Operationen, deren Drehung oder Spiegelung die neuen Längen und Winkel erhält: <strong>${an.bleibt.length} von ${N}</strong> je Zelle.</p>
     ${r ? `<p>Verbleibende Symmetrie: <strong>${kursiv(r.symbol)}</strong> (${SYSTEME[r.system]}), eine Untergruppe von ${kursiv(daten.symbol)}.${zelle ? ` Ihre konventionelle Zelle nach ITA: ${zelle}.` : ''}</p>` : ''}
-    <p>Weggefallen: ${teile.join('; ')}. Im Symmetriegerüst sind sie blass.</p>`;
+    <p>Weggefallen: ${teile.join('; ')}. Das Symmetriegerüst zeigt nur noch, was bleibt${r && r.symbol !== daten.symbol ? '; die Färbung nach Blickrichtung ist aus, weil die Restgruppe eine andere Aufstellung hat' : ''}.</p>
+    ${an.bahnen > 1 ? `<p>Die ${N} Bilder des Objekts je Zelle zerfallen in <strong>${an.bahnen} Bahnen</strong> der Restsymmetrie (Farben): Bilder verschiedener Farbe sind nicht mehr gleichwertig. Keine verbleibende Operation führt sie ineinander über.</p>` : ''}`;
 }
