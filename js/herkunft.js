@@ -14,7 +14,7 @@
 // übergehen, als eine Klasse; ihr Schritt ist der kleinste in der Klasse.
 
 import {
-  art, verknuepfen, translation, erzeugende, bruch, gitterperiode, mod1,
+  art, verknuepfen, translation, erzeugende, bruch, gitterperiode, mod1, clipLinie,
 } from './symmetrie.js';
 
 /** Bereich der Translationsanteile, in dem gesucht wird (deckt 2 × 2 Zellen mit Rand ab). */
@@ -180,4 +180,59 @@ export function herkunftVon(g, el) {
 /** Schritt eines gezeichneten Elements im Aufbau (Klasse modulo Gitter). */
 export function schrittVon(g, el) {
   return herkunft(g).klassen.get(klassenSchluessel(g, el));
+}
+
+/**
+ * Vorbild eines Elements, das nur eine Gitterkopie ist: unter den Elementen derselben Klasse
+ * (modulo Gittertranslationen, mit Zentrierung), die die Elementarzelle [0, 1]² berühren, das
+ * dem Ursprung nächste. Drehpunkte: Lage in [0, 1)², zuerst kleines x; Linien: kleinster
+ * Abstand vom Ursprung. Dazu der Gittervektor t, um den das Element gegenüber dem
+ * Vorbild verschoben ist. null, wenn das Element selbst das Vorbild ist.
+ * Rückgabe { schluessel, element, op: Operation des Vorbilds, t }.
+ */
+export function vorbild(g, el) {
+  const h = herkunft(g);
+  const eigen = elementSchluessel(el);
+  const klasse = klassenSchluessel(g, el);
+  let best = null;
+  for (const [k, e] of h.elemente) {
+    const v = e.element;
+    if (klassenSchluessel(g, v) !== klasse) continue;
+    let rang;
+    if (istDreh(v)) {
+      if (v.punkt.some((x) => x < -EPS || x > 1 - EPS)) continue;
+      rang = [v.punkt[0], v.punkt[1]];
+    } else {
+      // nur Linien, die die Zelle wenigstens berühren (z. B. x, −x in der Ecke); davon die mit
+      // dem kleinsten Abstand vom Ursprung, dann die mit grösserem x des kanonischen Punkts
+      if (!clipLinie(v.punkt, v.richtung, [0, 0, 1, 1])) continue;
+      const d = v.richtung; const n = [-d[1], d[0]];
+      const c = (n[0] * v.punkt[0] + n[1] * v.punkt[1]) / Math.hypot(...n);
+      rang = [Math.abs(c), -v.punkt[0], -v.punkt[1]];
+    }
+    const i = best ? rang.findIndex((x, j) => Math.abs(x - best.rang[j]) > 1e-9) : -1;
+    if (!best || (i >= 0 && rang[i] < best.rang[i])) best = { k, e, rang };
+  }
+  if (!best || best.k === eigen) return null;
+  const v = best.e.element;
+  let t;
+  if (istDreh(el)) t = [el.punkt[0] - v.punkt[0], el.punkt[1] - v.punkt[1]];
+  else {
+    // kürzester Gittervektor (mit Zentrierung), der die Linie des Vorbilds auf die des Elements
+    // schiebt; bei gleicher Länge zuerst entlang a, dann b
+    const d = el.richtung; const n = [-d[1], d[0]];
+    const delta = n[0] * (el.punkt[0] - v.punkt[0]) + n[1] * (el.punkt[1] - v.punkt[1]);
+    let kurz = null;
+    for (const z of g.zentr) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+      const w = [i + z[0], j + z[1]];
+      if (!nahe(n[0] * w[0] + n[1] * w[1], delta)) continue;
+      // Rang: Länge, Zahl der Komponenten, negative Komponenten, entlang b statt a
+      const r = [w[0] * w[0] + w[1] * w[1], (w[0] !== 0) + (w[1] !== 0), (w[0] < 0) + (w[1] < 0), w[1] !== 0 ? 1 : 0];
+      const m = kurz ? r.findIndex((x, k) => Math.abs(x - kurz.r[k]) > EPS) : -1;
+      if (!kurz || (m >= 0 && r[m] < kurz.r[m])) kurz = { w, r };
+    }
+    if (!kurz) return null;
+    t = kurz.w;
+  }
+  return { schluessel: best.k, element: v, op: best.e.op, t };
 }

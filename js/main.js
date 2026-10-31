@@ -176,7 +176,11 @@ function legende(f) {
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
   if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
   if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
-  if (erklaerung) {
+  if (erklaerung?.art === 'kopie') {
+    items.push(`<span class="lg"><i class="sw" style="background:${f.fc3}"></i>V, Vorbild</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>t, Gittertranslation</span>`);
+    items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
+  } else if (erklaerung) {
     if (!erklaerung.erzeugende) items.push(`<span class="lg"><i class="sw" style="background:${f.fc3}"></i>B, zuerst</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);

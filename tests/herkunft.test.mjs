@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe, verknuepfen, beschreibe, erzeugende } from '../js/symmetrie.js';
-import { herkunft, herleitung, herkunftVon, schrittVon, elementSchluessel, elementVonOp } from '../js/herkunft.js';
+import { herkunft, herleitung, herkunftVon, schrittVon, elementSchluessel, elementVonOp, vorbild } from '../js/herkunft.js';
 import { elementeImBereich, aufbauElemente, erklaerungsDaten, metrik, tafelA } from '../js/zeichnung.js';
 import { erklaerungHTML, regel, vektorText } from '../js/warum.js';
 import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
@@ -197,4 +197,42 @@ test('Wege von B, A und C wie die Operationen wirken; Stellen nummeriert, Operat
       }
     }
   }
+});
+
+test('Gitterkopien: Elemente, die nur verschobene Kopien sind, werden über ihr Vorbild erklärt', () => {
+  for (const id of ALLE) {
+    const g = gruppe(id);
+    const e = elementeImBereich(g, 2);
+    for (const el of [...e.drehpunkte, ...e.linien]) {
+      const v = vorbild(g, el);
+      if (!v) continue;
+      // t ist ein Gittervektor (mit Zentrierung), und t ∘ V ∘ t⁻¹ gehört zum Element
+      assert.ok(g.zentr.some((z) => [0, 1].every((i) => Math.abs((v.t[i] - z[i]) - Math.round(v.t[i] - z[i])) < 1e-9)), `${id}: t`);
+      const T = translation(v.t);
+      const Tinv = translation([-v.t[0], -v.t[1]]);
+      const konj = verknuepfen(T, verknuepfen(v.op, Tinv));
+      assert.equal(elementSchluessel(elementVonOp(g, konj)), elementSchluessel(el), `${id}: ${elementSchluessel(el)}`);
+      assert.equal(vorbild(g, v.element), null, `${id}: Vorbild ${v.schluessel} ist selbst keine Kopie`);
+    }
+  }
+  const k = (id, s) => { const g = gruppe(id); return vorbild(g, herkunft(g).elemente.get(s).element); };
+  assert.deepEqual([k('p4mm', '4;1,0').schluessel, k('p4mm', '4;1,0').t], ['4;0,0', [1, 0]]);
+  assert.deepEqual([k('p4mm', 'm;0,1;1,0').schluessel, k('p4mm', 'm;0,1;1,0').t], ['m;0,0;1,0', [0, 1]]);
+  assert.deepEqual([k('pg', 'g;1,0;0,1').schluessel, k('pg', 'g;1,0;0,1').t], ['g;0,0;0,1', [1, 0]]);
+  assert.deepEqual([k('c2mm', '2;1/2,1/2').schluessel, k('c2mm', '2;1/2,1/2').t], ['2;0,0', [0.5, 0.5]], 'Zentrierung');
+  assert.deepEqual(k('p4mm', 'm;1,0;1,-1').schluessel, 'm;0,0;1,-1', 'x + 1, −x: Kopie der Diagonalen durch den Ursprung');
+  // wirklich neue Elemente bleiben Verknüpfungen
+  assert.equal(k('p4mm', '4;1/2,1/2'), null);
+  assert.equal(k('p4mm', 'm;1/2,0;0,1'), null);
+  assert.equal(k('p4gm', 'g;3/4,0;0,1'), null, 'x = 3/4: kein Vorbild in der Zelle');
+  // Erklärung: Text und Zeichnung
+  const g = gruppe('p4mm'); const M = metrik(GITTER_START.quadratisch);
+  const d = erklaerungsDaten(g, '4;1,0', [0.12, 0.31], 1, M);
+  assert.equal(d.art, 'kopie');
+  const html = erklaerungHTML(g, d, M, 3);
+  assert.match(html, /Darum ist er nur der 4-zählige Drehpunkt bei \(0, 0\), um <i>a<\/i> verschoben/);
+  assert.match(html, /data-erkl="4;0,0"/);
+  const svg = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', erkl: '4;1,0' }, FARBEN, { phase: 3 }).svg;
+  for (const x of ['v', 't', 'c']) assert.match(svg, new RegExp(`class="weg weg-${x}"`));
+  for (const i of ['0', '1', '2', '3']) assert.match(svg, new RegExp(`class="stelle">.*?>${i}</text>`));
 });

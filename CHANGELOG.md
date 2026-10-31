@@ -13,6 +13,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
   - Tafel A zeigt die Elemente Schritt für Schritt, neue hervorgehoben.
   - Das Werkzeug „Warum ist das da?“ zeigt für ein angetipptes Element die Zerlegung mit Fähnchen, Regel (`js/warum.js`) und Herleitung.
   - Die Wege des Fähnchens unter *B*, *A* und *C* zeigen, wie die Operationen wirken: Drehung als Bogen um den Drehpunkt, Gleitspiegelung in zwei Teilen (Spiegelung, dann Verschiebung um die Gleitkomponente entlang der Linie). Stellen sind nummeriert (0, 1, 2), Wege tragen den Buchstaben der Operation.
+  - **Gitterkopien** werden einfacher erklärt: Ist ein Element nur ein vorhandenes, um einen Gittervektor verschoben (z. B. die 4-zähligen Drehpunkte an den Ecken, in c-Gruppen auch um die Zentrierung), zeigt „Warum ist das da?“ das Vorbild *V* und die Verschiebung *t* statt einer Verknüpfung (`vorbild()` in `js/herkunft.js`).
   - Link-Adresse mit `aufbau`, `warum`, `erkl`.
   - Tests `tests/herkunft.test.mjs`: Herkunft aller Elemente, Beispiele p4mm, c2mm und p6, Regeln.
 

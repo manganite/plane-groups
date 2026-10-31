@@ -37,6 +37,12 @@ export function elementName(el, artikel = false) {
   return `${artikel ? 'eine ' : ''}${el.typ === 'spiegel' ? 'Spiegellinie' : 'Gleitspiegellinie'} ${ort}`;
 }
 
+/** Element mit bestimmtem Artikel: „der 4-zählige Drehpunkt bei (0, 0)“, „die Spiegellinie x, 0“. */
+export function bestimmt(el) {
+  if (el.typ === 'dreh') return `der ${el.n}-zählige Drehpunkt bei (${el.punkt.map((v) => bruchZeichen(bruch(v))).join(', ')})`;
+  return `die ${elementName(el)}`;
+}
+
 /** Operation in Worten, mit der Schreibweise der ITA in Klammern. */
 export function opName(op) {
   const a = art(op);
@@ -108,6 +114,19 @@ export function erklaerungHTML(g, d, M, phase) {
   const stelle = (i, klasse = `st${i}`) => `<span class="st ${klasse}" title="Stelle ${i}">${i}</span>`;
   const kopf = `<h3>Warum ist da ${elementName(d.element, true)}?</h3>`;
   const phasen = (namen) => `<div class="phasen">${namen.map(([p, t]) => `<button type="button" data-phase="${p}" aria-pressed="${phase === p}">${t}</button>`).join('')}<button type="button" data-abspielen>Abspielen</button><button class="linkbtn" type="button" data-erkl-zu>Schliessen</button></div>`;
+  if (d.art === 'kopie') {
+    const t = vektorText(d.t);
+    return `${kopf}
+    <p>Das Muster wiederholt sich bei jeder Gittertranslation, und mit ihm jedes Symmetrieelement. Darum ist ${d.element.typ === 'dreh' ? 'er' : 'sie'} nur ${bestimmt(d.vorbild.element)}, um ${t} verschoben${d.t.some((x) => Math.abs(x - Math.round(x)) > 1e-9) ? ' (die Zentrierung ist eine Gittertranslation)' : ''}.</p>
+    <p>${badge('V')} ${opName(d.V)}<br>${badge('t')} Gittertranslation um ${t}<br>${badge('C')} ${opName(d.C)}</p>
+    <ul class="wege">
+      <li>${badge('V')} ${stelle(0)} → ${stelle(1)}: ${wegText(d.V)}.</li>
+      <li>${badge('t')} ${stelle(0)} → ${stelle(2, 'st2')}, ${stelle(1)} → ${stelle(3, 'st2')}: verschiebt beide Fähnchen um ${t}.</li>
+      <li>${badge('C')} ${stelle(2, 'st2')} → ${stelle(3, 'st2')}: ${wegText(d.C)}, genau wie ${badge('V')} von 0 nach 1, nur um ${t} verschoben.</li>
+    </ul>
+    ${phasen([[0, 'Ausgangsobjekt'], [1, 'Vorbild V'], [2, 'um t verschoben'], [3, 'C']])}
+    <p><button class="linkbtn" type="button" data-erkl="${d.vorbild.schluessel}">Woher kommt ${badge('V')}?</button></p>`;
+  }
   if (d.erzeugende) {
     const nr = g.ops.findIndex((o) => o.R.every((r, i) => r.every((v, j) => v === d.C.R[i][j])) && o.t.every((v, i) => nahe(v, d.C.t[i])));
     return `${kopf}<p>Sie gehört zur ${opName(d.C)}. Diese Operation ist eine der Erzeugenden der Gruppe nach den International Tables${nr >= 0 ? ` („Generators selected“: (${nr + 1}))` : ''}. Aus den Erzeugenden und den Gittertranslationen folgen alle übrigen Symmetrieelemente.</p>

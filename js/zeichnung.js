@@ -7,8 +7,8 @@
 // Drehpunkte als Linse (2), Dreieck (3), Raute (4), Sechseck (6); Spiegellinien durchgezogen,
 // Gleitspiegellinien gestrichelt.
 
-import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICHTUNGEN } from './symmetrie.js';
-import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp } from './herkunft.js';
+import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICHTUNGEN, verknuepfen, invers, translation } from './symmetrie.js';
+import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp, vorbild } from './herkunft.js';
 import { bedingungen, bereich } from './asymmetrie.js';
 
 // ---------------------------------------------------------------------------------------------
@@ -345,6 +345,35 @@ function spiegelanteil(C) {
 }
 
 /**
+ * Erklärung einer Gitterkopie: Das Element ist das Vorbild V, um den Gittervektor t verschoben,
+ * C = t ∘ V ∘ t⁻¹. Fähnchen: V bringt 0 nach 1; t verschiebt beide nach 2 und 3; C bringt 2
+ * nach 3. Wege: V, t (von 0 und von 1), C.
+ */
+function kopieDaten(g, schluessel, e, v, p, n, M) {
+  const T = translation(v.t);
+  const V = v.op;
+  const C = verknuepfen(T, verknuepfen(V, invers(T)));
+  const wegeVon = (s) => {
+    const s1 = anwenden(V, s); const s2 = anwenden(T, s);
+    return { V: weg(V, s, M), T0: weg(T, s, M), T1: weg(T, s1, M), C: weg(C, s2, M) };
+  };
+  const mitte = kart(M, [n / 2, n / 2]);
+  const p0 = p.map(mod1);
+  let best = null;
+  for (const z of g.zentr) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+    const s = [p0[0] + i + z[0], p0[1] + j + z[1]];
+    const punkte = [s];
+    for (const w of Object.values(wegeVon(s))) for (const t of w.teile) punkte.push(t[t.length - 1], t[Math.floor(t.length / 2)]);
+    const kosten = punkte.reduce((sum, q) => { const c = kart(M, q); return sum + (c[0] - mitte[0]) ** 2 + (c[1] - mitte[1]) ** 2; }, 0);
+    if (!best || kosten < best.kosten - 1e-12) best = { s, kosten };
+  }
+  return {
+    art: 'kopie', schluessel, element: e.element, tiefe: e.tiefe, C, V, t: v.t, T,
+    vorbild: { schluessel: v.schluessel, element: v.element }, kette: [], start: best.s, wege: wegeVon(best.s), erzeugende: false,
+  };
+}
+
+/**
  * Daten der Erklärung eines Elements (Schlüssel aus herkunft.js) in den Zellen [0, n]²:
  * C = A ∘ B (zuerst B, dann A), die Herleitungskette und der Startpunkt des Fähnchens. Der
  * Startpunkt ist ein Gitterbild des Objekts p, bei dem Start, B(Start) und C(Start) möglichst
@@ -353,6 +382,8 @@ function spiegelanteil(C) {
 export function erklaerungsDaten(g, schluessel, p, n, M) {
   const e = herkunft(g).elemente.get(schluessel);
   if (!e) return null;
+  const v = vorbild(g, e.element);
+  if (v) return kopieDaten(g, schluessel, e, v, p, n, M);
   const kette = herleitung(g, e.schluessel);
   const erst = kette[0];
   const C = e.op; const A = erst.a; const B = erst.b;
@@ -462,6 +493,7 @@ function wegMarke(teile, farbe, papier, text) {
  * 1 nach B, 2 nach A (bei einer Erzeugenden: 1 nach C).
  */
 function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
+  if (d.art === 'kopie') return kopieSVG(g, M, A, d, phase, farben, form, n);
   const teile = ['<g class="erklaerung">'];
   const fB = farben.fc3; const fA = farben.fc4; const fC = farben.accent;
   // Elemente: C hervorgehoben, A und B in ihren Farben (Translationen als Pfeil)
@@ -499,6 +531,47 @@ function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
   if (phase >= 3) {
     const qc = A.zuBild(sC);
     teile.push(`<circle cx="${f2(qc[0])}" cy="${f2(qc[1])}" r="18" fill="none" stroke="${fC}" stroke-width="2.2"/>`);
+  }
+  teile.push('</g>');
+  return teile.join('');
+}
+
+/**
+ * Überlagerung für eine Gitterkopie. phase 0: Ausgangsobjekt; 1: Vorbild V (0 → 1);
+ * 2: um t verschoben (0 → 2, 1 → 3); 3: C bringt 2 nach 3.
+ */
+function kopieSVG(g, M, A, d, phase, farben, form, n) {
+  const teile = ['<g class="erklaerung">'];
+  const fV = farben.fc3; const fT = farben.fc4; const fC = farben.accent;
+  teile.push(opElementSVG(g, d.C, A, fC, farben.paper, n, true));
+  if (phase >= 1) teile.push(opElementSVG(g, d.V, A, fV, farben.paper, n));
+  const s0 = d.start; const s1 = anwenden(d.V, s0); const s2 = anwenden(d.T, s0); const s3 = anwenden(d.T, s1);
+  const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
+  const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
+  const wegSVGvon = (w, farbe, name, klasse) => {
+    const bild = w.teile.map((t) => t.map(A.zuBild));
+    return `<g class="weg weg-${klasse}">${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
+  };
+  const nummer = (p, text, farbe) => {
+    const q = A.zuBild(p); const x = q[0] - 22; const y = q[1] - 20;
+    return `<g class="stelle"><circle cx="${f2(x)}" cy="${f2(y)}" r="8.5" fill="${farbe}"/><text x="${f2(x)}" y="${f2(y + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="700" fill="${farben.paper}" text-anchor="middle" dominant-baseline="middle">${text}</text></g>`;
+  };
+  const blass = (svg) => (phase >= 3 ? `<g opacity="0.35">${svg}</g>` : svg);
+  if (phase >= 1) teile.push(blass(wegSVGvon(d.wege.V, fV, 'V', 'v')));
+  if (phase >= 2) { teile.push(blass(wegSVGvon(d.wege.T0, fT, 't', 't'))); teile.push(blass(wegSVGvon(d.wege.T1, fT, 't', 't'))); }
+  if (phase >= 3) teile.push(wegSVGvon(d.wege.C, fC, 'C', 'c'));
+  teile.push(fahne(s0, id, farben.ink));
+  const q0 = A.zuBild(s0);
+  teile.push(`<circle cx="${f2(q0[0])}" cy="${f2(q0[1])}" r="16" fill="none" stroke="${farben.ink}" stroke-width="1.5" stroke-dasharray="3 2.5"/>`);
+  teile.push(nummer(s0, '0', farben.ink));
+  if (phase >= 1) { teile.push(fahne(s1, d.V, fV)); teile.push(nummer(s1, '1', fV)); }
+  if (phase >= 2) {
+    teile.push(fahne(s2, id, fT)); teile.push(nummer(s2, '2', fT));
+    teile.push(fahne(s3, d.V, fT)); teile.push(nummer(s3, '3', fT));
+  }
+  if (phase >= 3) {
+    const q3 = A.zuBild(s3);
+    teile.push(`<circle cx="${f2(q3[0])}" cy="${f2(q3[1])}" r="18" fill="none" stroke="${fC}" stroke-width="2.2"/>`);
   }
   teile.push('</g>');
   return teile.join('');
