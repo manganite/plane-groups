@@ -10,7 +10,8 @@ import { versionEintragen, offline } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt } from './zeichnung.js';
-import { strukturTafelA, strukturTafelB } from './struktur.js';
+import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
+import { MOTIVE } from './motive.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
 const farben = () => ({
@@ -174,7 +175,28 @@ function fuenfSkizze(fig, f) {
   return svg.join('');
 }
 
-const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze };
+/**
+ * Die Motive der App mit ihrer eigenen Symmetrie (Punktgruppe der Ebene), geordnet wie die
+ * 10 Punktgruppen: 1, 2, m, 2mm, 3, 3m, 4, 4mm, 6, 6mm.
+ */
+function motiveSkizze(fig, f) {
+  const liste = ['fahne', 'w2', 'dreieck', 'insel', 'w3', 'dreieck3', 'w4', 'quadrat', 'w6', 'sechseck'];
+  const M = metrik({ ba: 1, gamma: 90 }); // a nach unten, b nach rechts: Zeilen entlang a
+  const A = ansicht(M, [0, 0, 5, 2], 520, 6);
+  const farbe = motivFarben(f)[0];
+  const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
+  liste.forEach((id, k) => {
+    const p = [Math.floor(k / 5) + 0.42, (k % 5) + 0.5];
+    const groesse = id === 'insel' ? 0.34 : 0.27;
+    svg.push(motivSVG({ motiv: id, farbe: 0, p, winkel: 0, groesse }, p, A, M, farbe, f.paper));
+    const t = A.zuBild([p[0] + 0.43, p[1]]);
+    const sym = MOTIVE[id].symmetrie.replace(/m/g, '<tspan font-style="italic">m</tspan>');
+    svg.push(text(t, sym, `font-family="Source Serif 4, serif" font-size="22" fill="${f.ink}" text-anchor="middle"`));
+  });
+  return svg.join('');
+}
+
+const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze };
 
 function abbildungen() {
   const f = farben();
@@ -182,7 +204,7 @@ function abbildungen() {
     if (fig.dataset.app) appLink(fig, 'index.html');
     const art = fig.querySelector('.fig-art');
     const inhalt = fig.dataset.kind === 'app' ? appTafel(fig, f) : SKIZZEN[fig.dataset.kind](fig, f);
-    art.innerHTML = `<svg viewBox="0 0 520 520" role="img" aria-label="${fig.dataset.alt || 'Abbildung'}">${inhalt}</svg>`;
+    art.innerHTML = `<svg viewBox="${fig.dataset.viewbox || '0 0 520 520'}" role="img" aria-label="${fig.dataset.alt || 'Abbildung'}">${inhalt}</svg>`;
   }
 }
 

@@ -37,6 +37,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **Ursprung nach ITA bleibt, wenn er darf** (`bestimme()` in `js/bestimmung.js`): Gibt es mehrere erlaubte Ursprünge (etwa die drei Punkte 3*m* in *p*3*m*1), nimmt die App den, der dem Ursprung der gegebenen Zelle am nächsten liegt. Bisher wanderte er bei h-BN und MoS₂ ohne Not auf ein Atom. Test: h-BN, MoS₂, Molekül aus zwei Atomen (Ursprung in der Molekülmitte), Dreiecksbeispiel *p*2*mg*.
 - Das Muster in Tafel B zeigt die Fähnchen nur noch mit „Objekt in allgemeiner Lage“, damit es beim Zeichnen nur das Gezeichnete zeigt.
 
 ## [0.1.0] - 2026-10-30

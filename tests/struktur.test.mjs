@@ -78,6 +78,20 @@ test('Wyckoff-Lagen der Basis', () => {
   assert.deepEqual(lagen('a33336'), Array(6).fill('6d 1'));
 });
 
+test('Ursprung nach ITA: bleibt, wenn erlaubt, sonst der nächste erlaubte Punkt', () => {
+  const nah = (u, v) => u.every((x, i) => Math.abs(x - v[i]) < 1e-9);
+  // h-BN, p3m1: Sechseckmitte und beide Atome sind 3m; der gegebene Ursprung (Sechseckmitte) bleibt
+  assert.ok(nah(strukturSymmetrie(st('hbn')).ursprung, [0, 0]));
+  assert.ok(nah(strukturSymmetrie(st('mos2')).ursprung, [0, 0]));
+  // Molekül aus zwei Atomen: p2mm, Ursprung in der Molekülmitte (Skript Abb. 3.5)
+  const atom = (p) => ({ motiv: 'atom', farbe: 0, p, winkel: 0 });
+  const r = strukturSymmetrie({ ba: 1.35, gamma: 90, basis: [atom([0, 0]), atom([0.3, 0])] });
+  assert.equal(r.symbol, 'p2mm');
+  assert.ok(nah(r.ursprung, [0.15, 0]), String(r.ursprung));
+  // p2mg (Dreiecksbeispiel): der gegebene Ursprung liegt auf keinem 2-zähligen Drehpunkt
+  assert.ok(nah(strukturSymmetrie(st('dreieck3')).ursprung, [0.25, 0.25]));
+});
+
 test('konventionelle Zelle: Umrechnung hin und zurück; zentrierte Eingabe in primitiver Zelle', () => {
   const r = strukturSymmetrie(st('dreieck3'));
   for (const p of [[0.1, 0.2], [0.7, 0.4]]) {
