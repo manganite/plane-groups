@@ -36,17 +36,21 @@ test('Auslöschungen, Zahlen, Lagesymmetrie', () => {
   gleich(ohneTags(lageHTML('2mm.')), '2mm.');
 });
 
-test('Verweis in die Stereo-App: Pedion mit Flächenmuster für jede Punktgruppe der Ebene', async () => {
-  const { stereoLink, stereoHinweis, PEDION } = await import('../js/verweise.js');
+test('Verweis in die Stereo-App: Pedion mit Flächenmuster, Blick senkrecht auf die Fläche (1 und m: Punktgruppe)', async () => {
+  const { stereoLink, stereoHinweis, STEREO_HASH } = await import('../js/verweise.js');
   const { EBENENGRUPPEN } = await import('../js/ebenengruppen.js');
-  // die 10 Punktgruppen der Ebene, je ein Pedion (Eintrag a1 der Stereo-App)
-  assert.equal(Object.keys(PEDION).length, 10);
+  assert.equal(Object.keys(STEREO_HASH).length, 11, '10 Punktgruppen, 3m in zwei Aufstellungen');
   for (const d of EBENENGRUPPEN) {
     const l = stereoLink(d);
-    assert.match(l, /^https:\/\/manganite\.github\.io\/stereography\/#m=form&sys=[a-z]+&f=[0-9a-z]+:a1&muster=1$/, d.symbol);
+    assert.match(l, /^https:\/\/manganite\.github\.io\/stereography\/index\.html#m=(form|pg)&/, d.symbol);
+    assert.match(l, /&blick=[123]&/, d.symbol);
+    if (l.includes('m=form')) assert.match(l, /f=[0-9a-z]+:a1&blick=[123]&muster=1&kugel=0&ns=0&ebene=0&strahlen=0&normalen=0&pole=0&achsen=1$/, d.symbol);
     assert.ok(!/undefined/.test(stereoHinweis(d)), d.symbol);
   }
-  const p4mm = EBENENGRUPPEN.find((d) => d.symbol === 'p4mm');
-  assert.equal(stereoLink(p4mm), 'https://manganite.github.io/stereography/#m=form&sys=tetragonal&f=4mm:a1&muster=1');
-  assert.match(stereoHinweis(EBENENGRUPPEN.find((d) => d.symbol === 'p31m')), /3m1.*30°/);
+  const l = (s) => stereoLink(EBENENGRUPPEN.find((d) => d.symbol === s));
+  assert.equal(l('p31m'), 'https://manganite.github.io/stereography/index.html#m=form&sys=trigonal&f=31m:a1&blick=1&muster=1&kugel=0&ns=0&ebene=0&strahlen=0&normalen=0&pole=0&achsen=1');
+  assert.match(l('p3m1'), /f=3m1:a1/);
+  assert.equal(l('pm'), 'https://manganite.github.io/stereography/index.html#m=pg&g=mb&blick=3&kugel=0&ns=0&ebene=0&strahlen=0&achsen=1');
+  assert.match(stereoHinweis(EBENENGRUPPEN.find((d) => d.symbol === 'pm')), /um 90° gedreht/);
+  assert.equal(l('p1'), 'https://manganite.github.io/stereography/index.html#m=pg&g=1&blick=3&kugel=0&ns=0&ebene=0&strahlen=0&achsen=1');
 });

@@ -283,7 +283,7 @@ function kenndaten() {
     <h3>Lagen (Wyckoff-Lagen)</h3>${wyTab}
     <details class="explain"><summary>Erläuterungen</summary>
       <p class="note">Aufbau wie eine Seite in den International Tables for Crystallography, Vol. A, Part 6. Koordinaten in Bruchteilen von <i>a</i> und <i>b</i>; <span class="ov"><i>x</i></span> steht für −<i>x</i>. Die Lagesymmetrie ist orientiert: Die erste Stelle nennt die Drehung, die zweite und dritte die Spiegellinien, deren Normale in der jeweiligen Blickrichtung liegt; ein Punkt heisst „keine“.</p>
-      <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Der Link öffnet in der App „Stereographische Projektion“ das Pedion, eine einzelne Kristallfläche: Die 10 Punktgruppen der Ebene entsprechen den 10 polaren Punktgruppen, und das Muster auf dem Pedion hat genau die Punktgruppe der Ebene. Drehachsen stehen dort senkrecht auf der Fläche, Spiegelebenen enthalten ihre Normale.</p>
+      <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Die 10 Punktgruppen der Ebene entsprechen den 10 polaren Punktgruppen im Raum: Drehachsen stehen senkrecht auf der Ebene, Spiegelebenen enthalten ihre Normale. ${['1', 'm'].includes(d.punktgruppe) ? 'Der Link öffnet in der App „Stereographische Projektion“ das Symmetriegerüst dieser Punktgruppe mit Blick entlang c.' : 'Der Link öffnet in der App „Stereographische Projektion“ das Pedion, eine einzelne Kristallfläche, mit Blick senkrecht auf die Fläche: Ihr Muster hat genau die Punktgruppe der Ebene.'}</p>
     </details>`;
   fokusWiederherstellen(fokus);
 }
