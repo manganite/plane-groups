@@ -95,7 +95,7 @@ export function elementeImBereich(g, n) {
     for (const l of e.linien) {
       const s = l.strecke.map((q) => [q[0] + i, q[1] + j]);
       const k = `l${[...s].sort((u, v) => u[0] - v[0] || u[1] - v[1]).flat().map((v) => v.toFixed(6))}`;
-      if (!schluessel.has(k)) { schluessel.add(k); linien.push({ ...l, strecke: s }); }
+      if (!schluessel.has(k)) { schluessel.add(k); linien.push({ ...l, strecke: s, punkt: [l.punkt[0] + i, l.punkt[1] + j] }); }
     }
   }
   return { drehpunkte: dreh, linien };
@@ -113,6 +113,17 @@ export function drehSymbol(n, q, farbe, rand, k = 1) {
   if (n === 3) return `<polygon points="${poly(9, 3, -Math.PI / 2)}" ${stil}/>`;
   if (n === 4) return `<polygon points="${poly(8.5, 4, 0)}" ${stil}/>`;
   return `<polygon points="${poly(8.5, 6, 0)}" ${stil}/>`;
+}
+
+/**
+ * Die in Tafel A sichtbaren Elemente der Zellen [0, n]²: ohne Aufbau alle, sonst die bis zum
+ * Schritt aufbau; ein Drehpunkt trägt dann die grösste sichtbare Zähligkeit (Auswahl und
+ * Erklärung gelten dieser, z. B. in p6 Schritt 1 der 3-zählige Punkt am Ursprung).
+ */
+export function sichtbar(g, n, aufbau) {
+  if (!(aufbau > 0)) return elementeImBereich(g, n);
+  const a = aufbauElemente(g, n, aufbau);
+  return { drehpunkte: a.drehpunkte.map((d) => ({ ...d, n: Math.max(...d.ordnungen) })), linien: a.linien };
 }
 
 /** SVG einer Linie (Spiegel- oder Gleitspiegellinie) zwischen zwei Bildpunkten. */

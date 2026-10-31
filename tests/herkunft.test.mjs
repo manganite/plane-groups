@@ -130,3 +130,33 @@ test('Link-Adresse: Werkzeug, gewähltes Element und Aufbau hin und zurück', ()
   assert.equal(z2.erkl, null);
   assert.equal(z2.aufbau, 0);
 });
+
+test('2 × 2 Zellen: Linien in der zweiten Zelle haben ihren eigenen Schlüssel (Review PR #3)', async () => {
+  const g = gruppe('pm');
+  const l = elementeImBereich(g, 2).linien.find((x) => Math.abs(x.strecke[0][0] - 1.5) < 1e-9);
+  assert.equal(elementSchluessel(l), 'm;3/2,0;0,1');
+  assert.ok(herkunftVon(g, l));
+  // alle Linien: der Schlüssel liegt auf der gezeichneten Strecke
+  for (const id of ALLE) {
+    const gg = gruppe(id);
+    for (const x of elementeImBereich(gg, 2).linien) {
+      const h = herkunftVon(gg, x);
+      const el = h.element; const s = x.strecke[0];
+      const e = [-el.richtung[1], el.richtung[0]];
+      assert.ok(Math.abs(e[0] * (s[0] - el.punkt[0]) + e[1] * (s[1] - el.punkt[1])) < 1e-9, `${id}: ${elementSchluessel(x)}`);
+    }
+  }
+});
+
+test('Aufbau: Auswahl gilt der sichtbaren Zähligkeit (Review PR #3)', async () => {
+  const { sichtbar } = await import('../js/zeichnung.js');
+  const g = gruppe('p6');
+  const urs = sichtbar(g, 1, 1).drehpunkte.find((d) => d.punkt[0] === 0 && d.punkt[1] === 0);
+  assert.equal(urs.n, 3);
+  assert.equal(elementSchluessel(urs), '3;0,0');
+  assert.ok(herkunftVon(g, urs));
+  assert.equal(sichtbar(g, 1, 2).drehpunkte.find((d) => d.punkt[0] === 0 && d.punkt[1] === 0).n, 6);
+  // im Aufbau unsichtbare Elemente sind nicht wählbar
+  const g4 = gruppe('p4mm');
+  assert.ok(sichtbar(g4, 1, 1).linien.length < elementeImBereich(g4, 1).linien.length);
+});

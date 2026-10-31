@@ -6,9 +6,9 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, metrik, ausgangsstelle } from './zeichnung.js';
-import { herkunft, elementSchluessel } from './herkunft.js';
-import { erklaerungHTML } from './warum.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle } from './zeichnung.js';
+import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
+import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 
@@ -195,6 +195,21 @@ const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' 
 const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
 const aeHTML = (t) => t.replace(/([xy])/g, '<i>$1</i>').replace(/(\d+)\/(\d+)/g, (m) => ({ '1/2': '½', '1/4': '¼', '1/3': '⅓', '2/3': '⅔' }[m] ?? m));
 
+/** Fokus in den Kenndaten merken (über die Daten-Attribute des Knopfs), damit er ein Neuzeichnen übersteht. */
+function fokusMerken() {
+  const a = document.activeElement;
+  if (!a || !$('info').contains(a)) return null;
+  for (const attr of ['data-phase', 'data-abspielen', 'data-erkl-zu', 'data-erkl', 'data-wy']) {
+    if (a.hasAttribute(attr)) return `[${attr}${a.getAttribute(attr) ? `="${CSS.escape(a.getAttribute(attr))}"` : ''}]`;
+  }
+  return null;
+}
+function fokusWiederherstellen(sel) {
+  if (!sel) return;
+  const el = $('info').querySelector(sel);
+  if (el) el.focus({ preventScroll: true });
+}
+
 function kenndaten() {
   const g = gruppeVon(z.gruppe);
   const d = g.daten;
@@ -228,13 +243,14 @@ function kenndaten() {
   const wyTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Zähligkeit, Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th>Koordinaten${zentriert ? ' (0, 0)+ (½, ½)+' : ''}</th><th>Auslöschungen</th><th></th></tr></thead><tbody>${wyZeilen}</tbody></table></div>`;
   const sid = stereoId(d);
   const pgLink = `<a href="${STEREO}#m=pg&amp;g=${encodeURIComponent(sid)}" target="_blank" rel="noopener" title="Punktgruppe in der App „Stereographische Projektion“ öffnen${d.punktgruppe === 'm' ? ' (dort mit Spiegelebene ⊥ b)' : ''}">${symbolHTML(d.punktgruppe)}</a>`;
+  const fokus = fokusMerken();
   $('info').innerHTML = `
     <div class="info-head">
       <div class="hm-big">${symbolHTML(d.symbol)}</div>
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
     ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
-    : z.warum && z.elemente ? '<div class="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen: Hier erscheint, aus welchen zwei Operationen es folgt.</p></div>' : ''}
+    : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
     ${erklaerung ? '' : lagebox}
     <dl class="facts">
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
@@ -256,6 +272,7 @@ function kenndaten() {
       <p class="note">Aufbau wie eine Seite in den International Tables for Crystallography, Vol. A, Part 6. Koordinaten in Bruchteilen von <i>a</i> und <i>b</i>; <span class="ov"><i>x</i></span> steht für −<i>x</i>. Die Lagesymmetrie ist orientiert: Die erste Stelle nennt die Drehung, die zweite und dritte die Spiegellinien, deren Normale in der jeweiligen Blickrichtung liegt; ein Punkt heisst „keine“.</p>
       <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Sie führt in die App „Stereographische Projektion“, dort mit der Drehachse senkrecht zur Ebene.</p>
     </details>`;
+  fokusWiederherstellen(fokus);
 }
 
 // ------------------------------------------------------------------ Objekt setzen und ziehen
@@ -289,14 +306,17 @@ function naheObjekt(e) {
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
   return Math.hypot(s[0] - q[0], s[1] - q[1]) < r;
 }
+/** Die in Tafel A sichtbaren Elemente (zeichnung.js), mit dem aktuellen Schritt im Aufbau. */
+const sichtbareElemente = (g, n = z.zellen) => sichtbar(g, n, z.aufbau);
+
 /** Element unter dem Zeiger wählen (Drehpunkte vor Linien), sonst die Auswahl aufheben. */
 function elementWaehlen(e) {
   if (!ansichtA) return;
   const s = svgPunkt(e);
   const g = gruppeVon(z.gruppe);
-  const el = elementeImBereich(g, z.zellen);
+  const el = sichtbareElemente(g);
   const w = $('bild-a').getBoundingClientRect().width || 520;
-  const r = (coarse.matches ? 22 : 12) * (520 / w) * (w < 520 ? 1 : 1);
+  const r = (coarse.matches ? 22 : 12) * (520 / w);
   let best = null;
   for (const d of el.drehpunkte) {
     const q = ansichtA.zuBild(d.punkt);
@@ -314,6 +334,23 @@ function elementWaehlen(e) {
   }
   z.erkl = best ? elementSchluessel(best.el) : null;
   if (z.erkl) abspielen(); else aktualisieren();
+}
+
+/** Knöpfe für die sichtbaren Elemente der Zelle, eines je Klasse modulo Gitter (auch für die Tastatur). */
+function elementListe(g) {
+  const el = sichtbareElemente(g, 1);
+  const gesehen = new Set();
+  const knoepfe = [];
+  // an einem Drehpunkt jede sichtbare Zähligkeit (im Aufbau z. B. 3 und 2 am selben Punkt)
+  const einzeln = el.drehpunkte.flatMap((d) => (d.ordnungen ?? [d.n]).map((n) => ({ ...d, n })));
+  for (const e of [...einzeln, ...el.linien]) {
+    const k = klassenSchluessel(g, e);
+    if (gesehen.has(k)) continue;
+    gesehen.add(k);
+    const d = e.richtung ? { typ: e.art, punkt: e.punkt, richtung: e.richtung } : { typ: 'dreh', n: e.n, punkt: e.punkt };
+    knoepfe.push(`<li><button class="linkbtn" type="button" data-erkl="${elementSchluessel(e)}">${elementName(d)}</button></li>`);
+  }
+  return `<ul class="elemliste">${knoepfe.join('')}</ul>`;
 }
 
 /** Schritte der Erklärung nacheinander zeigen (0 → 3). */
@@ -356,7 +393,7 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', () => { ziehen = false; });
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (z.warum || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
+    if ((z.warum && z.elemente) || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
     const p = ansichtA.vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
