@@ -43,6 +43,7 @@ export function startzustand() {
     warum: false, // Werkzeug „Warum ist das da?“: Antippen wählt ein Element
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
+    schritt: 0, // Schritt für Schritt: 0 aus, sonst Operation 1 … N der ITA-Liste, N + 1 Gittertranslationen
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
   };
@@ -89,6 +90,7 @@ export function hashVon(z) {
   if (z.warum) q.set('warum', '1');
   if (z.erkl) q.set('erkl', z.erkl);
   if (z.aufbau > 0) q.set('aufbau', String(z.aufbau));
+  if (z.schritt > 0) q.set('schritt', String(z.schritt));
   if (z.aeTeile?.length) q.set('aet', z.aeTeile.join(','));
   const sys = systemVon(z.gruppe);
   for (const k of FREI[sys]) {
@@ -121,6 +123,8 @@ export function hashAnwenden(z, hash) {
   if (erkl && /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
   if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
+  const schritt = zahl(q.get('schritt'), 0, 25);
+  if (schritt !== null && Number.isInteger(schritt)) z.schritt = schritt;
   // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
   const aet = q.get('aet');
   if (aet && /^\d(,\d)*$/.test(aet)) {

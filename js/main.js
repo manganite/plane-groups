@@ -6,12 +6,13 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle } from './zeichnung.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
+import { schrittHTML } from './schritte.js';
 
 const $ = (id) => document.getElementById(id);
 const REPO = 'https://github.com/manganite/plane-groups';
@@ -28,6 +29,7 @@ try {
     if (!EBENENGRUPPEN.some((e) => e.symbol === z.gruppe)) z.gruppe = startzustand().gruppe;
     if (!Array.isArray(z.punkt) || z.punkt.length !== 2 || !z.punkt.every(Number.isFinite)) z.punkt = startzustand().punkt;
     const zahlTeile = ebenengruppe(z.gruppe).ae.text.split(';').length;
+    if (!Number.isInteger(z.schritt) || z.schritt < 0) z.schritt = 0;
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
   }
 } catch { /* ohne Speicher weiter */ }
@@ -98,6 +100,19 @@ function bedienungAbgleichen() {
   $('aufbau-zurueck').disabled = z.aufbau <= 1;
   $('aufbau-vor').disabled = z.aufbau === 0 || z.aufbau >= maxS;
   const erz = ebenengruppe(z.gruppe).erzeugende;
+  // Schritt für Schritt: N Operationen der ITA-Liste, dann die Gittertranslationen
+  const nSchritte = gruppeVon(z.gruppe).ordnung + 1;
+  if (z.schritt > nSchritte) z.schritt = nSchritte;
+  $('opt-schritt').checked = z.schritt > 0;
+  $('opt-schritt').disabled = !z.objekt;
+  document.querySelector('#row-schritt .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  $('schritt-regler').max = String(nSchritte);
+  $('schritt-regler').value = String(Math.max(1, z.schritt));
+  $('schritt-regler').disabled = z.schritt === 0;
+  $('schritt-regler-out').textContent = z.schritt > 0 ? `${z.schritt} von ${nSchritte}` : '–';
+  $('schritt-zurueck').disabled = z.schritt <= 1;
+  $('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte;
+  $('schritt-abspielen').disabled = !z.objekt;
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
@@ -177,6 +192,7 @@ function legende(f) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
+  if (z.schritt > 0 && z.objekt && !erklaerung) items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>aktuelle Operation; (n): Nummer in der Liste der Symmetrieoperationen</span>`);
   if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
   if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
   if (erklaerung?.art === 'kopie') {
@@ -243,10 +259,15 @@ function kenndaten() {
     : `<div class="lagebox"><strong>Spezielle Lage ${l.zaehligkeit}<span class="wy">${l.buchstabe}</span>, Lagesymmetrie ${lageHTML(l.symbol)}</strong>, Objekt bei ${koord}
       <p>Das Objekt liegt auf einem Symmetrieelement. ${g.ordnung / l.zaehligkeit} der ${g.ordnung} Operationen je Zelle halten es fest; deshalb fallen je ${g.ordnung / l.zaehligkeit} Bilder zusammen, und es bleiben ${g.ordnung}/${g.ordnung / l.zaehligkeit} = ${l.zaehligkeit} Stellen je Zelle. Freie Parameter: ${fg}. Ein Objekt, das hier sitzen soll, muss selbst mindestens die Symmetrie ${lageHTML(l.symbol)} haben; das Fähnchen hat keine, darum überlagert es sich mit seinen Bildern.</p></div>`;
   // Operationen
-  const opsZeilen = (texte, ops, z0) => ops.map((op, i) => `<tr><td class="num">(${i + 1})</td><td>${koordHTML(d.ops[i])}${z0 ? ` + (${z0})` : ''}</td><td>${opHTML(texte[i])}</td></tr>`).join('');
+  // Schritt für Schritt: Kasten und die Zeile der aktuellen Operation
+  const schrittAn = z.schritt > 0 && z.objekt && !erklaerung;
+  const sd = schrittAn ? schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt) : null;
+  const aktuell = sd && !sd.translationen ? sd.k - 1 : -1;
+  const schrittbox = sd ? `<div class="warumbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
+  const opsZeilen = (texte, ops, z0, versatz = 0) => ops.map((op, i) => `<tr${i + versatz === aktuell ? ' class="aktiv"' : ''}><td class="num">(${i + 1})</td><td>${koordHTML(d.ops[i])}${z0 ? ` + (${z0})` : ''}</td><td>${opHTML(texte[i])}</td></tr>`).join('');
   const opsTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Nr.</th><th>Koordinaten</th><th>Symmetrieoperation</th></tr></thead><tbody>
     ${zentriert ? '<tr class="zent"><td colspan="3">für (0, 0)+</td></tr>' : ''}${opsZeilen(d.opsText, d.ops)}
-    ${zentriert ? `<tr class="zent"><td colspan="3">für (½, ½)+</td></tr>${opsZeilen(d.zentrText, d.ops, '½, ½')}` : ''}</tbody></table></div>`;
+    ${zentriert ? `<tr class="zent"><td colspan="3">für (½, ½)+</td></tr>${opsZeilen(d.zentrText, d.ops, '½, ½', d.ops.length)}` : ''}</tbody></table></div>`;
   // Wyckoff-Lagen
   const wyZeilen = d.wyckoff.map((w) => {
     const extra = d.bedingungen[w.b];
@@ -267,6 +288,7 @@ function kenndaten() {
     </div>
     ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
     : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
+    ${schrittbox}
     ${erklaerung ? '' : lagebox}
     <dl class="facts">
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
@@ -371,6 +393,23 @@ function elementListe(g) {
 
 /** Schritte der Erklärung nacheinander zeigen (0 → 3). */
 let ablauf = null;
+/** Schritt für Schritt abspielen: alle Operationen nacheinander, zuletzt die Gittertranslationen. */
+let schrittAblauf = null;
+function stoppeSchritte() { clearTimeout(schrittAblauf); schrittAblauf = null; }
+function schritteAbspielen() {
+  stoppeSchritte();
+  z.schritt = 1;
+  aktualisieren();
+  const ende = gruppeVon(z.gruppe).ordnung + 1;
+  const weiter = () => {
+    if (z.schritt === 0 || z.schritt >= ende) return;
+    z.schritt += 1;
+    aktualisieren();
+    schrittAblauf = setTimeout(weiter, z.schritt === ende - 1 ? 1500 : 1100);
+  };
+  schrittAblauf = setTimeout(weiter, 1100);
+}
+
 function abspielen() {
   clearTimeout(ablauf);
   phase = 0;
@@ -443,7 +482,7 @@ function init() {
   $('picker').addEventListener('click', (e) => {
     const b = e.target.closest('.pgb');
     if (!b) return;
-    if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; }
+    if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; if (z.schritt > 0) z.schritt = 1; }
     z.gruppe = b.dataset.g;
     aktualisieren();
   });
@@ -488,6 +527,10 @@ function init() {
       aktualisieren();
     }
     if (e.target.closest('[data-aeteil-aus]')) { z.aeTeile = []; aktualisieren(); }
+    const sch = e.target.closest('[data-schritt]');
+    if (sch) { stoppeSchritte(); z.schritt = Number(sch.dataset.schritt); aktualisieren(); }
+    if (e.target.closest('[data-schritt-abspielen]')) schritteAbspielen();
+    if (e.target.closest('[data-schritt-zu]')) { stoppeSchritte(); z.schritt = 0; aktualisieren(); }
     const ph = e.target.closest('[data-phase]');
     if (ph) { clearTimeout(ablauf); phase = Number(ph.dataset.phase); aktualisieren(); }
     if (e.target.closest('[data-abspielen]')) abspielen();
@@ -502,6 +545,11 @@ function init() {
   });
   $('opt-aufbau').addEventListener('change', () => { z.aufbau = $('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
   $('aufbau-schritt').addEventListener('input', () => { z.aufbau = Number($('aufbau-schritt').value); aktualisieren(); });
+  $('opt-schritt').addEventListener('change', () => { stoppeSchritte(); z.schritt = $('opt-schritt').checked ? 1 : 0; aktualisieren(); });
+  $('schritt-regler').addEventListener('input', () => { stoppeSchritte(); z.schritt = Number($('schritt-regler').value); aktualisieren(); });
+  $('schritt-zurueck').addEventListener('click', () => { stoppeSchritte(); z.schritt = Math.max(1, z.schritt - 1); aktualisieren(); });
+  $('schritt-vor').addEventListener('click', () => { stoppeSchritte(); z.schritt = Math.min(gruppeVon(z.gruppe).ordnung + 1, z.schritt + 1); aktualisieren(); });
+  $('schritt-abspielen').addEventListener('click', schritteAbspielen);
   $('aufbau-zurueck').addEventListener('click', () => { z.aufbau = Math.max(1, z.aufbau - 1); aktualisieren(); });
   $('aufbau-vor').addEventListener('click', () => { z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, z.aufbau + 1); aktualisieren(); });
   zeigerEinrichten();

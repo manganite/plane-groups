@@ -22,6 +22,11 @@ export const TIPS = {
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
   'werkzeug-warum': 'Werkzeug: Ein Symmetrieelement antippen zeigt, aus welchen zwei Operationen es folgt, am Fähnchen Schritt für Schritt.',
+  'opt-schritt': 'Das Objekt wird mit den Symmetrieoperationen einzeln abgebildet, in der Reihenfolge der International Tables; zuletzt verschieben die Gittertranslationen alle Bilder in die Zelle. Ein Zähler zeigt, wie viele verschiedene Stellen entstehen.',
+  'schritt-regler': 'Schritt: Operation (1), (2), … der Liste, zuletzt die Gittertranslationen.',
+  'schritt-zurueck': 'Einen Schritt zurück.',
+  'schritt-vor': 'Einen Schritt weiter.',
+  'schritt-abspielen': 'Alle Schritte nacheinander zeigen.',
   'opt-aufbau': 'Die Symmetrieelemente der Reihe nach aus den Erzeugenden aufbauen: zuerst die Erzeugenden nach den International Tables, dann was aus ihren Verknüpfungen folgt.',
   'aufbau-schritt': 'Schritt im Aufbau. Ein Schritt verknüpft jede bisherige Operation mit einer Erzeugenden oder einer Gittertranslation.',
   'aufbau-zurueck': 'Einen Schritt zurück.',
@@ -32,6 +37,7 @@ export const TIPS = {
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-einrasten', 'opt-orbit'] },
+  { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden? Hier erscheinen sie Schritt für Schritt.', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten.', ids: ['lat-ba', 'lat-gamma'] },
@@ -46,5 +52,7 @@ export const LABELS = {
   'lat-ba': 'b/a',
   'lat-gamma': 'γ',
   'aufbau-zurueck': 'zurück',
+  'schritt-zurueck': 'zurück',
+  'schritt-vor': 'weiter',
   'aufbau-vor': 'weiter',
 };
