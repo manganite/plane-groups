@@ -43,6 +43,9 @@ export function startzustand() {
     warum: false, // Werkzeug „Warum ist das da?“: Antippen wählt ein Element
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
+    zeichnen: false, // Werkzeug „Zeichnen“ in Tafel A (nicht in der Link-Adresse)
+    striche: [], // gezeichnete Striche in Bruchkoordinaten (nur im Browser gespeichert, nicht im Link)
+    aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
     schritt: 0, // Schritt für Schritt: 0 aus, sonst Operation 1 … N der ITA-Liste, N + 1 Gittertranslationen
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
@@ -74,7 +77,7 @@ export function koordText(v) {
 const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
-const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit']];
+const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell']];
 
 /** Link-Adresse (Hash) zum Zustand. */
 export function hashVon(z) {
@@ -109,7 +112,8 @@ export function hashAnwenden(z, hash) {
   const q = new URLSearchParams(String(hash).replace(/^#/, ''));
   if (!q.has('m')) return false;
   const s = startzustand();
-  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)) });
+  // Gezeichnetes steht nicht im Link und bleibt beim Öffnen eines Links erhalten
+  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), striche: Array.isArray(z.striche) ? z.striche : [] });
   if (q.get('m') === 'eg') z.modus = 'eg';
   if (SYMBOLE.has(q.get('g'))) z.gruppe = q.get('g');
   // Koordinaten einzeln: eine fehlende behält ihren Startwert

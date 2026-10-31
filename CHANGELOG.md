@@ -8,6 +8,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Selbst zeichnen** (Konzept §3.1): Werkzeug „Zeichnen“ in Tafel A; Striche werden mit allen Operationen der Gruppe vervielfältigt, in Tafel A und im Muster (`kopien()`, `vereinfachen()` in `js/zeichnung.js`). „Asymmetrische Einheit füllen“ (Link-Adresse `fuell=1`) zeigt die lückenlose Pflasterung durch ihre Bilder. Striche im Browser gespeichert, nicht im Link. Test: Für alle 17 Gruppen liegt jeder Punkt der Zelle in genau einem Bild der asymmetrischen Einheit.
+
 - **Schritt für Schritt** (Konzept §3.1, Blickrichtung „Erzeugen“; `js/schritte.js`, `schrittDaten()` in `js/zeichnung.js`): das Objekt mit jeder Operation der ITA-Liste, dann mit den Gittertranslationen; Zähler der verschiedenen Stellen, zusammenfallende Bilder auf speziellen Lagen, markierte Zeile in den Kenndaten, Abspielen. Link-Adresse `schritt`. Test: Für jede Wyckoff-Lage aller 17 Gruppen bleibt am Ende genau die Zähligkeit.
 - **Bilder rund um die Zelle (wie ITA)** (Schalter unter „Weitere Optionen“, Link-Adresse `orbit=1`): Tafel A zeigt auch die Bilder in einem Rand von ⅓ der Zelle, sodass die Gruppen um Ecken und Ränder vollständig sind.
 - **Aufbau aus Erzeugenden** und **„Warum ist das da?“** (Konzept §1b, Blickrichtung „Bedingen“):
@@ -28,6 +30,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 - **Daten der 17 Ebenengruppen** nach ITA Vol. A (2006), Part 6 (`js/ebenengruppen.js`): Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe, Ursprung, asymmetrische Einheit, Operationen und ihre Beschreibung, Erzeugende, Wyckoff-Lagen mit orientierter Lagesymmetrie und Koordinaten, Auslöschungsbedingungen.
 - **Rechenkern** (`js/symmetrie.js`): Operationen lesen, verknüpfen und beschreiben wie in ITA („m 1/4,y“, „g(1/2,1/2) x,x“), Abschluss aus Erzeugenden, Punktgruppe, alle Symmetrieelemente der Elementarzelle (auch die Gleitspiegellinien, die das Symbol nicht nennt), Stabilisator, orientierte Lagesymmetrie, Wyckoff-Lage eines Punktes, Bahn, Strukturfaktor und Auslöschungen.
 - **Tests gegen ITA** für alle 17 Gruppen (`tests/ebenengruppen.test.mjs`): Gruppeneigenschaften, Erzeugende, Beschreibung der Operationen, Punktgruppe, Wyckoff-Lagen (Zähligkeit, Lagesymmetrie, Koordinaten, Erkennung auf einem Raster), asymmetrische Einheit (Fläche, lückenlose Zerlegung), Auslöschungen allgemein und je Lage, Symmetrieelemente je Zelle, Beispiele p4mm und c2mm, Dreiecksbeispiel.
+
+### Geändert
+
+- Das Muster in Tafel B zeigt die Fähnchen nur noch mit „Objekt in allgemeiner Lage“, damit es beim Zeichnen nur das Gezeichnete zeigt.
 
 ## [0.1.0] - 2026-10-30
 

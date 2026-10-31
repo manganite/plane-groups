@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen } from './zeichnung.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START } from './zustand.js';
@@ -30,6 +30,11 @@ try {
     if (!Array.isArray(z.punkt) || z.punkt.length !== 2 || !z.punkt.every(Number.isFinite)) z.punkt = startzustand().punkt;
     const zahlTeile = ebenengruppe(z.gruppe).ae.text.split(';').length;
     if (!Number.isInteger(z.schritt) || z.schritt < 0) z.schritt = 0;
+    // gezeichnete Striche: nur Folgen von Zahlenpaaren, höchstens STRICH_GRENZE Punkte
+    const zahlenpaar = (q) => Array.isArray(q) && q.length === 2 && q.every(Number.isFinite);
+    z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
+    while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
+    z.zeichnen = z.zeichnen === true;
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
   }
 } catch { /* ohne Speicher weiter */ }
@@ -120,6 +125,19 @@ function bedienungAbgleichen() {
   $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
   $('werkzeug-warum').disabled = !z.elemente;
   document.body.classList.toggle('warum', z.warum && z.elemente);
+  // Selbst zeichnen
+  $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
+  document.body.classList.toggle('zeichnen', z.zeichnen);
+  $('zeichnen-zurueck').disabled = !z.striche.length;
+  $('zeichnen-loeschen').disabled = !z.striche.length;
+  $('opt-fuell').checked = z.aeFuell;
+  const punkteGezeichnet = z.striche.flat().length;
+  $('zeichnen-hint').textContent = z.zeichnen
+    ? `Im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen ${gruppeVon(z.gruppe).ordnung} Operationen je Zelle, auch im Muster. Blau: gleiche Händigkeit, orange: Spiegelbild.${punkteGezeichnet >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
+    : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
+  $('fuell-hint').textContent = z.aeFuell
+    ? `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`
+    : '';
   $('v-muster-el').checked = z.musterElemente;
   // Objekt
   const p = z.punkt.map(mod1);
@@ -192,6 +210,10 @@ function legende(f) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
+  if (!z.objekt && (z.striche.length || z.aeFuell)) {
+    items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);
+    if (gruppeVon(z.gruppe).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
+  }
   if (z.schritt > 0 && z.objekt && !erklaerung) items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>aktuelle Operation; (n): Nummer in der Liste der Symmetrieoperationen</span>`);
   if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
   if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
@@ -424,11 +446,48 @@ function abspielen() {
 }
 
 let ziehen = false, bewegt = false, start = null;
+
+// ------------------------------------------------------------------ Selbst zeichnen
+let strich = null; // Punkte des Strichs, der gerade gezeichnet wird (Bruchkoordinaten)
+let nurA = false;
+/** Während des Zeichnens nur Tafel A neu zeichnen (das Muster folgt am Ende des Strichs). */
+function zeichneA() {
+  if (nurA) return;
+  nurA = true;
+  requestAnimationFrame(() => {
+    nurA = false;
+    const a = tafelA(z.gruppe, z, farben(), { phase });
+    ansichtA = a.ansicht;
+    $('bild-a').innerHTML = a.svg;
+  });
+}
+function strichBeginnen(e) {
+  if (!ansichtA || z.striche.flat().length >= STRICH_GRENZE) return;
+  strich = [ansichtA.vonBild(svgPunkt(e))];
+  z.striche.push(strich);
+  $('bild-a').setPointerCapture(e.pointerId);
+}
+function strichWeiter(e) {
+  const p = ansichtA.vonBild(svgPunkt(e));
+  const q = strich[strich.length - 1];
+  if (Math.hypot(p[0] - q[0], p[1] - q[1]) < 0.004 || z.striche.flat().length >= STRICH_GRENZE) return;
+  strich.push(p);
+  zeichneA();
+}
+function strichBeenden() {
+  if (!strich) return;
+  const i = z.striche.indexOf(strich);
+  const fertig = vereinfachen(strich);
+  if (fertig.length >= 2) z.striche[i] = fertig; else z.striche.splice(i, 1);
+  strich = null;
+  aktualisieren();
+}
 function zeigerEinrichten() {
   const svg = $('bild-a');
-  svg.addEventListener('touchstart', (e) => { if (naheObjekt(e)) e.preventDefault(); }, { passive: false });
+  svg.addEventListener('touchstart', (e) => { if (z.zeichnen || naheObjekt(e)) e.preventDefault(); }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
+    if (z.zeichnen) { strichBeginnen(e); return; }
     if (z.warum && z.elemente) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
@@ -439,16 +498,17 @@ function zeigerEinrichten() {
     }
   });
   svg.addEventListener('pointermove', (e) => {
+    if (strich) { strichWeiter(e); return; }
     if (!ziehen) return;
     if (!bewegt && Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 3) return;
     bewegt = true;
     setzePunkt(ansichtA.vonBild(svgPunkt(e)));
   });
-  svg.addEventListener('pointerup', () => { ziehen = false; });
-  svg.addEventListener('pointercancel', () => { ziehen = false; });
+  svg.addEventListener('pointerup', () => { ziehen = false; strichBeenden(); });
+  svg.addEventListener('pointercancel', () => { ziehen = false; strichBeenden(); });
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if ((z.warum && z.elemente) || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
+    if ((z.warum && z.elemente) || z.zeichnen || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
     const p = ansichtA.vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -538,8 +598,17 @@ function init() {
     const wahl = e.target.closest('[data-erkl]');
     if (wahl) { z.erkl = wahl.dataset.erkl; abspielen(); }
   });
+  $('werkzeug-zeichnen').addEventListener('click', () => {
+    z.zeichnen = !z.zeichnen;
+    if (z.zeichnen) { z.warum = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
+    aktualisieren();
+  });
+  $('zeichnen-zurueck').addEventListener('click', () => { z.striche.pop(); aktualisieren(); });
+  $('zeichnen-loeschen').addEventListener('click', () => { z.striche = []; aktualisieren(); });
+  $('opt-fuell').addEventListener('change', () => { z.aeFuell = $('opt-fuell').checked; aktualisieren(); });
   $('werkzeug-warum').addEventListener('click', () => {
     z.warum = !z.warum;
+    if (z.warum) z.zeichnen = false;
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });

@@ -289,6 +289,80 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Selbst zeichnen: Striche und die asymmetrische Einheit, vervielfältigt mit allen Operationen
+// ---------------------------------------------------------------------------------------------
+
+/** Grenzen für gezeichnete Striche (Bruchkoordinaten): Punkte je Zeichnung und Mindestabstand. */
+export const STRICH_GRENZE = 1200;
+
+/**
+ * Strich vereinfachen (Ramer-Douglas-Peucker, Toleranz in Bruchteilen der Zelle) und auf drei
+ * Stellen runden, damit das Muster auch mit vielen Kopien schnell bleibt.
+ */
+export function vereinfachen(punkte, tol = 0.003) {
+  if (punkte.length <= 2) return punkte.map((p) => p.map((v) => Math.round(v * 1000) / 1000));
+  const abstand = (p, a, b) => {
+    const dx = b[0] - a[0]; const dy = b[1] - a[1]; const l = Math.hypot(dx, dy);
+    if (l < 1e-12) return Math.hypot(p[0] - a[0], p[1] - a[1]);
+    return Math.abs(dy * p[0] - dx * p[1] + b[0] * a[1] - b[1] * a[0]) / l;
+  };
+  const behalten = new Array(punkte.length).fill(false);
+  behalten[0] = true; behalten[punkte.length - 1] = true;
+  const stapel = [[0, punkte.length - 1]];
+  while (stapel.length) {
+    const [i, j] = stapel.pop();
+    let max = -1; let k = -1;
+    for (let m = i + 1; m < j; m++) { const d = abstand(punkte[m], punkte[i], punkte[j]); if (d > max) { max = d; k = m; } }
+    if (max > tol) { behalten[k] = true; stapel.push([i, k], [k, j]); }
+  }
+  return punkte.filter((_, i) => behalten[i]).map((p) => p.map((v) => Math.round(v * 1000) / 1000));
+}
+
+/**
+ * Kopien einer Punktfolge unter allen Operationen der Gruppe und den Gittertranslationen, soweit
+ * sie den Bereich [lo − rand, hi + rand]² berühren. Je Kopie: punkte, eigentlich (Drehung oder
+ * Translation, sonst Spiegelbild), urbild (die Identität ohne Verschiebung).
+ */
+export function kopien(g, punkte, lo, hi, rand = 0.1) {
+  const out = [];
+  if (!punkte.length) return out;
+  for (const op of g.alle) {
+    const bild = punkte.map((p) => anwenden(op, p));
+    const xs = bild.map((p) => p[0]); const ys = bild.map((p) => p[1]);
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    const eigentlich = op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0;
+    const id = eigentlich && op.R[0][0] === 1 && op.R[1][1] === 1 && !op.t[0] && !op.t[1];
+    for (let i = Math.ceil(lo - rand - x1); i <= Math.floor(hi + rand - x0); i++) {
+      for (let j = Math.ceil(lo - rand - y1); j <= Math.floor(hi + rand - y0); j++) {
+        out.push({ punkte: bild.map((p) => [p[0] + i, p[1] + j]), eigentlich, urbild: id && !i && !j });
+      }
+    }
+  }
+  return out;
+}
+
+/** SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]². */
+function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1) {
+  const teile = [];
+  const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
+  if (z.aeFuell) {
+    // asymmetrische Einheit und ihre Bilder: Sie pflastern die Ebene ohne Lücken und Überlappungen
+    for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
+      const farbe = k.eigentlich ? farben.upper : farben.accent2;
+      teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
+    }
+  }
+  for (const strich of z.striche ?? []) {
+    if (strich.length < 2) continue;
+    for (const k of kopien(g, strich, lo, hi)) {
+      const farbe = k.eigentlich ? farben.upper : farben.accent2;
+      teile.push(`<path d="${pfad(k.punkte)}" fill="none" stroke="${farbe}" stroke-width="${f2((k.urbild ? 3.2 : 2) * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`);
+    }
+  }
+  return teile.length ? `<g class="zeichnung">${teile.join('')}</g>` : '';
+}
+
+// ---------------------------------------------------------------------------------------------
 // Schritt für Schritt: das Objekt mit jeder Operation der ITA-Liste, dann die Gittertranslationen
 // ---------------------------------------------------------------------------------------------
 
@@ -413,6 +487,7 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     teile.push(`<polygon points="${zellPoly(A, i, j)}" fill="none" stroke="${farben.muted}" stroke-width="1.2"/>`);
   }
+  if (!erkl) teile.push(zeichnungSVG(g, A, z, -1, n + 1, farben));
   // Achsen: a und b am Ursprung beschriftet
   const o = A.zuBild([0, 0]);
   const pa = A.zuBild([n * 0.5, 0]); const pb = A.zuBild([0, n * 0.5]);
@@ -708,7 +783,8 @@ export function tafelB(id, z, farben) {
     }
     teile.push(elementeSVG(g, alle, A, farben, z.farben));
   }
-  teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8));
+  teile.push(zeichnungSVG(g, A, z, lo, hi, farben, 0.8));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };
