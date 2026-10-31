@@ -12,6 +12,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
   - `js/herkunft.js` sucht schrittweise, welche Operationen aus den Erzeugenden nach ITA und den Gittertranslationen folgen. Je Element merkt es sich die Zerlegung *C* = *A* ∘ *B*, Translationen zuerst.
   - Tafel A zeigt die Elemente Schritt für Schritt, neue hervorgehoben.
   - Das Werkzeug „Warum ist das da?“ zeigt für ein angetipptes Element die Zerlegung mit Fähnchen, Regel (`js/warum.js`) und Herleitung.
+  - Der Weg des Fähnchens unter *C* zeigt, wie *C* wirkt: Drehung als Bogen um den Drehpunkt, Gleitspiegelung in zwei Teilen (Spiegelung, dann Verschiebung um die Gleitkomponente entlang der Linie).
   - Link-Adresse mit `aufbau`, `warum`, `erkl`.
   - Tests `tests/herkunft.test.mjs`: Herkunft aller Elemente, Beispiele p4mm, c2mm und p6, Regeln.
 

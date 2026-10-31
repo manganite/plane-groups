@@ -94,6 +94,15 @@ export function regel(A, B, C, M) {
  * M: Metrik; phase: angezeigter Schritt (0 … 3). Knöpfe: data-phase, data-abspielen,
  * data-erkl-zu (schliessen), data-erkl (Element von B wählen).
  */
+/** Wie C das Fähnchen bewegt, passend zum Weg in Tafel A (zeichnung.js, wegUnterC). */
+export function wegText(C) {
+  const a = art(C);
+  if (a.art === 'gleit') return 'zuerst gespiegelt an der Gleitspiegellinie (blasses Zwischenbild), dann um die Gleitkomponente entlang der Linie verschoben. Beide Teile gehören zu der einen Operation';
+  if (a.art === 'spiegel') return 'gespiegelt an der Spiegellinie';
+  if (a.art === 'dreh') return 'gedreht um den Drehpunkt';
+  return 'verschoben';
+}
+
 export function erklaerungHTML(g, d, M, phase) {
   const badge = (k) => `<span class="ab ${k.toLowerCase()}">${k}</span>`;
   const kopf = `<h3>Warum ist da ${elementName(d.element, true)}?</h3>`;
@@ -115,7 +124,7 @@ export function erklaerungHTML(g, d, M, phase) {
     <p class="gleichung">${badge('C')} = ${badge('A')} ∘ ${badge('B')}: zuerst ${badge('B')}, dann ${badge('A')}.</p>
     <p>${badge('B')} ${opName(d.B)}<br>${badge('A')} ${opName(d.A)}</p>
     ${r ? `<p class="regel">${r}</p>` : ''}
-    <p class="note">Das Fähnchen zeigt es: ${badge('B')} bringt es zur Stelle 1, ${badge('A')} von dort zur Stelle 2. ${badge('C')} führt es direkt an dieselbe Stelle, mit derselben Orientierung.</p>
+    <p class="note">Das Fähnchen zeigt es: ${badge('B')} bringt es zur Stelle 1, ${badge('A')} von dort zur Stelle 2. ${badge('C')} führt es an dieselbe Stelle, mit derselben Orientierung: ${wegText(d.C)}.</p>
     ${phasen([[0, 'Ausgangsobjekt'], [1, '1 zuerst B'], [2, '2 dann A'], [3, 'zusammen: C']])}
     ${woher ? `<p>${woher}</p>` : ''}
     ${kette}`;

@@ -160,3 +160,21 @@ test('Aufbau: Auswahl gilt der sichtbaren Zähligkeit (Review PR #3)', async () 
   const g4 = gruppe('p4mm');
   assert.ok(sichtbar(g4, 1, 1).linien.length < elementeImBereich(g4, 1).linien.length);
 });
+
+test('Weg unter C wie die Operation wirkt: Gleitspiegelung in zwei Teilen, Drehung als Bogen', () => {
+  const weg = (id, art) => {
+    const g = gruppe(id);
+    const el = elementeImBereich(g, 1)[art === 'dreh' ? 'drehpunkte' : 'linien'].find((x) => (x.art ?? 'dreh') === art && herkunftVon(g, x).tiefe > 1);
+    const z = { ...startzustand(), gruppe: id, erkl: elementSchluessel(el) };
+    const svg = tafelA(id, z, FARBEN, { phase: 3 }).svg;
+    return svg.slice(svg.indexOf('class="erklaerung"'));
+  };
+  const gl = weg('p4mm', 'gleit');
+  assert.equal((gl.match(/<polyline/g) || []).length, 2, 'Spiegelung, dann Verschiebung');
+  assert.match(gl, /<g opacity="0.45">/, 'blasses Zwischenbild');
+  const dr = weg('p4mm', 'dreh');
+  const pl = dr.match(/<polyline points="([^"]+)"/g);
+  assert.equal(pl.length, 1);
+  assert.ok(pl[0].split(' ').length > 10, 'Bogen statt gerader Linie');
+  assert.match(erklaerungHTML(gruppe('p4mm'), erklaerungsDaten(gruppe('p4mm'), elementSchluessel(elementeImBereich(gruppe('p4mm'), 1).linien.find((x) => x.art === 'gleit')), [0.12, 0.31], 1, metrik(GITTER_START.quadratisch)), metrik(GITTER_START.quadratisch), 3), /zuerst gespiegelt an der Gleitspiegellinie/);
+});
