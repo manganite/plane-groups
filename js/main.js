@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen } from './zeichnung.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH } from './zustand.js';
@@ -36,6 +36,7 @@ try {
     z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
     while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
     z.zeichnen = z.zeichnen === true;
+    z.radieren = z.radieren === true && !z.zeichnen;
     z.brechen = z.brechen === true;
     const fr = z.frei ?? {};
     z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90 };
@@ -132,11 +133,16 @@ function bedienungAbgleichen() {
   // Selbst zeichnen
   $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
   document.body.classList.toggle('zeichnen', z.zeichnen);
-  $('zeichnen-zurueck').disabled = !z.striche.length;
+  $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
+  $('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
+  document.body.classList.toggle('radieren', z.radieren);
+  $('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
   $('zeichnen-loeschen').disabled = !z.striche.length;
   $('opt-fuell').checked = z.aeFuell;
   const punkteGezeichnet = z.striche.flat().length;
-  $('zeichnen-hint').textContent = z.zeichnen
+  $('zeichnen-hint').textContent = z.radieren
+    ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
+    : z.zeichnen
     ? `Im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen ${gruppeVon(z.gruppe).ordnung} Operationen je Zelle, auch im Muster. Blau: gleiche Händigkeit, orange: Spiegelbild.${punkteGezeichnet >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
     : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
   $('fuell-hint').textContent = z.aeFuell
@@ -469,6 +475,10 @@ let ziehen = false, bewegt = false, start = null;
 
 // ------------------------------------------------------------------ Selbst zeichnen
 let strich = null; // Punkte des Strichs, der gerade gezeichnet wird (Bruchkoordinaten)
+// Verlauf für „Rückgängig“: Stand der Striche vor jedem Strich und jedem Radieren (nur im Speicher)
+const verlauf = [];
+const merken = () => { verlauf.push(z.striche.map((st) => st.map((q) => [...q]))); if (verlauf.length > 50) verlauf.shift(); };
+let radierStelle = null; // Bildpunkt des Radierers, solange gedrückt
 let nurA = false;
 /** Während des Zeichnens nur Tafel A neu zeichnen (das Muster folgt am Ende des Strichs). */
 function zeichneA() {
@@ -478,11 +488,24 @@ function zeichneA() {
     nurA = false;
     const a = tafelA(z.gruppe, z, farben(), { phase });
     ansichtA = a.ansicht;
-    $('bild-a').innerHTML = a.svg;
+    // Radierer als Kreis an der Stelle des Zeigers
+    $('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${farben().muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
   });
+}
+/** Radius des Radierers in Pixeln der Tafel (520 breit). */
+const RADIER_PX = 12;
+function radierenAn(e) {
+  const q = svgPunkt(e);
+  radierStelle = q;
+  const g = gruppeVon(z.gruppe);
+  const M = z.brechen ? metrikVon(z.frei) : metrikVon(z.gitter[systemJetzt()]);
+  const H = z.brechen ? gebrochen(g, z.frei).H : g;
+  z.striche = radieren(z.striche, H, M, ansichtA.vonBild(q), RADIER_PX / ansichtA.s);
+  zeichneA();
 }
 function strichBeginnen(e) {
   if (!ansichtA || z.striche.flat().length >= STRICH_GRENZE) return;
+  merken();
   strich = [ansichtA.vonBild(svgPunkt(e))];
   z.striche.push(strich);
   $('bild-a').setPointerCapture(e.pointerId);
@@ -495,6 +518,7 @@ function strichWeiter(e) {
   zeichneA();
 }
 function strichBeenden() {
+  if (radierStelle) { radierStelle = null; aktualisieren(); return; }
   if (!strich) return;
   const i = z.striche.indexOf(strich);
   const fertig = vereinfachen(strich);
@@ -504,10 +528,11 @@ function strichBeenden() {
 }
 function zeigerEinrichten() {
   const svg = $('bild-a');
-  svg.addEventListener('touchstart', (e) => { if (z.zeichnen || naheObjekt(e)) e.preventDefault(); }, { passive: false });
+  svg.addEventListener('touchstart', (e) => { if (z.zeichnen || z.radieren || naheObjekt(e)) e.preventDefault(); }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
     if (z.zeichnen) { strichBeginnen(e); return; }
+    if (z.radieren) { if (!ansichtA) return; merken(); $('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
     if (z.warum && z.elemente) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
@@ -519,6 +544,7 @@ function zeigerEinrichten() {
   });
   svg.addEventListener('pointermove', (e) => {
     if (strich) { strichWeiter(e); return; }
+    if (radierStelle) { radierenAn(e); return; }
     if (!ziehen) return;
     if (!bewegt && Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 3) return;
     bewegt = true;
@@ -528,7 +554,7 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', () => { ziehen = false; strichBeenden(); });
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if ((z.warum && z.elemente) || z.zeichnen || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
+    if ((z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
     const p = ansichtA.vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -640,15 +666,21 @@ function init() {
   });
   $('werkzeug-zeichnen').addEventListener('click', () => {
     z.zeichnen = !z.zeichnen;
-    if (z.zeichnen) { z.warum = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
+    if (z.zeichnen) { z.warum = false; z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
     aktualisieren();
   });
-  $('zeichnen-zurueck').addEventListener('click', () => { z.striche.pop(); aktualisieren(); });
-  $('zeichnen-loeschen').addEventListener('click', () => { z.striche = []; aktualisieren(); });
+  $('werkzeug-radieren').addEventListener('click', () => {
+    z.radieren = !z.radieren;
+    if (z.radieren) { z.warum = false; z.zeichnen = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
+    aktualisieren();
+  });
+  // Rückgängig: den Stand vor dem letzten Strich oder Radieren; ohne Verlauf (nach dem Neuladen) den letzten Strich
+  $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = verlauf.pop(); else z.striche.pop(); aktualisieren(); });
+  $('zeichnen-loeschen').addEventListener('click', () => { merken(); z.striche = []; aktualisieren(); });
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = $('opt-fuell').checked; aktualisieren(); });
   $('werkzeug-warum').addEventListener('click', () => {
     z.warum = !z.warum;
-    if (z.warum) z.zeichnen = false;
+    if (z.warum) { z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });

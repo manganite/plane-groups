@@ -389,6 +389,66 @@ export function kopien(g, punkte, lo, hi, rand = 0.1) {
   return out;
 }
 
+/**
+ * Radieren an der Stelle p (Bruchkoordinaten) mit dem Radius r (kartesisch, Metrik M). Weil jede
+ * sichtbare Kopie ein Bild des Originals ist, wird an allen Urbildern von p unter den Operationen
+ * der Gruppe (und Gittertranslationen) radiert. Ein Strich verliert genau die Stücke im Kreis und
+ * zerfällt dabei, wo nötig, in mehrere Striche. Ergebnis: neue Liste der Striche.
+ */
+export function radieren(striche, g, M, p, r) {
+  const C = (q) => kart(M, q);
+  // Urbilder von p: op⁻¹(p), um Gittervektoren verschoben, nahe bei den Strichen
+  const urbilder = [];
+  const alle = striche.flat();
+  if (!alle.length) return striche;
+  const xs = alle.map((q) => q[0]); const ys = alle.map((q) => q[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs) - 1, Math.max(...xs) + 1, Math.min(...ys) - 1, Math.max(...ys) + 1];
+  for (const op of g.alle) {
+    const u = anwenden(invers(op), p);
+    for (let i = Math.floor(x0 - u[0]); i <= Math.ceil(x1 - u[0]); i++) {
+      for (let j = Math.floor(y0 - u[1]); j <= Math.ceil(y1 - u[1]); j++) urbilder.push(C([u[0] + i, u[1] + j]));
+    }
+  }
+  /** Teile der Strecke a–b (kartesisch) ausserhalb aller Kreise, als Parameterintervalle in [0, 1]. */
+  const aussen = (a, b) => {
+    let frei = [[0, 1]];
+    const d = [b[0] - a[0], b[1] - a[1]]; const dd = d[0] * d[0] + d[1] * d[1];
+    for (const m of urbilder) {
+      const f = [a[0] - m[0], a[1] - m[1]];
+      const B = 2 * (f[0] * d[0] + f[1] * d[1]); const Cc = f[0] * f[0] + f[1] * f[1] - r * r;
+      if (dd < 1e-18) { if (Cc <= 0) frei = []; continue; }
+      const disk = B * B - 4 * dd * Cc;
+      if (disk <= 0) continue;
+      const w = Math.sqrt(disk);
+      const t1 = (-B - w) / (2 * dd); const t2 = (-B + w) / (2 * dd);
+      if (t2 <= 0 || t1 >= 1) continue;
+      frei = frei.flatMap(([u, v]) => [[u, Math.min(v, t1)], [Math.max(u, t2), v]].filter(([s0, s1]) => s1 - s0 > 1e-9));
+      if (!frei.length) break;
+    }
+    return frei;
+  };
+  const out = [];
+  for (const st of striche) {
+    let aktuell = [];
+    const abschliessen = () => { if (aktuell.length >= 2) out.push(aktuell); aktuell = []; };
+    for (let k = 0; k + 1 < st.length; k++) {
+      const a = st[k]; const b = st[k + 1];
+      const punkt = (t) => [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])].map((v) => Math.round(v * 1000) / 1000);
+      const teile = aussen(C(a), C(b));
+      if (!teile.length) abschliessen();
+      for (const [u, v] of teile) {
+        const pu = punkt(u); const pv = punkt(v);
+        const letzt = aktuell[aktuell.length - 1];
+        if (!letzt || Math.abs(letzt[0] - pu[0]) > 1e-9 || Math.abs(letzt[1] - pu[1]) > 1e-9) { abschliessen(); aktuell.push(pu); }
+        aktuell.push(pv);
+        if (v < 1 - 1e-9) abschliessen();
+      }
+    }
+    abschliessen();
+  }
+  return out;
+}
+
 /** SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]². */
 function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1) {
   const teile = [];

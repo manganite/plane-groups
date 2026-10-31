@@ -49,6 +49,7 @@ export function startzustand() {
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
     zeichnen: false, // Werkzeug „Zeichnen“ in Tafel A (nicht in der Link-Adresse)
+    radieren: false, // Werkzeug „Radieren“ in Tafel A (nicht in der Link-Adresse)
     striche: [], // gezeichnete Striche in Bruchkoordinaten (nur im Browser gespeichert, nicht im Link)
     aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
     brechen: false, // Symmetrie brechen: Gitter ohne die Bindung des Kristallsystems
