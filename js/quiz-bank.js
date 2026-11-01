@@ -331,7 +331,7 @@ export const BANK = [
     id: 'gs-2-05', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Die kürzesten Gittervektoren eines Gitters sind gleich lang und schliessen 70° ein; die Spiegellinien laufen entlang der Diagonalen dieses Rhombus. Warum wählt man eine zentrierte rechteckige Zelle?',
     antworten: [
-      'Sie liegt entlang der Spiegellinien und ist rechtwinklig.',
+      'Sie zeigt die Symmetrie des Gitters besser: rechtwinklig, entlang der Spiegellinien.',
       'Sie hat mehr Symmetrie als der Rhombus und zeigt deshalb mehr Elemente.',
       'Der Rhombus ist keine Elementarzelle, weil seine Kanten gleich lang sind.',
       'Sie hat kürzere Gittervektoren und deshalb eine kleinere Fläche.'],
@@ -340,7 +340,7 @@ export const BANK = [
       'Die Wahl der Zelle ändert die Symmetrie nicht; man sieht sie in der zentrierten Zelle nur besser.',
       'Gleich lange Kanten sind erlaubt; der Rhombus ist eine primitive Zelle dieses Gitters.',
       'Im Gegenteil: <i>a</i> + <i>b</i> und −<i>a</i> + <i>b</i> sind beide länger als <i>a</i>. Hier geht die Regel, die Symmetrie zu zeigen, vor.'],
-    erklaerung: 'Keine primitive Zelle dieses Gitters hat beide Kanten parallel oder senkrecht zu den Spiegellinien. Die zentrierte Zelle mit <i>a</i>′ = <i>a</i> + <i>b</i>, <i>b</i>′ = −<i>a</i> + <i>b</i> tut es und ist rechtwinklig; dafür enthält sie zwei Gitterpunkte.',
+    erklaerung: 'Die Elementarzelle soll die Symmetrie des Gitters wiedergeben. Keine primitive Zelle dieses Gitters hat beide Kanten parallel oder senkrecht zu den Spiegellinien. Die zentrierte Zelle mit <i>a</i>′ = <i>a</i> + <i>b</i>, <i>b</i>′ = −<i>a</i> + <i>b</i> tut es und ist rechtwinklig; dafür enthält sie zwei Gitterpunkte.',
     skript: 'zentriert', app: '#m=struktur&ba=1&gamma=70&basis=atom,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 2.4, Abb. 2.4; Hoffmann (2016), Abschn. 2.3',
     status: 'entwurf',
@@ -361,7 +361,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-07', stufe: 1, kapitel: 2, typ: 'mehrfach', lernziel: LZ.konv,
+    id: 'gs-2-07', stufe: 2, kapitel: 2, typ: 'mehrfach', lernziel: LZ.konv,
     frage: 'Die App beschreibt eine Struktur statt in der gegebenen in der konventionellen Zelle. Was kann sich dabei ändern?',
     antworten: ['die Gittervektoren', 'die Koordinaten der Atome', 'die Zahl der Atome je Zelle', 'die Struktur selbst', 'die Symmetrie der Struktur'],
     richtig: [0, 1, 2],
@@ -385,10 +385,10 @@ export const BANK = [
     erklaerung: 'Spiegellinien ohne 3-, 4- oder 6-zählige Drehpunkte: rechteckig. Die quadratische Metrik ist hier zufällig; die Symmetrie verlangt sie nicht.',
     skript: 'kristallsysteme', app: '#m=struktur&ba=1&gamma=90&basis=insel,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 2.3; Abschn. 3.2, Abb. 3.2c',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gs-2-09', stufe: 3, kapitel: 2, typ: 'einfach', lernziel: LZ.tc,
+    id: 'gs-2-09', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Warum gibt es in der Ebene kein zentriertes quadratisches Gitter?',
     antworten: [
       'Die zentrierte Zelle lässt sich durch ein kleineres, um 45° gedrehtes Quadrat ersetzen.',
@@ -402,7 +402,7 @@ export const BANK = [
       'Das innenzentrierte tetragonale Gitter gibt es im Raum. In der Ebene ist die zentrierte quadratische Zelle unnötig gross.'],
     erklaerung: 'Mit den Kanten <i>a</i>′ = ½(<i>a</i> − <i>b</i>), <i>b</i>′ = ½(<i>a</i> + <i>b</i>) entsteht eine primitive quadratische Zelle mit kürzeren Gittervektoren. Das „zentrierte quadratische“ Gitter ist ein gewöhnliches quadratisches Gitter.',
     skript: 'zentriert', app: '#m=struktur&ba=1&gamma=90&basis=atom,1,1/2,0,0;atom,1,0,1/2,0',
-    quelle: 'Skript, Abschn. 2.4, Vertiefung; Hoffmann (2016), Abschn. 4.2.4',
+    quelle: 'Skript, Abschn. 2.4; Hoffmann (2016), Abschn. 4.2.4',
     status: 'entwurf',
   },
   {
@@ -417,7 +417,7 @@ export const BANK = [
     erklaerung: 'Die Netzebene (111) steht senkrecht zu einer 3-zähligen Drehachse des Würfels; ihre Gitterpunkte bilden ein hexagonales Gitter.',
     skript: 'kristallsysteme', app: '#m=struktur&v=hexagonal',
     quelle: 'Skript, Abschn. 2.3, Vertiefung „Netzebenen von Kristallflächen“; Hoffmann (2016), Abschn. 4.2.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-11', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
@@ -428,7 +428,7 @@ export const BANK = [
       'Ein Rhombus führt meist auf <i>oc</i>. Bei 60° ist aber auch <i>b</i> − <i>a</i> so lang wie <i>a</i>.',
       'Quadratisch verlangt γ = 90°.',
       'Mit <i>a</i> = <i>b</i> hat das Gitter Spiegellinien entlang der Diagonalen.'],
-    erklaerung: 'Die Zelle mit 60° ist eine primitive Zelle eines hexagonalen Gitters. Man wählt konventionell <i>a</i> und <i>b</i> − <i>a</i>, gleich lang und unter 120°.',
+    erklaerung: 'Bei <i>a</i> = <i>b</i> und γ = 60° ist auch <i>b</i> − <i>a</i> so lang wie <i>a</i>: Um jeden Gitterpunkt liegen sechs nächste Nachbarn im gleichen Abstand, je 60° auseinander. Das Gitter hat 6-zählige Drehpunkte und die Punktgruppe 6<i>mm</i>, ist also hexagonal (<i>hp</i>). Die Zelle mit 60° ist eine seiner primitiven Zellen; konventionell nimmt man zwei gleich lange Gittervektoren unter 120°, etwa <i>a</i> und <i>b</i> − <i>a</i>. Ein Rhombus mit einem anderen Winkel als 60°, 90° oder 120° führt dagegen auf <i>oc</i>.',
     skript: 'konventionell', app: '#m=struktur&ba=1&gamma=60&basis=atom,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 2.3 und 2.5',
     status: 'entwurf',
@@ -449,16 +449,16 @@ export const BANK = [
     erklaerung: 'Eine Drehung um 90° um (½,&nbsp;½) bringt das Gitter mit sich zur Deckung: ein gefülltes Quadrat wie an den Ecken. Auf den Kantenmitten liegen Linsen.',
     skript: 'drehpunkte', app: '#m=struktur&v=quadratisch&sbind=0',
     quelle: 'Skript, Abschn. 2.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-13', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.zaehlig,
-    frage: 'Was ergibt die Bedingung cos ε = <i>m</i>/2 für einen 5-zähligen Drehpunkt (ε = 72°)?',
+    frage: 'Kann ein Gitter einen 5-zähligen Drehpunkt (ε = 72°) haben? Was sagt die Bedingung cos ε = <i>m</i>/2?',
     antworten: [
-      '<i>m</i> = 2 cos 72° ≈ 0,618 ist keine ganze Zahl; kein Gitter erlaubt ihn.',
-      'Er ist erlaubt, weil 2 cos 72° zwischen −2 und 2 liegt.',
-      'Er ist nur im hexagonalen Gitter erlaubt, weil 72° nahe bei 60° liegt.',
-      'Er ist erlaubt, wenn das Motiv ein Fünfeck ist.'],
+      'Nein, denn <i>m</i> = 2 cos 72° ≈ 0,618 ist keine ganze Zahl.',
+      'Ja, denn <i>m</i> = 2 cos 72° liegt zwischen −2 und 2.',
+      'Ja, aber nur im hexagonalen Gitter, denn 72° liegt nahe bei 60°.',
+      'Ja, wenn das Motiv ein Fünfeck ist, denn das Motiv bestimmt die Symmetrie.'],
     richtig: [0],
     hinweise: [null,
       '<i>m</i> muss ausserdem ganzzahlig sein.',
@@ -481,7 +481,7 @@ export const BANK = [
     erklaerung: 'Die Punktgruppen der vier Gitter: schiefwinklig 2, rechteckig 2<i>mm</i>, quadratisch 4<i>mm</i>, hexagonal 6<i>mm</i>.',
     skript: 'kristallsysteme', app: '#m=struktur&v=hexagonal',
     quelle: 'Skript, Abschn. 2.3; Borchardt-Ott & Sowa (2018), Abschn. 10.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-15', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
@@ -495,7 +495,7 @@ export const BANK = [
     erklaerung: 'Das schiefwinklige Gitter hat nur 2-zählige Drehpunkte: Punktgruppe 2, keine Bedingung an die Metrik.',
     skript: 'kristallsysteme', app: '#m=struktur&v=schiefwinklig',
     quelle: 'Skript, Abschn. 2.1 und 2.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 3 Gitter und Motiv
