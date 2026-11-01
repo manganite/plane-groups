@@ -86,6 +86,15 @@
               <li><a href="#punktgruppe-system">Von der Ebenengruppe zur Punktgruppe</a></li>
             </ol>
           </li>
+          <li><a href="#punktlagen"><span class="nr">6</span>Punktlagen</a>
+            <ol>
+              <li><a href="#allgemein-speziell">Allgemeine und spezielle Lage</a></li>
+              <li><a href="#wyckoff">Wyckoff-Lagen</a></li>
+              <li><a href="#asymmetrische-einheit">Die asymmetrische Einheit</a></li>
+              <li><a href="#ita-seite">Eine Seite der International Tables lesen</a></li>
+              <li><a href="#struktur-beschreiben">Eine Kristallstruktur beschreiben</a></li>
+            </ol>
+          </li>
         </ol>
         <p class="toc-foot">Begriffe nach Borchardt-Ott &amp; Sowa, <i>Kristallographie</i> (2018).</p>
       </details>
@@ -1192,6 +1201,247 @@
           <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 10.2 (die 17 Ebenengruppen; Symbole, höchstzählige Drehung zuerst; zusätzliche Gleitspiegellinien nicht im Symbol; Tab. 10.1, S. 205–207).</li>
           <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2 (Ebenengruppe als vollständige Beschreibung der Symmetrie eines periodischen Musters, S. 136–137), 4.2.1 (Notation: Zentrierung, höchste Zähligkeit, Spiegel- oder Gleitspiegellinie bezüglich der Haupt- und Nebenrichtung, 1 als Platzhalter; Lang- und Kurzform, Tab. 4.1; Blickrichtungen, Tab. 4.2, S. 137–138), 6.1.3 (Kreis mit Komma als Spiegelbild im Diagramm der allgemeinen Lage, Abb. 6.11, S. 199–200).</li>
           <li>International Tables for Crystallography, Vol. A (2006), Abschn. 2.2.4 (Hermann-Mauguin-Symbole; „Blickrichtungen“ nach Heesch, Symmetrierichtungen der Gitter, Tab. 2.2.4.1, Einsen am Ende fallen weg, S. 18; Kurz- und vollständiges Symbol unterscheiden sich in zwei Dimensionen nur in der Punktgruppe <i>m</i>; Definition „symmorph“, S. 19), Abschn. 2.2.6.1 (zwei Diagramme je Ebenengruppe, Symmetrieelemente links, allgemeine Lage rechts, <i>a</i> nach unten, <i>b</i> nach rechts, S. 20), Abschn. 2.2.6.4 (Ursprung oben links, S. 22), Abschn. 4.1.2.3 (Vorrang von <i>m</i> vor Gleitspiegelungen im Symbol, S. 59), Abschn. 8.1.6 (die Translationen bilden einen Normalteiler, ihre Nebenklassen entsprechen der Punktgruppe; die Punktgruppe kann Operationen enthalten, die in der Gruppe nicht vorkommen; Definition symmorph; <i>P</i>2, <i>Cm</i> symmorph, <i>P</i>2<sub>1</sub>, <i>Pc</i> nicht, S. 724–725), Part 6 (die 17 Ebenengruppen, S. 92–109; <i>p</i>2<i>mg</i>, S. 98; <i>p</i>3<i>m</i>1, S. 105; <i>p</i>31<i>m</i>, S. 106).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="punktlagen">
+      <h2><span class="nr">6</span>Punktlagen</h2>
+      <p class="lead">Wohin man ein Atom in die Zelle setzt, entscheidet, wie oft es sich je Zelle wiederholt und welche Symmetrie es um sich hat. Liegt es auf einem Drehpunkt oder einer Spiegellinie, fallen Kopien zusammen. Die International Tables ordnen alle Lagen einer Ebenengruppe in der Tabelle der Wyckoff-Lagen. Mit ihnen und der asymmetrischen Einheit lässt sich eine Kristallstruktur vollständig und knapp beschreiben.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>allgemeine und spezielle Lagen unterscheiden und für eine Lage Zähligkeit, Lagesymmetrie und Freiheitsgrade angeben</li>
+          <li>die Tabelle der Wyckoff-Lagen einer Ebenengruppe lesen</li>
+          <li>die asymmetrische Einheit im Bild finden und ihre Ungleichungen in ein Bild übersetzen</li>
+          <li>eine Seite der International Tables von oben bis unten lesen</li>
+          <li>eine zweidimensionale Kristallstruktur mit Ebenengruppe, Gitter und Wyckoff-Lagen beschreiben</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>erklären, wohin die International Tables den Ursprung legen</li>
+        </ul>
+      </div>
+
+      <section id="allgemein-speziell">
+        <h3>Allgemeine und spezielle Lage</h3>
+        <p>Setzt man ein Fähnchen in eine Zelle der Ebenengruppe <i>p</i>2<i>mm</i> und wendet alle Operationen an, entstehen je Zelle vier Fähnchen (Abb. 6.1a), eines für jede der vier Operationen (wie in Abschnitt 4.3; die Koordinaten für <i>p</i>2<i>mm</i> stehen in der Tabelle in Abschnitt 6.2). Die Zahl gleichwertiger Punkte in der Elementarzelle heisst <span class="term">Zähligkeit</span> der Lage; die International Tables sagen <i>multiplicity</i>, Hoffmann Multiplizität. (Das Wort Zähligkeit hat damit zwei Bedeutungen: Bei einem Drehpunkt ist es die Zahl der Drehungen bis zur vollen Umdrehung, bei einer Lage die Zahl der Punkte je Zelle.) Das Fähnchen lässt sich in der Zelle frei verschieben, in zwei Richtungen; die Zahl der Fähnchen bleibt dabei vier. Die Operationen, die einen Punkt an seinem Ort lassen, bilden seine <span class="term">Lagesymmetrie</span>, eine Punktgruppe der Ebene (Abschnitt 3.1). Ihre Ordnung ist die Zahl dieser Operationen: 1 für die Lagesymmetrie 1, 2 für <i>m</i>, 4 für 2<i>mm</i>. Hält ausser der Identität keine Operation das Fähnchen fest, ist seine Lagesymmetrie 1, und die Lage heisst <span class="term">allgemeine Lage</span>. Es hat dann zwei <span class="term">Freiheitsgrade</span>, <i>x</i> und <i>y</i>.</p>
+        <p>Schiebt man das Fähnchen auf die Spiegellinie bei <i>x</i> = ½, wandert sein Spiegelbild ihm entgegen; auf der Linie fallen beide zusammen (Abb. 6.1b). Je zwei der vier Fähnchen liegen jetzt übereinander, und es bleiben zwei Stellen je Zelle: (½,&nbsp;<i>y</i>) und (½,&nbsp;<span class="ov"><i>y</i></span>). Die Lage ist 2-zählig, ihre Lagesymmetrie ist <i>m</i>, und sie hat nur noch einen Freiheitsgrad: Das Fähnchen darf sich nur entlang der Linie bewegen, sonst trennen sich die Kopien wieder. Auf dem Schnittpunkt zweier Spiegellinien bei (½,&nbsp;½) fallen alle vier zusammen (Abb. 6.1c): Zähligkeit 1, Lagesymmetrie 2<i>mm</i>, kein Freiheitsgrad. Lagen mit einer Lagesymmetrie höher als 1 heissen <span class="term">spezielle Lagen</span>.</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mm&amp;x=0.15&amp;y=0.3" data-alt="Elementarzelle von p2mm mit vier Fähnchen in allgemeiner Lage">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 6.1a</b> Allgemeine Lage bei (0,15;&nbsp;0,3): vier Fähnchen.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mm&amp;x=0.5&amp;y=0.3" data-alt="Elementarzelle von p2mm, Fähnchen auf der Spiegellinie bei x = 1/2">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Auf der Spiegellinie bei (½;&nbsp;0,3): je zwei fallen zusammen, zwei Stellen.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mm&amp;x=0.5&amp;y=0.5" data-alt="Elementarzelle von p2mm, Fähnchen auf dem Schnittpunkt zweier Spiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Auf dem Schnittpunkt bei (½,&nbsp;½): alle vier fallen zusammen.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 6.1</b> Ein Fähnchen in der Ebenengruppe <i>p</i>2<i>mm</i>, von der allgemeinen Lage auf eine Spiegellinie und auf den Schnittpunkt zweier Spiegellinien geschoben. Je höher die Lagesymmetrie, desto kleiner die Zähligkeit.</p>
+        <p>Zähligkeit und Lagesymmetrie hängen fest zusammen. Die Gruppe hat je Zelle so viele Operationen, wie die allgemeine Lage Punkte hat, in <i>p</i>2<i>mm</i> vier. Halten <i>k</i> davon einen Punkt fest, fallen auf jedes Bild genau <i>k</i> Kopien. Also gilt:</p>
+        <p class="formel">Zähligkeit der Lage × Ordnung der Lagesymmetrie = Zähligkeit der allgemeinen Lage.</p>
+        <p>In <i>p</i>2<i>mm</i>: 2 × 2 = 1 × 4 = 4. Die Zähligkeit einer speziellen Lage ist deshalb immer ein Teiler der Zähligkeit der allgemeinen Lage.</p>
+        <p>Das Fähnchen in Abb. 6.1b und c überlagert sich mit seinem Spiegelbild, weil es selbst keine Spiegelsymmetrie hat. Ein echtes Objekt auf einer speziellen Lage, etwa ein Atom oder ein Molekül, muss selbst mindestens die Lagesymmetrie haben und passend ausgerichtet sein, sonst stimmt die Symmetrie des Musters nicht mehr (Abschnitt 3.2, Abb. 3.4). Ein Atom hat die Symmetrie ∞<i>m</i> und kann auf jeder Lage sitzen.</p>
+        <p>Auf einer Gleitspiegellinie wird eine Lage nicht speziell. Die Gleitspiegelung bringt einen Punkt auf der Linie immer an eine andere Stelle, um die Gleitkomponente verschoben; er wird also nicht festgehalten. In <i>pg</i> bleiben deshalb auch auf der Gleitspiegellinie zwei Fähnchen je Zelle (Abb. 6.2). <i>pg</i> hat gar keine spezielle Lage, ebenso <i>p</i>1.</p>
+        <figure class="fig-card fig-mittel" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=pg&amp;x=0&amp;y=0.3" data-alt="Elementarzelle von pg, Fähnchen auf der Gleitspiegellinie bei x = 0">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 6.2</b> <i>pg</i>, Fähnchen auf der Gleitspiegellinie bei (0;&nbsp;0,3). Sein Bild liegt bei (0;&nbsp;0,8), um <i>b</i>/2 verschoben: Es fällt nichts zusammen, die Lage bleibt 2-zählig.</figcaption>
+        </figure>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Allgemeine Lage: Lagesymmetrie 1, grösste Zähligkeit, zwei Freiheitsgrade. Spezielle Lage: auf einem Drehpunkt oder einer Spiegellinie, höhere Lagesymmetrie, kleinere Zähligkeit, weniger Freiheitsgrade. Zähligkeit × Ordnung der Lagesymmetrie = Zähligkeit der allgemeinen Lage. Gleitspiegellinien machen eine Lage nicht speziell.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Ebenengruppen“ mit „Objekt in allgemeiner Lage“ das Fähnchen im Symmetriegerüst ziehen. Mit „Einrasten auf spezielle Lagen“ (unter „Weitere Optionen“) springt es auf nahe Drehpunkte und Spiegellinien. Ein Kasten in den Kenndaten nennt Lage, Zähligkeit und Lagesymmetrie, bei einer speziellen Lage auch die Freiheitsgrade, und rechnet die Zähligkeit vor.</p>
+        </div>
+      </section>
+
+      <section id="wyckoff">
+        <h3>Wyckoff-Lagen</h3>
+        <p>Eine <span class="term">Punktlage</span> ist eine Menge symmetrisch gleichwertiger Punkte, etwa die vier Fähnchen in Abb. 6.1a. Verschiebt man das Fähnchen auf der Spiegellinie, erhält man andere Punktlagen mit denselben Eigenschaften. Die International Tables fassen solche Punktlagen zu einer <span class="term">Wyckoff-Lage</span> zusammen (Borchardt-Ott &amp; Sowa sagen auch dafür Punktlage), benannt nach Ralph Wyckoff, der sie 1922 als Erster für alle Raumgruppen aufgestellt hat. Für <i>p</i>2<i>mm</i> sieht ihre Tabelle so aus:</p>
+        <div class="tabwrap">
+          <table class="tab">
+            <thead><tr><th>Zähligkeit</th><th>Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th colspan="4">Koordinaten</th></tr></thead>
+            <tbody>
+              <tr><td>4</td><td><i>i</i></td><td>1</td><td><i>x</i>,&nbsp;<i>y</i></td><td><span class="ov"><i>x</i></span>,&nbsp;<span class="ov"><i>y</i></span></td><td><span class="ov"><i>x</i></span>,&nbsp;<i>y</i></td><td><i>x</i>,&nbsp;<span class="ov"><i>y</i></span></td></tr>
+              <tr><td>2</td><td><i>h</i></td><td>.<i>m</i>.</td><td>½,&nbsp;<i>y</i></td><td>½,&nbsp;<span class="ov"><i>y</i></span></td><td></td><td></td></tr>
+              <tr><td>2</td><td><i>g</i></td><td>.<i>m</i>.</td><td>0,&nbsp;<i>y</i></td><td>0,&nbsp;<span class="ov"><i>y</i></span></td><td></td><td></td></tr>
+              <tr><td>2</td><td><i>f</i></td><td>..<i>m</i></td><td><i>x</i>,&nbsp;½</td><td><span class="ov"><i>x</i></span>,&nbsp;½</td><td></td><td></td></tr>
+              <tr><td>2</td><td><i>e</i></td><td>..<i>m</i></td><td><i>x</i>,&nbsp;0</td><td><span class="ov"><i>x</i></span>,&nbsp;0</td><td></td><td></td></tr>
+              <tr><td>1</td><td><i>d</i></td><td>2<i>mm</i></td><td>½,&nbsp;½</td><td></td><td></td><td></td></tr>
+              <tr><td>1</td><td><i>c</i></td><td>2<i>mm</i></td><td>½,&nbsp;0</td><td></td><td></td><td></td></tr>
+              <tr><td>1</td><td><i>b</i></td><td>2<i>mm</i></td><td>0,&nbsp;½</td><td></td><td></td><td></td></tr>
+              <tr><td>1</td><td><i>a</i></td><td>2<i>mm</i></td><td>0,&nbsp;0</td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Die Spalten von links nach rechts:</p>
+        <ul>
+          <li><b>Zähligkeit:</b> Punkte je Zelle, wie in Abschnitt 6.1.</li>
+          <li><b>Wyckoff-Buchstabe:</b> ein Name, von unten nach oben vergeben. <i>a</i> steht unten, bei einer Lage höchster Lagesymmetrie; die allgemeine Lage steht oben und hat den letzten Buchstaben. Zähligkeit und Buchstabe zusammen benennen eine Lage: 2<i>h</i>, 1<i>a</i>.</li>
+          <li><b>Lagesymmetrie</b> als orientiertes Symbol: Die Stellen stehen für die Blickrichtungen wie im Symbol der Ebenengruppe (Abschnitt 5.2), nur ohne den Zellbuchstaben: 1. Stelle Drehpunkt, 2. Stelle 2. Blickrichtung, 3. Stelle 3. Blickrichtung. Ein Punkt steht für eine Blickrichtung ohne Element. .<i>m</i>. heisst: Spiegellinie senkrecht zur 2. Blickrichtung, also senkrecht zu <i>a</i>; die Linie <i>x</i> = ½ verläuft entlang <i>b</i> und ist in der App grün. ..<i>m</i>: senkrecht zur 3. Blickrichtung, also zu <i>b</i>. So unterscheidet das Symbol die Lagen 2<i>h</i> und 2<i>f</i>, die beide die Lagesymmetrie <i>m</i> haben, aber auf verschieden gerichteten Spiegellinien liegen.</li>
+          <li><b>Koordinaten</b> aller Punkte der Lage in einer Zelle. Ein Querstrich bedeutet ein Minus (Abschnitt 4.2). Liegt ein Punkt ausserhalb der Zelle, addiert man eine Gittertranslation: ½,&nbsp;<span class="ov"><i>y</i></span> mit <i>y</i> = 0,3 ist (½;&nbsp;−0,3), in der Zelle also (½;&nbsp;0,7). Die Zahl der freien Parameter <i>x</i>, <i>y</i> ist die Zahl der Freiheitsgrade.</li>
+        </ul>
+        <p>Eine Wyckoff-Lage umfasst alle Punktlagen, die zu derselben Koordinatenformel gehören, mit Ausnahme der Werte, bei denen der Punkt auf eine Lage noch höherer Symmetrie fällt. 2<i>h</i> sind alle Paare (½,&nbsp;<i>y</i>) und (½,&nbsp;<span class="ov"><i>y</i></span>), ausser <i>y</i> = 0 und <i>y</i> = ½; das sind die Lagen 1<i>c</i> und 1<i>d</i>.</p>
+        <p>Auffällig sind die vier Lagen 1<i>a</i> bis 1<i>d</i> mit derselben Lagesymmetrie 2<i>mm</i>. Es sind trotzdem vier verschiedene Wyckoff-Lagen: Keine Operation von <i>p</i>2<i>mm</i> bringt den Punkt (0,&nbsp;0) nach (½,&nbsp;0). Dazu bräuchte man etwa eine Verschiebung um <i>a</i>/2 oder eine Spiegellinie bei <i>x</i> = ¼; beides hat <i>p</i>2<i>mm</i> nicht. In einer Struktur können auf 1<i>a</i> und 1<i>c</i> deshalb verschiedene Atome sitzen. Dasselbe gilt für 2<i>g</i> und 2<i>h</i> und für 2<i>e</i> und 2<i>f</i>. Welchen Buchstaben ein Atom erhält, hängt auch davon ab, welchen der erlaubten Ursprünge man wählt (Abschnitt 3.4): Ein Atom auf 1<i>a</i> steht nach einer Verschiebung des Ursprungs um <i>b</i>/2 auf 1<i>b</i>, und beide Beschreibungen sind gleich gut.</p>
+        <p>Bei zentrierten Gruppen zählt die Zentrierung mit. In <i>c</i>2<i>mm</i> erzeugen die vier Operationen aus dem Fähnchen vier Punkte, die Zentrierung (½,&nbsp;½) verdoppelt sie: Die allgemeine Lage ist 8-zählig. Die Tabelle nennt deshalb nur die Koordinaten für den Satz (0,&nbsp;0)+ und schreibt darüber (0,&nbsp;0)+ (½,&nbsp;½)+: Zu jedem Punkt gehört auch der um (½,&nbsp;½) verschobene. Die Regel aus Abschnitt 6.1 gilt dann mit 8: Die Lage auf den Spiegellinien ist 4-zählig, 4 × 2 = 8 (Abb. 6.3).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=c2mm" data-alt="Elementarzelle von c2mm mit acht Fähnchen in allgemeiner Lage">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 6.3a</b> <i>c</i>2<i>mm</i>, allgemeine Lage bei (0,12;&nbsp;0,31): acht Fähnchen. Zu jedem gehört ein gleiches, um (½,&nbsp;½) verschoben, etwa bei (0,62;&nbsp;0,81).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=c2mm&amp;x=0&amp;y=0.3" data-alt="Elementarzelle von c2mm, Fähnchen auf der Spiegellinie bei x = 0">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Auf der Spiegellinie bei (0;&nbsp;0,3), Lage 4<i>e</i>: je zwei Fähnchen fallen zusammen, vier Stellen.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 6.3</b> In der zentrierten Gruppe <i>c</i>2<i>mm</i> verdoppelt die Zentrierung jede Lage: allgemeine Lage 8-zählig statt 4-zählig wie in <i>p</i>2<i>mm</i>, Lage auf der Spiegellinie 4-zählig statt 2-zählig.</p>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Die Kenndaten im Modus „Ebenengruppen“ enthalten die Tabelle der Wyckoff-Lagen wie in den International Tables, mit einer Spalte „Auslöschungen“ für die Beugung. „setzen“ legt das Fähnchen auf die Lage der Zeile, die Zeile der aktuellen Lage ist hervorgehoben.</p>
+        </div>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Eine Wyckoff-Lage wird mit Zähligkeit und Buchstabe benannt (2<i>h</i>). Die Buchstaben laufen von unten (<i>a</i>, höchste Lagesymmetrie) nach oben (allgemeine Lage). Das orientierte Symbol der Lagesymmetrie zeigt mit Punkten die Blickrichtungen ohne Element. Lagen mit gleicher Lagesymmetrie können verschiedene Wyckoff-Lagen sein.</p>
+        </div>
+      </section>
+
+      <section id="asymmetrische-einheit">
+        <h3>Die asymmetrische Einheit</h3>
+        <p>In Abb. 6.1a bestimmt ein einziges Fähnchen die anderen drei. Es genügt also, ein Viertel der Zelle zu kennen; den Rest erzeugen die Operationen. Ein kleinster zusammenhängender Teil der Zelle, der, mit allen Operationen der Gruppe abgebildet, die Ebene lückenlos und ohne Überlappung füllt, heisst <span class="term">asymmetrische Einheit</span>, in der Mathematik Fundamentalbereich. In ihrem Innern sind keine zwei Punkte gleichwertig. Ihre Fläche ist deshalb</p>
+        <p class="formel">Fläche der asymmetrischen Einheit = Fläche der Zelle / Zähligkeit der allgemeinen Lage.</p>
+        <p>Für <i>p</i>2<i>mm</i> ist das ein Viertel der Zelle, für <i>p</i>4<i>mm</i> ein Achtel, für <i>p</i>6<i>mm</i> ein Zwölftel. Bei <i>c</i>2<i>mm</i> zählt die Zentrierung mit: ein Achtel.</p>
+        <p>Die International Tables geben die asymmetrische Einheit als Ungleichungen in <i>x</i> und <i>y</i> an. Für <i>p</i>2<i>mm</i> heisst es 0&nbsp;≤&nbsp;<i>x</i>&nbsp;≤&nbsp;½; 0&nbsp;≤&nbsp;<i>y</i>&nbsp;≤&nbsp;½. Jede Ungleichung schneidet die Zelle entlang einer Linie ab: <i>x</i>&nbsp;≤&nbsp;½ behält die obere Hälfte (<i>a</i> zeigt nach unten), <i>y</i>&nbsp;≤&nbsp;½ die linke. Übrig bleibt das Viertel oben links (Abb. 6.4). Seine Ränder sind Spiegellinien, seine Ecken Schnittpunkte von Spiegellinien. Das ist kein Zufall: Die beiden Seiten einer Spiegellinie sind Spiegelbilder voneinander. Ginge die Linie durch die asymmetrische Einheit, enthielte diese gleichwertige Punkte; die Spiegellinie muss deshalb am Rand liegen. Ebenso liegen Drehpunkte immer am Rand, in einer Ecke oder, wenn sie 2-zählig sind, auch in der Mitte einer Kante. Gleitspiegellinien dagegen dürfen durch die asymmetrische Einheit hindurchgehen.</p>
+        <figure class="fig-card fig-mittel" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mm&amp;ae=1" data-alt="Elementarzelle von p2mm mit hervorgehobener asymmetrischer Einheit im Viertel oben links">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 6.4</b> <i>p</i>2<i>mm</i>: Die asymmetrische Einheit 0&nbsp;≤&nbsp;<i>x</i>&nbsp;≤&nbsp;½; 0&nbsp;≤&nbsp;<i>y</i>&nbsp;≤&nbsp;½ (blau) ist das Viertel oben links. Das Fähnchen in ihr erzeugt die drei anderen.</figcaption>
+        </figure>
+        <p>Bei <i>p</i>4<i>mm</i> kommt eine dritte Ungleichung hinzu: 0&nbsp;≤&nbsp;<i>x</i>&nbsp;≤&nbsp;½; 0&nbsp;≤&nbsp;<i>y</i>&nbsp;≤&nbsp;½; <i>x</i>&nbsp;≤&nbsp;<i>y</i>. Die ersten beiden ergeben wieder das Viertel oben links. <i>x</i>&nbsp;≤&nbsp;<i>y</i> schneidet es entlang der Diagonale <i>x</i> = <i>y</i>, einer Spiegellinie, und behält die Hälfte rechts davon (Abb. 6.5a). Es bleibt ein Dreieck mit einem Achtel der Zellfläche. Seine Ecken sind die Drehpunkte bei (0,&nbsp;0) und (½,&nbsp;½), Lagesymmetrie 4<i>mm</i>, und bei (0,&nbsp;½), Lagesymmetrie 2<i>mm</i>; seine Kanten sind Spiegellinien. Füllt man das Dreieck und wendet alle Operationen an, entsteht ein lückenloses Muster aus acht Kopien je Zelle (Abb. 6.5b).</p>
+        <p>Umgekehrt liest man die Ungleichungen aus dem Bild ab: Für jede Kante der asymmetrischen Einheit schreibt man die Gleichung ihrer Linie auf und ersetzt das Gleichheitszeichen durch ≤ oder ≥, je nachdem, auf welcher Seite die Einheit liegt. Welche Seite das ist, prüft man mit einem Punkt im Innern. Ein Beispiel ist <i>p</i>4<i>gm</i>: Dort ist die asymmetrische Einheit das Dreieck mit den Ecken (0,&nbsp;0), (½,&nbsp;0) und (0,&nbsp;½). Seine schräge Kante läuft von (½,&nbsp;0) nach (0,&nbsp;½); auf ihr gilt <i>x</i> + <i>y</i> = ½, also <i>y</i> = ½ − <i>x</i>. Der Punkt (0,1;&nbsp;0,1) im Innern erfüllt 0,1 ≤ 0,4, die Bedingung lautet also <i>y</i>&nbsp;≤&nbsp;½&nbsp;−&nbsp;<i>x</i>, so wie in den International Tables (S. 103). Im hexagonalen System werden die Ungleichungen unübersichtlich; die International Tables nennen dort zusätzlich die Ecken (<i>Vertices</i>).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p4mm&amp;ae=1&amp;aet=2" data-alt="Elementarzelle von p4mm, asymmetrische Einheit und die Halbebene x ≤ y">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 6.5a</b> <i>p</i>4<i>mm</i>: Blau die asymmetrische Einheit, orange der Bereich <i>x</i>&nbsp;≤&nbsp;<i>y</i>. Seine Grenze, die Diagonale, ist eine Spiegellinie.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p4mm&amp;ae=1&amp;fuell=1" data-alt="p4mm, die gefüllte asymmetrische Einheit und ihre acht Kopien je Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Die gefüllte asymmetrische Einheit (dunkel) und ihre Kopien füllen die Zelle lückenlos.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 6.5</b> Die asymmetrische Einheit von <i>p</i>4<i>mm</i>, ein Achtel der Zelle. In b unterscheiden Blau und Orange wie bei den Fähnchen Kopien und Spiegelbilder (Abschnitt 4.1).</p>
+        <p>Die asymmetrische Einheit ist nicht eindeutig. In Abb. 6.4 wäre jedes der vier Viertel ebenso gut, und bei Gruppen ohne Spiegellinien gibt es noch mehr Möglichkeiten. Die International Tables wählen eine, mit der sich gut rechnen lässt: ein Vieleck mit einer Ecke im Ursprung, im schiefwinkligen und rechteckigen System ein Parallelogramm bzw. Rechteck. Für eine Kristallstruktur bedeutet sie: Kennt man den Inhalt der asymmetrischen Einheit, kennt man die ganze Struktur.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die asymmetrische Einheit ist ein kleinster Teil der Zelle, aus dem die Operationen das ganze Muster erzeugen. Fläche = Zellfläche / Zähligkeit der allgemeinen Lage. Spiegellinien und Drehpunkte liegen auf ihrem Rand, Gleitspiegellinien dürfen sie durchqueren. Jede Ungleichung der International Tables ist eine Linie, die die Zelle abschneidet.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Den Schalter „Asymmetrische Einheit“ einschalten. Tippt man in den Kenndaten eine ihrer Bedingungen an, zeigt das Symmetriegerüst den Bereich, in dem sie erfüllt ist. Unter „Selbst zeichnen“ färbt „Asymmetrische Einheit füllen“ sie ein und zeigt ihre Kopien; man kann auch in ihr zeichnen und sieht das Muster entstehen.</p>
+        </div>
+      </section>
+
+      <section id="ita-seite">
+        <h3>Eine Seite der International Tables lesen</h3>
+        <p>Mit den Begriffen dieses Kapitels und der vorigen lässt sich jetzt eine ganze Seite der International Tables lesen. Als Beispiel dient <i>p</i>2<i>mg</i> (S. 98), dessen Diagramme Abschnitt 5.3 zeigt und dessen Operationen Abschnitt 4.3 erklärt. Die Seite enthält von oben nach unten:</p>
+        <ul>
+          <li><b>Kopf:</b> Kristallsystem (<i>Rectangular</i>), Punktgruppe 2<i>mm</i>, Symbol <i>p</i>2<i>mg</i> und Nummer 7 (Abschnitt 5.3), dazu das vollständige Symbol und die „Patterson symmetry“, die zur Strukturbestimmung gehört und hier nicht gebraucht wird.</li>
+          <li><b>Diagramme</b> der Symmetrieelemente und der allgemeinen Lage (Abb. 5.4).</li>
+          <li><b>Origin at 2 1 <i>g</i>:</b> Der Ursprung liegt auf einem 2-zähligen Drehpunkt. Das Symbol nennt die Elemente, die durch den Ursprung gehen, nach Blickrichtungen geordnet: der Drehpunkt, senkrecht zu <i>a</i> nichts, senkrecht zu <i>b</i> eine Gleitspiegellinie.</li>
+          <li><b>Asymmetric unit</b> 0&nbsp;≤&nbsp;<i>x</i>&nbsp;≤&nbsp;¼; 0&nbsp;≤&nbsp;<i>y</i>&nbsp;≤&nbsp;1: ein Streifen von einem Viertel der Zelle, oben begrenzt durch die Linie <i>x</i> = 0, unten durch die Spiegellinie bei <i>x</i> = ¼ (Abschnitt 6.3). Die Drehpunkte (0,&nbsp;0) und (0,&nbsp;½) liegen auf seinem Rand, (0,&nbsp;½) in der Mitte einer Kante. Die Gleitspiegellinie bei <i>y</i> = ½ geht mitten durch den Streifen; das ist erlaubt.</li>
+          <li><b>Symmetry operations</b> (1) bis (4) mit Art und Lage der Elemente (Abschnitt 4.3).</li>
+          <li><b>Generators selected</b> (1); <i>t</i>(1,&nbsp;0); <i>t</i>(0,&nbsp;1); (2); (3): Identität, die beiden Gittertranslationen, die Drehung (2) und die Spiegelung (3) erzeugen alle Operationen der Gruppe. Die Gleitspiegelung (4) folgt aus ihnen (Abschnitt 4.4).</li>
+          <li><b>Positions:</b> die Wyckoff-Lagen (Tabelle unten). In der rechten Spalte stehen die <i>Reflection conditions</i>: welche Beugungsreflexe fehlen. Sie gehören zur Beugung und werden hier nicht behandelt.</li>
+          <li><b>Maximal non-isomorphic subgroups, minimal non-isomorphic supergroups:</b> verwandte Ebenengruppen mit weniger bzw. mehr Symmetrie. Sie gehen über diese Einführung hinaus.</li>
+        </ul>
+        <div class="tabwrap">
+          <table class="tab">
+            <thead><tr><th>Zähligkeit</th><th>Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th colspan="4">Koordinaten</th></tr></thead>
+            <tbody>
+              <tr><td>4</td><td><i>d</i></td><td>1</td><td><i>x</i>,&nbsp;<i>y</i></td><td><span class="ov"><i>x</i></span>,&nbsp;<span class="ov"><i>y</i></span></td><td><span class="ov"><i>x</i></span>&nbsp;+&nbsp;½,&nbsp;<i>y</i></td><td><i>x</i>&nbsp;+&nbsp;½,&nbsp;<span class="ov"><i>y</i></span></td></tr>
+              <tr><td>2</td><td><i>c</i></td><td>.<i>m</i>.</td><td>¼,&nbsp;<i>y</i></td><td>¾,&nbsp;<span class="ov"><i>y</i></span></td><td></td><td></td></tr>
+              <tr><td>2</td><td><i>b</i></td><td>2..</td><td>0,&nbsp;½</td><td>½,&nbsp;½</td><td></td><td></td></tr>
+              <tr><td>2</td><td><i>a</i></td><td>2..</td><td>0,&nbsp;0</td><td>½,&nbsp;0</td><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Neu gegenüber <i>p</i>2<i>mm</i>: Die Drehpunkte sind 2-zählige Lagen, nicht 1-zählige. Die Lage 2<i>c</i> liegt auf den Spiegellinien bei <i>x</i> = ¼ und ¾ (Abb. 6.6a). Der Drehpunkt bei (0,&nbsp;0) liegt auf keiner Spiegellinie, seine Lagesymmetrie ist nur 2 (2..: Drehpunkt, in den anderen Blickrichtungen nichts). Die Gleitspiegellinie durch (0,&nbsp;0) zählt für die Lagesymmetrie nicht (Abschnitt 6.1); deshalb 2.. und nicht 2.<i>g</i>. Die Spiegelung an <i>m</i> ¼,&nbsp;<i>y</i> bringt den Drehpunkt nach (½,&nbsp;0), auf einen zweiten Drehpunkt in derselben Zelle; beide bilden zusammen die Lage 2<i>a</i> (Abb. 6.6b). Nach der Regel aus Abschnitt 6.1: 2 × 2 = 4. Auf der Gleitspiegellinie gibt es keine eigene Lage.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mg&amp;x=0.25&amp;y=0.3" data-alt="Elementarzelle von p2mg, Fähnchen auf der Spiegellinie bei x = 1/4">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 6.6a</b> Lage 2<i>c</i>: Fähnchen bei (¼;&nbsp;0,3) und (¾;&nbsp;0,7).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mg&amp;x=0&amp;y=0" data-alt="Elementarzelle von p2mg, Fähnchen auf den Drehpunkten bei (0, 0) und (1/2, 0)">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Lage 2<i>a</i>: Fähnchen auf den Drehpunkten bei (0,&nbsp;0) und (½,&nbsp;0).</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 6.6</b> Zwei spezielle Lagen von <i>p</i>2<i>mg</i>. Die Drehpunkte liegen nicht auf Spiegellinien und sind deshalb 2-zählige Lagen.</p>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Wohin der Ursprung kommt</b></h4>
+          <p>Für die Raumgruppen legen die International Tables den Ursprung auf ein Inversionszentrum, wenn es eines gibt, sonst auf einen Punkt höchster Lagesymmetrie, und nur wenn es keinen solchen gibt, auf eine Gleitspiegelebene oder Schraubenachse (Abschn. 2.2.7). In der Ebene spielt der 2-zählige Drehpunkt die Rolle des Inversionszentrums: Die Drehung um 180° bringt (<i>x</i>,&nbsp;<i>y</i>) nach (<span class="ov"><i>x</i></span>,&nbsp;<span class="ov"><i>y</i></span>), wie die Inversion im Raum (<i>x</i>,&nbsp;<i>y</i>,&nbsp;<i>z</i>) nach (<span class="ov"><i>x</i></span>,&nbsp;<span class="ov"><i>y</i></span>,&nbsp;<span class="ov"><i>z</i></span>). Die 17 Seiten der Ebenengruppen folgen einer einfachen Regel: Gibt es Drehpunkte, liegt der Ursprung auf einem Drehpunkt höchster Zähligkeit, und unter diesen auf einem mit möglichst hoher Lagesymmetrie (in <i>c</i>2<i>mm</i> auf 2<i>mm</i>, nicht auf 2..). Ohne Drehpunkte liegt er auf einer Spiegellinie (<i>pm</i>, <i>cm</i>), sonst auf einer Gleitspiegellinie (<i>pg</i>); in <i>p</i>1 ist er beliebig. Deshalb liegt er in <i>p</i>2<i>mg</i> auf dem Drehpunkt und nicht auf der Spiegellinie, obwohl beide Lagen die Lagesymmetrie der Ordnung 2 haben.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Die Kenndaten im Modus „Ebenengruppen“ sind wie eine Seite der International Tables aufgebaut: Symbol, Punktgruppe, Ursprung, asymmetrische Einheit, Operationen, Erzeugende und Wyckoff-Lagen. Die Kenndaten nennen auch die Seitenzahl in den International Tables.</p>
+        </div>
+      </section>
+
+      <section id="struktur-beschreiben">
+        <h3>Eine Kristallstruktur beschreiben</h3>
+        <p>Mit den Wyckoff-Lagen lässt sich eine Kristallstruktur knapp und vollständig angeben: die Ebenengruppe, die Gitterparameter und für jedes symmetrisch unabhängige Atom seine Wyckoff-Lage mit den Werten der freien Parameter, bezogen auf Zelle und Ursprung der International Tables. Eine Atomsorte kann mehrere Lagen besetzen. Alles Weitere folgt aus der Tabelle der International Tables.</p>
+        <p>Ein Beispiel ist das Lieb-Gitter, die Anordnung der Atome in einer CuO₂-Ebene (Abb. 6.7a, dieselbe Struktur wie Abb. 1.7a). Trotz des Namens ist es kein Gitter im Sinne von Abschnitt 1.2, sondern ein quadratisches Gitter mit einer Basis aus drei Atomen: Ebenengruppe <i>p</i>4<i>mm</i>, Gitterkonstante <i>a</i>; Cu auf 1<i>a</i> (0,&nbsp;0), Lagesymmetrie 4<i>mm</i>; O auf 2<i>c</i> (½,&nbsp;0) und (0,&nbsp;½), Lagesymmetrie 2<i>mm</i> (orientiert 2<i>mm</i>.: Drehpunkt und Spiegellinien senkrecht zu <i>a</i> und <i>b</i>, senkrecht zu den Diagonalen keine). Keine Lage hat einen freien Parameter. Die Probe mit der Regel aus Abschnitt 6.1 stimmt: 1 × 8 = 2 × 4 = 8. Die Zähligkeiten ergeben die Zahl der Atome je Zelle: ein Cu und zwei O, also die Formel CuO₂. Bei Graphen (Abb. 6.7b, wie Abb. 3.8a) ist es <i>p</i>6<i>mm</i> mit C auf 2<i>b</i> (⅓,&nbsp;⅔) und (⅔,&nbsp;⅓), Lagesymmetrie 3<i>m</i> (orientiert 3<i>m</i>.): zwei Kohlenstoffatome je Zelle.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=lieb" data-alt="Lieb-Gitter: Cu an den Ecken, O auf den Kantenmitten einer quadratischen Zelle, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 6.7a</b> Lieb-Gitter (CuO₂-Ebene), <i>p</i>4<i>mm</i>: Cu (blau) auf 1<i>a</i>, O (orange) auf 2<i>c</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=graphen" data-alt="Graphen: Bienenwabe aus Kohlenstoffatomen, hexagonale Zelle mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Graphen, <i>p</i>6<i>mm</i>: C auf 2<i>b</i>.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 6.7</b> Zwei Strukturen im Modus „Gitter und Basis“. Die Kenndaten der App nennen für jedes Atom Wyckoff-Lage und Lagesymmetrie.</p>
+        <p>Umgekehrt zeigt die Lagesymmetrie, welche Motive wohin passen. Die Dreiecke des Dreiecksbeispiels (Abb. 1.6 und Abb. 4.7) haben eine Spiegellinie; sie dürfen auf Lagen mit der Lagesymmetrie <i>m</i> sitzen, wenn ihre Spiegellinie auf der Spiegellinie der Lage liegt, aber nicht auf einem Drehpunkt. In <i>p</i>2<i>mg</i> (Abb. 4.7) liegen sie auf 2<i>c</i>, auf den Spiegellinien. Sitzt ein Motiv auf einer Lage, deren Lagesymmetrie es nicht hat, verliert das Muster Symmetrie (Abschnitt 3.2).</p>
+        <p>Für die Aufgabe, eine Struktur zu beschreiben, heisst das: Ebenengruppe, konventionelle Zelle und Ursprung nach den International Tables bestimmen (Abschnitte 2.5 und 3.4, Kapitel 5), für jedes Atom die Lage aufsuchen, Zähligkeit und Lagesymmetrie ablesen und die asymmetrische Einheit einzeichnen. Symmetrisch gleichwertige Atome gehören zur selben Punktlage und werden nur einmal gezählt; die Summe der Zähligkeiten der besetzten Punktlagen muss dann die Zahl der Atome je Zelle ergeben. Das ist eine gute Probe: Bei Graphen gehören beide Atome der Zelle zu einer Punktlage 2<i>b</i>, also zwei Atome, nicht vier.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Eine Kristallstruktur ist bestimmt durch Ebenengruppe, Gitterparameter und die besetzten Wyckoff-Lagen mit ihren freien Parametern. Die Summe der Zähligkeiten der besetzten Punktlagen, jede einmal gezählt, ist die Zahl der Atome je Zelle. Ein Motiv auf einer speziellen Lage muss mindestens deren Lagesymmetrie haben und passend ausgerichtet sein.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Gitter und Basis“ nennen die Kenndaten für jedes Motiv seine Lage in der gegebenen und in der konventionellen Zelle, die Wyckoff-Lage und die Lagesymmetrie. Verschiebt man ein Atom von einer speziellen Lage weg, sieht man, wie sich Lage und Ebenengruppe ändern.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Allgemeine Lage: Lagesymmetrie 1, grösste Zähligkeit, zwei Freiheitsgrade. Spezielle Lage: auf Drehpunkt oder Spiegellinie, höhere Lagesymmetrie, kleinere Zähligkeit.</li>
+          <li>Zähligkeit × Ordnung der Lagesymmetrie = Zähligkeit der allgemeinen Lage. Gleitspiegellinien machen eine Lage nicht speziell.</li>
+          <li>Die International Tables listen die Wyckoff-Lagen mit Zähligkeit, Buchstabe (von <i>a</i> unten), orientierter Lagesymmetrie und Koordinaten.</li>
+          <li>Die asymmetrische Einheit hat die Fläche Zellfläche / Zähligkeit der allgemeinen Lage. Spiegellinien und Drehpunkte liegen auf ihrem Rand. Ihre Ungleichungen sind Linien, die die Zelle abschneiden.</li>
+          <li>Eine Seite der International Tables enthält Kopf, Diagramme, Ursprung, asymmetrische Einheit, Operationen, Erzeugende, Wyckoff-Lagen, Auslöschungen und verwandte Gruppen.</li>
+          <li>Eine Struktur ist durch Ebenengruppe, Gitterparameter und besetzte Wyckoff-Lagen bestimmt; die Zähligkeiten der besetzten Punktlagen ergeben zusammen die Atome je Zelle.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Der Ursprung liegt auf einem Drehpunkt höchster Zähligkeit, ohne Drehpunkte auf einer Spiegel- oder Gleitspiegellinie.</li>
+        </ul>
+      </div>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 10.4 (Zähligkeit, allgemeine und spezielle Punktlage, Lagesymmetrie, Freiheitsgrade am Beispiel Pmm2, Tab. 10.4; Zähligkeit einer speziellen Lage als Bruchteil der allgemeinen; Gleitspiegelebenen und Schraubenachsen verringern die Zähligkeit nicht, Abb. 10.13; asymmetrische Einheit, Gl. 10.3: Volumen der Zelle durch Zähligkeit der allgemeinen Punktlage, keine zwei Punkte gleichwertig, S. 214–218).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 6.1.4 (asymmetrische Einheit, Definition, Fundamentalbereich, Begrenzung durch Spiegelebenen und Drehachsen, Wahl nicht eindeutig, S. 201–202), 6.1.5 (Lagen und Koordinaten: Multiplizität, Wyckoff-Buchstaben von <i>a</i> an, Wyckoff 1922, Lagensymmetrie mit Punkten als Platzhalter, Koordinaten ausserhalb der Zelle, S. 203–206).</li>
+          <li>International Tables for Crystallography, Vol. A (2006), Abschn. 2.2.7 (Wahl des Ursprungs: Inversionszentrum, sonst Punkt höchster Lagesymmetrie, sonst Gleitspiegelebene oder Schraubenachse; Angabe der Elemente durch den Ursprung, S. 24; die Regel für die Ebene ist an den Angaben „Origin“ der 17 Seiten in Part 6 abgelesen), 2.2.8 (asymmetrische Einheit: Spiegel und Drehachsen am Rand, Fundamentalbereich, Wahl für bequeme Rechnung, S. 25–26), 2.2.10 (Erzeugende, S. 27), 2.2.11 (Positions: Zähligkeit, auch mit Zentrierung, Wyckoff-Buchstabe von unten, Koordinaten; allgemeine und spezielle Lage; Objekt auf spezieller Lage mit mindestens der Lagesymmetrie; Gleitspiegelebenen und Schraubenachsen erhöhen die Lagesymmetrie nicht; „Position“ als Menge gleichwertiger Punkte, deutsch Punktlage, S. 27–28), 2.2.12 (orientierte Lagesymmetrie, Punkt für Richtungen ohne Element, S. 28), Part 6 (<i>pg</i>, S. 95; <i>p</i>2<i>mm</i>, S. 97; <i>p</i>2<i>mg</i>, S. 98; <i>c</i>2<i>mm</i>, S. 100; <i>p</i>4<i>mm</i>, S. 102; <i>p</i>6<i>mm</i>, S. 108–109).</li>
+          <li>Ausführlicher zu Lage, orientiertem Symbol und Multiplizität bei Flächen eines Kristalls: <a href="https://manganite.github.io/stereography/skript.html#lagen">Skript „Stereographische Projektion“, Kapitel 10</a>.</li>
         </ul>
       </div>
     </section>
