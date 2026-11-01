@@ -102,10 +102,10 @@ export function elementeImBereich(g, n) {
   return { drehpunkte: dreh, linien };
 }
 
-/** SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q, Grösse k (1 = normal). */
-export function drehSymbol(n, q, farbe, rand, k = 1) {
+/** SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q, Grösse k (1 = normal), Randstärke s (1 = normal). */
+export function drehSymbol(n, q, farbe, rand, k = 1, s = 1) {
   const [x, y] = q;
-  const stil = `fill="${farbe}" stroke="${rand}" stroke-width="${f2(1.2 * Math.max(1, k))}"`;
+  const stil = `fill="${farbe}" stroke="${rand}" stroke-width="${f2(1.2 * s)}"`;
   if (n === 2) return `<ellipse cx="${f2(x)}" cy="${f2(y)}" rx="${f2(4.6 * k)}" ry="${f2(8.2 * k)}" ${stil}/>`;
   const poly = (r, m, phase) => Array.from({ length: m }, (_, i) => {
     const w = phase + (2 * Math.PI * i) / m;
@@ -155,9 +155,9 @@ export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false, k = 
     const ordn = [...(d.ordnungen ?? [d.n])].sort((u, v) => v - u);
     const halo = d.neu ? `<circle class="neu" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(13 * k)}" fill="${farben.accent2}" fill-opacity="0.3"/>` : '';
     // mehrere Zähligkeiten am selben Punkt (Aufbau): die grösste vergrössert, die übrigen hell darin
-    if (ordn.length === 1) return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, k);
-    return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, 1.45 * k)
-      + ordn.slice(1).map((n) => drehSymbol(n, [q[0], q[1] + (ordn[0] === 3 ? 1.5 * k : 0)], farben.paper, farbeVon(1), 0.6 * k)).join('');
+    if (ordn.length === 1) return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, k, k);
+    return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, 1.45 * k, k)
+      + ordn.slice(1).map((n) => drehSymbol(n, [q[0], q[1] + (ordn[0] === 3 ? 1.5 * k : 0)], farben.paper, farbeVon(1), 0.6 * k, k)).join('');
   });
   return `<g class="elemente"${gedimmt ? ' opacity="0.35"' : ''}>${linien.join('')}${dreh.join('')}</g>`;
 }
