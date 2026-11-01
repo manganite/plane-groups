@@ -194,6 +194,8 @@ export function aufbauElemente(g, n, schritt) {
 
 /** Fähnchen in Bildpunkten, Fuss im Ursprung: Stange nach oben, Fahne nach rechts. */
 const FAHNE = { stange: [[0, 0], [0, -22]], fahne: [[0, -22], [11, -17], [0, -12]] };
+/** Grösste Ausdehnung eines Objekts (Fähnchen, Komma, Ornament) vom Fusspunkt, in Bildpunkten bei Massstab 1. */
+const REICHWEITE = 30;
 
 /** Alle Bilder des Punktes p in den Zellen [lo, hi]² mit Rand, je { punkt, R, eigentlich }. */
 /**
@@ -272,12 +274,16 @@ export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) 
  * Bilder des Objekts als SVG. farbeVon(bild): eigene Farbe je Bild (z. B. nach Bahnen der
  * Restsymmetrie beim Brechen), sonst nach Händigkeit.
  */
-function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined, farbeVon = null) {
+function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined, farbeVon = null, nurSichtbar = false) {
   const out = [];
+  // nurSichtbar: Bilder ausserhalb des Bildes (mit Rand für die Grösse des Objekts) weglassen
+  const pad = REICHWEITE * massstab;
   for (const b of bilder(g, p, lo, hi, rand)) {
+    const q = A.zuBild(b.punkt);
+    if (nurSichtbar && (q[0] < -pad || q[0] > A.groesse + pad || q[1] < -pad || q[1] > A.groesse + pad)) continue;
     const Mc = kartMatrix(M, b.R);
     const farbe = farbeVon ? farbeVon(b) : b.eigentlich ? farben.upper : farben.accent2;
-    out.push(objektSVG(form, A.zuBild(b.punkt), Mc, b.eigentlich, farbe, farben.paper, massstab));
+    out.push(objektSVG(form, q, Mc, b.eigentlich, farbe, farben.paper, massstab));
   }
   return out.join('');
 }
@@ -483,12 +489,20 @@ export function radieren(striche, g, M, p, r) {
 }
 
 /** SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]². */
-function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null) {
+function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null, nurSichtbar = false) {
   const teile = [];
   const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
+  // nurSichtbar: Kopien, deren Umriss ganz ausserhalb des Bildes liegt, weglassen
+  const sichtbar = (pts) => {
+    if (!nurSichtbar) return true;
+    let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
+    for (const p of pts) { const q = A.zuBild(p); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }
+    return x1 >= -10 && x0 <= A.groesse + 10 && y1 >= -10 && y0 <= A.groesse + 10;
+  };
   if (z.aeFuell) {
     // asymmetrische Einheit und ihre Bilder: Sie pflastern die Ebene ohne Lücken und Überlappungen
     for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
+      if (!sichtbar(k.punkte)) continue;
       const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
       teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
     }
@@ -496,6 +510,7 @@ function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null) {
   for (const strich of z.striche ?? []) {
     if (strich.length < 2) continue;
     for (const k of kopien(g, strich, lo, hi)) {
+      if (!sichtbar(k.punkte)) continue;
       const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
       teile.push(`<path d="${pfad(k.punkte)}" fill="none" stroke="${farbe}" stroke-width="${f2((k.urbild ? 3.2 : 2) * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`);
     }
@@ -647,7 +662,8 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
     box = [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
   }
   // hexagonal: die Zelle ist eine flache Raute, die das Bild nur in der Breite füllt; schmalerer Rand
-  const A = ansicht(M, box, 520, z.lupe ? 0 : sys === 'hexagonal' ? 24 : 46);
+  // Rand für das Objekt; ab Grösse 2 wächst er mit, damit grosse Objekte am Rand nicht abgeschnitten werden
+  const A = ansicht(M, box, 520, z.lupe ? 0 : (sys === 'hexagonal' ? 24 : 46) * Math.max(1, (z.objGroesse ?? 1) / 2));
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   if (z.ae && !brechen) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
@@ -940,16 +956,21 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
   const M = brechen ? brechen.M : metrik(z.gitter[sys]);
   const mitte = kart(M, [0.5, 0.5]);
-  // Tapete: grösserer Ausschnitt, ohne Zelle und Elemente, alles in einer Farbe
+  // Tapete: ohne Zelle und Elemente, alles in einer Farbe; Ausschnitt und Grösse wie sonst, damit
+  // das Umschalten nichts verschiebt (mehr zeigen: Vergrösserung unter 1)
   const tapete = !!z.tapete;
   // Vergrösserung zoomB: kleinerer Ausschnitt, Objekte im selben Verhältnis grösser
   const zoom = z.zoomB ?? 1;
-  const w = ((tapete ? 6.5 : 4.4) * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
+  const w = (4.4 * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
-  // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt
+  const massObjekt = 0.8 * k * zoom * (z.objGroesse ?? 1);
+  // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt, erweitert um
+  // die Grösse des Objekts (ein Objekt mit Fuss ausserhalb kann ins Bild ragen)
+  const r = (REICHWEITE * massObjekt) / A.s;
+  const ext = [bruchVon(M, [r, 0]), bruchVon(M, [0, r])].reduce((m, v) => Math.max(m, Math.abs(v[0]), Math.abs(v[1])), 0) * 2;
   const ecken = [[box[0], box[1]], [box[2], box[1]], [box[0], box[3]], [box[2], box[3]]].map((c) => bruchVon(M, c));
-  const lo = Math.floor(Math.min(...ecken.flat())) - 1; const hi = Math.ceil(Math.max(...ecken.flat())) + 1;
+  const lo = Math.floor(Math.min(...ecken.flat()) - ext) - 1; const hi = Math.ceil(Math.max(...ecken.flat()) + ext) + 1;
   const teile = [`<defs><clipPath id="ausschnitt"><rect x="10" y="10" width="500" height="500" rx="6"/></clipPath></defs>`,
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
   if (!tapete) teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
@@ -963,8 +984,8 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
     teile.push(elementeSVG(g, alle, A, farben, z.farben, { k }));
   }
   const einfarbig = tapete ? farben.upper : null;
-  teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, (tapete ? 0.9 : 0.8) * k * zoom * (z.objGroesse ?? 1), undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben)));
+  teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig, true));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, massObjekt, undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben), true));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

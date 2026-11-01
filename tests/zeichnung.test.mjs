@@ -162,3 +162,12 @@ test('Bilder rund um die Zelle (wie ITA): Gruppen um Ecken vollständig, Ansicht
   assert.equal(z2.orbit, true);
   assert.doesNotMatch(hashVon(startzustand()), /orbit/);
 });
+
+test('Muster als Tapete: gleicher Massstab und gleich grosse Objekte wie ohne Tapete', () => {
+  const z = startzustand(); z.gruppe = 'p4gm';
+  const ohne = tafelB('p4gm', z, FARBEN);
+  const mit = tafelB('p4gm', { ...z, tapete: true }, FARBEN);
+  assert.equal(mit.ansicht.s, ohne.ansicht.s);
+  const zoom = tafelB('p4gm', { ...z, zoomB: 2 }, FARBEN);
+  assert.ok(Math.abs(zoom.ansicht.s / ohne.ansicht.s - 2) < 1e-9);
+});
