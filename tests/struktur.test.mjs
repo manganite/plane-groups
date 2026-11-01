@@ -83,7 +83,7 @@ test('Ursprung nach ITA: bleibt, wenn erlaubt, sonst der nächste erlaubte Punkt
   // h-BN, p3m1: Sechseckmitte und beide Atome sind 3m; der gegebene Ursprung (Sechseckmitte) bleibt
   assert.ok(nah(strukturSymmetrie(st('hbn')).ursprung, [0, 0]));
   assert.ok(nah(strukturSymmetrie(st('mos2')).ursprung, [0, 0]));
-  // Molekül aus zwei Atomen: p2mm, Ursprung in der Molekülmitte (Skript Abb. 3.5)
+  // Molekül aus zwei Atomen: p2mm, Ursprung in der Molekülmitte (Skript Abb. 3.7)
   const atom = (p) => ({ motiv: 'atom', farbe: 0, p, winkel: 0 });
   const r = strukturSymmetrie({ ba: 1.35, gamma: 90, basis: [atom([0, 0]), atom([0.3, 0])] });
   assert.equal(r.symbol, 'p2mm');
