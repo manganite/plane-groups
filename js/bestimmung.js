@@ -196,6 +196,20 @@ function gleicheMengen(a, b) {
 export function bestimme(st) {
   const A0 = spalten(st.a, st.b); // kartesisch
   const G0 = mat(trans(A0), A0);
+  // kleinster Abstand eines Punkts (Bruchkoordinaten der gegebenen Zelle) zu einem Gitterpunkt;
+  // in der reduzierten Basis genügen die Nachbarn der nächsten Gitterpunkte, auch in schiefen Zellen
+  const R0 = reduziere([[1, 0], [0, 1]], G0);
+  const R0i = inv(R0);
+  const abstandZumGitter = (u) => {
+    const w = vek(R0i, u);
+    const f = w.map(Math.floor);
+    let d = Infinity;
+    for (let i = -1; i <= 2; i++) for (let j = -1; j <= 2; j++) {
+      const c = vek(A0, vek(R0, [w[0] - f[0] - i, w[1] - f[1] - j]));
+      d = Math.min(d, Math.hypot(c[0], c[1]));
+    }
+    return d;
+  };
   const arten0 = nachArt(st.punkte);
   if (!arten0.length) return null;
   // 1. Translationen und kleinste Zelle
@@ -257,14 +271,16 @@ export function bestimme(st) {
           // Operation im neuen Ursprung s: x'' = x' − s → {R | t + R·s − s}
           const verschoben = konv.map((o) => { const Rs = vek(o.R, s); return { R: o.R, t: [o.t[0] + Rs[0] - s[0], o.t[1] + Rs[1] - s[1]] }; });
           if (!gleicheMengen(verschoben, g.alle)) continue;
-          // Werte knapp unter 1 (innerhalb der Toleranz der Erkennung) als 0
-          const u = vek(zelle, s).map((x) => { const m = mod1(x); return 1 - m < TOL ? 0 : m; });
-          // kleinster Abstand zu einem Gitterbild (in schiefen Zellen nicht je Koordinate)
-          let dist = Infinity;
-          for (let i = -2; i <= 1; i++) for (let j = -2; j <= 1; j++) {
-            const w = kart([u[0] + i, u[1] + j]);
-            dist = Math.min(dist, Math.hypot(w[0], w[1]));
+          // Werte knapp unter 1 (innerhalb der Toleranz der Erkennung) als 0, aber nur, wenn die
+          // Operationen auch mit dem gerundeten Ursprung noch stimmen
+          const u0 = vek(zelle, s).map(mod1);
+          let u = u0.map((x) => (1 - x < TOL ? 0 : x));
+          if (u.some((x, i) => x !== u0[i])) {
+            const sr = vek(inv(zelle), u);
+            const vr = konv.map((o) => { const Rs = vek(o.R, sr); return { R: o.R, t: [o.t[0] + Rs[0] - sr[0], o.t[1] + Rs[1] - sr[1]] }; });
+            if (!gleicheMengen(vr, g.alle)) u = u0;
           }
+          const dist = abstandZumGitter(u);
           // bei gleichem Abstand: kleinere Koordinaten zuerst, damit die Wahl eindeutig ist
           const vorn = (x, y) => (Math.abs(x[0] - y[0]) > 1e-9 ? x[0] < y[0] : x[1] < y[1] - 1e-9);
           if (!best || dist < best.dist - 1e-9 || (Math.abs(dist - best.dist) <= 1e-9 && vorn(u, best.ursprung))) best = { ursprung: u, dist };

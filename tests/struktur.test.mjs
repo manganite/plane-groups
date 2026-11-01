@@ -6,6 +6,7 @@ import { MOTIVE, motivKart } from '../js/motive.js';
 import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur } from '../js/zustand.js';
 import { metrik, kart } from '../js/zeichnung.js';
+import { bestimme } from '../js/bestimmung.js';
 
 const FARBEN = { paper: '#fff', ink: '#000', muted: '#888', line: '#ccc', accent: '#a00', accent2: '#0a0', upper: '#00a', crystal: '#eef', dir: ['#a0a', '#0aa', '#aa0'], fc3: '#333', fc4: '#444' };
 const st = (id) => { const v = vorgabe(id); return { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis }; };
@@ -103,6 +104,17 @@ test('Ursprung nach ITA: bleibt, wenn erlaubt, sonst der nächste erlaubte Punkt
   assert.ok(nah(u(1, 90, [e('w2', [0.75, 0])]), [0.25, 0]));
   // knapp unter 1 (innerhalb der Toleranz der Erkennung) wird 0
   assert.ok(nah(u(1, 80, [e('w2', [0.1, 0.3]), e('w2', [0.89998, 0.7])]), [0, 0]));
+  // gerundet nur, wenn die Operationen mit dem gerundeten Ursprung noch stimmen (Review PR #12)
+  const r2 = strukturSymmetrie({ ba: 1.35, gamma: 90, basis: [e('w2', [0.99992, 0])] });
+  assert.equal(r2.symbol, 'p2');
+  assert.ok(r2.ursprung[0] === 0 || Math.abs(r2.ursprung[0] - 0.99992) < 1e-9, String(r2.ursprung));
+});
+
+test('Ursprung nach ITA: nächster Ursprung auch in stark gescherter gegebener Zelle (Review PR #12)', () => {
+  // a = (1, 0), b = (5,31; 0,1): nächstes Gitterbild von (0,4; 0,49) liegt bei Versatz (−3, 0)
+  const r = bestimme({ a: [1, 0], b: [5.31, 0.1], punkte: [{ p: [0.4, 0.49], art: 'x' }] });
+  assert.equal(r.symbol, 'p2');
+  assert.ok(Math.abs(r.ursprung[0] - 0.4) < 1e-9 && Math.abs(r.ursprung[1] - 0.49) < 1e-9, String(r.ursprung));
 });
 
 test('konventionelle Zelle: Umrechnung hin und zurück; zentrierte Eingabe in primitiver Zelle', () => {
