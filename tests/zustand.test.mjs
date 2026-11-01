@@ -76,3 +76,15 @@ test('Beispiel aus dem Konzept: #m=eg&g=p4gm&x=0.12&y=0.31', () => {
   assert.equal(z.gruppe, 'p4gm');
   assert.deepEqual(z.punkt, [0.12, 0.31]);
 });
+
+test('Formen des Objekts: zustand.js und zeichnung.js stimmen überein, Link hin und zurück', async () => {
+  const { FORMEN } = await import('../js/zustand.js');
+  const { FORMEN: F2 } = await import('../js/zeichnung.js');
+  const { startzustand, hashVon, hashAnwenden } = await import('../js/zustand.js');
+  assert.deepEqual(FORMEN, F2);
+  for (const form of FORMEN) {
+    const z = startzustand(); z.form = form; z.tapete = true;
+    const z2 = startzustand(); hashAnwenden(z2, hashVon(z));
+    assert.equal(z2.form, form); assert.equal(z2.tapete, true);
+  }
+});

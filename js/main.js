@@ -96,7 +96,7 @@ function bedienungAbgleichen() {
   $('opt-orbit').checked = z.orbit;
   $('opt-orbit').disabled = !z.objekt;
   document.querySelector('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
-  document.querySelectorAll('#seg-form button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
+  document.querySelectorAll('#seg-form button, #seg-ornament button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
   $('v-farben').checked = z.farben;
   // Aufbau aus Erzeugenden
   const h = herkunft(gruppeVon(z.gruppe));
@@ -152,6 +152,8 @@ function bedienungAbgleichen() {
     ? `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`
     : '';
   $('v-muster-el').checked = z.musterElemente;
+  $('v-tapete').checked = z.tapete;
+  $('v-muster-el').disabled = z.tapete;
   // Objekt
   const p = z.punkt.map(mod1);
   for (const [k, i] of [['x', 0], ['y', 1]]) {
@@ -612,12 +614,13 @@ function init() {
   bindeSchalter('opt-orbit', 'orbit');
   bindeSchalter('v-farben', 'farben');
   bindeSchalter('v-muster-el', 'musterElemente');
+  bindeSchalter('v-tapete', 'tapete');
   $('opt-zellen').addEventListener('change', () => {
     z.zellen = $('opt-zellen').checked ? 2 : 1;
     if (z.zellen === 1) z.punkt = z.punkt.map(mod1);
     aktualisieren();
   });
-  document.querySelectorAll('#seg-form button').forEach((b) => b.addEventListener('click', () => { z.form = b.dataset.form; aktualisieren(); }));
+  document.querySelectorAll('#seg-form button, #seg-ornament button').forEach((b) => b.addEventListener('click', () => { z.form = b.dataset.form; aktualisieren(); }));
   for (const [k, i] of [['x', 0], ['y', 1]]) {
     $(`obj-${k}`).addEventListener('input', () => {
       const p = [...z.punkt]; p[i] = Number($(`obj-${k}`).value);
