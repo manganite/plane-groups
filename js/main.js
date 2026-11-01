@@ -92,7 +92,7 @@ function hellFarben() {
 function bildSVG(tafel) {
   const f = hellFarben();
   let inhalt;
-  if (z.modus === 'struktur') inhalt = sUI.bilder(f)[tafel];
+  if (z.modus === 'struktur') inhalt = sUI.bild(f, tafel);
   else inhalt = tafel === 'a' ? tafelA(z.gruppe, z, f, { phase }).svg : tafelB(z.gruppe, z, f).svg;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520">${inhalt}</svg>`;
 }
@@ -109,18 +109,24 @@ function eingebetteteSchriften() {
     const dateien = [['IBM Plex Sans', '400', 'normal', 'ibm-plex-sans-latin-400-normal'], ['IBM Plex Sans', '400', 'italic', 'ibm-plex-sans-latin-400-italic'],
       ['IBM Plex Sans', '600', 'normal', 'ibm-plex-sans-latin-600-normal'], ['Source Serif 4', '500', 'normal', 'source-serif-4-latin-500-normal']];
     schriftCss = Promise.all(dateien.map(async ([fam, w, st, datei]) => {
-      const blob = await (await fetch(`lib/common/fonts/${datei}.woff2`)).blob();
+      const antwort = await fetch(`lib/common/fonts/${datei}.woff2`);
+      if (!antwort.ok) throw new Error(`Schrift ${datei}: ${antwort.status}`);
+      const blob = await antwort.blob();
       const url = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
       return `@font-face{font-family:'${fam}';font-style:${st};font-weight:${w};src:url(${url}) format('woff2');}`;
-    })).then((x) => x.join('')).catch(() => '');
+    })).then((x) => x.join('')).catch(() => {
+      // ohne Schriften weiter (Ersatzschriften), beim nächsten Export neuer Versuch
+      schriftCss = null;
+      return '';
+    });
   }
   return schriftCss;
 }
-/** Tafel als PNG (2048 px). */
-async function bildPNG(tafel) {
+/** SVG-Text als PNG (2048 px). Den Text vor dem ersten await erzeugen, damit das Bild die Ansicht beim Klick zeigt. */
+async function bildPNG(svgText) {
   const px = 2048;
   const css = await eingebetteteSchriften();
-  const text = bildSVG(tafel).replace('width="520" height="520">', `width="${px}" height="${px}"><style>${css}</style>`);
+  const text = svgText.replace('width="520" height="520">', `width="${px}" height="${px}"><style>${css}</style>`);
   const img = new Image();
   await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text); });
   const cv = document.createElement('canvas');
@@ -144,11 +150,12 @@ function exportKnoepfe() {
     // Kopieren: Blob als Promise übergeben, Safari verlangt den Aufruf noch in der Klick-Behandlung
     $(`kopieren-${t}`).addEventListener('click', async () => {
       const sag = melden($(`kopieren-${t}`));
-      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': bildPNG(t) })]); sag('Kopiert'); } catch { sag('Nicht möglich'); }
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': bildPNG(bildSVG(t)) })]); sag('Kopiert'); } catch { sag('Nicht möglich'); }
     });
     $(`svg-${t}`).addEventListener('click', () => laden(new Blob([bildSVG(t)], { type: 'image/svg+xml' }), `${bildName(t)}.svg`));
     $(`png-${t}`).addEventListener('click', async () => {
-      try { laden(await bildPNG(t), `${bildName(t)}.png`); } catch { melden($(`png-${t}`))('Nicht möglich'); }
+      const svg = bildSVG(t); const name = `${bildName(t)}.png`;
+      try { laden(await bildPNG(svg), name); } catch { melden($(`png-${t}`))('Nicht möglich'); }
     });
   }
 }
