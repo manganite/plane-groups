@@ -197,12 +197,17 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
         <label class="check"><input type="checkbox" id="opt-objekt">Objekt in allgemeiner Lage</label>
         <label class="check"><input type="checkbox" id="opt-ae">Asymmetrische Einheit</label>
         <details class="subsect" id="sub-weitere">
-          <summary>Weitere Optionen <span class="subhint">Zellen, Objekt, Einrasten, Bilder rund um die Zelle</span></summary>
+          <summary>Weitere Optionen <span class="subhint">Zellen, Objekt und Ornamente, Einrasten, Bilder rund um die Zelle</span></summary>
           <div class="stack">
             <label class="check"><input type="checkbox" id="opt-zellen">2 × 2 Zellen</label>
             <div class="seg seg-text" id="seg-form" role="group" aria-label="Form des Objekts">
               <button type="button" data-form="fahne" aria-pressed="true">Fähnchen</button>
               <button type="button" data-form="komma" aria-pressed="false">Kreis mit Komma</button>
+            </div>
+            <div class="seg seg-text" id="seg-ornament" role="group" aria-label="Ornament als Objekt">
+              <button type="button" data-form="blatt" aria-pressed="false">Blatt</button>
+              <button type="button" data-form="tropfen" aria-pressed="false">Tropfen</button>
+              <button type="button" data-form="ranke" aria-pressed="false">Ranke</button>
             </div>
             <label class="check" id="row-einrasten"><input type="checkbox" id="opt-einrasten"><span>Einrasten auf spezielle Lagen<span class="why"></span></span></label>
             <label class="check" id="row-orbit"><input type="checkbox" id="opt-orbit"><span>Bilder rund um die Zelle (wie ITA)<span class="why"></span></span></label>
@@ -290,6 +295,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
         <div class="stack">
           <label class="check"><input type="checkbox" id="v-farben">Nach Blickrichtung färben</label>
           <label class="check"><input type="checkbox" id="v-muster-el">Symmetrieelemente im Muster</label>
+          <label class="check"><input type="checkbox" id="v-tapete">Muster als Tapete</label>
           <button class="resetbtn" id="reset-alles" type="button">Alle Einstellungen zurücksetzen</button>
         </div>
       </details>
@@ -303,6 +309,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
         <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><small id="sub-a"></small></span>
         <div class="tools nur-struktur" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button></div>
         <div class="tools nur-eg" role="group" aria-label="Werkzeug"><button type="button" id="werkzeug-warum" aria-pressed="false">Warum ist das da?</button><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" id="werkzeug-radieren" aria-pressed="false">Radieren</button><button type="button" id="werkzeug-lupe" aria-pressed="false">Lupe</button></div>
+        <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-a" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-a" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-a" title="Bild als PNG-Datei speichern">PNG</button></div>
       </div>
       <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
       <div class="legend" id="legend"></div>
@@ -311,6 +318,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Muster<small>Ausschnitt</small></span>
+        <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-b" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-b" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-b" title="Bild als PNG-Datei speichern">PNG</button></div>
       </div>
       <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Muster der Ebenengruppe"></svg>
       <div class="panel-foot"><span class="nur-eg">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</span><span class="nur-struktur">Ausschnitt der Struktur; hervorgehoben ist die konventionelle Zelle.</span></div>

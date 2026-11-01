@@ -10,6 +10,7 @@ import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
 import { vektorText } from './warum.js';
 import { koordText, lageHTML, symbolHTML } from './text.js';
+import { schoenfliesHTML } from './symbole.js';
 
 const SYSTEMNAMEN = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
@@ -248,7 +249,7 @@ export function strukturHTML(st, r, vorher, farben) {
     ${aenderung}
     <dl class="facts">
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
-      <div><dt>Punktgruppe</dt><dd>${symbolHTML(d.punktgruppe)}</dd></div>
+      <div><dt>Punktgruppe</dt><dd>${symbolHTML(d.punktgruppe)} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${r.ordnung}</dd></div>
       <div class="wide"><dt>Konventionelle Zelle nach ITA</dt><dd>${zelle ?? 'die gegebene Zelle (<i>a</i>, <i>b</i>)'}${r.primitiv > 1 ? `; die gegebene Zelle enthält ${r.primitiv} Gitterpunkte, die kleinste Zelle ist ${r.primitiv}-mal kleiner` : ''}</dd></div>
       <div class="wide"><dt>Ursprung nach ITA</dt><dd>bei ${koordText(r.ursprung)} der gegebenen Zelle</dd></div>

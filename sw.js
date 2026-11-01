@@ -30,6 +30,7 @@ const FILES = [
   'js/skript.js',
   'js/struktur-ui.js',
   'js/struktur.js',
+  'js/symbole.js',
   'js/symmetrie.js',
   'js/text.js',
   'js/verweise.js',
