@@ -22,7 +22,7 @@ import { moodleXML } from '../tools/moodle-export.mjs';
 const skript = readFileSync(new URL('../skript.html', import.meta.url), 'utf8');
 const K = '#336699';
 const F = farbenAus(new Proxy({}, { get: () => K }));
-const text = (h) => h.replace(/<span class="ov">([^<]*)<\/span>/g, '‾$1').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
+const text = (h) => h.replace(/<span class="ov">(?:<i>)?([^<]*)(?:<\/i>)?<\/span>/g, '‾$1').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
   .replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
 /** Abschnitt des Skripts zu einem Anker: Kapitel (Nummer) und ob er (oder ein umgebender) eine Vertiefung ist. */
@@ -152,34 +152,55 @@ test('Erzeugte Fragen: richtige Antworten aus den Daten der App', () => {
   }
 });
 
+/** Trifft die Beschreibung t (wie in MERKMALE) auf die Ebenengruppe symbol zu? Liefert die verletzten Aussagen. */
+function verletzt(t, symbol) {
+  const e = elemente(gruppe(symbol));
+  const fehler = [];
+  let k = 0;
+  const pr = (ok) => { k++; if (!ok) fehler.push(k); };
+  const n = Math.max(1, ...e.drehpunkte.map((x) => x.n));
+  const spiegel = e.linien.filter((l) => l.art === 'spiegel');
+  const gleit = e.linien.filter((l) => l.art === 'gleit');
+  const auf = (p) => spiegel.some((l) => Math.abs((p[0] - l.punkt[0]) * l.richtung[1] - (p[1] - l.punkt[1]) * l.richtung[0]) < 1e-6);
+  // Drehpunkte
+  if (/keine Drehpunkte/.test(t)) pr(e.drehpunkte.length === 0);
+  for (const m of t.matchAll(/(\d)-zählige/g)) pr(e.drehpunkte.some((x) => x.n === Number(m[1])));
+  if (/(\d)-zählig/.test(t)) pr(new RegExp(`${n}-(zählig|,| und)`).test(t));
+  // Spiegel- und Gleitspiegellinien
+  if (/keine Spiegel|keine Spiegellinie|aber keine Spiegellinie/.test(t)) pr(spiegel.length === 0);
+  else if (/Spiegellinie/.test(t)) pr(spiegel.length > 0);
+  if (/keine Spiegel- oder Gleitspiegellinien|keine Gleitspiegellinien/.test(t)) pr(gleit.length === 0);
+  else if (/Gleitspiegellinie/.test(t)) pr(gleit.length > 0);
+  // Lage der Drehpunkte zu den Spiegellinien
+  const hoechste = e.drehpunkte.filter((x) => x.n === n && n > 1);
+  if (/auf keiner Spiegellinie/.test(t)) pr(hoechste.every((x) => !auf(x.punkt)));
+  if (/alle auf Spiegellinien|auf Schnittpunkten von Spiegellinien|auf ihren Schnittpunkten/.test(t)) pr(hoechste.every((x) => auf(x.punkt)));
+  // Richtungen der Spiegellinien
+  const richtungen = (ls) => new Set(ls.map((l) => { const [x, y] = l.richtung; const w = Math.round(((Math.atan2(y, x) * 180 / Math.PI) + 360) % 180); return w % 180; })).size;
+  if (/parallele Spiegellinien|Spiegellinien in nur einer Richtung/.test(t)) pr(richtungen(spiegel) === 1);
+  if (/Spiegellinien in zwei senkrechten Richtungen/.test(t)) pr(richtungen(spiegel) === 2);
+  if (/Spiegellinien in sechs Richtungen/.test(t)) pr(richtungen(spiegel) === 6);
+  if (/parallele Gleitspiegellinien|Gleitspiegellinien in zwei senkrechten Richtungen/.test(t)) pr(richtungen(gleit) === (/zwei/.test(t) ? 2 : 1));
+  if (/nur ein Teil (davon )?auf Spiegellinien|auf und neben den Spiegellinien/.test(t)) {
+    const zwei = /auf und neben/.test(t) ? e.drehpunkte : hoechste;
+    pr(zwei.some((x) => auf(x.punkt)) && zwei.some((x) => !auf(x.punkt)));
+  }
+  // Zentrierung
+  pr(/zentrierte Zelle/.test(t) === symbol.startsWith('c'));
+  return fehler;
+}
+
 test('Merkmale der Ebenengruppen (Hinweise) stimmen mit den Elementen der App', () => {
-  for (const d of EBENENGRUPPEN) {
-    const g = gruppe(d.symbol);
-    const e = elemente(g);
-    const t = MERKMALE[d.symbol];
-    const n = Math.max(1, ...e.drehpunkte.map((x) => x.n));
-    const spiegel = e.linien.filter((l) => l.art === 'spiegel');
-    const gleit = e.linien.filter((l) => l.art === 'gleit');
-    const auf = (p) => spiegel.some((l) => Math.abs((p[0] - l.punkt[0]) * l.richtung[1] - (p[1] - l.punkt[1]) * l.richtung[0]) < 1e-6);
-    // Drehpunkte
-    if (/keine Drehpunkte/.test(t)) assert.equal(e.drehpunkte.length, 0, d.symbol);
-    for (const m of t.matchAll(/(\d)-zählige/g)) assert.ok(e.drehpunkte.some((x) => x.n === Number(m[1])), `${d.symbol}: ${m[1]}-zählig`);
-    if (/(\d)-zählig/.test(t)) assert.match(t, new RegExp(`${n}-(zählig|,| und)`), `${d.symbol}: höchste Zähligkeit ${n}`);
-    // Spiegel- und Gleitspiegellinien
-    if (/keine Spiegel|keine Spiegellinie|aber keine Spiegellinie/.test(t)) assert.equal(spiegel.length, 0, d.symbol);
-    else if (/Spiegellinie/.test(t)) assert.ok(spiegel.length > 0, d.symbol);
-    if (/keine Spiegel- oder Gleitspiegellinien/.test(t)) assert.equal(gleit.length, 0, d.symbol);
-    else if (/Gleitspiegellinie/.test(t)) assert.ok(gleit.length > 0, d.symbol);
-    // Lage der Drehpunkte zu den Spiegellinien
-    const hoechste = e.drehpunkte.filter((x) => x.n === n && n > 1);
-    if (/auf keiner Spiegellinie/.test(t)) assert.ok(hoechste.every((x) => !auf(x.punkt)), d.symbol);
-    if (/alle auf Spiegellinien|auf Schnittpunkten von Spiegellinien/.test(t)) assert.ok(hoechste.every((x) => auf(x.punkt)), d.symbol);
-    if (/nur ein Teil davon auf Spiegellinien|auf und neben den Spiegellinien/.test(t)) {
-      const zwei = /auf und neben/.test(t) ? e.drehpunkte : hoechste;
-      assert.ok(zwei.some((x) => auf(x.punkt)) && zwei.some((x) => !auf(x.punkt)), d.symbol);
+  for (const d of EBENENGRUPPEN) assert.deepEqual(verletzt(MERKMALE[d.symbol], d.symbol), [], d.symbol);
+});
+
+test('Hinweise zu Ablenkern: die Merkmale des Ablenkers treffen auf die richtige Gruppe nicht zu', () => {
+  for (const gen of [DIAGRAMM, STRUKTUR, VERBAND, PARKETT]) {
+    for (const s of gen.stufen) for (const p of gen.params(s)) {
+      const q = gen.make(p, s);
+      const g = text(q.antworten[0]);
+      for (const a of q.antworten.slice(1)) assert.notDeepEqual(verletzt(MERKMALE[text(a)], g), [], `${gen.id}:${p}: ${text(a)} passt auf ${g}`);
     }
-    // Zentrierung
-    assert.equal(/zentrierte Zelle/.test(t), d.symbol.startsWith('c'), d.symbol);
   }
 });
 
