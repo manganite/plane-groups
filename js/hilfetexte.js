@@ -42,6 +42,7 @@ export const TIPS = {
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
   'v-tapete': 'Das Muster wie eine Tapete: grösserer Ausschnitt, ohne Zelle und Symmetrieelemente, alles in einer Farbe. Mit einem Ornament als Objekt (Weitere Optionen) oder selbst Gezeichnetem.',
   'werkzeug-zeichnen': 'Werkzeug: Im Symmetriegerüst ziehen zeichnet einen Strich. Die Gruppe vervielfältigt ihn mit allen Operationen, auch im Muster.',
+  'werkzeug-lupe': 'Das Symmetriegerüst doppelt so gross um das Objekt zeigen, etwa um es in p6mm genau zu setzen. Die Ansicht folgt dem Objekt, wenn man es loslässt.',
   'werkzeug-radieren': 'Werkzeug: Über Striche ziehen radiert die überfahrenen Stücke, am Original und an allen Kopien zugleich.',
   'zeichnen-zurueck': 'Den letzten Strich oder das letzte Radieren rückgängig machen.',
   'zeichnen-loeschen': 'Alle Striche entfernen.',

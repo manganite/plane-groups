@@ -72,6 +72,7 @@ export function startzustand() {
     tapete: false, // Muster (Tafel B) als Tapete: ohne Zelle und Elemente, grösserer Ausschnitt, einfarbig
     farben: true, // nach Blickrichtung färben
     einrasten: true,
+    lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
     warum: false, // Werkzeug „Warum ist das da?“: Antippen wählt ein Element
@@ -115,7 +116,7 @@ export function koordText(v) {
 const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
-const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete']];
+const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete'], ['lupe', 'lupe']];
 
 /** Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse]. */
 export function basisText(basis) {

@@ -227,6 +227,7 @@ function bedienungAbgleichen() {
   $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
   document.body.classList.toggle('zeichnen', z.zeichnen);
   $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
+  $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
   $('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
   document.body.classList.toggle('radieren', z.radieren);
   $('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
@@ -279,13 +280,28 @@ function bedienungAbgleichen() {
 
 // ------------------------------------------------------------------ Zeichnen
 let ansichtA = null;
+/**
+ * Ausschnitt der Lupe: folgt dem Objekt, bleibt aber ganz stehen (Mitte und Grösse), solange
+ * gezogen, gezeichnet oder radiert wird, damit der Zeiger und das Bild zusammenpassen.
+ */
+let lupeBox = null;
+function lupeOptionen() {
+  if (!z.lupe) { lupeBox = null; return {}; }
+  return lupeBox && (ziehen || strich || radierStelle) ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
+}
+/** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. */
+function tafelAJetzt(f) {
+  const a = tafelA(z.gruppe, z, f, { phase, ...lupeOptionen() });
+  lupeBox = a.lupeBox;
+  return a;
+}
 const sUI = strukturUI({ z, $, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
 let erklaerung = null;
 let phase = 3;
 function zeichnen() {
   if (z.modus === 'struktur') { ansichtA = null; $('sub-a').textContent = 'gegebene und konventionelle Zelle'; sUI.zeichnen(); return; }
   const f = farben();
-  const a = tafelA(z.gruppe, z, f, { phase });
+  const a = tafelAJetzt(f);
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
   if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
@@ -588,7 +604,7 @@ function zeichneA() {
   nurA = true;
   requestAnimationFrame(() => {
     nurA = false;
-    const a = tafelA(z.gruppe, z, farben(), { phase });
+    const a = tafelAJetzt(farben());
     ansichtA = a.ansicht;
     // Radierer als Kreis an der Stelle des Zeigers
     $('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${farben().muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
@@ -657,8 +673,10 @@ function zeigerEinrichten() {
     bewegt = true;
     setzePunkt(ansichtA.vonBild(svgPunkt(e)));
   });
-  svg.addEventListener('pointerup', () => { ziehen = false; if (!sUI.up()) strichBeenden(); });
-  svg.addEventListener('pointercancel', () => { ziehen = false; if (!sUI.up()) strichBeenden(); });
+  // nach dem Ziehen neu zeichnen, damit die Lupe dem losgelassenen Objekt folgt
+  const loslassen = () => { const war = ziehen; ziehen = false; if (!sUI.up()) strichBeenden(); if (war && z.lupe) aktualisieren(); };
+  svg.addEventListener('pointerup', loslassen);
+  svg.addEventListener('pointercancel', loslassen);
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
     if (z.modus === 'struktur' || (z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
@@ -786,6 +804,7 @@ function init() {
     if (z.zeichnen) { z.warum = false; z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
     aktualisieren();
   });
+  $('werkzeug-lupe').addEventListener('click', () => { z.lupe = !z.lupe; lupeBox = null; aktualisieren(); });
   $('werkzeug-radieren').addEventListener('click', () => {
     z.radieren = !z.radieren;
     if (z.radieren) { z.warum = false; z.zeichnen = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
