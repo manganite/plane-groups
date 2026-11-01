@@ -571,10 +571,11 @@ function bahnFarbe(brechen, farben) {
 export const LUPE = 2;
 
 /**
- * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript), lupeMitte (Bruchkoordinaten
- * der Bildmitte, wenn z.lupe an ist; sonst die Stelle des Objekts).
+ * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript); bei z.lupe lupeMitte
+ * (Bruchkoordinaten der Bildmitte, sonst die Stelle des Objekts) oder lupeBox (fester Ausschnitt
+ * aus einem früheren Ergebnis, während einer Geste). Das Ergebnis enthält lupeBox.
  */
-export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null } = {}) {
+export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupeBox = null } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
@@ -603,7 +604,8 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null } = {
     }
   }
   // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb der ganzen Ansicht
-  if (z.lupe) {
+  if (z.lupe && lupeBox) box = lupeBox;
+  else if (z.lupe) {
     const c = kart(M, lupeMitte ?? ausgangsstelle(z.punkt, n));
     const w = (box[2] - box[0]) / LUPE; const h = (box[3] - box[1]) / LUPE;
     const s0 = Math.max(w, h);
@@ -648,7 +650,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null } = {
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
   }
   if (erkl) teile.push(erklaerungSVG(g, M, A, erkl, phase, farben, z.form, n));
-  return { svg: teile.join(''), ansicht: A, erklaerung: erkl };
+  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, lupeBox: z.lupe ? box : null };
 }
 
 // ---------------------------------------------------------------------------------------------
