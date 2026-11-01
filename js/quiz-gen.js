@@ -55,11 +55,12 @@ export function gruppenAblenker(symbol, n = 3, ausser = []) {
 const hinweisGruppe = (falsch) => `${S(falsch)} hätte ${MERKMALE[falsch]}.`;
 
 // ------------------------------------------------------------------ Symmetriegerüst → Ebenengruppe
-// Stufe 1: symmorphe Gruppen; Stufe 2: die vier mit g im Symbol
-const MIT_G = ['pg', 'p2mg', 'p2gg', 'p4gm'];
+// Stufe 2: Gruppen, die man nur mit den Blickrichtungen oder Gleitspiegellinien zwischen
+// Drehpunkten unterscheidet; Stufe 1: die übrigen (pg mit seinen Gleitspiegellinien ist das Standardbeispiel)
+const STUFE2_DIAGRAMM = ['p3m1', 'p31m', 'p2mg', 'p2gg', 'p4gm'];
 export const DIAGRAMM = {
   id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'geprüft',
-  params: (s) => ALLE.filter((g) => (s === 2) === MIT_G.includes(g)),
+  params: (s) => ALLE.filter((g) => (s === 2) === STUFE2_DIAGRAMM.includes(g)),
   make(g) {
     const ab = gruppenAblenker(g);
     return {
@@ -134,7 +135,7 @@ export const PUNKTGRUPPE = {
         antworten: [d.system, ...ab],
         richtig: [0],
         hinweise: [null, ...ab.map((x) => `Im ${x}en System gilt: ${SYSTEM_GRUND[x]}. Die Punktgruppe von ${S(g)} ist aber ${pgHTML(d.punktgruppe)}; ${SYSTEM_GRUND[d.system]}.`)],
-        erklaerung: `Die Punktgruppe von ${S(g)} ist ${pgHTML(d.punktgruppe)}; ${SYSTEM_GRUND[d.system]}. Das System folgt der Symmetrie, nicht der Metrik.`,
+        erklaerung: `Die Punktgruppe von ${S(g)} ist ${pgHTML(d.punktgruppe)}; ${SYSTEM_GRUND[d.system]}. Die Symmetrie erzwingt die Metrik, nicht umgekehrt.`,
         skript: 'punktgruppe-system', app: `#m=eg&g=${g}`,
         quelle: 'Borchardt-Ott & Sowa (2018), Abschn. 10.2, Tab. 10.1',
       };
@@ -156,8 +157,8 @@ export const PUNKTGRUPPE = {
 };
 
 // ------------------------------------------------------------------ Lage: Zähligkeit und Lagesymmetrie
-// Stufe 1: die Gruppen, deren Lagen Skript Kap. 6 ausführlich zeigt; Stufe 2: die übrigen
-const GRUND = ['p2mm', 'p4mm', 'c2mm', 'p2mg', 'p6mm'];
+// Stufe 1: primitive symmorphe Gruppen, deren Lagen Skript Kap. 6 ausführlich zeigt; Stufe 2: die übrigen (zentriert, nichtsymmorph)
+const GRUND = ['p2mm', 'p4mm', 'p6mm'];
 /** Punkt auf der Wyckoff-Lage b (mit festen Werten für freie Parameter) und die Lage, wie die App sie bestimmt. */
 export function lagePunkt(symbol, b) {
   const g = gruppe(symbol);
@@ -198,7 +199,7 @@ export const LAGE = {
     // allgemeine Lage; Zähligkeit falsch (Lagesymmetrie richtig); andere spezielle Lagen derselben Gruppe
     kand.push([N, '1', `So wäre es in allgemeiner Lage. Das Fähnchen liegt aber auf ${/[2-6]/.test(w.sym) ? 'einem Drehpunkt' : 'einer Spiegellinie'}; dort fallen Kopien zusammen.`]);
     const nFalsch = w.n * 2 < N ? w.n * 2 : w.n / 2;
-    if (Number.isInteger(nFalsch) && nFalsch !== w.n) kand.push([nFalsch, w.sym, `Zähligkeit × Ordnung der Lagesymmetrie muss die Zähligkeit der allgemeinen Lage ergeben, hier ${N}.`]);
+    if (Number.isInteger(nFalsch) && nFalsch !== w.n) kand.push([nFalsch, w.sym, `Zähligkeit × Ordnung der Lagesymmetrie muss die Zähligkeit der allgemeinen Lage ergeben, hier ${N}.${symbol.startsWith('c') ? ' In der zentrierten Zelle verdoppelt die Zentrierung (0,&nbsp;0)+ (½,&nbsp;½)+ jede Lage.' : ''}`]);
     for (const x of d.wyckoff) if (x.sym !== '1' && x.b !== b) kand.push([x.n, x.sym, `So wäre es auf einer Lage mit der Lagesymmetrie ${symHTML(x.sym)}. Entscheidend ist, welche Drehpunkte und Spiegellinien durch den markierten Punkt gehen.`]);
     // Reserve: Lagesymmetrie 1 bei richtiger Zähligkeit; richtige Lagesymmetrie bei Zähligkeit der allgemeinen Lage
     kand.push([w.n, '1', 'Lagesymmetrie 1 hat nur die allgemeine Lage. Hier geht ein Drehpunkt oder eine Spiegellinie durch den markierten Punkt.']);
