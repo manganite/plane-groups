@@ -59,7 +59,7 @@ const hinweisGruppe = (falsch) => `${S(falsch)} hätte ${MERKMALE[falsch]}.`;
 // Blickrichtungen sicher unterscheidet (p3m1/p31m) oder deren Gerüst unübersichtlich ist (p4gm)
 const STUFE2_DIAGRAMM = ['p3m1', 'p31m', 'p4gm'];
 export const DIAGRAMM = {
-  id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'geprüft',
+  id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'entwurf',
   params: (s) => ALLE.filter((g) => (s === 2) === STUFE2_DIAGRAMM.includes(g)),
   make(g) {
     const ab = gruppenAblenker(g);
@@ -121,7 +121,7 @@ function hinweisPunktgruppe(symbol, richtig, falsch) {
   return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. ${symbol === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: 1.' : `Für ${S(symbol)} lässt man den Zellbuchstaben und die Einsen weg und liest <i>g</i> als <i>m</i>.`}`;
 }
 export const PUNKTGRUPPE = {
-  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'geprüft',
+  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'entwurf',
   params: () => ALLE.flatMap((g) => [`${g}:pg`, `${g}:sys`]),
   make(param) {
     const [g, art] = param.split(':');
@@ -175,7 +175,7 @@ const ordnung = (sym) => {
 // Lagesymmetrie als Punktgruppe (ohne die Punkte des orientierten Symbols, Skript Abschn. 6.2)
 const symHTML = (sym) => (sym.replace(/\./g, '') || '1').replace(/m/g, '<i>m</i>');
 export const LAGE = {
-  id: 'lage', kapitel: 6, stufen: [1, 2], status: 'geprüft',
+  id: 'lage', kapitel: 6, stufen: [1, 2], status: 'entwurf',
   params: (s) => EBENENGRUPPEN.filter((d) => (s === 1) === GRUND.includes(d.symbol))
     .flatMap((d) => {
       // je Gruppe nur eine Lage je Paar aus Zähligkeit und Lagesymmetrie (sonst gleiche Fragen)
@@ -230,7 +230,7 @@ export const LAGE = {
 function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, lernziel, skript }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
-    id, kapitel, stufen: [2], status: 'geprüft',
+    id, kapitel, stufen: [2], status: 'entwurf',
     params: () => vorgaben.map((v) => v.id),
     make(vid) {
       const v = vorgaben.find((x) => x.id === vid);

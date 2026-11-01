@@ -237,7 +237,9 @@ test('Ablauf: gemischte Antworten behalten die richtige Lösung; Auswertung', ()
   }
 });
 
-test('Moodle-Export: Kategorien, eingebettete Bilder, Bruchteile', () => {
+test('Moodle-Export: Kategorien, eingebettete Bilder, Bruchteile, nur geprüfte Fragen', () => {
+  const genZahlGeprueft = GENERATOREN.filter((g) => g.status === 'geprüft').reduce((n, g) => n + g.stufen.reduce((m, st) => m + g.params(st).length, 0), 0);
+  assert.equal(moodleXML().anzahl, BANK.filter((q) => q.status === 'geprüft').length + genZahlGeprueft);
   const { xml, anzahl } = moodleXML({ entwurf: true });
   const genZahl = GENERATOREN.reduce((n, g) => n + g.stufen.reduce((m, st) => m + g.params(st).length, 0), 0);
   assert.equal(anzahl, BANK.length + genZahl);
@@ -281,7 +283,7 @@ test('Kapitel des Quiz: Anker im Skript, kurze Namen, fester Speicher', () => {
   assert.equal(SPEICHER, 'ebenen-quiz');
 });
 
-test('Fragen: Abbildungsverweise aufs Skript existieren', () => {
+test('Fragen: Abbildungsverweise aufs Skript existieren und liegen im Kapitel der Frage', () => {
   const abb = new Set([...skript.matchAll(/<b>Abb\. (\d+\.\d+)([a-z]?)<\/b>/g)].flatMap((m) => [m[1], m[1] + m[2]]));
   const fehler = [];
   for (const q of BANK) {
@@ -291,9 +293,74 @@ test('Fragen: Abbildungsverweise aufs Skript existieren', () => {
         const davor = t.slice(Math.max(0, m.index - 40), m.index);
         if (/Hoffmann|Borchardt|ITA/.test(davor)) continue;
         const nr = `${m[1]}.${m[2]}${m[3]}`;
-        if (!abb.has(nr) && !abb.has(`${m[1]}.${m[2]}`)) fehler.push(`${q.id}: Abb. ${nr}`);
+        if (!abb.has(nr) && !abb.has(`${m[1]}.${m[2]}`)) { fehler.push(`${q.id}: Abb. ${nr}`); continue; }
+        // im Kapitel der Frage, ausser die Angabe nennt ausdrücklich ein anderes („Abschn. 3.2, Abb. 3.2c“)
+        const kap = Number(m[1]);
+        if (kap !== q.kapitel && !new RegExp(`(Abschn\\.|Kap(?:itel|\\.)) ${kap}\\b`).test(t)) fehler.push(`${q.id} (Kap. ${q.kapitel}): Abb. ${nr} aus Kap. ${kap}`);
       }
     }
   }
   assert.deepEqual(fehler, []);
+});
+
+// Preis einer Signatur nach Conway (Skript Abschn. 7.6)
+function preis(sig) {
+  let p = 0, nachStern = false;
+  for (const c of sig) {
+    if (c === '*') { p += 1; nachStern = true; } else if (c === '×') p += 1; else if (c === 'o') p += 2;
+    else if (/\d/.test(c)) { const n = Number(c); p += nachStern ? (n - 1) / (2 * n) : (n - 1) / n; }
+  }
+  return p;
+}
+
+test('Fragen: nachgerechnete Antworten (Zähligkeit, Freiheitsgrade, Gruppe einer Struktur, Fläche, Abstand, Preis)', () => {
+  const richtigText = (q) => text(q.antworten[q.richtig[0]]);
+  const zahl = (s) => s.replace('.', ',');
+  let n = 0;
+  for (const q of BANK.filter((x) => x.pruefung)) {
+    const p = q.pruefung;
+    n += 1;
+    if (p.art === 'zaehligkeit' || p.art === 'freiheitsgrade') {
+      const l = lage(gruppe(p.gruppe), p.punkt);
+      assert.equal(richtigText(q), String(p.art === 'zaehligkeit' ? l.zaehligkeit : l.freiheitsgrade), q.id);
+      // die falschen Zahlen sind andere
+      q.antworten.forEach((a, i) => { if (!q.richtig.includes(i)) assert.notEqual(text(a), richtigText(q), q.id); });
+    } else if (p.art === 'struktur') {
+      const z = startzustand();
+      assert.ok(hashAnwenden(z, q.app), q.id);
+      const sym = strukturSymmetrie(z.struktur).symbol;
+      q.antworten.forEach((a, i) => assert.equal(text(a).split(/[ ,]/)[0] === sym, q.richtig.includes(i), `${q.id}: ${text(a)} (App: ${sym})`));
+    } else if (p.art === 'flaeche') {
+      const f = p.a * p.b * Math.sin((p.gamma * Math.PI) / 180);
+      assert.equal(zahl(f.toFixed(1)), p.wert, q.id);
+      assert.ok(richtigText(q).includes(p.wert), q.id);
+    } else if (p.art === 'abstand') {
+      const [dx, dy] = [p.p2[0] - p.p1[0], p.p2[1] - p.p1[1]];
+      const d = p.a * Math.sqrt(dx * dx + dy * dy + 2 * dx * dy * Math.cos((p.gamma * Math.PI) / 180));
+      assert.equal(zahl(d.toFixed(2)), p.wert, q.id);
+      assert.ok(richtigText(q).includes(p.wert), q.id);
+    } else if (p.art === 'preis') {
+      q.antworten.forEach((a, i) => assert.equal(Math.abs(preis(text(a)) - 2) > 1e-9, q.richtig.includes(i), `${q.id}: ${text(a)}`));
+    } else assert.fail(`${q.id}: unbekannte Prüfung ${p.art}`);
+  }
+  assert.ok(n >= 10);
+});
+
+test('Seite: Links aus dem Quiz ins Skript und in die App öffnen einen neuen Tab', () => {
+  const js = readFileSync(new URL('../lib/common/js/quiz-seite.js', import.meta.url), 'utf8');
+  const links = [...js.matchAll(/<a href="\$\{(?:skript|app)\}[^>]*>/g)].map((m) => m[0]);
+  assert.ok(links.length >= 2);
+  for (const a of links) assert.match(a, /target="_blank" rel="noopener"/, a);
+});
+
+test('Seite: Schalter „Auch ungeprüfte Fragen zeigen“, ?entwurf schaltet ein; ohne Schalter nur geprüfte Fragen', () => {
+  const html = readFileSync(new URL('../quiz.html', import.meta.url), 'utf8');
+  const js = readFileSync(new URL('../lib/common/js/quiz-seite.js', import.meta.url), 'utf8');
+  assert.match(html, /<input type="checkbox" id="entwurf-schalter">/);
+  assert.ok(html.indexOf('id="entwurf-schalter"') > html.indexOf('</form>'));
+  assert.match(js, /let entwurf = START\.has\('entwurf'\);/);
+  const bank = [...BANK, { ...BANK[0], id: 'test-geprueft', status: 'geprüft' }];
+  const ohne = kandidaten(bank, GENERATOREN, {}), mit = kandidaten(bank, GENERATOREN, { entwurf: true });
+  assert.ok(ohne.every((k) => (k.frage ? k.frage.status : k.gen.status) === 'geprüft'));
+  assert.ok(mit.length > ohne.length);
 });
