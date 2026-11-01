@@ -14,6 +14,7 @@ import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
+import { schoenfliesHTML, CONWAY } from './symbole.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
 
 const $ = (id) => document.getElementById(id);
@@ -262,6 +263,9 @@ function legende(f) {
 }
 
 // ------------------------------------------------------------------ Kenndaten
+/** Tooltip zur Signatur nach Conway (Orbifold-Symbol). */
+const CONWAY_HINWEIS = 'Orbifold-Symbol nach Conway: * Spiegellinien (Kaleidoskop), Ziffern vor dem * Drehpunkte ohne Spiegellinie, Ziffern nach dem * Schnittpunkte von Spiegellinien, × eine spiegelbildliche Kopie ist erreichbar, ohne eine Spiegellinie zu überqueren, o nur Translationen';
+
 /** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
 const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
@@ -347,7 +351,8 @@ function kenndaten() {
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
       <div><dt>Kristallsystem</dt><dd>${SYSTEMNAMEN[d.system]}</dd></div>
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
-      <div><dt>Punktgruppe</dt><dd>${pgLink}</dd></div>
+      <div><dt>Punktgruppe</dt><dd>${pgLink} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
+      <div><dt>Signatur nach Conway</dt><dd title="${CONWAY_HINWEIS}">${CONWAY[d.symbol]}</dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${g.ordnung}</dd></div>
       <div><dt>Ursprung</dt><dd>${ursprungHTML(d.ursprung)}</dd></div>
       <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeBedingungen(d)}</dd></div>
@@ -362,6 +367,7 @@ function kenndaten() {
     <details class="explain"><summary>Erläuterungen</summary>
       <p class="note">Aufbau wie eine Seite in den International Tables for Crystallography, Vol. A, Part 6. Koordinaten in Bruchteilen von <i>a</i> und <i>b</i>; <span class="ov"><i>x</i></span> steht für −<i>x</i>. Die Lagesymmetrie ist orientiert: Die erste Stelle nennt die Drehung, die zweite und dritte die Spiegellinien, deren Normale in der jeweiligen Blickrichtung liegt; ein Punkt heisst „keine“.</p>
       <p class="note">Punktgruppe ${pgLink} (${pg.ordnung} Operationen): die Operationen ohne ihren Translationsanteil. Die 10 Punktgruppen der Ebene entsprechen den 10 polaren Punktgruppen im Raum: Drehachsen stehen senkrecht auf der Ebene, Spiegelebenen enthalten ihre Normale. ${['1', 'm'].includes(d.punktgruppe) ? 'Der Link öffnet in der App „Stereographische Projektion“ das Symmetriegerüst dieser Punktgruppe mit Blick entlang c.' : 'Der Link öffnet in der App „Stereographische Projektion“ das Pedion, eine einzelne Kristallfläche, mit Blick senkrecht auf die Fläche: Ihr Muster hat genau die Punktgruppe der Ebene.'}</p>
+      <p class="note">In Klammern hinter der Punktgruppe steht ihr Symbol nach Schoenflies (für die Ebenengruppen selbst geben die International Tables keines an). Die Signatur nach Conway (Orbifold-Symbol, Conway, Burgiel und Goodman-Strauss, <i>The Symmetries of Things</i>) beschreibt dieselbe Symmetrie mit vier Merkmalen: * steht für Spiegellinien, Ziffern vor dem * für Drehpunkte, die auf keiner Spiegellinie liegen, Ziffern nach einem * für Schnittpunkte von Spiegellinien (Zahl der Linien), × dafür, dass man eine spiegelbildliche Kopie erreicht, ohne eine Spiegellinie zu überqueren, und o dafür, dass es nur Translationen gibt.</p>
     </details>`;
   fokusWiederherstellen(fokus);
 }
