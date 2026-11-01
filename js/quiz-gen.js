@@ -27,8 +27,8 @@ export const MERKMALE = {
   p4mm: '4-zählige Drehpunkte auf Schnittpunkten von Spiegellinien, die entlang der Kanten und der Diagonalen laufen',
   p4gm: '4-zählige Drehpunkte, die auf keiner Spiegellinie liegen; die Spiegellinien laufen diagonal',
   p3: 'nur 3-zählige Drehpunkte, keine Spiegellinien',
-  p3m1: 'nur 3-zählige Drehpunkte, die alle auf Spiegellinien liegen; die Spiegellinien stehen senkrecht auf den Zellkanten',
-  p31m: 'nur 3-zählige Drehpunkte, von denen nur ein Teil auf Spiegellinien liegt; die Spiegellinien laufen entlang der Zellkanten',
+  p3m1: 'nur 3-zählige Drehpunkte, die alle auf Spiegellinien liegen; die Spiegellinien stehen senkrecht auf den Zellkanten und der kurzen Diagonalen',
+  p31m: 'nur 3-zählige Drehpunkte, von denen nur ein Teil auf Spiegellinien liegt; die Spiegellinien laufen entlang der Zellkanten und der kurzen Diagonalen',
   p6: '6-, 3- und 2-zählige Drehpunkte, aber keine Spiegellinien',
   p6mm: '6-zählige Drehpunkte auf Schnittpunkten von Spiegellinien in sechs Richtungen',
 };
@@ -58,7 +58,7 @@ const hinweisGruppe = (falsch) => `${S(falsch)} hätte ${MERKMALE[falsch]}.`;
 // Stufe 1: symmorphe Gruppen; Stufe 2: die vier mit g im Symbol
 const MIT_G = ['pg', 'p2mg', 'p2gg', 'p4gm'];
 export const DIAGRAMM = {
-  id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'entwurf',
+  id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'geprüft',
   params: (s) => ALLE.filter((g) => (s === 2) === MIT_G.includes(g)),
   make(g) {
     const ab = gruppenAblenker(g);
@@ -117,10 +117,10 @@ function hinweisPunktgruppe(symbol, richtig, falsch) {
       ? 'Das wäre die Punktgruppe ohne Spiegellinien. Ein <i>g</i> im Symbol zählt für die Punktgruppe wie ein <i>m</i>: Ohne ihre Verschiebung ist die Gleitspiegelung eine Spiegelung.'
       : 'Das wäre die Punktgruppe ohne Spiegellinien. Jedes <i>m</i> im Symbol gehört auch zur Punktgruppe.';
   }
-  return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. Für ${S(symbol)} lässt man den Zellbuchstaben und die Einsen weg (ausser bei <i>p</i>1) und liest <i>g</i> als <i>m</i>.`;
+  return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. ${symbol === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: 1.' : `Für ${S(symbol)} lässt man den Zellbuchstaben und die Einsen weg und liest <i>g</i> als <i>m</i>.`}`;
 }
 export const PUNKTGRUPPE = {
-  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'entwurf',
+  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'geprüft',
   params: () => ALLE.flatMap((g) => [`${g}:pg`, `${g}:sys`]),
   make(param) {
     const [g, art] = param.split(':');
@@ -133,8 +133,8 @@ export const PUNKTGRUPPE = {
         frage: `Zu welchem Kristallsystem gehört die Ebenengruppe ${S(g)}?`,
         antworten: [d.system, ...ab],
         richtig: [0],
-        hinweise: [null, ...ab.map((x) => `Im ${x}en System gilt: ${SYSTEM_GRUND[x]}. Die Punktgruppe von ${S(g)} ist aber ${pgHTML(d.punktgruppe)}.`)],
-        erklaerung: `Die Punktgruppe von ${S(g)} ist ${pgHTML(d.punktgruppe)}; ${SYSTEM_GRUND[d.system]}. Das System folgt der Symmetrie, nicht umgekehrt.`,
+        hinweise: [null, ...ab.map((x) => `Im ${x}en System gilt: ${SYSTEM_GRUND[x]}. Die Punktgruppe von ${S(g)} ist aber ${pgHTML(d.punktgruppe)}; ${SYSTEM_GRUND[d.system]}.`)],
+        erklaerung: `Die Punktgruppe von ${S(g)} ist ${pgHTML(d.punktgruppe)}; ${SYSTEM_GRUND[d.system]}. Das System folgt der Symmetrie, nicht der Metrik.`,
         skript: 'punktgruppe-system', app: `#m=eg&g=${g}`,
         quelle: 'Borchardt-Ott & Sowa (2018), Abschn. 10.2, Tab. 10.1',
       };
@@ -148,7 +148,7 @@ export const PUNKTGRUPPE = {
       antworten: [r, ...ab].map(pgHTML),
       richtig: [0],
       hinweise: [null, ...ab.map((p) => hinweisPunktgruppe(g, r, p))],
-      erklaerung: `Zellbuchstaben weglassen, <i>g</i> durch <i>m</i> ersetzen und Einsen weglassen (ausser bei <i>p</i>1): ${S(g)} → ${pgHTML(r)}.`,
+      erklaerung: g === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: <i>p</i>1 → 1.' : `Zellbuchstaben weglassen, <i>g</i> durch <i>m</i> ersetzen und Einsen weglassen: ${S(g)} → ${pgHTML(r)}.`,
       skript: 'punktgruppe-system', app: `#m=eg&g=${g}`,
       quelle: 'Borchardt-Ott & Sowa (2018), Abschn. 10.2, Tab. 10.1',
     };
@@ -174,7 +174,7 @@ const ordnung = (sym) => {
 // Lagesymmetrie als Punktgruppe (ohne die Punkte des orientierten Symbols, Skript Abschn. 6.2)
 const symHTML = (sym) => (sym.replace(/\./g, '') || '1').replace(/m/g, '<i>m</i>');
 export const LAGE = {
-  id: 'lage', kapitel: 6, stufen: [1, 2], status: 'entwurf',
+  id: 'lage', kapitel: 6, stufen: [1, 2], status: 'geprüft',
   params: (s) => EBENENGRUPPEN.filter((d) => (s === 1) === GRUND.includes(d.symbol))
     .flatMap((d) => {
       // je Gruppe nur eine Lage je Paar aus Zähligkeit und Lagesymmetrie (sonst gleiche Fragen)
@@ -196,7 +196,7 @@ export const LAGE = {
     const richtig = text(w.n, w.sym);
     const kand = [];
     // allgemeine Lage; Zähligkeit falsch (Lagesymmetrie richtig); andere spezielle Lagen derselben Gruppe
-    kand.push([N, '1', 'So wäre es in allgemeiner Lage. Das Fähnchen liegt aber auf einem Drehpunkt oder einer Spiegellinie; dort fallen Kopien zusammen.']);
+    kand.push([N, '1', `So wäre es in allgemeiner Lage. Das Fähnchen liegt aber auf ${/[2-6]/.test(w.sym) ? 'einem Drehpunkt' : 'einer Spiegellinie'}; dort fallen Kopien zusammen.`]);
     const nFalsch = w.n * 2 < N ? w.n * 2 : w.n / 2;
     if (Number.isInteger(nFalsch) && nFalsch !== w.n) kand.push([nFalsch, w.sym, `Zähligkeit × Ordnung der Lagesymmetrie muss die Zähligkeit der allgemeinen Lage ergeben, hier ${N}.`]);
     for (const x of d.wyckoff) if (x.sym !== '1' && x.b !== b) kand.push([x.n, x.sym, `So wäre es auf einer Lage mit der Lagesymmetrie ${symHTML(x.sym)}. Entscheidend ist, welche Drehpunkte und Spiegellinien durch den markierten Punkt gehen.`]);
@@ -229,7 +229,7 @@ export const LAGE = {
 function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, lernziel, skript }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
-    id, kapitel, stufen: [2], status: 'entwurf',
+    id, kapitel, stufen: [2], status: 'geprüft',
     params: () => vorgaben.map((v) => v.id),
     make(vid) {
       const v = vorgaben.find((x) => x.id === vid);
@@ -256,7 +256,7 @@ export const STRUKTUR = strukturGenerator({
   // Gleitspiegellinien kommen erst in Kap. 4, p3m1 und p31m unterscheidet erst Kap. 5
   ohne: ['dreieck2', 'dreieck3', 'asi-pinwheel'],
   ausser: ['pg', 'p2mg', 'p2gg', 'p4gm', 'p31m'],
-  frage: 'Welche Ebenengruppe hat das Muster? Hervorgehoben ist eine Elementarzelle; gleiche Farbe heisst gleiche Atomsorte.',
+  frage: 'Welche Ebenengruppe hat das Muster? Hervorgehoben ist eine Elementarzelle; gleiche Farbe und Form heissen gleiches Motiv.',
   lernziel: 'die Symmetrie eines Musters aus Gitter und Motiv bestimmen und begründen, warum das Motiv die Symmetrie des Gitters nur erniedrigen kann',
   skript: 'gitter-und-motiv',
 });
