@@ -19,6 +19,8 @@
 .fig-mittel { max-width: 460px; margin-inline: auto; }
 .tab.tafel th { text-transform: none; letter-spacing: 0; font-size: inherit; color: var(--ink); }
 .tab.tafel td, .tab.tafel th { text-align: center; }
+.mat { display: inline-grid; grid-template-columns: repeat(var(--n), auto); gap: 0.1em 0.7em; justify-items: center; align-items: center; vertical-align: middle; padding: 0.1em 0.5em; border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; border-radius: 0.6em; line-height: 1.25; margin: 0.15em 0.1em; }
+.mat-zeile { overflow-x: auto; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -700,7 +702,7 @@
 
     <section id="gleitspiegelung">
       <h2><span class="nr">4</span>Gleitspiegelung und Verknüpfung</h2>
-      <p class="lead">Periodische Muster haben eine Symmetrieoperation, die ein einzelnes Objekt nicht haben kann: die Gleitspiegelung. Und weil jede Symmetrieoperation mit den Translationen zusammenwirkt, folgen aus wenigen Symmetrieelementen viele weitere. Dieses Kapitel zeigt, wie man das in Koordinaten nachrechnet.</p>
+      <p class="lead">Periodische Muster haben eine Symmetrieoperation, die ein einzelnes Objekt nicht haben kann: die Gleitspiegelung. Und weil jede Symmetrieoperation mit den Translationen zusammenwirkt, folgen aus wenigen Symmetrieelementen zwangsläufig viele weitere: Gleitspiegellinien und Drehpunkte zwischen den Gitterpunkten, die das Symbol einer Ebenengruppe oft gar nicht nennt. Erst mit ihnen ist die Symmetrie einer zweidimensionalen Kristallstruktur vollständig beschrieben.</p>
 
       <div class="box ziele">
         <h4>Lernziele</h4>
@@ -771,18 +773,18 @@
         <div class="box vertiefung">
           <h4>Vertiefung · <b>Matrix und Verschiebung</b></h4>
           <p>Diese Vertiefung verbindet die Koordinaten-Schreibweise mit den Matrizen der Punktsymmetrieoperationen; mit ihnen lassen sich Operationen auch rechnerisch verknüpfen. Hinter den Koordinaten stehen eine Matrix <i>W</i> und eine Verschiebung <i>w</i>. Für <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i> etwa gilt</p>
-          <math display="block"><mrow><mrow><mo>(</mo><mtable><mtr><mtd><msup><mi>x</mi><mo>′</mo></msup></mtd></mtr><mtr><mtd><msup><mi>y</mi><mo>′</mo></msup></mtd></mtr></mtable><mo>)</mo></mrow><mo>=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>−1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow><mrow><mo>(</mo><mtable><mtr><mtd><mi>x</mi></mtd></mtr><mtr><mtd><mi>y</mi></mtd></mtr></mtable><mo>)</mo></mrow><mo>+</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>½</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo>=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mrow><mo>−</mo><mi>x</mi></mrow></mtd></mtr><mtr><mtd><mi>y</mi></mtd></mtr></mtable><mo>)</mo></mrow><mo>+</mo><mrow><mo>(</mo><mtable><mtr><mtd><mn>½</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow><mo>=</mo><mrow><mo>(</mo><mtable><mtr><mtd><mrow><mo>−</mo><mi>x</mi><mo>+</mo><mn>½</mn></mrow></mtd></mtr><mtr><mtd><mi>y</mi></mtd></mtr></mtable><mo>)</mo></mrow></mrow></math>
+          <p class="formel mat-zeile"><span class="mat" style="--n:1"><span><i>x</i>′</span><span><i>y</i>′</span></span> = <span class="mat" style="--n:2"><span>−1</span><span>0</span><span>0</span><span>1</span></span> <span class="mat" style="--n:1"><span><i>x</i></span><span><i>y</i></span></span> + <span class="mat" style="--n:1"><span>½</span><span>0</span></span> = <span class="mat" style="--n:1"><span>−<i>x</i></span><span><i>y</i></span></span> + <span class="mat" style="--n:1"><span>½</span><span>0</span></span> = <span class="mat" style="--n:1"><span>−<i>x</i>&nbsp;+&nbsp;½</span><span><i>y</i></span></span></p>
           <p>Die Matrix <i>W</i> bestimmt die Art der Operation; es sind die Matrizen der Punktsymmetrieoperationen. Die Verschiebung <i>w</i> bestimmt zusammen mit <i>W</i>, wo das Symmetrieelement liegt und ob es eine Gleitkomponente hat. Einige Matrizen:</p>
           <div class="tabwrap">
             <table class="tab">
               <thead><tr><th>Operation</th><th>Koordinaten ohne Verschiebung</th><th><i>W</i></th></tr></thead>
               <tbody>
-                <tr><td>Identität 1</td><td><i>x</i>, <i>y</i></td><td><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
-                <tr><td>Drehung um 180°</td><td><span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span></td><td><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>−1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>−1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
-                <tr><td>Spiegelung, Linie entlang <i>b</i></td><td><span class="ov"><i>x</i></span>, <i>y</i></td><td><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>−1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
-                <tr><td>Spiegelung, Linie entlang <i>a</i></td><td><i>x</i>, <span class="ov"><i>y</i></span></td><td><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr><mtr><mtd><mn>0</mn></mtd><mtd><mn>−1</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
-                <tr><td>Drehung um 90° (quadratisch)</td><td><span class="ov"><i>y</i></span>, <i>x</i></td><td><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd><mtd><mn>−1</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
-                <tr><td>Spiegelung an der Diagonalen (quadratisch)</td><td><i>y</i>, <i>x</i></td><td><math><mrow><mo>(</mo><mtable><mtr><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr><mtr><mtd><mn>1</mn></mtd><mtd><mn>0</mn></mtd></mtr></mtable><mo>)</mo></mrow></math></td></tr>
+                <tr><td>Identität 1</td><td><i>x</i>, <i>y</i></td><td><span class="mat" style="--n:2"><span>1</span><span>0</span><span>0</span><span>1</span></span></td></tr>
+                <tr><td>Drehung um 180°</td><td><span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span></td><td><span class="mat" style="--n:2"><span>−1</span><span>0</span><span>0</span><span>−1</span></span></td></tr>
+                <tr><td>Spiegelung, Linie entlang <i>b</i></td><td><span class="ov"><i>x</i></span>, <i>y</i></td><td><span class="mat" style="--n:2"><span>−1</span><span>0</span><span>0</span><span>1</span></span></td></tr>
+                <tr><td>Spiegelung, Linie entlang <i>a</i></td><td><i>x</i>, <span class="ov"><i>y</i></span></td><td><span class="mat" style="--n:2"><span>1</span><span>0</span><span>0</span><span>−1</span></span></td></tr>
+                <tr><td>Drehung um 90° (quadratisch)</td><td><span class="ov"><i>y</i></span>, <i>x</i></td><td><span class="mat" style="--n:2"><span>0</span><span>−1</span><span>1</span><span>0</span></span></td></tr>
+                <tr><td>Spiegelung an der Diagonalen (quadratisch)</td><td><i>y</i>, <i>x</i></td><td><span class="mat" style="--n:2"><span>0</span><span>1</span><span>1</span><span>0</span></span></td></tr>
               </tbody>
             </table>
           </div>
