@@ -50,7 +50,8 @@ function appTafel(fig, f) {
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
     return b ? strukturTafelB(st, f, a.ergebnis).svg : a.svg;
   }
-  const k = symbolGroesse(fig, b);
+  // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
+  const k = /[#&]og=/.test(fig.dataset.app) ? 1 : symbolGroesse(fig, b);
   return b ? tafelB(z.gruppe, z, f, { k }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
 

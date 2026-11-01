@@ -33,13 +33,15 @@ export const TIPS = {
   'opt-einrasten': 'Nahe einem Drehpunkt oder einer Spiegellinie springt das Objekt beim Ziehen auf das Symmetrieelement (spezielle Lage).',
   'obj-x': 'Koordinate x des Ausgangsobjekts in Bruchteilen von a.',
   'obj-y': 'Koordinate y des Ausgangsobjekts in Bruchteilen von b.',
-  'reset-objekt': 'Objekt zurück an die Ausgangslage.',
+  'obj-groesse': 'Grösse des Objekts (Fähnchen, Komma oder Ornament) in beiden Tafeln, etwa für eine Tapete mit grossen Ornamenten.',
+  'reset-objekt': 'Objekt zurück an die Ausgangslage und auf die normale Grösse.',
   'lat-ba': 'Verhältnis der Gitterkonstanten b/a. Frei im schiefwinkligen und im rechteckigen System.',
   'lat-gamma': 'Winkel γ zwischen a und b. Frei nur im schiefwinkligen System.',
   'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen, mit Bindung an das System.',
   'opt-brechen': 'b/a und γ ohne die Bindung an das Kristallsystem verändern: Es bleiben nur die Operationen, die die neue Metrik erhalten. Die Kenndaten nennen die verbleibende Symmetrie.',
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
+  'v-zoom': 'Vergrössert das Muster: Der Ausschnitt wird kleiner, Zellen und Objekte grösser.',
   'v-tapete': 'Das Muster wie eine Tapete: grösserer Ausschnitt, ohne Zelle und Symmetrieelemente, alles in einer Farbe. Mit einem Ornament als Objekt (Weitere Optionen) oder selbst Gezeichnetem.',
   'werkzeug-zeichnen': 'Werkzeug: Im Symmetriegerüst ziehen zeichnet einen Strich. Die Gruppe vervielfältigt ihn mit allen Operationen, auch im Muster.',
   'werkzeug-lupe': 'Das Symmetriegerüst doppelt so gross um das Objekt zeigen, etwa um es in p6mm genau zu setzen. Die Ansicht folgt dem Objekt, wenn man es loslässt.',
@@ -69,9 +71,9 @@ export const SECTIONS = [
   { heading: '#sec-zeichnen > summary', intro: 'Was tut eine Ebenengruppe? Zeichnen Sie etwas: Die Gruppe macht daraus ein Muster.', ids: ['werkzeug-zeichnen', 'werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen', 'opt-fuell'] },
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden? Hier erscheinen sie Schritt für Schritt.', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor'] },
-  { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y'] },
+  { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y', 'obj-groesse'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten. Ohne Bindung an das System bricht sie.', ids: ['lat-ba', 'lat-gamma', 'opt-brechen'] },
-  { heading: '#sec-view > summary', ids: ['v-farben', 'v-muster-el', 'v-tapete'] },
+  { heading: '#sec-view > summary', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'v-zoom'] },
 ];
 
 /** Beschriftung in der ⓘ-Erklärung, wo der Text des Elements nicht passt. */

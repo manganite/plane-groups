@@ -218,7 +218,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
 
     <div class="card nur-eg">
       <details class="sect" id="sec-objekt">
-        <summary>Objekt<span class="sumhint">Lage x, y</span></summary>
+        <summary>Objekt<span class="sumhint">Lage x, y, Grösse</span></summary>
         <div class="stack">
           <div class="range">
             <label for="obj-x"><i>x</i></label><output id="obj-x-out"></output>
@@ -227,6 +227,10 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
           <div class="range">
             <label for="obj-y"><i>y</i></label><output id="obj-y-out"></output>
             <input type="range" id="obj-y" min="0" max="1" step="0.001">
+          </div>
+          <div class="range">
+            <label for="obj-groesse">Grösse</label><output id="obj-groesse-out"></output>
+            <input type="range" id="obj-groesse" min="0.5" max="2.5" step="0.05">
           </div>
           <p class="hintline" id="obj-why"></p>
           <button class="resetbtn" id="reset-objekt" type="button">Objekt zurücksetzen</button>
@@ -291,11 +295,15 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
         </div>
       </details>
       <details class="sect" id="sec-view">
-        <summary>Darstellung<span class="sumhint">Farben, Muster</span></summary>
+        <summary>Darstellung<span class="sumhint">Farben, Muster, Vergrösserung</span></summary>
         <div class="stack">
           <label class="check"><input type="checkbox" id="v-farben">Nach Blickrichtung färben</label>
           <label class="check"><input type="checkbox" id="v-muster-el">Symmetrieelemente im Muster</label>
           <label class="check"><input type="checkbox" id="v-tapete">Muster als Tapete</label>
+          <div class="range">
+            <label for="v-zoom">Vergrösserung des Musters</label><output id="v-zoom-out"></output>
+            <input type="range" id="v-zoom" min="1" max="3" step="0.05">
+          </div>
           <button class="resetbtn" id="reset-alles" type="button">Alle Einstellungen zurücksetzen</button>
         </div>
       </details>
