@@ -252,5 +252,12 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     });
   }
 
-  return { init, abgleichen, zeichnen, touchstart, down, move, up };
+  /** Tafel A und B in den Farben f, ohne Markierung der Auswahl (Bildexport). */
+  function bilder(f) {
+    const s = st();
+    const a = strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, null, ansicht);
+    return { a: a.svg, b: strukturTafelB(s, f, a.ergebnis).svg };
+  }
+
+  return { init, abgleichen, zeichnen, bilder, touchstart, down, move, up };
 }
