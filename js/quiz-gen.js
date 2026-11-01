@@ -55,9 +55,9 @@ export function gruppenAblenker(symbol, n = 3, ausser = []) {
 const hinweisGruppe = (falsch) => `${S(falsch)} hätte ${MERKMALE[falsch]}.`;
 
 // ------------------------------------------------------------------ Symmetriegerüst → Ebenengruppe
-// Stufe 2: Gruppen, die man nur mit den Blickrichtungen oder Gleitspiegellinien zwischen
-// Drehpunkten unterscheidet; Stufe 1: die übrigen (pg mit seinen Gleitspiegellinien ist das Standardbeispiel)
-const STUFE2_DIAGRAMM = ['p3m1', 'p31m', 'p2mg', 'p2gg', 'p4gm'];
+// Stufe 1: die gängigen Beispiele (auch pg, p2mg, p2gg); Stufe 2: Gruppen, die man erst mit den
+// Blickrichtungen sicher unterscheidet (p3m1/p31m) oder deren Gerüst unübersichtlich ist (p4gm)
+const STUFE2_DIAGRAMM = ['p3m1', 'p31m', 'p4gm'];
 export const DIAGRAMM = {
   id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'geprüft',
   params: (s) => ALLE.filter((g) => (s === 2) === STUFE2_DIAGRAMM.includes(g)),
