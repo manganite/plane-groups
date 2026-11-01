@@ -105,7 +105,7 @@ export function elementeImBereich(g, n) {
 /** SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q, Grösse k (1 = normal). */
 export function drehSymbol(n, q, farbe, rand, k = 1) {
   const [x, y] = q;
-  const stil = `fill="${farbe}" stroke="${rand}" stroke-width="1.2"`;
+  const stil = `fill="${farbe}" stroke="${rand}" stroke-width="${f2(1.2 * Math.max(1, k))}"`;
   if (n === 2) return `<ellipse cx="${f2(x)}" cy="${f2(y)}" rx="${f2(4.6 * k)}" ry="${f2(8.2 * k)}" ${stil}/>`;
   const poly = (r, m, phase) => Array.from({ length: m }, (_, i) => {
     const w = phase + (2 * Math.PI * i) / m;
@@ -127,36 +127,37 @@ export function sichtbar(g, n, aufbau) {
   return { drehpunkte: a.drehpunkte.map((d) => ({ ...d, n: Math.max(...d.ordnungen) })), linien: a.linien };
 }
 
-/** SVG einer Linie (Spiegel- oder Gleitspiegellinie) zwischen zwei Bildpunkten. */
-function linieSVG(p, q, art, farbe, breite = null) {
-  const b = breite ?? (art === 'spiegel' ? 2.8 : 2);
+/** SVG einer Linie (Spiegel- oder Gleitspiegellinie) zwischen zwei Bildpunkten; k vergrössert Strich und Strichelung. */
+function linieSVG(p, q, art, farbe, breite = null, k = 1) {
+  const b = f2((breite ?? (art === 'spiegel' ? 2.8 : 2)) * k);
   return art === 'spiegel'
     ? `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${farbe}" stroke-width="${b}" stroke-linecap="round"/>`
-    : `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${farbe}" stroke-width="${b}" stroke-dasharray="8 5"/>`;
+    : `<line x1="${f2(p[0])}" y1="${f2(p[1])}" x2="${f2(q[0])}" y2="${f2(q[1])}" stroke="${farbe}" stroke-width="${b}" stroke-dasharray="${f2(8 * k)} ${f2(5 * k)}"/>`;
 }
 
 /**
  * SVG der Symmetrieelemente (Linien zuerst, Drehpunkte darüber). Ein Element kann markiert
  * sein: neu: true (im Aufbau gerade hinzugekommen); Drehpunkte mit ordnungen: [3, 2] zeigen
- * mehrere Symbole an derselben Stelle. gedimmt: alles blasser (bei einer Erklärung).
+ * mehrere Symbole an derselben Stelle. gedimmt: alles blasser (bei einer Erklärung). k: Grösse
+ * der Symbole und Linien (1 in der App; das Skript vergrössert sie in kleinen Abbildungen).
  */
-export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false } = {}) {
+export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false, k = 1 } = {}) {
   const sys = g.daten.system;
   const farbeVon = (pos) => (mitFarben ? farben.dir[pos - 1] : farben.ink);
   const linien = el.linien.map((l) => {
     const [p, q] = l.strecke.map(A.zuBild);
     const c = farbeVon(blickrichtung(sys, l.normale));
-    if (!l.neu) return linieSVG(p, q, l.art, c);
-    return `<g class="neu">${linieSVG(p, q, 'spiegel', farben.accent2, 9).replace('<line', '<line stroke-opacity="0.28"')}${linieSVG(p, q, l.art, c)}</g>`;
+    if (!l.neu) return linieSVG(p, q, l.art, c, null, k);
+    return `<g class="neu">${linieSVG(p, q, 'spiegel', farben.accent2, 9, k).replace('<line', '<line stroke-opacity="0.28"')}${linieSVG(p, q, l.art, c, null, k)}</g>`;
   });
   const dreh = el.drehpunkte.map((d) => {
     const q = A.zuBild(d.punkt);
     const ordn = [...(d.ordnungen ?? [d.n])].sort((u, v) => v - u);
-    const halo = d.neu ? `<circle class="neu" cx="${f2(q[0])}" cy="${f2(q[1])}" r="13" fill="${farben.accent2}" fill-opacity="0.3"/>` : '';
+    const halo = d.neu ? `<circle class="neu" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(13 * k)}" fill="${farben.accent2}" fill-opacity="0.3"/>` : '';
     // mehrere Zähligkeiten am selben Punkt (Aufbau): die grösste vergrössert, die übrigen hell darin
-    if (ordn.length === 1) return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper);
-    return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, 1.45)
-      + ordn.slice(1).map((n) => drehSymbol(n, [q[0], q[1] + (ordn[0] === 3 ? 1.5 : 0)], farben.paper, farbeVon(1), 0.6)).join('');
+    if (ordn.length === 1) return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, k);
+    return halo + drehSymbol(ordn[0], q, farbeVon(1), farben.paper, 1.45 * k)
+      + ordn.slice(1).map((n) => drehSymbol(n, [q[0], q[1] + (ordn[0] === 3 ? 1.5 * k : 0)], farben.paper, farbeVon(1), 0.6 * k)).join('');
   });
   return `<g class="elemente"${gedimmt ? ' opacity="0.35"' : ''}>${linien.join('')}${dreh.join('')}</g>`;
 }
@@ -566,7 +567,7 @@ function bahnFarbe(brechen, farben) {
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
  * Ergebnis: { svg (Inhalt des <svg>), ansicht }.
  */
-export function tafelA(id, z, farben, { phase = 3 } = {}) {
+export function tafelA(id, z, farben, { phase = 3, k = 1 } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
@@ -608,25 +609,25 @@ export function tafelA(id, z, farben, { phase = 3 } = {}) {
   // Achsen: a und b am Ursprung beschriftet
   const o = A.zuBild([0, 0]);
   const pa = A.zuBild([n * 0.5, 0]); const pb = A.zuBild([0, n * 0.5]);
-  const aus = (p, d) => { const l = Math.hypot(d[0], d[1]); return [p[0] + (18 * d[0]) / l, p[1] + (18 * d[1]) / l]; };
+  const aus = (p, d) => { const l = Math.hypot(d[0], d[1]); const r = 18 * Math.min(k, 1.4); return [p[0] + (r * d[0]) / l, p[1] + (r * d[1]) / l]; };
   const la = aus(pa, [-(M.a[1]), M.a[0]]); // links neben der a-Kante
   const lb = aus(pb, [M.b[1], -M.b[0]]); // über der b-Kante
-  teile.push(`<g font-family="Source Serif 4, serif" font-style="italic" font-size="19" fill="${farben.muted}" text-anchor="middle" dominant-baseline="middle"><text x="${f2(la[0])}" y="${f2(la[1])}">a</text><text x="${f2(lb[0])}" y="${f2(lb[1])}">b</text></g>`);
+  teile.push(`<g font-family="Source Serif 4, serif" font-style="italic" font-size="${f2(19 * Math.min(k, 1.4))}" fill="${farben.muted}" text-anchor="middle" dominant-baseline="middle"><text x="${f2(la[0])}" y="${f2(la[1])}">a</text><text x="${f2(lb[0])}" y="${f2(lb[1])}">b</text></g>`);
   teile.push(`<circle cx="${f2(o[0])}" cy="${f2(o[1])}" r="2.6" fill="${farben.muted}"/>`);
   if (z.elemente && brechen) {
     // nur die verbleibenden Elemente (wie in der Stereo-App); nach Blickrichtung gefärbt nur,
     // solange die Gruppe bleibt (sonst andere Gruppe, andere Aufstellung)
-    teile.push(elementeSVG(g, elementeImBereich(brechen.H, n), A, farben, z.farben && !brechen.weg.length, {}));
+    teile.push(elementeSVG(g, elementeImBereich(brechen.H, n), A, farben, z.farben && !brechen.weg.length, { k }));
   } else if (z.elemente) {
     const el = z.aufbau > 0 ? aufbauElemente(g, n, z.aufbau) : elementeImBereich(g, n);
-    teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl }));
+    teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl, k }));
   }
   if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
-  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, 1, orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, k, orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
   if (z.objekt && !erkl) {
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
-    teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="15" fill="none" stroke="${farben.accent}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`);
+    teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
   }
   if (erkl) teile.push(erklaerungSVG(g, M, A, erkl, phase, farben, z.form, n));
   return { svg: teile.join(''), ansicht: A, erklaerung: erkl };
@@ -881,7 +882,7 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
  * Tafel B: Muster. Ein quadratischer Ausschnitt des unendlichen Musters, die Elementarzelle
  * hervorgehoben, Symmetrieelemente wahlweise.
  */
-export function tafelB(id, z, farben) {
+export function tafelB(id, z, farben, { k = 1 } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
@@ -903,10 +904,10 @@ export function tafelB(id, z, farben) {
       for (const d of e.drehpunkte) alle.drehpunkte.push({ ...d, punkt: [d.punkt[0] + i, d.punkt[1] + j] });
       for (const l of e.linien) alle.linien.push({ ...l, strecke: l.strecke.map((q) => [q[0] + i, q[1] + j]) });
     }
-    teile.push(elementeSVG(g, alle, A, farben, z.farben));
+    teile.push(elementeSVG(g, alle, A, farben, z.farben, { k }));
   }
   teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8, undefined, bahnFarbe(brechen, farben)));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8 * k, undefined, bahnFarbe(brechen, farben)));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };
