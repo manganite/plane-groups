@@ -94,7 +94,7 @@ export const BANK = [
   },
   {
     id: 'gb-1-03', stufe: 1, kapitel: 1, typ: 'einfach', lernziel: LZ.bruch,
-    frage: 'Welcher Punkt geht durch eine Gittertranslation aus dem Punkt (0,2;&nbsp;0,7) hervor?',
+    frage: 'Die Koordinaten beziehen sich auf eine primitive Zelle. Welcher Punkt geht durch eine Gittertranslation aus dem Punkt (0,2;&nbsp;0,7) hervor?',
     antworten: ['(1,2;&nbsp;−0,3)', '(0,8;&nbsp;0,3)', '(0,7;&nbsp;0,2)', '(0,4;&nbsp;1,4)'],
     richtig: [0],
     hinweise: [null,
@@ -140,7 +140,7 @@ export const BANK = [
   {
     id: 'gb-1-06', stufe: 1, kapitel: 1, typ: 'bild-text', lernziel: LZ.basisGitter,
     frage: 'Das Bild zeigt eine rechteckige gegebene Zelle mit zwei Dreiecken, bei (0,&nbsp;0) und bei (½,&nbsp;½). Wie viele Gitterpunkte enthält die gegebene Zelle?',
-    bild: '#m=struktur&v=dreieck2&sel=0', bildAlt: 'Rechteckige Zelle mit Dreiecken an der Ecke und in der Mitte',
+    bild: '#m=struktur&v=dreieck2&sel=0', bildAlt: 'Rechteckige Zelle mit zwei gleichen, gleich ausgerichteten Dreiecken gleicher Farbe, an der Ecke und in der Mitte',
     antworten: ['zwei', 'einen, denn die gegebene Zelle ist immer primitiv', 'einen, denn nur Atome, nicht Dreiecke, erzeugen Translationen', 'vier'],
     richtig: [0],
     hinweise: [null,
