@@ -218,9 +218,41 @@ export function bilder(g, p, lo, hi, rand = 0.08) {
   return out;
 }
 
-/** SVG eines Objekts (Fähnchen oder Kreis mit Komma) am Bildpunkt q, gedreht/gespiegelt mit Mc. */
+/**
+ * Ornamentmotive für das Muster (Konzept §3.6): selbst gezeichnet, ohne eigene Symmetrie (chiral),
+ * damit Spiegelbilder sichtbar bleiben. Pfade in Bildpunkten wie das Fähnchen, Fuss im Ursprung;
+ * je Teil [Befehle, Art]: 'fill' gefüllt, 'stroke' Linie, 'loch' gefüllt in der Papierfarbe.
+ * Befehle: [Buchstabe, ...Punkte] mit M, L, Q, C, Z.
+ */
+const ORNAMENTE = {
+  blatt: [
+    [[['M', [0, 0]], ['Q', [1, -6], [4, -9]]], 'stroke'],
+    [[['M', [4, -9]], ['C', [-1, -15], [3, -23], [13, -26]], ['C', [14, -17], [11, -11], [4, -9]], ['Z']], 'fill'],
+    [[['M', [4, -9]], ['Q', [8, -16], [13, -26]]], 'ader'],
+  ],
+  tropfen: [
+    [[['M', [0, -1]], ['C', [-9, -4], [-9, -17], [0, -20]], ['C', [8, -22], [12, -13], [7, -7]], ['C', [5, -4], [5, -1], [9, 2]], ['C', [4, 3], [1, 1], [0, -1]], ['Z']], 'fill'],
+    [[['M', [-1.5, -11]], ['C', [-1.5, -14], [3, -14], [3, -11]], ['C', [3, -8], [-1.5, -8], [-1.5, -11]], ['Z']], 'loch'],
+  ],
+  ranke: [
+    [[['M', [0, 0]], ['C', [-1, -9], [4, -16], [11, -17]], ['C', [17, -18], [19, -11], [15, -9]], ['C', [12, -7], [10, -10], [12, -12]]], 'stroke'],
+    [[['M', [3, -10]], ['C', [-4, -11], [-6, -17], [-3, -21]], ['C', [1, -18], [3, -14], [3, -10]], ['Z']], 'fill'],
+  ],
+};
+/** Formen des Objekts: Fähnchen, Kreis mit Komma (ITA) und die Ornamente. */
+export const FORMEN = ['fahne', 'komma', ...Object.keys(ORNAMENTE)];
+
+/** SVG eines Objekts (Fähnchen, Kreis mit Komma oder Ornament) am Bildpunkt q, gedreht/gespiegelt mit Mc. */
 export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) {
   const T = (v) => [q[0] + massstab * (Mc[0][0] * v[0] + Mc[0][1] * v[1]), q[1] + massstab * (Mc[1][0] * v[0] + Mc[1][1] * v[1])];
+  if (ORNAMENTE[form]) {
+    return ORNAMENTE[form].map(([befehle, art]) => {
+      const d = befehle.map(([c, ...ps]) => c + ps.map((v) => pt(T(v))).join(' ')).join('');
+      if (art === 'stroke') return `<path d="${d}" fill="none" stroke="${farbe}" stroke-width="${f2(2.2 * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+      if (art === 'ader') return `<path d="${d}" fill="none" stroke="${papier}" stroke-width="${f2(0.9 * massstab)}" stroke-linecap="round" stroke-opacity="0.8"/>`;
+      return `<path d="${d}" fill="${art === 'loch' ? papier : farbe}" fill-opacity="${art === 'loch' ? 1 : 0.9}" stroke="${art === 'loch' ? papier : farbe}" stroke-width="${f2(0.8 * massstab)}" stroke-linejoin="round"/>`;
+    }).join('');
+  }
   if (form === 'komma') {
     const r = 7 * massstab;
     const komma = eigentlich ? '' : (() => {
@@ -451,20 +483,20 @@ export function radieren(striche, g, M, p, r) {
 }
 
 /** SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]². */
-function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1) {
+function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null) {
   const teile = [];
   const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
   if (z.aeFuell) {
     // asymmetrische Einheit und ihre Bilder: Sie pflastern die Ebene ohne Lücken und Überlappungen
     for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
-      const farbe = k.eigentlich ? farben.upper : farben.accent2;
+      const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
       teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
     }
   }
   for (const strich of z.striche ?? []) {
     if (strich.length < 2) continue;
     for (const k of kopien(g, strich, lo, hi)) {
-      const farbe = k.eigentlich ? farben.upper : farben.accent2;
+      const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
       teile.push(`<path d="${pfad(k.punkte)}" fill="none" stroke="${farbe}" stroke-width="${f2((k.urbild ? 3.2 : 2) * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`);
     }
   }
@@ -888,7 +920,9 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
   const M = brechen ? brechen.M : metrik(z.gitter[sys]);
   const mitte = kart(M, [0.5, 0.5]);
-  const w = 4.4 * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba);
+  // Tapete: grösserer Ausschnitt, ohne Zelle und Elemente, alles in einer Farbe
+  const tapete = !!z.tapete;
+  const w = (tapete ? 6.5 : 4.4) * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba);
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt
@@ -896,8 +930,8 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const lo = Math.floor(Math.min(...ecken.flat())) - 1; const hi = Math.ceil(Math.max(...ecken.flat())) + 1;
   const teile = [`<defs><clipPath id="ausschnitt"><rect x="10" y="10" width="500" height="500" rx="6"/></clipPath></defs>`,
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
-  teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
-  if (z.musterElemente) {
+  if (!tapete) teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
+  if (z.musterElemente && !tapete) {
     const e = elementeImBereich(brechen ? brechen.H : g, 1);
     const alle = { drehpunkte: [], linien: [] };
     for (let i = lo; i < hi; i++) for (let j = lo; j < hi; j++) {
@@ -906,8 +940,9 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
     }
     teile.push(elementeSVG(g, alle, A, farben, z.farben, { k }));
   }
-  teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8 * k, undefined, bahnFarbe(brechen, farben)));
+  const einfarbig = tapete ? farben.upper : null;
+  teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, (tapete ? 0.9 : 0.8) * k, undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben)));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

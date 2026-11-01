@@ -7,6 +7,9 @@ import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
 
+/** Formen des Objekts (wie FORMEN in zeichnung.js; tests/zustand.test.mjs prüft die Übereinstimmung). */
+export const FORMEN = ['fahne', 'komma', 'blatt', 'tropfen', 'ranke'];
+
 /** Gittermetrik je Kristallsystem: b/a und γ (Grad). Frei nur, wo das System es erlaubt. */
 export const GITTER_START = {
   schiefwinklig: { ba: 1.25, gamma: 105 },
@@ -65,7 +68,8 @@ export function startzustand() {
     objekt: true, // Objekt mit allen Bildern
     ae: false, // asymmetrische Einheit
     zellen: 1, // 1 oder 2 (2 × 2 Zellen) in Tafel A
-    form: 'fahne', // 'fahne' oder 'komma'
+    form: 'fahne', // eine der FORMEN: Fähnchen, Kreis mit Komma (ITA) oder ein Ornament
+    tapete: false, // Muster (Tafel B) als Tapete: ohne Zelle und Elemente, grösserer Ausschnitt, einfarbig
     farben: true, // nach Blickrichtung färben
     einrasten: true,
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
@@ -111,7 +115,7 @@ export function koordText(v) {
 const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
-const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell']];
+const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete']];
 
 /** Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse]. */
 export function basisText(basis) {
@@ -237,7 +241,7 @@ export function hashAnwenden(z, hash) {
   z.punkt = [x ?? s.punkt[0], y ?? s.punkt[1]];
   for (const [k, f] of SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
   if (q.get('zellen') === '2') z.zellen = 2;
-  if (['fahne', 'komma'].includes(q.get('form'))) z.form = q.get('form');
+  if (FORMEN.includes(q.get('form'))) z.form = q.get('form');
   if (q.has('warum')) z.warum = an(q.get('warum'));
   const erkl = q.get('erkl');
   if (erkl && /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/.test(erkl)) z.erkl = erkl;
