@@ -364,3 +364,17 @@ test('Seite: Schalter „Auch ungeprüfte Fragen zeigen“, ?entwurf schaltet ei
   assert.ok(ohne.every((k) => (k.frage ? k.frage.status : k.gen.status) === 'geprüft'));
   assert.ok(mit.length > ohne.length);
 });
+
+test('Fragen: Die richtige Antwort verrät sich nicht durch ihre Länge', () => {
+  // Wie im Stereo-Quiz: Ist die richtige Antwort deutlich länger und ausführlicher als die falschen,
+  // erkennt man sie ohne Wissen. Geprüft für Fragen mit einer richtigen Textantwort ab 30 Zeichen.
+  const fehler = [];
+  for (const q of BANK.filter((x) => x.richtig.length === 1 && !['text-bild', 'bild-bild'].includes(x.typ))) {
+    const L = q.antworten.map((a) => text(a).length);
+    const r = L[q.richtig[0]];
+    const f = L.filter((_, i) => i !== q.richtig[0]);
+    const mittel = f.reduce((s, x) => s + x, 0) / f.length;
+    if (r >= 30 && r > 1.3 * mittel) fehler.push(`${q.id}: ${r} Zeichen, falsche im Mittel ${Math.round(mittel)}`);
+  }
+  assert.deepEqual(fehler, []);
+});
