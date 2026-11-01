@@ -7,7 +7,7 @@ import { MOTIVE } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich } from './zeichnung.js';
 import { gruppe, mod1 } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
-import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben } from './struktur.js';
+import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { dezimal } from './text.js';
 
 const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
@@ -252,5 +252,12 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     });
   }
 
-  return { init, abgleichen, zeichnen, touchstart, down, move, up };
+  /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). */
+  function bild(f, tafel) {
+    const s = st();
+    if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s)).svg;
+    return strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, null, ansicht).svg;
+  }
+
+  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up };
 }

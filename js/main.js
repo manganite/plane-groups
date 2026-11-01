@@ -9,7 +9,7 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
@@ -71,6 +71,95 @@ const farben = () => ({
   upper: css('upper'), crystal: css('crystal'), dir: [css('dir1'), css('dir2'), css('dir3')],
   fc3: css('fc3'), fc4: css('fc4'),
 });
+
+// ------------------------------------------------------------------ Bildexport (immer hell)
+let hellEl = null;
+/** Farben des hellen Modus, auch wenn die Seite dunkel ist (Bildexport immer hell, wie in der Stereo-App). */
+function hellFarben() {
+  if (!hellEl || !hellEl.isConnected) {
+    hellEl = document.createElement('span');
+    hellEl.className = 'theme-light';
+    hellEl.hidden = true;
+    document.body.appendChild(hellEl);
+  }
+  const s = getComputedStyle(hellEl);
+  const g = (name) => s.getPropertyValue(`--${name}`).trim();
+  return {
+    paper: g('paper'), ink: g('ink'), muted: g('muted'), line: g('line'), accent: g('accent'), accent2: g('accent2'),
+    upper: g('upper'), crystal: g('crystal'), dir: [g('dir1'), g('dir2'), g('dir3')], fc3: g('fc3'), fc4: g('fc4'),
+  };
+}
+/** Tafel A oder B als eigenständiges SVG in den hellen Farben. */
+function bildSVG(tafel) {
+  const f = hellFarben();
+  let inhalt;
+  if (z.modus === 'struktur') inhalt = sUI.bild(f, tafel);
+  else inhalt = tafel === 'a' ? tafelA(z.gruppe, z, f, { phase }).svg : tafelB(z.gruppe, z, f).svg;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520">${inhalt}</svg>`;
+}
+/** Dateiname ohne Endung, z. B. p4gm-symmetriegeruest oder struktur-graphen-muster. */
+function bildName(tafel) {
+  const was = z.modus === 'struktur' ? `struktur-${z.struktur.vorgabe && wieVorgabe(z.struktur) ? z.struktur.vorgabe : 'eigene'}` : z.gruppe;
+  const teil = tafel === 'b' ? 'muster' : z.modus === 'struktur' ? 'struktur' : 'symmetriegeruest';
+  return `${was}-${teil}`;
+}
+/** Schriften als data:-URLs, damit sie im gerasterten SVG wirken (ein Bild lädt keine fremden Dateien). */
+let schriftCss = null;
+function eingebetteteSchriften() {
+  if (!schriftCss) {
+    const dateien = [['IBM Plex Sans', '400', 'normal', 'ibm-plex-sans-latin-400-normal'], ['IBM Plex Sans', '400', 'italic', 'ibm-plex-sans-latin-400-italic'],
+      ['IBM Plex Sans', '600', 'normal', 'ibm-plex-sans-latin-600-normal'], ['Source Serif 4', '500', 'normal', 'source-serif-4-latin-500-normal']];
+    schriftCss = Promise.all(dateien.map(async ([fam, w, st, datei]) => {
+      const antwort = await fetch(`lib/common/fonts/${datei}.woff2`);
+      if (!antwort.ok) throw new Error(`Schrift ${datei}: ${antwort.status}`);
+      const blob = await antwort.blob();
+      const url = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+      return `@font-face{font-family:'${fam}';font-style:${st};font-weight:${w};src:url(${url}) format('woff2');}`;
+    })).then((x) => x.join('')).catch(() => {
+      // ohne Schriften weiter (Ersatzschriften), beim nächsten Export neuer Versuch
+      schriftCss = null;
+      return '';
+    });
+  }
+  return schriftCss;
+}
+/** SVG-Text als PNG (2048 px). Den Text vor dem ersten await erzeugen, damit das Bild die Ansicht beim Klick zeigt. */
+async function bildPNG(svgText) {
+  const px = 2048;
+  const css = await eingebetteteSchriften();
+  const text = svgText.replace('width="520" height="520">', `width="${px}" height="${px}"><style>${css}</style>`);
+  const img = new Image();
+  await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text); });
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = px;
+  cv.getContext('2d').drawImage(img, 0, 0, px, px);
+  return new Promise((res, rej) => cv.toBlob((b) => (b ? res(b) : rej(new Error('PNG fehlgeschlagen'))), 'image/png'));
+}
+function exportKnoepfe() {
+  const melden = (btn) => {
+    const zurueck = btn.dataset.label || (btn.dataset.label = btn.textContent);
+    return (text) => { btn.textContent = text; setTimeout(() => { btn.textContent = zurueck; }, 1600); };
+  };
+  const laden = (blob, name) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  for (const t of ['a', 'b']) {
+    // Kopieren: Blob als Promise übergeben, Safari verlangt den Aufruf noch in der Klick-Behandlung
+    $(`kopieren-${t}`).addEventListener('click', async () => {
+      const sag = melden($(`kopieren-${t}`));
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': bildPNG(bildSVG(t)) })]); sag('Kopiert'); } catch { sag('Nicht möglich'); }
+    });
+    $(`svg-${t}`).addEventListener('click', () => laden(new Blob([bildSVG(t)], { type: 'image/svg+xml' }), `${bildName(t)}.svg`));
+    $(`png-${t}`).addEventListener('click', async () => {
+      const svg = bildSVG(t); const name = `${bildName(t)}.png`;
+      try { laden(await bildPNG(svg), name); } catch { melden($(`png-${t}`))('Nicht möglich'); }
+    });
+  }
+}
 
 // ------------------------------------------------------------------ Gruppenwahl
 const SYSTEMNAMEN = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
@@ -603,6 +692,7 @@ function bindeSchalter(id, feld) {
 function init() {
   baueAuswahl();
   sUI.init();
+  exportKnoepfe();
   $('picker').addEventListener('click', (e) => {
     const b = e.target.closest('.pgb');
     if (!b) return;
