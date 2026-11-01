@@ -489,7 +489,7 @@ function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null) {
   if (z.aeFuell) {
     // asymmetrische Einheit und ihre Bilder: Sie pflastern die Ebene ohne Lücken und Überlappungen
     for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
-      const farbe = k.eigentlich ? farben.upper : farben.accent2;
+      const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
       teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
     }
   }
