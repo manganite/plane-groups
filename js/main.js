@@ -14,6 +14,7 @@ import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
+import { schoenfliesHTML, CONWAY } from './symbole.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
 
 const $ = (id) => document.getElementById(id);
@@ -262,6 +263,9 @@ function legende(f) {
 }
 
 // ------------------------------------------------------------------ Kenndaten
+/** Tooltip zur Signatur nach Conway (Orbifold-Symbol). */
+const CONWAY_HINWEIS = 'Orbifold-Symbol nach Conway: * Spiegellinien (Kaleidoskop), Ziffern vor dem * Drehpunkte ohne Spiegellinie, Ziffern nach dem * Schnittpunkte von Spiegellinien, × eine spiegelbildliche Kopie ist erreichbar, ohne eine Spiegellinie zu überqueren, o nur Translationen';
+
 /** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
 const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
@@ -347,7 +351,8 @@ function kenndaten() {
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
       <div><dt>Kristallsystem</dt><dd>${SYSTEMNAMEN[d.system]}</dd></div>
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
-      <div><dt>Punktgruppe</dt><dd>${pgLink}</dd></div>
+      <div><dt>Punktgruppe</dt><dd>${pgLink} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
+      <div><dt>Signatur nach Conway</dt><dd title="${CONWAY_HINWEIS}">${CONWAY[d.symbol]}</dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${g.ordnung}</dd></div>
       <div><dt>Ursprung</dt><dd>${ursprungHTML(d.ursprung)}</dd></div>
       <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeBedingungen(d)}</dd></div>
