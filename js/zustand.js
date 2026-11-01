@@ -36,9 +36,12 @@ export const FREI = {
 };
 
 /** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). */
-export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 0.4] };
+export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 1] };
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
+/** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. */
+export const ZOOM_BEREICH = [1, 3];
+export const OBJ_BEREICH = [0.5, 2.5];
 export const STRUKTUR_START = 'dreieck1';
 const kopie = (x) => JSON.parse(JSON.stringify(x));
 
@@ -70,6 +73,8 @@ export function startzustand() {
     zellen: 1, // 1 oder 2 (2 × 2 Zellen) in Tafel A
     form: 'fahne', // eine der FORMEN: Fähnchen, Kreis mit Komma (ITA) oder ein Ornament
     tapete: false, // Muster (Tafel B) als Tapete: ohne Zelle und Elemente, grösserer Ausschnitt, einfarbig
+    zoomB: 1, // Vergrösserung des Musters (Tafel B): kleinerer Ausschnitt, alles grösser (ZOOM_BEREICH)
+    objGroesse: 1, // Grösse des Objekts (Fähnchen, Ornament) in beiden Tafeln (OBJ_BEREICH)
     farben: true, // nach Blickrichtung färben
     einrasten: true,
     lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt
@@ -189,6 +194,8 @@ export function hashVon(z) {
   q.set('y', koordText(z.punkt[1]));
   for (const [k, f] of SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
   if (z.zellen !== s.zellen) q.set('zellen', String(z.zellen));
+  if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
+  if (z.objGroesse !== s.objGroesse) q.set('og', kurz(z.objGroesse, 3));
   if (z.form !== s.form) q.set('form', z.form);
   if (z.warum) q.set('warum', '1');
   if (z.erkl) q.set('erkl', z.erkl);
@@ -242,6 +249,8 @@ export function hashAnwenden(z, hash) {
   z.punkt = [x ?? s.punkt[0], y ?? s.punkt[1]];
   for (const [k, f] of SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
   if (q.get('zellen') === '2') z.zellen = 2;
+  z.zoomB = zahl(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+  z.objGroesse = zahl(q.get('og'), ...OBJ_BEREICH) ?? s.objGroesse;
   if (FORMEN.includes(q.get('form'))) z.form = q.get('form');
   if (q.has('warum')) z.warum = an(q.get('warum'));
   const erkl = q.get('erkl');

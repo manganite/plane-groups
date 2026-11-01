@@ -9,7 +9,7 @@ import { appLink, inhaltsverzeichnis, querstriche } from '../lib/common/js/skrip
 import { versionEintragen, offline } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
 import { startzustand, hashAnwenden } from './zustand.js';
-import { tafelA, tafelB, metrik, kart, ansicht, f2, pt } from './zeichnung.js';
+import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, drehSymbol } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
 import { MOTIVE } from './motive.js';
 
@@ -50,7 +50,8 @@ function appTafel(fig, f) {
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
     return b ? strukturTafelB(st, f, a.ergebnis).svg : a.svg;
   }
-  const k = symbolGroesse(fig, b);
+  // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
+  const k = /[#&]og=/.test(fig.dataset.app) ? 1 : symbolGroesse(fig, b);
   return b ? tafelB(z.gruppe, z, f, { k }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
 
@@ -277,7 +278,81 @@ function dreieckSkizze(fig, f) {
   return svg.join('');
 }
 
-const SKIZZEN = { dreieck3m: dreieckSkizze, gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
+/**
+ * Kacheln im Stil von Escher (Kap. 7): Man verformt die Kanten eines Quadrats so, dass die
+ * Kacheln lückenlos bleiben. data-variante „p1-bau“: eine Kachel, gegenüberliegende Kanten
+ * gleich verformt (Translation); „p1“: das Muster daraus; „p2“: jede Kante für sich
+ * punktsymmetrisch zu ihrer Mitte, Nachbarn um 180° um die Kantenmitten gedreht.
+ * Koordinaten in Kachel-Einheiten, x nach rechts, y nach unten (wie das Bild).
+ */
+function kachelSkizze(fig, f) {
+  const v = fig.dataset.variante || 'p1';
+  const N = 48;
+  const t = Array.from({ length: N + 1 }, (_, i) => i / N);
+  const sin = (k, x) => Math.sin(2 * Math.PI * k * x);
+  // Kante von S nach E mit seitlicher Auslenkung h(t) (positiv: links der Laufrichtung im Bild)
+  const kante = (S, E, h) => t.map((u) => {
+    const d = [E[0] - S[0], E[1] - S[1]]; const n = [d[1], -d[0]];
+    return [S[0] + u * d[0] + h(u) * n[0], S[1] + u * d[1] + h(u) * n[1]];
+  });
+  let oben; let links; let rechts; let unten;
+  if (v === 'p2') {
+    // jede Kante punktsymmetrisch zu ihrer Mitte: nur Anteile sin(2πkt)
+    oben = kante([0, 0], [1, 0], (u) => 0.13 * sin(1, u) + 0.05 * sin(2, u));
+    rechts = kante([1, 0], [1, 1], (u) => -0.11 * sin(1, u) + 0.06 * sin(2, u));
+    unten = kante([1, 1], [0, 1], (u) => 0.1 * sin(1, u) - 0.05 * sin(2, u));
+    links = kante([0, 1], [0, 0], (u) => 0.12 * sin(1, u) + 0.04 * sin(2, u));
+  } else {
+    oben = kante([0, 0], [1, 0], (u) => 0.2 * Math.sin(Math.PI * u) * Math.cos(Math.PI * u * 1.6));
+    links = kante([0, 1], [0, 0], (u) => 0.16 * sin(1, u) + 0.07 * Math.sin(Math.PI * u));
+    rechts = links.map(([x, y]) => [x + 1, y]).reverse();
+    unten = oben.map(([x, y]) => [x, y + 1]).reverse();
+  }
+  const umriss = [...oben, ...rechts.slice(1), ...unten.slice(1), ...links.slice(1, -1)];
+  const auge = [0.36, 0.4];
+  // Kopien: [Abbildung, dunkel?]
+  const kopien = [];
+  if (v === 'p2') {
+    for (let i = -3; i <= 4; i++) for (let j = -3; j <= 4; j++) {
+      if ((i + j) % 2 === 0) kopien.push([(q) => [q[0] + i, q[1] + j], true, [i, j]]);
+      else kopien.push([(q) => [2 - q[0] + i - 1, 1 - q[1] + j], false, [i, j]]);
+    }
+  } else for (let i = -2; i <= 3; i++) for (let j = -2; j <= 3; j++) kopien.push([(q) => [q[0] + i, q[1] + j], true, [i, j]]);
+  const bau = v === 'p1-bau';
+  const s = bau ? 250 : 140; const o = bau ? [135, 135] : [190, 190];
+  const B = (q) => [o[0] + s * q[0], o[1] + s * q[1]];
+  const pfad = (pts) => pts.map((q) => pt(B(q))).join(' ');
+  const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`, `<defs>${pfeilspitze('ka-pf', f.ink)}<clipPath id="ka-clip-${v}"><rect x="6" y="6" width="508" height="508" rx="6"/></clipPath></defs>`];
+  if (bau) {
+    svg.push(`<rect x="${o[0]}" y="${o[1]}" width="${s}" height="${s}" fill="none" stroke="${f.muted}" stroke-width="1.4" stroke-dasharray="6 5"/>`);
+    svg.push(`<polygon points="${pfad(umriss)}" fill="${f.upper}" fill-opacity="0.16" stroke="none"/>`);
+    const paare = [[oben, unten, f.ink], [links, rechts, f.accent]]; // nicht orange (Spiegelbild) oder grün (Blickrichtung)
+    for (const [k1, k2, c] of paare) for (const k of [k1, k2]) svg.push(`<polyline points="${pfad(k)}" fill="none" stroke="${c}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`);
+    // Translationen: links → rechts um b, oben → unten um a
+    const pf = (p, q, label, lp) => linie(B(p), B(q), `stroke="${f.ink}" stroke-width="1.8" marker-end="url(#ka-pf)"`) + text(B(lp), label, `${SERIF} font-weight="600" font-size="22" fill="${f.ink}" text-anchor="middle"`);
+    svg.push(pf([0.12, 0.62], [0.9, 0.62], 'b', [0.5, 0.58]));
+    svg.push(pf([0.62, 0.12], [0.62, 0.9], 'a', [0.69, 0.53]));
+    svg.push(`<circle cx="${f2(B(auge)[0])}" cy="${f2(B(auge)[1])}" r="7" fill="${f.ink}"/>`);
+    return svg.join('');
+  }
+  const g = [`<g clip-path="url(#ka-clip-${v})">`];
+  for (const [abb, dunkel, [i, j]] of kopien) {
+    const pts = umriss.map(abb);
+    const hervor = i === 0 && j === 0;
+    g.push(`<polygon points="${pfad(pts)}" fill="${f.upper}" fill-opacity="${hervor ? 0.5 : dunkel ? 0.26 : 0.1}" stroke="${f.ink}" stroke-width="1.3" stroke-linejoin="round"/>`);
+    const a = B(abb(auge));
+    g.push(`<circle cx="${f2(a[0])}" cy="${f2(a[1])}" r="6" fill="${f.ink}"/>`);
+  }
+  if (v === 'p2') {
+    // 2-zählige Drehpunkte auf allen Kantenmitten (die Ecken sind keine)
+    for (let i = -2; i <= 3; i++) for (let j = -2; j <= 3; j++) for (const q of [[i + 0.5, j], [i, j + 0.5]]) g.push(drehSymbol(2, B(q), f.ink, f.paper, 1.6, 1.5));
+  }
+  g.push('</g>');
+  svg.push(...g);
+  return svg.join('');
+}
+
+const SKIZZEN = { kachel: kachelSkizze, dreieck3m: dreieckSkizze, gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
 
 function abbildungen() {
   const f = farben();

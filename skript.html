@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Skript: Symmetrie in der Ebene</title>
-<meta name="description" content="Skript zur Einführung in die Kristallographie: Gitter, Elementarzelle und Basis, Symmetrie des Gitters, Gitter und Motiv, Gleitspiegelung, die 17 Ebenengruppen und Punktlagen.">
+<meta name="description" content="Skript zur Einführung in die Kristallographie: Gitter, Elementarzelle und Basis, Symmetrie des Gitters, Gitter und Motiv, Gleitspiegelung, die 17 Ebenengruppen, Punktlagen sowie Tapeten, Ornamente und Kunst.">
 <link rel="icon" href="icons/favicon.ico" sizes="any">
 <link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -21,6 +21,7 @@
 .tab.tafel td, .tab.tafel th { text-align: center; }
 .mat { display: inline-grid; grid-template-columns: repeat(var(--n), auto); gap: 0.1em 0.7em; justify-items: center; align-items: center; vertical-align: middle; padding: 0.1em 0.5em; border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; border-radius: 0.6em; line-height: 1.25; margin: 0.15em 0.1em; }
 .mat-zeile { overflow-x: auto; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -93,6 +94,16 @@
               <li><a href="#asymmetrische-einheit">Die asymmetrische Einheit</a></li>
               <li><a href="#ita-seite">Eine Seite der International Tables lesen</a></li>
               <li><a href="#struktur-beschreiben">Eine Kristallstruktur beschreiben</a></li>
+            </ol>
+          </li>
+          <li><a href="#kunst"><span class="nr">7</span>Tapeten, Ornamente und Kunst</a>
+            <ol>
+              <li><a href="#tapetengruppen">Tapetengruppen</a></li>
+              <li><a href="#mauerwerk">Mauerwerk und Pflaster</a></li>
+              <li><a href="#fliesen">Fliesen und die Alhambra</a></li>
+              <li><a href="#escher">Escher und die Kachel</a></li>
+              <li><a href="#farbe">Ausblick: Farbe als Symmetrie</a></li>
+              <li><a href="#conway">Die Signatur nach Conway (Vertiefung)</a></li>
             </ol>
           </li>
         </ol>
@@ -1442,6 +1453,249 @@
           <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 6.1.4 (asymmetrische Einheit, Definition, Fundamentalbereich, Begrenzung durch Spiegelebenen und Drehachsen, Wahl nicht eindeutig, S. 201–202), 6.1.5 (Lagen und Koordinaten: Multiplizität, Wyckoff-Buchstaben von <i>a</i> an, Wyckoff 1922, Lagensymmetrie mit Punkten als Platzhalter, Koordinaten ausserhalb der Zelle, S. 203–206).</li>
           <li>International Tables for Crystallography, Vol. A (2006), Abschn. 2.2.7 (Wahl des Ursprungs: Inversionszentrum, sonst Punkt höchster Lagesymmetrie, sonst Gleitspiegelebene oder Schraubenachse; Angabe der Elemente durch den Ursprung, S. 24; die Regel für die Ebene ist an den Angaben „Origin“ der 17 Seiten in Part 6 abgelesen), 2.2.8 (asymmetrische Einheit: Spiegel und Drehachsen am Rand, Fundamentalbereich, Wahl für bequeme Rechnung, S. 25–26), 2.2.10 (Erzeugende, S. 27), 2.2.11 (Positions: Zähligkeit, auch mit Zentrierung, Wyckoff-Buchstabe von unten, Koordinaten; allgemeine und spezielle Lage; Objekt auf spezieller Lage mit mindestens der Lagesymmetrie; Gleitspiegelebenen und Schraubenachsen erhöhen die Lagesymmetrie nicht; „Position“ als Menge gleichwertiger Punkte, deutsch Punktlage, S. 27–28), 2.2.12 (orientierte Lagesymmetrie, Punkt für Richtungen ohne Element, S. 28), Part 6 (<i>pg</i>, S. 95; <i>p</i>2<i>mm</i>, S. 97; <i>p</i>2<i>mg</i>, S. 98; <i>c</i>2<i>mm</i>, S. 100; <i>p</i>4<i>mm</i>, S. 102; <i>p</i>6<i>mm</i>, S. 108–109).</li>
           <li>Ausführlicher zu Lage, orientiertem Symbol und Multiplizität bei Flächen eines Kristalls: <a href="https://manganite.github.io/stereography/skript.html#lagen">Skript „Stereographische Projektion“, Kapitel 10</a>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="kunst">
+      <h2><span class="nr">7</span>Tapeten, Ornamente und Kunst</h2>
+      <p class="lead">Periodische Muster gibt es nicht nur in Kristallen. Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster wiederholen ein Motiv in zwei Richtungen, und für sie gelten dieselben 17 Ebenengruppen. Dieses Kapitel zeigt solche Muster, alle mit dem Code der App gezeichnet, und wie Handwerker und Künstler mit Symmetrie gearbeitet haben. Die Vertiefung am Ende stellt einen zweiten, sehr anschaulichen Blick auf die 17 Gruppen vor, den von John Conway.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>erklären, warum die Ebenengruppe eines Musters von der Anordnung der Motive abhängt und bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt</li>
+          <li>an Mauerwerk und Pflaster zeigen, wie der Versatz der Reihen die Symmetrie ändert, und die Ebenengruppen der Beispiele im Bild nachvollziehen</li>
+          <li>Parkettierungen aus regelmässigen Vielecken beschreiben und ihre Symmetrie angeben</li>
+          <li>erklären, wie man Kacheln im Stil von Escher konstruiert</li>
+          <li>am Schachbrett erklären, was eine Operation mit Farbwechsel ist</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>die Signatur einer Ebenengruppe nach Conway lesen und ihren Preis berechnen</li>
+          <li>erklären, warum die Bedingung „Preis 2“ auf genau 17 Ebenengruppen führt</li>
+        </ul>
+      </div>
+
+      <section id="tapetengruppen">
+        <h3>Tapetengruppen</h3>
+        <p>Zweidimensional periodischen Mustern begegnet man im Alltag ständig: Mauerwerk aus Ziegeln, Pflaster auf Gehwegen, Parkett, Fliesen in Bad und Küche, Tapeten, Geschenkpapier, Stoffe. Im Englischen heissen die Ebenengruppen deshalb oft <i>wallpaper groups</i>, Tapetengruppen; nach Hoffmann ist dieser Name dort sogar verbreiteter als der formellere <i>plane symmetry groups</i>.</p>
+        <p>Eine Tapete entsteht wie jedes Muster in diesem Skript: Ein Motiv wird mit den Operationen einer Ebenengruppe vervielfacht. Für die Gruppe zählt dabei nur, wie die Kopien zueinander liegen, nicht, wie das Motiv aussieht. Das Fähnchen der App ist das einfachste Motiv ohne eigene Symmetrie. Ersetzt man es durch ein Ornament, ändert sich das Bild, die Gruppe aber nicht (Abb. 7.1). Liegt das Ornament nahe an einer Spiegellinie, rückt es nahe an sein Spiegelbild, und beide wirken zusammen wie eine einzige, spiegelsymmetrische Figur, in Abb. 7.1b etwa wie ein Schmetterling. So entstehen in Ornamenten symmetrische Figuren, ohne dass das Motiv selbst symmetrisch ist.</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p4gm&amp;zoom=1.76&amp;og=1.6" data-alt="Muster der Ebenengruppe p4gm mit Fähnchen und Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.1a</b> <i>p</i>4<i>gm</i> mit Fähnchen und Zelle; orange die Spiegelbilder.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p4gm&amp;form=blatt&amp;tap=1&amp;zoom=2.6&amp;og=1.6" data-alt="Tapete der Ebenengruppe p4gm mit einem Blatt als Motiv">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Dieselbe Gruppe als Tapete, Motiv Blatt.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p4gm&amp;form=ranke&amp;tap=1&amp;zoom=2.6&amp;og=1.6" data-alt="Tapete der Ebenengruppe p4gm mit einer Ranke als Motiv">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Motiv Ranke.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.1</b> Dreimal die Ebenengruppe <i>p</i>4<i>gm</i> im selben Massstab, jedes Mal mit dem Objekt an derselben Stelle der Zelle. Als Tapete zeichnet die App alles in einer Farbe und ohne Zelle und Symmetrieelemente.</p>
+        <p>Abb. 7.2 zeigt Tapeten anderer Ebenengruppen. In <i>p</i>6 gibt es nur Drehungen; die Ranken drehen sich alle im selben Sinn wie in einem Wirbel. In <i>p</i>31<i>m</i> und <i>p</i>2<i>gg</i> kommen Spiegelbilder vor, in <i>p</i>2<i>gg</i> aber nur durch Gleitspiegelungen: Jeder Tropfen ist gegen sein Spiegelbild zugleich verschoben.</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p6&amp;form=ranke&amp;tap=1&amp;zoom=2.2&amp;og=1.6" data-alt="Tapete der Ebenengruppe p6 mit Ranken">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.2a</b> <i>p</i>6, Ranke.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p31m&amp;form=blatt&amp;tap=1&amp;zoom=2.2&amp;og=1.6" data-alt="Tapete der Ebenengruppe p31m mit Blättern">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> <i>p</i>31<i>m</i>, Blatt.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p2gg&amp;form=tropfen&amp;tap=1&amp;zoom=2.2&amp;og=1.6" data-alt="Tapete der Ebenengruppe p2gg mit Tropfen">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> <i>p</i>2<i>gg</i>, Tropfen.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.2</b> Tapeten dreier weiterer Ebenengruppen.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die Ebenengruppe eines Musters hängt davon ab, wie die Kopien eines Motivs zueinander liegen. Solange das Motiv selbst keine Symmetrie hat, ändert seine Gestalt die Gruppe nicht. Ein solches Motiv in allgemeiner Lage zeigt alle Operationen der Gruppe.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Ebenengruppen“ wählt man unter „Weitere Optionen“ ein Ornament als Objekt und unter „Darstellung“ das „Muster als Tapete“. Die „Vergrösserung des Musters“ (Darstellung) und die „Grösse“ des Objekts (Objekt) stellen den Ausschnitt ein; die Links unter den Abbildungen öffnen genau diese Ansicht. Auch Selbstgezeichnetes erscheint in der Tapete. Mit „Kopieren“, „SVG“ und „PNG“ über jeder Tafel lässt sich das Bild weiterverwenden.</p>
+        </div>
+      </section>
+
+      <section id="mauerwerk">
+        <h3>Mauerwerk und Pflaster</h3>
+        <p>Wie man Ziegel zu einer Mauer setzt, entscheidet nicht nur über das Aussehen, sondern auch über die Festigkeit. Setzt man die Reihen genau übereinander, laufen die Fugen senkrecht durch die ganze Mauer, und dort bricht sie leicht. Deshalb wird jede zweite Reihe um eine halbe Steinlänge versetzt; nach Hoffmann entsteht damit schon „ein Gleitspiegelmotiv im Mauerwerk“. Steine, die längs in der Wand liegen, heissen Läufer, solche, die quer liegen und nur ihre Stirnseite zeigen, Binder. Je nachdem, wie man sie mischt und versetzt, ergeben sich die vielen Verbände des Maurerhandwerks, vom einfachen Läuferverband bis zu Zierverbänden wie dem Märkischen, Flämischen oder Gotischen Verband.</p>
+        <p>Abb. 7.3 zeigt fünf Verbände aus gleichen Steinen, wie man sie von Pflaster und Parkett kennt. In der App sind die Steine samt Fuge doppelt so lang wie breit. Ohne Versatz (Abb. 7.3a) liegen die Steine in Reihen und Spalten; Spiegellinien laufen durch die Steinmitten und entlang der Fugen, in beiden Richtungen: <i>p</i>2<i>mm</i>, wie bei der länglichen Insel in Abb. 3.2c. Versetzt man jede zweite Reihe um eine halbe Steinlänge, entsteht der Läuferverband (Abb. 7.3b), mit der Ebenengruppe <i>c</i>2<i>mm</i>. Die senkrechten Spiegellinien laufen durch die Steinmitten und durch die senkrechten Fugen, die waagrechten durch die Mitten der Reihen. Die waagrechten Fugen sind keine Spiegellinien, denn die Reihen darüber und darunter sind gegeneinander versetzt; spiegelt man an einer solchen Fuge und verschiebt um eine halbe Steinlänge, kommt das Muster aber zur Deckung. Das ist das Gleitspiegelmotiv, von dem Hoffmann spricht (Abb. 7.4a). Versetzt man jede Reihe gegen die vorige um ein Drittel der Steinlänge, immer in dieselbe Richtung, bleiben keine Spiegellinien, nur 2-zählige Drehpunkte: <i>p</i>2 (Abb. 7.3c).</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=reihen" data-viewbox="24 24 472 472" data-alt="Ziegel in Reihen und Spalten ohne Versatz">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.3a</b> Ohne Versatz: <i>p</i>2<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=laeufer" data-viewbox="24 24 472 472" data-alt="Läuferverband: jede zweite Reihe um eine halbe Steinlänge versetzt">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Läuferverband, halb versetzt: <i>c</i>2<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=drittel" data-viewbox="102.5 102.5 315 315" data-alt="Ziegelreihen, jede um ein Drittel der Steinlänge gegen die vorige versetzt">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Um ein Drittel versetzt: <i>p</i>2. Die Zelle sieht fast rechteckig aus, ist es aber nicht.</figcaption>
+          </figure>
+        </div>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=fisch" data-viewbox="92.5 92.5 335 335" data-alt="Fischgrätverband: Steine im Zickzack, abwechselnd um 90 Grad gedreht">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> Fischgrätverband: <i>p</i>2<i>gg</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=flecht" data-viewbox="142 142 236 236" data-alt="Flechtverband: je zwei Steine bilden ein Quadrat, abwechselnd waagrecht und senkrecht">
+            <div class="fig-art"></div>
+            <figcaption><b>e</b> Flechtverband: <i>p</i>4<i>gm</i>.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.3</b> Fünf Verbände aus gleichen Steinen (Vorgaben „Mauerwerk und Pflaster“ im Modus „Gitter und Basis“). Hervorgehoben ist die konventionelle Zelle, die die App bestimmt.</p>
+        <p>Im Fischgrätverband (Abb. 7.3d) liegen die Steine im Zickzack, abwechselnd um 90° gedreht. Er hat keine einzige Spiegellinie, aber Gleitspiegellinien in zwei Richtungen und 2-zählige Drehpunkte: <i>p</i>2<i>gg</i> (Abb. 7.4b). Im Flechtverband (Abb. 7.3e) bilden je zwei Steine ein Quadrat, abwechselnd waagrecht und senkrecht, wie bei einem Geflecht. Wo vier Quadrate zusammenstossen, liegt ein 4-zähliger Drehpunkt, aber auf keiner Spiegellinie; die Spiegellinien laufen durch die Mitten der Quadrate: <i>p</i>4<i>gm</i>.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=laeufer" data-alt="Läuferverband mit zentrierter Zelle, Spiegellinien, Gleitspiegellinien und Drehpunkten von c2mm">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.4a</b> Läuferverband, <i>c</i>2<i>mm</i>: Gleitspiegellinien (gestrichelt) entlang der waagrechten Fugen und senkrecht durch die Viertel der Steine.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=fisch" data-alt="Fischgrätverband mit Zelle, Gleitspiegellinien und Drehpunkten von p2gg">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Fischgrätverband, <i>p</i>2<i>gg</i>: nur Gleitspiegellinien und 2-zählige Drehpunkte.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.4</b> Konventionelle Zelle und Symmetrieelemente zweier Verbände, wie die App sie bestimmt. Die App legt <i>a</i> immer nach unten; im Fischgrätverband liegen die Steine deshalb schräg zur Zelle.</p>
+        <p>Der Läuferverband zeigt noch etwas aus Kapitel 3. Die kürzesten Translationen führen von einem Stein schräg zu den beiden versetzten Steinen der nächsten Reihe. Sie sind immer gleich lang; weil die Steine samt Fuge doppelt so lang wie breit sind, stehen sie zudem senkrecht aufeinander: Das Gitter ist quadratisch. Die Steine liegen aber diagonal zu dieser Zelle, ihre Spiegellinien sind deren Diagonalen. Wie bei den gedrehten Inseln in Abb. 3.5b lässt das Motiv 2<i>mm</i> von 4<i>mm</i> nur 2<i>mm</i> übrig. Die konventionelle Zelle wird entlang der Spiegellinien gelegt und ist dann zentriert, ein Quadrat mit einem Punkt in der Mitte. Für das Gitter allein wäre diese Zelle unnötig gross (Vertiefung in Abschnitt 2.4), für das Muster ist sie die richtige (Abschnitt 3.3).</p>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Gitter und Basis“ stehen die fünf Verbände unter den Vorgaben „Mauerwerk und Pflaster“. Verschiebt man einen Stein oder ändert man das Gitter, zeigt die App, wie sich die Ebenengruppe ändert. Das Motiv „Ziegel“ steht auch für eigene Verbände zur Verfügung.</p>
+        </div>
+      </section>
+
+      <section id="fliesen">
+        <h3>Fliesen und Ornamente der Alhambra</h3>
+        <p>Mit gleichen regelmässigen Vielecken lässt sich die Ebene nur mit drei Sorten lückenlos auslegen: mit gleichseitigen Dreiecken, Quadraten oder Sechsecken (Abschnitt 2.2). Legt man sie Kante an Kante, ergeben Quadrate <i>p</i>4<i>mm</i>, Dreiecke und Sechsecke <i>p</i>6<i>mm</i>. Mischt man verschiedene regelmässige Vielecke, Kante an Kante und so, dass jede Ecke gleich aussieht, mit denselben Vielecken in derselben Reihenfolge, erhält man die archimedischen Parkettierungen. Ihr Name zählt die Vielecke um eine Ecke auf: 4.8.8 heisst ein Quadrat und zwei Achtecke. Abb. 7.5 zeigt vier davon mit ihren Ebenengruppen. Die Ecken der Parkettierung sind dort Atome, die Kanten Bindungen.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=a488" data-viewbox="100 100 320 320" data-alt="Parkettierung 4.8.8 aus Quadraten und Achtecken">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.5a</b> 4.8.8: <i>p</i>4<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=a3464" data-viewbox="100 100 320 320" data-alt="Parkettierung 3.4.6.4 aus Dreiecken, Quadraten und Sechsecken">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> 3.4.6.4: <i>p</i>6<i>mm</i>.</figcaption>
+          </figure>
+        </div>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=a33434" data-viewbox="100 100 320 320" data-alt="Parkettierung 3.3.4.3.4 aus Dreiecken und gekippten Quadraten">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> 3.3.4.3.4: <i>p</i>4<i>gm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=a33336" data-viewbox="100 100 320 320" data-alt="Parkettierung 3.3.3.3.6 aus Dreiecken und Sechsecken, ohne Spiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> 3.3.3.3.6: <i>p</i>6, chiral.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.5</b> Vier archimedische Parkettierungen (Vorgaben im Modus „Gitter und Basis“).</p>
+        <p>In 3.3.4.3.4 sind die Quadrate gekippt. Dadurch liegt der 4-zählige Drehpunkt in der Mitte jedes Quadrats auf keiner Spiegellinie mehr; Spiegellinien laufen nur noch durch die Ecken der Parkettierung, zwischen den Quadraten hindurch, und die Gruppe ist <i>p</i>4<i>gm</i> wie beim Flechtverband. 3.3.3.3.6 hat gar keine Spiegellinie, nur Drehpunkte. Die Parkettierung gibt es deshalb in zwei spiegelbildlichen Formen, wie eine linke und eine rechte Hand; man nennt sie <span class="term">chiral</span>. Beide haben die Ebenengruppe <i>p</i>6.</p>
+        <p>Zu besonderer Meisterschaft hat es die islamische Kunst mit flächenfüllenden Mustern gebracht. Ein berühmtes Beispiel ist die Alhambra in Granada, eine palastartige Festungsanlage, die seit 1984 zum Weltkulturerbe der UNESCO gehört und für ihre Kachelungen und Mosaiken berühmt ist. Seit Jahrzehnten wird gestritten, ob dort alle 17 Ebenengruppen vorkommen oder nicht. Hoffmann sieht darin auch ein Zeichen dafür, wie schwierig es sein kann, die Ebenengruppe eines Musters eindeutig zu bestimmen. Für die Handwerker, die die Mosaiken schufen, war die Frage ohne Bedeutung: Die 17 Ebenengruppen hat erst Fedorov 1891 abgeleitet, rund fünf Jahrhunderte später.</p>
+      </section>
+
+      <section id="escher">
+        <h3>Escher und die Kachel</h3>
+        <p>Der niederländische Künstler M.&nbsp;C. Escher besuchte die Alhambra 1922 zum ersten Mal. Ihn faszinierten die Mosaiken, und es wunderte ihn, dass in ihnen nach Hoffmann keine Menschen, Tiere oder auch nur pflanzenähnliche Formen vorkommen. In den folgenden Jahren suchte er nach Figuren von Lebewesen, die gleich gross und gleich gestaltet sind und die Ebene lückenlos füllen. 1926 gelang ihm das zum ersten Mal mit einer löwenartigen Figur. Im Mai 1936 besuchte er die Alhambra ein zweites Mal, mit seiner Frau Jetta; drei Tage lang skizzierten beide die Muster. Danach empfahl ihm sein Halbbruder, ein Professor der Geologie, Artikel aus kristallographischen Zeitschriften über die Symmetrie der Ebene. Die meisten waren ihm zu theoretisch, einige aber anschaulich genug, um seine Arbeit voranzubringen. In den folgenden Jahren entstanden viele periodische Muster aus Vögeln, Fischen, Reptilien und anderen Figuren, manche nur mit Drehungen, andere auch mit Gleitspiegelungen. Eschers Werke sind urheberrechtlich geschützt; eine Auswahl seiner Symmetriezeichnungen zeigt die <a href="https://mcescher.com/gallery/symmetry/">Galerie der M.&nbsp;C. Escher Company</a>, ausführlich das Buch von Schattschneider (Quellen).</p>
+        <p>Wie entsteht eine solche Kachel? Man beginnt mit einer Elementarzelle und verformt ihre Kanten. Damit die Kacheln lückenlos bleiben, muss jede Verformung an einer Partnerkante wiederkehren. In <i>p</i>1 ist der Partner der linken Kante die rechte: Sie geht aus ihr durch die Translation <i>b</i> hervor. Ebenso gehen die obere und die untere Kante durch <i>a</i> auseinander hervor (Abb. 7.6a). Was an einer Kante herausgeschnitten wird, wächst an der Partnerkante an. Die Kachel hat deshalb immer dieselbe Fläche wie die Zelle, und die verformten Kacheln füllen die Ebene wie vorher die Zellen (Abb. 7.6b).</p>
+        <p>Eine Kante kann auch ihr eigener Partner sein. Ist sie punktsymmetrisch zu ihrer Mitte, passt die Kachel, um 180° um die Kantenmitte gedreht, genau an sie an. Sind alle vier Kanten so geformt, sind alle Kantenmitten 2-zählige Drehpunkte, und das Muster hat die Ebenengruppe <i>p</i>2 (Abb. 7.6c). Verschoben wiederholt sich jetzt erst jede zweite Kachel; die Elementarzelle des Musters ist doppelt so gross wie die Kachel, und die Kachel ist eine asymmetrische Einheit (Abschnitt 6.3). Mit Gleitspiegelungen oder Drehungen um 90° als Partnerregeln kommt man zu Kacheln anderer Ebenengruppen.</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="kachel" data-variante="p1-bau" data-alt="Quadratische Zelle, deren gegenüberliegende Kanten gleich verformt sind">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.6a</b> Die Kanten der Zelle (gestrichelt) verformt; gleiche Farbe: Partnerkanten, verschoben um <i>a</i> bzw. <i>b</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="kachel" data-variante="p1" data-alt="Muster aus lauter verschobenen Kopien der verformten Kachel">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Die Kacheln füllen die Ebene: <i>p</i>1.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="kachel" data-variante="p2" data-alt="Muster aus Kacheln mit S-förmigen Kanten, um die Kantenmitten gedreht, mit 2-zähligen Drehpunkten">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Kanten punktsymmetrisch zu ihrer Mitte: <i>p</i>2, heller die gedrehten Kacheln.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.6</b> Kacheln im Stil von Escher. Der Punkt in jeder Kachel zeigt, wie sie liegt. Keine Kachel ist ein Spiegelbild einer anderen, deshalb sind alle blau (Abschnitt 4.1).</p>
+      </section>
+
+      <section id="farbe">
+        <h3>Ausblick: Farbe als Symmetrie</h3>
+        <p>Ein Schachbrett hat die Ebenengruppe <i>p</i>4<i>mm</i>. Welche Zelle dazugehört, hängt aber davon ab, ob man die Farben beachtet. Ohne Farben ist jedes Feld gleich, und die Zelle ist ein einzelnes Feld (Abb. 7.7a). Mit Farben führt erst die Translation zum nächsten Feld gleicher Farbe das Muster in sich über, schräg über die Ecke; die Zelle ist um 45° gedreht und doppelt so gross (Abb. 7.7b).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=quadrat,0,1/4,1/4,0,0.332;quadrat,0,1/4,3/4,0,0.332;quadrat,0,3/4,1/4,0,0.332;quadrat,0,3/4,3/4,0,0.332" data-alt="Schachbrett mit lauter gleichen Feldern, Zelle ein Feld, p4mm">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 7.7a</b> Ohne Farben: <i>p</i>4<i>mm</i>, die Zelle ist ein Feld.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=quadrat,0,1/4,1/4,0,0.332;quadrat,1,1/4,3/4,0,0.332;quadrat,1,3/4,1/4,0,0.332;quadrat,0,3/4,3/4,0,0.332" data-alt="Schachbrett in zwei Farben, Zelle um 45 Grad gedreht und doppelt so gross, p4mm">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Mit zwei Farben: wieder <i>p</i>4<i>mm</i>, die Zelle gedreht und doppelt so gross.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 7.7</b> Ein Schachbrett im Modus „Gitter und Basis“. Die gestrichelte Zelle ist die gegebene, die durchgezogene die konventionelle. Hier unterscheiden die Farben zwei Sorten von Feldern wie zwei Atomsorten.</p>
+        <p>Die Verschiebung um ein Feld bringt das Muster also nicht in sich über, aber fast: Jedes Feld kommt auf ein Feld gleicher Form, nur mit der anderen Farbe. Nimmt man solche Operationen mit Farbwechsel hinzu, erhält man die Schwarz-Weiss-Gruppen, auch Antisymmetriegruppen genannt. In der Ebene gibt es 46 von ihnen; zusammen mit den 17 gewöhnlichen und 17 „grauen“ Gruppen, in denen jede Operation auch mit Farbwechsel vorkommt, sind es 80. In den grauen Gruppen ist auch der Farbwechsel allein eine Operation, als wäre jedes Feld zugleich schwarz und weiss, also grau. Mit derselben Idee beschreibt man magnetische Strukturen, etwa antiferromagnetische: Dort spielt die Umkehr der magnetischen Momente die Rolle des Farbwechsels.</p>
+      </section>
+
+      <section id="conway" data-level="vertiefung">
+        <h3>Die Signatur nach Conway</h3>
+        <p>Diese Vertiefung knüpft an die Kapitel 5 und 6 an und zeigt einen zweiten Weg zu den 17 Ebenengruppen, der ohne Koordinaten und Tabellen auskommt und vom Bild ausgeht. Für den Rest des Skripts braucht man ihn nicht. Der Mathematiker John H. Conway hat mit Heidi Burgiel und Chaim Goodman-Strauss beschrieben, wie man jede Ebenengruppe mit vier Merkmalen festlegt, die man im Muster sieht. Die Merkmale werden zu einer <span class="term">Signatur</span> zusammengesetzt, auch Orbifold-Symbol genannt, und zwar in fester Reihenfolge: zuerst o, dann die Drehpunkte, dann jedes Kaleidoskop mit seinen Ecken, zuletzt ×.</p>
+        <ul>
+          <li><b>Kaleidoskop</b>, Zeichen *: Spiegellinien, die ein Gebiet begrenzen wie die Spiegel eines Kaleidoskops, oder eine einzelne Spiegellinie, die keine andere schneidet. Hinter dem * folgen die Ecken des Kaleidoskops, die Schnittpunkte von Spiegellinien, jeweils mit der Zahl der Spiegellinien durch den Punkt.</li>
+          <li><b>Drehpunkte, die auf keiner Spiegellinie liegen</b> (englisch <i>gyrations</i>), mit ihrer Zähligkeit, vor dem *.</li>
+          <li><b>Wunder</b> (<i>miracle</i>, von <i>mirrorless crossing</i>), Zeichen ×: Man kommt von einem Motiv zu seinem Spiegelbild, ohne eine Spiegellinie zu überqueren. Das leisten Gleitspiegelungen, die nicht aus Spiegellinien folgen.</li>
+          <li><b>Wanderung</b> (<i>wonder</i>, von <i>wonderful wandering</i>), Zeichen o: Kopien ohne Spiegelung, die weder durch Drehpunkte noch durch Spiegellinien oder Wunder erklärt sind. Das kommt nur in <i>p</i>1 vor.</li>
+        </ul>
+        <p>Gleichartige Merkmale zählt man nur einmal, wobei zwei Punkte oder Linien gleichartig sind, wenn eine Symmetrieoperation des Musters das eine in das andere überführt. In <i>pm</i> gibt es zwei Sorten paralleler Spiegellinien, die keine Operation ineinander überführt; jede ist ein Kaleidoskop für sich, daher **. Das ist genau der Begriff der Punktlage aus Kapitel 6. Jede Ziffer der Signatur steht deshalb für eine Wyckoff-Lage, deren Lagesymmetrie eine Drehung enthält: vor dem * eine mit der Lagesymmetrie <i>n</i>, hinter dem * eine mit <i>n</i> Spiegellinien und einem <i>n</i>-zähligen Drehpunkt. Ein Beispiel ist das Paar aus Abb. 5.2. In <i>p</i>4<i>mm</i> liegen alle Drehpunkte auf Schnittpunkten von Spiegellinien: zwei Sorten 4-zähliger Punkte (1<i>a</i> und 1<i>b</i>) und eine Sorte 2-zähliger (2<i>c</i>); die Signatur ist *442. In <i>p</i>4<i>gm</i> liegt der 4-zählige Punkt auf keiner Spiegellinie, nur der 2-zählige auf einem Schnittpunkt: 4*2. Conway färbt die Merkmale ohne Spiegelung (Drehpunkte, Wanderung) blau, die spiegelnden (Kaleidoskope, Wunder) rot, ähnlich wie die App: blau, was durch Drehen und Verschieben entsteht, orange die Spiegelbilder.</p>
+        <p>Nun bekommt jedes Zeichen einen Preis: o kostet 2, * und × je 1, eine Ziffer <i>n</i> vor dem * kostet <span class="nowrap">(<i>n</i>&nbsp;−&nbsp;1)/<i>n</i></span>, eine Ziffer <i>n</i> hinter dem * die Hälfte davon, <span class="nowrap">(<i>n</i>&nbsp;−&nbsp;1)/(2<i>n</i>)</span>. Conways <span class="term">Magic Theorem</span> sagt: Die Signaturen der periodischen Muster der Ebene sind genau die mit dem Gesamtpreis 2. Für <i>p</i>4<i>gm</i> ist das ¾ + 1 + ¼ = 2, für <i>p</i>6<i>mm</i> (*632) 1 + <sup>5</sup>⁄<sub>12</sub> + ⅓ + ¼ = 2.</p>
+        <p>Daraus folgt mit wenig Rechnung, dass es genau 17 Gruppen gibt. Nur blaue Zeichen: Jede Ziffer kostet weniger als 1, also braucht man mindestens drei. Mit drei Ziffern geht es nur als 632, 442 oder 333, mit vier nur als 2222, mehr Ziffern sind zu teuer; dazu kommt o allein. Nur Kaleidoskope (ein * mit Ziffern dahinter): Es kostet genau die Hälfte der entsprechenden blauen Signatur plus 1, also *632, *442, *333, *2222 und, als Gegenstück zu o, **. Die gemischten Signaturen entstehen aus diesen, indem man zwei gleiche Ziffern hinter dem * durch eine davor ersetzt (*<i>nn</i> → <i>n</i>*) oder ein letztes * durch × (der Preis bleibt gleich): 4*2, 3*3, 2*22, 22*, *×, 22× und ××. Umgekehrt wird jede gemischte Signatur zu einer reinen, wenn man <i>n</i>* durch *<i>nn</i> und × durch * ersetzt, ohne dass sich der Preis ändert; deshalb gibt es keine weiteren. Das sind 5 + 5 + 7 = 17 Signaturen, und zu jeder gehört genau eine Ebenengruppe.</p>
+        <div class="tabwrap">
+          <table class="tab tafel">
+            <thead><tr><th colspan="5">Signatur nach Conway und Symbol nach Hermann-Mauguin</th></tr></thead>
+            <tbody>
+              <tr><td>*632 · <i>p</i>6<i>mm</i></td><td>*442 · <i>p</i>4<i>mm</i></td><td>*333 · <i>p</i>3<i>m</i>1</td><td>*2222 · <i>p</i>2<i>mm</i></td><td>** · <i>pm</i></td></tr>
+              <tr><td></td><td>4*2 · <i>p</i>4<i>gm</i></td><td>3*3 · <i>p</i>31<i>m</i></td><td>2*22 · <i>c</i>2<i>mm</i><br>22* · <i>p</i>2<i>mg</i></td><td>*× · <i>cm</i><br>×× · <i>pg</i></td></tr>
+              <tr><td></td><td></td><td></td><td>22× · <i>p</i>2<i>gg</i></td><td></td></tr>
+              <tr><td>632 · <i>p</i>6</td><td>442 · <i>p</i>4</td><td>333 · <i>p</i>3</td><td>2222 · <i>p</i>2</td><td>o · <i>p</i>1</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Die Tabelle ist wie bei Conway angeordnet: oben die rein spiegelnden Gruppen, unten die ohne Spiegelung, dazwischen die gemischten. In jeder Spalte haben die Gruppen dieselbe höchste Drehzähligkeit; unten steht jeweils die Gruppe aus ihren Drehungen und Translationen ohne Spiegelungen. Kapitel 5 kam auf 17, indem es Punktgruppen und Gitter kombinierte und Spiegellinien durch Gleitspiegellinien ersetzte; Conway kommt auf dieselbe Zahl, indem er Preise addiert.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die Signatur nach Conway nennt Drehpunkte ohne Spiegellinie (vor dem *), Kaleidoskope mit ihren Ecken (* und Ziffern danach), Wunder (×) und Wanderungen (o). Eine Signatur gehört genau dann zu einer Ebenengruppe, wenn ihr Preis 2 beträgt; das ergibt die 17 Gruppen.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Die Kenndaten im Modus „Ebenengruppen“ nennen neben dem Symbol die Signatur nach Conway; der Hinweis beim Darüberfahren erklärt die Zeichen. Mit den Wyckoff-Lagen in denselben Kenndaten lässt sich jede Ziffer einer Punktlage zuordnen.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster sind periodische Muster mit denselben 17 Ebenengruppen; englisch heissen sie <i>wallpaper groups</i>.</li>
+          <li>Die Ebenengruppe hängt von der Anordnung der Motive ab; bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt.</li>
+          <li>Der Versatz der Reihen bestimmt die Symmetrie eines Verbands: ohne Versatz <i>p</i>2<i>mm</i>, halb versetzt <i>c</i>2<i>mm</i> mit Gleitspiegellinien entlang der Fugen, um ein Drittel versetzt <i>p</i>2. Fischgrät- und Flechtverband haben <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>.</li>
+          <li>Regelmässige Vielecke parkettieren die Ebene allein nur als Dreiecke, Quadrate oder Sechsecke; gemischt ergeben sie die archimedischen Parkettierungen, darunter die chirale 3.3.3.3.6 mit <i>p</i>6.</li>
+          <li>Kacheln im Stil von Escher entstehen, indem man die Kanten einer Zelle paarweise gleich verformt; eine Kante, die punktsymmetrisch zu ihrer Mitte ist, ergibt 2-zählige Drehpunkte.</li>
+          <li>Operationen mit Farbwechsel führen auf die Schwarz-Weiss-Gruppen, 46 in der Ebene.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Conways Signatur nennt Drehpunkte ohne Spiegellinie, Kaleidoskope, Wunder und Wanderungen; der Preis jeder Signatur ist 2, und genau 17 Signaturen erfüllen das.</li>
+        </ul>
+      </div>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Die Ebenengruppen aller Muster dieses Kapitels (Verbände, Parkettierungen, Schachbrett) hat die App mit ihrer Symmetriebestimmung berechnet (Vorgaben im Modus „Gitter und Basis“).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2 (Fedorov leitet 1891 die 17 Ebenengruppen ab, S. 136), 4.2.3 (Ebenensymmetrie im Alltag; <i>wallpaper group</i> im Englischen verbreiteter als <i>plane symmetry group</i>, S. 141; Mauerwerksverbände: versetzte Reihen gegen Sollbruchstellen, „Gleitspiegelmotiv“, Läufer und Binder, Zierverbände, Abb. 4.19, S. 142–143; islamische Kunst und Alhambra, Weltkulturerbe seit 1984, Streit um die 17 Gruppen, S. 143–144; Escher: erster Besuch der Alhambra 1922, löwenartige Figur 1926, zweiter Besuch im Mai 1936, Artikel aus kristallographischen Zeitschriften auf Empfehlung des Halbbruders, S. 144–146), 6.1.4 (Schachbrett, Abb. 6.13, S. 202–203; Lösung <i>p</i>4<i>mm</i>, Anhang, S. 314–315), 8.2 (Parkettierungen nur mit Vielecken der Zähligkeit 1 bis 4 und 6, Abb. 8.3, S. 269).</li>
+          <li>B. Grünbaum, What symmetry groups are present in the Alhambra?, <i>Notices of the American Mathematical Society</i> 53, 670–673 (2006); E. A. Müller, Dissertation, Universität Zürich (1944); beide nach Hoffmann, Literatur zu Kap. 4.</li>
+          <li>D. Schattschneider, <i>M.&nbsp;C. Escher: Visions of Symmetry</i>, 2. Aufl., Harry N. Abrams, New York (2004). Bilder: <a href="https://mcescher.com/gallery/symmetry/">mcescher.com, Galerie „Symmetry“</a>.</li>
+          <li>J. H. Conway, H. Burgiel, C. Goodman-Strauss, <i>The Symmetries of Things</i>, A K Peters/CRC Press (2016), Kap. 2 (Spiegellinien und Kaleidoskope, S. 15–18; gleichartige Merkmale, S. 18; Drehpunkte, S. 19–22; Wunder, S. 23–25; Wanderung, S. 26; die vier Merkmale, Tab. 2.1, Farben blau und rot, S. 27), Kap. 3 (Preise, Tab. 3.1, S. 29; Magic Theorem, Satz 3.1, S. 30; Signatur bestimmen, S. 30–31; genau 17 Typen, S. 33–40, Tab. 3.2, S. 40).</li>
+          <li>Lexikon der Geowissenschaften, Stichwort „Antisymmetriegruppen“, Spektrum Akademischer Verlag (2000), <a href="https://www.spektrum.de/lexikon/geowissenschaften/antisymmetriegruppen/802">spektrum.de</a> (46 Antisymmetriegruppen aus den 17 Ebenengruppen; mit einfarbigen und grauen Gruppen 80; Graugruppen; Anwendung auf antiferromagnetische Strukturen).</li>
         </ul>
       </div>
     </section>

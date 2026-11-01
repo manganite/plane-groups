@@ -88,3 +88,15 @@ test('Formen des Objekts: zustand.js und zeichnung.js stimmen überein, Link hin
     assert.equal(z2.form, form); assert.equal(z2.tapete, true);
   }
 });
+
+test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', () => {
+  const z = startzustand();
+  z.zoomB = 2.2; z.objGroesse = 1.6;
+  const h = hashVon(z);
+  assert.match(h, /zoom=2\.2/); assert.match(h, /og=1\.6/);
+  const w = startzustand(); hashAnwenden(w, h);
+  assert.equal(w.zoomB, 2.2); assert.equal(w.objGroesse, 1.6);
+  const u = startzustand(); hashAnwenden(u, '#m=eg&g=p4&zoom=9&og=0.1');
+  assert.equal(u.zoomB, 1); assert.equal(u.objGroesse, 1);
+  assert.doesNotMatch(hashVon(startzustand()), /zoom|og=/);
+});

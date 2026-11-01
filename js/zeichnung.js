@@ -676,7 +676,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   }
   if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
-  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, k, orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, k * (z.objGroesse ?? 1), orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
   if (z.objekt && !erkl) {
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
@@ -942,7 +942,9 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const mitte = kart(M, [0.5, 0.5]);
   // Tapete: grösserer Ausschnitt, ohne Zelle und Elemente, alles in einer Farbe
   const tapete = !!z.tapete;
-  const w = (tapete ? 6.5 : 4.4) * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba);
+  // Vergrösserung zoomB: kleinerer Ausschnitt, Objekte im selben Verhältnis grösser
+  const zoom = z.zoomB ?? 1;
+  const w = ((tapete ? 6.5 : 4.4) * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt
@@ -962,7 +964,7 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   }
   const einfarbig = tapete ? farben.upper : null;
   teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, (tapete ? 0.9 : 0.8) * k, undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben)));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, (tapete ? 0.9 : 0.8) * k * zoom * (z.objGroesse ?? 1), undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben)));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

@@ -1,7 +1,7 @@
 // Vorgaben für den Modus „Gitter und Basis“: Bravais-Gitter, das
-// Dreiecksbeispiel (Konzept §3.2), 2D-Materialien in der Draufsicht, Archimedische Parkettierungen
-// und künstliches Spin-Eis. Jede Vorgabe nennt die Ebenengruppe, die die Symmetriebestimmung
-// ergeben muss (tests/struktur.test.mjs).
+// Dreiecksbeispiel (Konzept §3.2), 2D-Materialien in der Draufsicht, Archimedische Parkettierungen,
+// Mauerwerk und Pflaster (Kap. 7) und künstliches Spin-Eis. Jede Vorgabe nennt die Ebenengruppe,
+// die die Symmetriebestimmung ergeben muss (tests/struktur.test.mjs).
 //
 // Gitter wie im Modus „Ebenengruppen“: a nach unten, b nach rechts (metrik() in zeichnung.js).
 // Winkel der Motive im Bild, im Uhrzeigersinn ab der Richtung von b.
@@ -32,6 +32,11 @@ const x33434 = (3 - Math.sqrt(3)) / 4;
 // 3.3.3.3.6: allgemeine Lage von p6 mit (x, y) = (2/7, 6/7)
 const p6 = ([x, y]) => [[x, y], [-y, x - y], [-x + y, -x], [-x, -y], [y, -x + y], [x - y, x]];
 
+// Mauerwerk und Pflaster (Kap. 7): Ziegel 2 : 1 im Raster von 2 × 1 Einheiten. ziegel(m, w, u):
+// Mitte m in Bruchkoordinaten, Winkel w im Bild, u = Länge einer Einheit bei |a| = 1.
+const ziegel = (p, winkel, u) => ({ motiv: 'ziegel', farbe: 0, p, winkel, groesse: 0.95 * u });
+const F = { ba: 2, gamma: 90 }; // Fischgrät: a = (1, 1), b = (2, −2) in Einheiten, |a| = √2
+
 // Spin-Eis: längliche Inseln auf den Bindungen
 const insel = (p, richtung, g, groesse) => ({ motiv: 'insel', farbe: 0, p, winkel: winkelVon(g, richtung), groesse });
 
@@ -59,6 +64,13 @@ export const VORGABEN = [
   { id: 'a3464', gruppe: 'Archimedische Parkettierungen', name: '3.4.6.4', gitter: H, basis: ecken3464.map((p) => atom(p)), erwartet: 'p6mm' },
   { id: 'a33434', gruppe: 'Archimedische Parkettierungen', name: '3.3.4.3.4', gitter: Q, basis: [[x33434, x33434 + 0.5], [-x33434, -x33434 + 0.5], [-x33434 + 0.5, x33434], [x33434 + 0.5, -x33434]].map((p) => atom(p)), erwartet: 'p4gm' },
   { id: 'a33336', gruppe: 'Archimedische Parkettierungen', name: '3.3.3.3.6 (chiral)', gitter: H, basis: p6([2 / 7, 6 / 7]).map((p) => atom(p)), erwartet: 'p6' },
+
+  // Mauerwerk und Pflaster: Ziegel 2 : 1, Lagen quer zu a; Winkel 0 = Ziegel entlang b
+  { id: 'reihen', gruppe: 'Mauerwerk und Pflaster', name: 'Ohne Versatz (Kreuzfugen)', gitter: { ba: 2, gamma: 90 }, basis: [ziegel([0, 0], 0, 1)], erwartet: 'p2mm' },
+  { id: 'laeufer', gruppe: 'Mauerwerk und Pflaster', name: 'Läuferverband (halb versetzt)', gitter: Q, basis: [ziegel([0, 0], 0, 0.5), ziegel([0.5, 0.5], 0, 0.5)], erwartet: 'c2mm' },
+  { id: 'drittel', gruppe: 'Mauerwerk und Pflaster', name: 'Um ein Drittel versetzt', gitter: { ba: 2 / 3, gamma: 90 }, basis: [0, 1, 2].map((k) => ziegel([k / 3, k / 3], 0, 1 / 3)), erwartet: 'p2' },
+  { id: 'fisch', gruppe: 'Mauerwerk und Pflaster', name: 'Fischgrätverband', gitter: F, basis: [ziegel([0.75, 0.125], winkelVon(F, [0.5, 0.25]), Math.SQRT1_2), ziegel([0.25, 0.625], winkelVon(F, [0.5, -0.25]), Math.SQRT1_2)], erwartet: 'p2gg' },
+  { id: 'flecht', gruppe: 'Mauerwerk und Pflaster', name: 'Flechtverband', gitter: Q, basis: [[0.125, 0.25, 0], [0.375, 0.25, 0], [0.25, 0.625, 90], [0.25, 0.875, 90], [0.75, 0.125, 90], [0.75, 0.375, 90], [0.875, 0.75, 0], [0.625, 0.75, 0]].map(([x, y, w]) => ziegel([x, y], w, 0.25)), erwartet: 'p4gm' },
 
   // künstliches Spin-Eis: Permalloy-Inseln auf den Bindungen
   { id: 'asi-quadrat', gruppe: 'Künstliches Spin-Eis', name: 'Square', gitter: Q, basis: [insel([0.5, 0], [1, 0], Q, 0.17), insel([0, 0.5], [0, 1], Q, 0.17)], erwartet: 'p4mm' },

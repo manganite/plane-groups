@@ -24,7 +24,7 @@ const vieleck = (n, start = -90) => Array.from({ length: n }, (_, k) => [...pola
 
 /**
  * Motive: name, symmetrie (Punktgruppe der Ebene), groesse (Standard, kartesisch bei |a| = 1),
- * punkte (lokal, mit Art), form ('polygon' | 'ellipse' | 'kreis' | 'fahne').
+ * punkte (lokal, mit Art), form ('polygon' | 'ellipse' | 'kreis' | 'fahne'), deckkraft (Füllung, Standard 0,9).
  */
 export const MOTIVE = {
   atom: { name: 'Atom', symmetrie: '∞m', groesse: 0.045, punkte: [[0, 0, 'a']], form: 'kreis' },
@@ -41,6 +41,9 @@ export const MOTIVE = {
   quadrat: { name: 'Quadrat', symmetrie: '4mm', groesse: 0.09, punkte: vieleck(4, -45), form: 'polygon' },
   w6: { name: 'Windrad 6', symmetrie: '6', groesse: 0.1, punkte: windrad(6), form: 'polygon' },
   sechseck: { name: 'Sechseck', symmetrie: '6mm', groesse: 0.1, punkte: vieleck(6, 0), form: 'polygon' },
+  // Ziegel im Format 2 : 1 mit Fuge: 1,9 × 0,9 Einheiten in einem Raster von 2 × 1 (Kap. 7);
+  // heller gefüllt, damit die Symmetrieelemente auf den grossen Flächen sichtbar bleiben
+  ziegel: { name: 'Ziegel', symmetrie: '2mm', groesse: 0.12, deckkraft: 0.45, punkte: [[1, 0.9 / 1.9, 'e'], [-1, 0.9 / 1.9, 'e'], [-1, -0.9 / 1.9, 'e'], [1, -0.9 / 1.9, 'e']], form: 'polygon' },
 };
 
 /** Lokale Punkte eines Basiseintrags, gedreht und skaliert (kartesisch). */

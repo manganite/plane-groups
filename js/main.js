@@ -9,7 +9,7 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
@@ -40,6 +40,9 @@ try {
     z.zeichnen = z.zeichnen === true;
     z.radieren = z.radieren === true && !z.zeichnen;
     z.brechen = z.brechen === true;
+    const imBereich = (v, [lo, hi]) => Number.isFinite(v) && v >= lo && v <= hi;
+    if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = 1;
+    if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = 1;
     const fr = z.frei ?? {};
     z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90 };
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
@@ -252,6 +255,11 @@ function bedienungAbgleichen() {
     $(`obj-${k}`).disabled = !z.objekt;
     $(`obj-${k}-out`).textContent = zahlText(p[i]);
   }
+  $('obj-groesse').value = String(z.objGroesse);
+  $('obj-groesse').disabled = !z.objekt;
+  $('obj-groesse-out').textContent = `${dezimal(z.objGroesse, 2)} ×`;
+  $('v-zoom').value = String(z.zoomB);
+  $('v-zoom-out').textContent = `${dezimal(z.zoomB, 2)} ×`;
   $('obj-why').textContent = z.objekt ? '' : 'Nur mit „Objekt in allgemeiner Lage“.';
   $('reset-objekt').disabled = !z.objekt;
   // Gitter
@@ -741,7 +749,9 @@ function init() {
       setzePunkt(p, { rasten: false });
     });
   }
-  $('reset-objekt').addEventListener('click', () => { z.punkt = startzustand().punkt; aktualisieren(); });
+  $('reset-objekt').addEventListener('click', () => { z.punkt = startzustand().punkt; z.objGroesse = 1; aktualisieren(); });
+  $('obj-groesse').addEventListener('input', () => { z.objGroesse = Number($('obj-groesse').value); aktualisieren(); });
+  $('v-zoom').addEventListener('input', () => { z.zoomB = Number($('v-zoom').value); aktualisieren(); });
   for (const k of ['ba', 'gamma']) {
     $(`lat-${k}`).addEventListener('input', () => {
       const v = Number($(`lat-${k}`).value);
