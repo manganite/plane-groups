@@ -196,6 +196,20 @@ function gleicheMengen(a, b) {
 export function bestimme(st) {
   const A0 = spalten(st.a, st.b); // kartesisch
   const G0 = mat(trans(A0), A0);
+  // kleinster Abstand eines Punkts (Bruchkoordinaten der gegebenen Zelle) zu einem Gitterpunkt;
+  // in der reduzierten Basis genügen die Nachbarn der nächsten Gitterpunkte, auch in schiefen Zellen
+  const R0 = reduziere([[1, 0], [0, 1]], G0);
+  const R0i = inv(R0);
+  const abstandZumGitter = (u) => {
+    const w = vek(R0i, u);
+    const f = w.map(Math.floor);
+    let d = Infinity;
+    for (let i = -1; i <= 2; i++) for (let j = -1; j <= 2; j++) {
+      const c = vek(A0, vek(R0, [w[0] - f[0] - i, w[1] - f[1] - j]));
+      d = Math.min(d, Math.hypot(c[0], c[1]));
+    }
+    return d;
+  };
   const arten0 = nachArt(st.punkte);
   if (!arten0.length) return null;
   // 1. Translationen und kleinste Zelle
@@ -247,26 +261,44 @@ export function bestimme(st) {
       // der Linie ist der Ursprung dann frei, ITA: „auf m“ bzw. „auf g“); geprüft an allen
       const drehung = (o) => det(o.R) > 0 && !(o.R[0][0] === 1 && o.R[1][1] === 1 && !o.R[0][1] && !o.R[1][0]);
       const probe = konv.find(drehung) ?? konv.find((o) => det(o.R) < 0) ?? konv[0];
+      // Unter den erlaubten Ursprüngen (etwa den drei Punkten 3m in p3m1) den nächsten zum
+      // gegebenen Ursprung, damit er ohne Not nicht wandert
+      const zelle = mat(P, C);
+      const kart = (v) => vek(A0, v);
+      let best = null;
       for (const ziel of g.alle.filter((o) => o.R.every((z, i) => z.every((w, j) => w === probe.R[i][j])))) {
         for (const s of ursprungKandidaten(probe.R, [ziel.t[0] - probe.t[0], ziel.t[1] - probe.t[1]])) {
           // Operation im neuen Ursprung s: x'' = x' − s → {R | t + R·s − s}
           const verschoben = konv.map((o) => { const Rs = vek(o.R, s); return { R: o.R, t: [o.t[0] + Rs[0] - s[0], o.t[1] + Rs[1] - s[1]] }; });
           if (!gleicheMengen(verschoben, g.alle)) continue;
-          // Ergebnis in der gegebenen Zelle
-          const zelle = mat(P, C);
-          const ursprung = vek(zelle, s);
-          const Zi = inv(zelle);
-          const punkte = st.punkte.map((q) => {
-            const x = vek(Zi, [q.p[0] - ursprung[0], q.p[1] - ursprung[1]]);
-            return { p: x.map(mod1), art: q.art };
-          });
-          const kart = (v) => vek(A0, v);
-          return {
-            symbol: d.symbol, gruppe: d, ordnung: g.ordnung, system: sys,
-            a: kart([zelle[0][0], zelle[1][0]]), b: kart([zelle[0][1], zelle[1][1]]),
-            zelle, ursprung: ursprung.map(mod1), punkte, primitiv: T.length,
-          };
+          // Werte knapp unter 1 (innerhalb der Toleranz der Erkennung) als 0, aber nur, wenn die
+          // Operationen auch mit dem gerundeten Ursprung noch stimmen
+          const u0 = vek(zelle, s).map(mod1);
+          let u = u0.map((x) => (1 - x < TOL ? 0 : x));
+          if (u.some((x, i) => x !== u0[i])) {
+            const sr = vek(inv(zelle), u);
+            const vr = konv.map((o) => { const Rs = vek(o.R, sr); return { R: o.R, t: [o.t[0] + Rs[0] - sr[0], o.t[1] + Rs[1] - sr[1]] }; });
+            if (!gleicheMengen(vr, g.alle)) u = u0;
+          }
+          const dist = abstandZumGitter(u);
+          // bei gleichem Abstand: kleinere Koordinaten zuerst, damit die Wahl eindeutig ist
+          const vorn = (x, y) => (Math.abs(x[0] - y[0]) > 1e-9 ? x[0] < y[0] : x[1] < y[1] - 1e-9);
+          if (!best || dist < best.dist - 1e-9 || (Math.abs(dist - best.dist) <= 1e-9 && vorn(u, best.ursprung))) best = { ursprung: u, dist };
         }
+      }
+      if (best) {
+        // Ergebnis in der gegebenen Zelle
+        const { ursprung } = best;
+        const Zi = inv(zelle);
+        const punkte = st.punkte.map((q) => {
+          const x = vek(Zi, [q.p[0] - ursprung[0], q.p[1] - ursprung[1]]);
+          return { p: x.map(mod1), art: q.art };
+        });
+        return {
+          symbol: d.symbol, gruppe: d, ordnung: g.ordnung, system: sys,
+          a: kart([zelle[0][0], zelle[1][0]]), b: kart([zelle[0][1], zelle[1][1]]),
+          zelle, ursprung, punkte, primitiv: T.length,
+        };
       }
     }
   }

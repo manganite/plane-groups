@@ -10,7 +10,8 @@ import { versionEintragen, offline } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt } from './zeichnung.js';
-import { strukturTafelA, strukturTafelB } from './struktur.js';
+import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
+import { MOTIVE } from './motive.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
 const farben = () => ({
@@ -149,7 +150,53 @@ function koordSkizze(fig, f) {
   return svg.join('');
 }
 
-const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze };
+/**
+ * Ein 5-zähliger Drehpunkt erzeugt aus einem Punkt ein regelmässiges Fünfeck; die parallelen
+ * Strecken II–V und III–IV haben das Längenverhältnis 1,618 (nach Borchardt-Ott & Sowa Abb. 6.8a).
+ */
+function fuenfSkizze(fig, f) {
+  const m = [260, 270]; const r = 175;
+  const p = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return [m[0] + r * Math.cos(w), m[1] + r * Math.sin(w)]; });
+  const namen = ['I', 'II', 'III', 'IV', 'V'];
+  const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
+  svg.push(`<polygon points="${p.map(pt).join(' ')}" fill="none" stroke="${f.line}" stroke-width="1.2"/>`);
+  svg.push(linie(p[1], p[4], `stroke="${f.accent}" stroke-width="3"`));
+  svg.push(linie(p[2], p[3], `stroke="${f.fc[1]}" stroke-width="3"`));
+  // Drehpunkt in der Mitte (Fünfeck, gefüllt) und Pfeil der Drehung um 72°
+  const fz = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return [m[0] + 11 * Math.cos(w), m[1] + 11 * Math.sin(w)]; });
+  svg.push(`<polygon points="${fz.map(pt).join(' ')}" fill="${f.ink}"/>`);
+  p.forEach((q, k) => {
+    svg.push(`<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="7" fill="${f.ink}"/>`);
+    const d = [q[0] - m[0], q[1] - m[1]]; const l = Math.hypot(...d);
+    svg.push(text([q[0] + (26 * d[0]) / l, q[1] + (26 * d[1]) / l + 6], namen[k], `font-family="Source Serif 4, serif" font-size="20" fill="${f.ink}" text-anchor="middle"`));
+  });
+  svg.push(text([m[0], (p[1][1] + p[4][1]) / 2 - 12], '1,618', `${SANS} font-size="17" fill="${f.accent}" text-anchor="middle"`));
+  svg.push(text([m[0], p[2][1] - 12], '1', `${SANS} font-size="17" fill="${f.fc[1]}" text-anchor="middle"`));
+  return svg.join('');
+}
+
+/**
+ * Die Motive der App mit ihrer eigenen Symmetrie (Punktgruppe der Ebene), geordnet wie die
+ * 10 Punktgruppen: 1, 2, m, 2mm, 3, 3m, 4, 4mm, 6, 6mm.
+ */
+function motiveSkizze(fig, f) {
+  const liste = ['fahne', 'w2', 'dreieck', 'insel', 'w3', 'dreieck3', 'w4', 'quadrat', 'w6', 'sechseck'];
+  const M = metrik({ ba: 1, gamma: 90 }); // a nach unten, b nach rechts: Zeilen entlang a
+  const A = ansicht(M, [0, 0, 5, 2], 520, 6);
+  const farbe = motivFarben(f)[0];
+  const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
+  liste.forEach((id, k) => {
+    const p = [Math.floor(k / 5) + 0.42, (k % 5) + 0.5];
+    const groesse = id === 'insel' ? 0.34 : 0.27;
+    svg.push(motivSVG({ motiv: id, farbe: 0, p, winkel: 0, groesse }, p, A, M, farbe, f.paper));
+    const t = A.zuBild([p[0] + 0.43, p[1]]);
+    const sym = MOTIVE[id].symmetrie.replace(/m/g, '<tspan font-style="italic">m</tspan>');
+    svg.push(text(t, sym, `font-family="Source Serif 4, serif" font-size="22" fill="${f.ink}" text-anchor="middle"`));
+  });
+  return svg.join('');
+}
+
+const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze };
 
 function abbildungen() {
   const f = farben();
@@ -157,7 +204,7 @@ function abbildungen() {
     if (fig.dataset.app) appLink(fig, 'index.html');
     const art = fig.querySelector('.fig-art');
     const inhalt = fig.dataset.kind === 'app' ? appTafel(fig, f) : SKIZZEN[fig.dataset.kind](fig, f);
-    art.innerHTML = `<svg viewBox="0 0 520 520" role="img" aria-label="${fig.dataset.alt || 'Abbildung'}">${inhalt}</svg>`;
+    art.innerHTML = `<svg viewBox="${fig.dataset.viewbox || '0 0 520 520'}" role="img" aria-label="${fig.dataset.alt || 'Abbildung'}">${inhalt}</svg>`;
   }
 }
 

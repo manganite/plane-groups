@@ -155,8 +155,11 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   for (let i = Math.floor(lo0); i <= Math.ceil(hi0); i++) teile.push(linie([i, lo1], [i, hi1]));
   for (let j = Math.floor(lo1); j <= Math.ceil(hi1); j++) teile.push(linie([lo0, j], [hi0, j]));
   if (!gegeben) {
+    // gestrichelt neben der konventionellen Zelle; ohne sie ist die gegebene Zelle die einzige
     const poly = [[0, 0], [1, 0], [1, 1], [0, 1]].map((p) => pt(A.zuBild(p))).join(' ');
-    teile.push(`<polygon points="${poly}" fill="none" stroke="${farben.muted}" stroke-width="1.4" stroke-dasharray="4 3"/>`);
+    teile.push(anzeige.zelle || !r
+      ? `<polygon points="${poly}" fill="none" stroke="${farben.muted}" stroke-width="1.4" stroke-dasharray="4 3"/>`
+      : `<polygon points="${poly}" fill="none" stroke="${farben.accent}" stroke-width="2.2"/>`);
   }
   if (r) {
     const Ak = konvAnsicht(A, r);
@@ -172,7 +175,7 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   // Symmetrieelemente über den Motiven, damit Drehpunkte auf Atomen sichtbar bleiben
   if (r && anzeige.elemente) teile.push(elementeSVG(gruppe(r.symbol), elementeImBereich(gruppe(r.symbol), 1), konvAnsicht(A, r), farben, anzeige.farben));
   // Achsen: gegebene Zelle a, b; konventionelle a′, b′ (nur wenn verschieden)
-  teile.push(achsenSVG(A, ['a', 'b'], gegeben ? farben.accent : farben.muted, 18));
+  teile.push(achsenSVG(A, ['a', 'b'], gegeben || !anzeige.zelle ? farben.accent : farben.muted, 18));
   if (r && !gegeben && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, 18));
   return { svg: teile.join(''), ansicht: A, ergebnis: r };
 }

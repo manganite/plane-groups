@@ -48,6 +48,23 @@
               <li><a href="#basis-gitter">Wenn die Basis das Gitter ändert</a></li>
             </ol>
           </li>
+          <li><a href="#gittersymmetrie"><span class="nr">2</span>Symmetrie des Gitters</a>
+            <ol>
+              <li><a href="#drehpunkte">Drehpunkte und Spiegellinien</a></li>
+              <li><a href="#zaehligkeit">Nur 1-, 2-, 3-, 4- und 6-zählig</a></li>
+              <li><a href="#kristallsysteme">Die vier Kristallsysteme</a></li>
+              <li><a href="#zentriert">Das zentrierte Gitter</a></li>
+              <li><a href="#konventionell">Die konventionelle Zelle</a></li>
+            </ol>
+          </li>
+          <li><a href="#gitter-motiv"><span class="nr">3</span>Gitter und Motiv</a>
+            <ol>
+              <li><a href="#punktgruppen-ebene">Die zehn Punktgruppen der Ebene</a></li>
+              <li><a href="#gitter-und-motiv">Die Symmetrie des Musters</a></li>
+              <li><a href="#orientierung">Die Orientierung des Motivs</a></li>
+              <li><a href="#zellwechsel">Wenn sich die Zelle ändert</a></li>
+            </ol>
+          </li>
         </ol>
         <p class="toc-foot">Begriffe nach Borchardt-Ott &amp; Sowa, <i>Kristallographie</i> (2018).</p>
       </details>
@@ -267,6 +284,405 @@
           <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 3.2 (Gitterebene oder Netzebene, Elementarmasche, S. 12), 3.3 (Gitter unendlich, Aufstellung <i>a</i> nach vorn, <i>b</i> nach rechts, <i>c</i> nach oben; Elementarzelle; primitiv, ein Gitterpunkt an einer Ecke gehört zu allen dort zusammenstossenden Zellen, S. 12–13), 3.4.1 (Gitterpunkt <i>uvw</i>, S. 13–14), Kap. 4 (Basis; Gitter + Basis = Kristallstruktur; Koordinaten <i>x</i>, <i>y</i>, <i>z</i> mit 0 ≤ <i>x</i>, <i>y</i>, <i>z</i> &lt; 1; gleiche Bausteine auf kongruenten Gittern, Abb. 4.1–4.3, S. 25–27), Abschn. 6.2 (zentrierte Elementarmasche, Abb. 6.10, S. 73–74), Aufgabe 12.7 (Graphit, <i>a</i> = 2,46 Å; Atome einer Schicht bei 0, 0 und ⅔, ⅓, also mit dem Ursprung auf einem Atom; S. 323), Abschn. 15.3 (Atomabstände, Tab. 15.3, S. 357).</li>
           <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 1.9 (Gitter: alle Punkte mit derselben Umgebung, unendlich ausgedehnt; Gitter und Basis/Motiv; kongruente Gitter, Abb. 1.33–1.37, S. 28–31), 2.3.1 (primitive Elementarzellen; Regeln zur Wahl der Elementarzelle, Abb. 2.27–2.29, S. 52–56), 2.4 (fraktionale Koordinaten, S. 64–65), 2.7 (Bienenwabenmuster und Translationsgitter, Abb. 2.72–2.75, S. 82–84), Kap. 4 (Muster in Alltag und Kunst, S. 130).</li>
           <li>International Tables for Crystallography, Vol. A, 5. Aufl., hrsg. von Th. Hahn, Springer, Dordrecht (2006), Abschn. 2.2.6.1 (Diagramme der Ebenengruppen: <i>a</i> nach unten, <i>b</i> nach rechts, S. 20), 2.2.6.4 (übliche Orientierung der Diagramme, Ursprung oben links, S. 22), Part 6 (Querstrich für das Minuszeichen in den Koordinaten, z. B. Ebenengruppe <i>p</i>2, S. 93).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="gittersymmetrie">
+      <h2><span class="nr">2</span>Symmetrie des Gitters</h2>
+      <p class="lead">Ein Gitter hat neben seinen Translationen auch Drehpunkte und oft Spiegellinien. Diese Symmetrie legt fest, welche Gitter es gibt und wie man ihre Elementarzelle wählt.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>Drehpunkte und Spiegellinien in ein Gitter einzeichnen und ihre Symbole angeben</li>
+          <li>begründen, warum es in einem Gitter nur 1-, 2-, 3-, 4- und 6-zählige Drehpunkte gibt</li>
+          <li>die vier Kristallsysteme der Ebene mit ihren Bedingungen an die Metrik nennen</li>
+          <li>erklären, wann man eine zentrierte Elementarzelle wählt, und die fünf Bravais-Gitter der Ebene angeben</li>
+          <li>gegebene und konventionelle Zelle unterscheiden</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>die Netzebenen einiger Flächen kubischer Kristalle einem Bravais-Gitter der Ebene zuordnen</li>
+          <li>begründen, warum es kein zentriertes quadratisches Gitter gibt</li>
+        </ul>
+      </div>
+
+      <section id="drehpunkte">
+        <h3>Drehpunkte und Spiegellinien</h3>
+        <p>In der Ebene gibt es neben der Translation zwei Arten von Punktsymmetrieoperationen: die Drehung um einen Punkt und die Spiegelung an einer Geraden. Das Symmetrieelement einer Drehung um 360°/<i>n</i> ist ein <span class="term"><i>n</i>-zähliger Drehpunkt</span>; im Raum entspricht ihm eine Drehachse senkrecht zur Ebene. Das Symmetrieelement einer Spiegelung ist eine <span class="term">Spiegellinie</span> (Symbol <i>m</i>), im Raum eine Spiegelebene senkrecht zur Ebene. Eine Inversion braucht man in der Ebene nicht: Eine Punktspiegelung an einem Punkt der Ebene ist dasselbe wie eine Drehung um 180° um diesen Punkt.</p>
+        <p>Die International Tables zeichnen die Drehpunkte als gefüllte Vielecke: eine Linse für 2, ein Dreieck für 3, ein Quadrat für 4 und ein Sechseck für 6. Spiegellinien sind kräftige Linien. App und Skript verwenden dieselben Symbole.</p>
+        <p>Jedes Gitter hat 2-zählige Drehpunkte, und zwar auf allen Gitterpunkten: Dreht man das Gitter um 180° um einen Gitterpunkt, kommt jeder Gitterpunkt wieder auf einen Gitterpunkt. Dazu kommen 2-zählige Drehpunkte auf den Mitten der Kanten und in der Mitte der Zelle (Abb. 2.1). Das sind vier Arten von Drehpunkten, bei (0,&nbsp;0), (½,&nbsp;0), (0,&nbsp;½) und (½,&nbsp;½). Keine Translation führt einen von ihnen in einen der anderen über. Zwei Symmetrieelemente heissen <span class="term">gleichwertig</span>, wenn eine Symmetrieoperation das eine in das andere überführt; im schiefwinkligen Gitter tut das keine, die vier Drehpunkte sind nicht gleichwertig. In Gittern höherer Symmetrie kann es anders sein: Im quadratischen Gitter führt der 4-zählige Drehpunkt (½,&nbsp;0) in (0,&nbsp;½) über. Warum die Drehpunkte auf den Kantenmitten zwangsläufig entstehen, zeigt Kapitel 4.</p>
+        <figure class="fig-card fig-mittel" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2&amp;obj=0&amp;zellen=2" data-alt="Vier Zellen eines schiefwinkligen Gitters mit ihren 2-zähligen Drehpunkten">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 2.1</b> Vier Zellen eines schiefwinkligen Gitters mit allen 2-zähligen Drehpunkten: auf den Gitterpunkten, den Kantenmitten und in den Zellmitten.</figcaption>
+        </figure>
+        <p>Abb. 2.1 zeigt auch, was die Periodizität bewirkt: Jedes Symmetrieelement wiederholt sich mit allen Translationen. Ein Gitter hat deshalb unendlich viele Drehpunkte gleicher Art, und hat es eine Spiegellinie, dann auch unendlich viele parallele. Für die Punktgruppe, also die Symmetrie, die man an der äusseren Form eines Kristalls sieht, zählt nur ihre Orientierung, nicht ihre Lage.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>In der Ebene gibt es Drehpunkte (Symbol nach Zähligkeit) und Spiegellinien (<i>m</i>); die Inversion ist eine Drehung um 180°. Jedes Gitter hat 2-zählige Drehpunkte auf den Gitterpunkten, den Kantenmitten und den Zellmitten. Die Translationen wiederholen jedes Symmetrieelement.</p>
+        </div>
+      </section>
+
+      <section id="zaehligkeit">
+        <h3>Nur 1-, 2-, 3-, 4- und 6-zählige Drehpunkte</h3>
+        <p>Ein Gitter kann nicht jede Drehsymmetrie haben. Angenommen, auf einem Gitterpunkt sitzt ein <i>n</i>-zähliger Drehpunkt. Die Drehungen bringen einen benachbarten Gitterpunkt an <i>n</i> Stellen auf einem Kreis, und alle diese Stellen müssen wieder Gitterpunkte sein. Bei <i>n</i> = 4 ergänzen sich diese Punkte zu einem quadratischen Gitter, bei <i>n</i> = 3 und 6 zu einem hexagonalen.</p>
+        <p>Bei <i>n</i> = 5 bilden sie ein regelmässiges Fünfeck (Abb. 2.2). Die Punkte II und V liegen auf einer Geraden parallel zu der durch III und IV. In einem Gitter haben parallele Gittergeraden dieselbe Translationsperiode; beide Strecken müssten deshalb ganzzahlige Vielfache dieser Periode sein, und ihr Verhältnis wäre ein Bruch. Die Strecke II–V ist aber 1,618…-mal so lang wie III–IV, und dieses Verhältnis (der goldene Schnitt) ist kein Bruch: Kein Gitter enthält beide Strecken. Ein 5-zähliger Drehpunkt ist in einem Gitter also unmöglich, und dasselbe Argument schliesst alle Zähligkeiten über 6 aus.</p>
+        <figure class="fig-card fig-mittel" data-kind="fuenf" data-alt="Fünf Punkte eines regelmässigen Fünfecks; die parallelen Strecken II–V und III–IV sind verschieden lang">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 2.2</b> Ein 5-zähliger Drehpunkt erzeugt aus einem Punkt ein regelmässiges Fünfeck. Die parallelen Strecken II–V und III–IV stehen im Verhältnis 1,618… : 1. In einem Gitter müsste es ein Bruch sein (nach Borchardt-Ott &amp; Sowa Abb. 6.8a).</figcaption>
+        </figure>
+        <p>Allgemein gilt für den Drehwinkel ε einer Drehung, die ein Gitter auf sich abbildet, cos ε = <i>m</i>/2 mit einer ganzen Zahl <i>m</i>. Weil der Kosinus zwischen −1 und 1 liegt, bleiben nur <i>m</i> = −2, −1, 0, 1, 2:</p>
+        <div class="tabwrap">
+          <table class="tab">
+            <thead><tr><th><i>m</i></th><th>cos ε</th><th>ε</th><th>Zähligkeit</th></tr></thead>
+            <tbody>
+              <tr><td>2</td><td>1</td><td>0° (360°)</td><td>1</td></tr>
+              <tr><td>1</td><td>½</td><td>60°</td><td>6</td></tr>
+              <tr><td>0</td><td>0</td><td>90°</td><td>4</td></tr>
+              <tr><td>−1</td><td>−½</td><td>120°</td><td>3</td></tr>
+              <tr><td>−2</td><td>−1</td><td>180°</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Anschaulich zeigt sich dasselbe beim Parkettieren: Mit gleichseitigen Dreiecken, Quadraten oder regelmässigen Sechsecken lässt sich die Ebene lückenlos auslegen, mit regelmässigen Fünf-, Sieben- oder Achtecken nicht. Ein Motiv mit 5-zähliger Symmetrie kann dagegen sehr wohl auf den Punkten eines Gitters sitzen; das Muster als Ganzes hat dann aber keinen 5-zähligen Drehpunkt.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Ein Gitter kann nur 1-, 2-, 3-, 4- und 6-zählige Drehpunkte haben (cos ε = <i>m</i>/2). 5-zählige und mehr als 6-zählige Drehpunkte sind mit der Periodizität unvereinbar.</p>
+        </div>
+      </section>
+
+      <section id="kristallsysteme">
+        <h3>Symmetrie und Metrik: die vier Kristallsysteme</h3>
+        <p>Die Symmetrie eines Gitters hängt an seiner Metrik. Ein 4-zähliger Drehpunkt dreht <i>a</i> in <i>b</i>; das geht nur, wenn beide gleich lang sind und einen rechten Winkel bilden. Ein 3- oder 6-zähliger Drehpunkt verlangt <i>a</i> = <i>b</i> und γ = 120°. Eine Spiegellinie verlangt weniger: Hat ein Gitter eine Spiegellinie, kann man immer Gittervektoren parallel und senkrecht zu ihr legen. Hat das Gitter Spiegellinien, aber keinen 3-, 4- oder 6-zähligen Drehpunkt, wählt man deshalb eine rechtwinklige Zelle entlang der Spiegellinien; ob sie primitiv oder zentriert ist, zeigt der nächste Abschnitt. Quadratische und hexagonale Gitter haben ebenfalls Spiegellinien, hier aber richtet sich die Zelle nach dem Drehpunkt höchster Zähligkeit: γ = 90° bzw. 120°. Auch in diesen Zellen liegen Spiegellinien entlang der Kanten, dazu weitere in anderen Richtungen (Abb. 2.3d, e). Eine rechtwinklige Zelle liesse sich auch hier finden, sie würde die Symmetrie aber schlechter zeigen. Nach ihrer Symmetrie teilt man die Gitter der Ebene in vier <span class="term">Kristallsysteme</span> ein. Die Bedingungen an die Metrik gelten für die Zelle, die man nach diesen Regeln wählt (Abschnitt 2.5):</p>
+        <div class="tabwrap">
+          <table class="tab tab-wrap">
+            <thead><tr><th>Kristallsystem</th><th>Metrik</th><th>Punktgruppe des Gitters</th><th>Bravais-Gitter</th></tr></thead>
+            <tbody>
+              <tr><td>schiefwinklig</td><td>keine Bedingung</td><td>2</td><td><i>mp</i></td></tr>
+              <tr><td>rechteckig</td><td>γ = 90°</td><td>2<i>mm</i></td><td><i>op</i>, <i>oc</i></td></tr>
+              <tr><td>quadratisch</td><td><i>a</i> = <i>b</i>, γ = 90°</td><td>4<i>mm</i></td><td><i>tp</i></td></tr>
+              <tr><td>hexagonal</td><td><i>a</i> = <i>b</i>, γ = 120°</td><td>6<i>mm</i></td><td><i>hp</i></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Die fünf Gittertypen der letzten Spalte heissen <span class="term">Bravais-Gitter</span>. Ihre Bezeichnungen folgen den International Tables: Der erste Buchstabe steht für das System (<i>m</i>, <i>o</i>, <i>t</i>, <i>h</i> nach den räumlichen Gegenstücken monoklin, orthorhombisch, tetragonal, hexagonal), der zweite für primitiv (<i>p</i>) oder zentriert (<i>c</i>). Das rechteckige System hat zwei Bravais-Gitter; warum, zeigt der nächste Abschnitt. Die Punktgruppe nennt die Symmetrie um einen Gitterpunkt: 2<i>mm</i> etwa heisst ein 2-zähliger Drehpunkt mit zwei Spiegellinien durch ihn (Kapitel 3). Bei Borchardt-Ott heisst das rechteckige System „rechtwinklig“.</p>
+        <div class="fig-grid5">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=schiefwinklig&amp;sbind=0" data-alt="Schiefwinkliges Gitter mit 2-zähligen Drehpunkten">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 2.3a</b> schiefwinklig, <i>mp</i></figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=rechteckig&amp;sbind=0" data-alt="Rechteckiges Gitter mit Drehpunkten und Spiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> rechteckig, <i>op</i></figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=zentriert&amp;sbind=0" data-alt="Rechteckig zentriertes Gitter mit Drehpunkten, Spiegel- und Gleitspiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> rechteckig zentriert, <i>oc</i></figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=quadratisch&amp;sbind=0" data-alt="Quadratisches Gitter mit 4-zähligen Drehpunkten und Spiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> quadratisch, <i>tp</i></figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=hexagonal&amp;sbind=0" data-alt="Hexagonales Gitter mit 6-zähligen Drehpunkten und Spiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>e</b> hexagonal, <i>hp</i></figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 2.3</b> Die fünf Bravais-Gitter der Ebene mit allen Symmetrieelementen in einer Elementarzelle. Die gestrichelten Linien in c, d und e sind Gleitspiegellinien: Eine Spiegelung, die mit einer Verschiebung entlang der Linie gekoppelt ist. Sie entstehen zwangsläufig aus Spiegellinien und Translationen (Kapitel 4).</p>
+        <p>Ein Gitter mit <i>a</i> = <i>b</i> und γ = 90° ist immer quadratisch. Für eine Kristallstruktur gilt das nicht: Ihr Kristallsystem richtet sich nach der Symmetrie der ganzen Struktur, also von Gitter und Basis zusammen (Kapitel 3). Eine Struktur mit quadratischer Metrik kann deshalb zum rechteckigen oder sogar zum schiefwinkligen System gehören, wenn ihre Basis eine geringere Symmetrie hat als das Gitter.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Vier Kristallsysteme der Ebene: schiefwinklig (keine Bedingung, 2), rechteckig (γ = 90°, 2<i>mm</i>), quadratisch (<i>a</i> = <i>b</i>, γ = 90°, 4<i>mm</i>), hexagonal (<i>a</i> = <i>b</i>, γ = 120°, 6<i>mm</i>). Die Symmetrie erzwingt die Metrik.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Ebenengruppen“ lassen sich unter „Gitter“ nur die Parameter verändern, die das Kristallsystem frei lässt. „Ohne Bindung an das Kristallsystem“ hebt die Bedingung auf: Die Kenndaten zeigen dann, welche Symmetrie übrig bleibt, etwa wenn ein quadratisches Gitter einen anderen Winkel als 90° erhält.</p>
+        </div>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Netzebenen von Kristallflächen</b></h4>
+          <p>Die Atome einer Kristallfläche liegen auf einer Netzebene des räumlichen Gitters. Welches Bravais-Gitter der Ebene sie bilden, hängt vom Gitter und von der Fläche ab; das ist zum Beispiel für die Katalyse an Metalloberflächen wichtig. In einem kubisch primitiven Gitter ist die Netzebene (100) quadratisch, (110) rechteckig mit dem Seitenverhältnis 1 : √2 und (111) hexagonal. In einem kubisch innenzentrierten Gitter ist (110) dagegen rechteckig zentriert. Die Indizes und die Lage dieser Flächen beschreibt das <a href="https://manganite.github.io/stereography/skript.html#indizes">Skript „Stereographische Projektion“, Kapitel 1</a>.</p>
+        </div>
+      </section>
+
+      <section id="zentriert">
+        <h3>Wahl der Elementarzelle und das zentrierte Gitter</h3>
+        <p>Abschnitt 1.3 hat gezeigt, dass jedes Gitter viele primitive Zellen hat. Man wählt die Zelle nach drei Regeln:</p>
+        <ol>
+          <li>Die Gittervektoren sollen möglichst kurz sein.</li>
+          <li>Die Zelle soll die Symmetrie des Gitters zeigen: Die Gittervektoren liegen parallel oder senkrecht zu den Spiegellinien.</li>
+          <li>Die Gittervektoren sollen möglichst einen Winkel von 90° oder 120° einschliessen.</li>
+        </ol>
+        <p>Meist erfüllt eine primitive Zelle alle drei Regeln. Eine Ausnahme ist das Gitter in Abb. 2.4. Seine kürzesten Gittervektoren sind gleich lang und schliessen 70° ein; die primitive Zelle ist ein Rhombus. Das Gitter hat Spiegellinien, und zwar entlang der beiden Diagonalen des Rhombus. Keine primitive Zelle hat aber beide Kanten parallel oder senkrecht zu diesen Spiegellinien. Wählt man stattdessen die Zelle mit den Kanten <i>a</i>′ = <i>a</i> + <i>b</i> und <i>b</i>′ = −<i>a</i> + <i>b</i>, ist sie rechteckig und liegt entlang der Spiegellinien. Sie enthält zwei Gitterpunkte, einen an den Ecken (die vier Anteile ergeben zusammen einen) und einen in der Mitte, bei (½,&nbsp;½). Eine solche Zelle heisst <span class="term">zentriert</span>.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=70&amp;basis=atom,0,0,0,0&amp;sel=0&amp;szelle=0&amp;sbind=0" data-alt="Rhombisches Gitter mit primitiver Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 2.4a</b> Primitive Zelle: ein Rhombus mit <i>a</i> = <i>b</i>, γ = 70°.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=70&amp;basis=atom,0,0,0,0&amp;sbind=0" data-alt="Dasselbe Gitter mit zentrierter rechteckiger Zelle und Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Dasselbe Gitter mit der zentrierten Zelle <i>a</i>′, <i>b</i>′ und den Symmetrieelementen; der Rhombus ist gestrichelt.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 2.4</b> Das rechteckig zentrierte Gitter. Die zentrierte Zelle hat die doppelte Fläche, liegt aber entlang der Spiegellinien und ist rechtwinklig (nach Hoffmann Abb. 2.32–2.33).</p>
+        <p>Wichtig ist: Die Wahl der Zelle ändert die Symmetrie des Gitters nicht. Rhombus und Rechteck beschreiben dasselbe Gitter mit denselben Spiegellinien; in der zentrierten Zelle sieht man sie nur besser. Weil die zentrierte Zelle zwei Gitterpunkte enthält, hat das Gitter neben <i>a</i>′ und <i>b</i>′ eine weitere Translation, um ½<i>a</i>′ + ½<i>b</i>′, die <span class="term">Zentrierungstranslation</span>.</p>
+        <p>Damit gibt es in der Ebene fünf <span class="term">Bravais-Gitter</span>: vier primitive (<i>mp</i>, <i>op</i>, <i>tp</i>, <i>hp</i>) und ein zentriertes (<i>oc</i>), wie in der Tabelle des vorigen Abschnitts. Das zentrierte Gitter aus Abschnitt 1.6 (Abb. 1.6b) ist genau dieses: Die rechteckige Zelle mit den Dreiecken bei (0,&nbsp;0) und (½,&nbsp;½) ist eine zentrierte Zelle.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die Elementarzelle soll kurze Gittervektoren haben, entlang der Spiegellinien liegen und möglichst rechtwinklig sein. Erfüllt keine primitive Zelle das, wählt man eine zentrierte mit einem zweiten Gitterpunkt bei (½,&nbsp;½). Die Wahl der Zelle ändert die Symmetrie nicht. Es gibt fünf Bravais-Gitter der Ebene: <i>mp</i>, <i>op</i>, <i>oc</i>, <i>tp</i>, <i>hp</i>.</p>
+        </div>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Warum es kein zentriertes quadratisches Gitter gibt</b></h4>
+          <p>Nach dem rechteckig zentrierten Gitter liegt die Frage nahe, warum es kein quadratisch zentriertes gibt. Man kann in ein quadratisches Gitter durchaus eine Zelle legen, die ein Quadrat mit einem Gitterpunkt in der Mitte ist. Sie verletzt aber die erste Regel: Sind <i>a</i> und <i>b</i> die Kanten dieser zentrierten Zelle, dann ist das um 45° gedrehte Quadrat mit den Kanten <i>a</i>′ = ½(<i>a</i> − <i>b</i>) und <i>b</i>′ = ½(<i>a</i> + <i>b</i>) eine primitive Zelle mit kürzeren Gittervektoren, und es zeigt die Symmetrie ebenso gut. Das „zentrierte quadratische“ Gitter ist also ein gewöhnliches quadratisches Gitter mit unnötig grosser Zelle. Auf genau diesen Fall stösst man im Lieb-Gitter ohne das Eckatom (Abb. 1.7b).</p>
+        </div>
+      </section>
+
+      <section id="konventionell">
+        <h3>Die konventionelle Zelle</h3>
+        <p>Die International Tables legen fest, wie die Zelle zu wählen ist: Die Gittervektoren sollen die Symmetrie am besten zeigen, und unter den Zellen, die das tun, nimmt man die kleinste. Im schiefwinkligen und im rechteckigen System braucht es dazu noch Regeln für die Längen und die Benennung der Achsen. Diese Zelle heisst <span class="term">konventionelle Zelle</span>. Sie ist primitiv oder zentriert. Zur konventionellen Zelle gehört auch ein festgelegter Ursprung, meist ein Punkt hoher Symmetrie; darum geht es in Kapitel 3.</p>
+        <p>Die App unterscheidet deshalb zwei Zellen. Die <span class="term">gegebene Zelle</span> ist die, in der man die Struktur aufgebaut hat (Abschnitt 1.6). Die <span class="term">konventionelle Zelle</span> mit den Gittervektoren <i>a</i>′ und <i>b</i>′ bestimmt die App aus der Symmetrie der Struktur. Oft sind beide gleich. Sie unterscheiden sich, wenn</p>
+        <ul>
+          <li>die gegebene Zelle primitiv, die konventionelle aber zentriert ist, wie in Abb. 2.4;</li>
+          <li>die Basis neue Translationen erzeugt und die konventionelle Zelle deshalb kleiner ist, wie in Abb. 1.7b;</li>
+          <li>die Symmetrie verlangt, dass <i>a</i>′ und <i>b</i>′ anders liegen als <i>a</i> und <i>b</i>, oder der Ursprung an einer anderen Stelle liegen muss (Kapitel 3).</li>
+        </ul>
+        <p>Die Struktur bleibt in allen Fällen dieselbe. Mit der Zelle ändern sich nur ihre Beschreibung: die Gittervektoren, die Koordinaten der Atome und die Zahl der Atome je Zelle.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die konventionelle Zelle ist die kleinste Zelle, die die Symmetrie am besten zeigt; sie ist primitiv oder zentriert und hat einen festgelegten Ursprung. Die gegebene Zelle ist die, in der man die Struktur aufgebaut hat. Beide beschreiben dieselbe Struktur.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Gitter und Basis“ zeichnet die App die konventionelle Zelle mit <i>a</i>′ und <i>b</i>′ ein; die gegebene Zelle ist dann gestrichelt. Die Kenndaten nennen unter „Konventionelle Zelle nach ITA“ die Gittervektoren <i>a</i>′, <i>b</i>′ in <i>a</i> und <i>b</i> und unter „Bravais-Gitter“ das Kürzel, etwa <i>oc</i>. Zum Ausprobieren: Vorgabe „Quadratisch“ wählen und unter „Gitter“ den Winkel γ verändern; bei <i>b</i>/<i>a</i> = 1 und einem Winkel, der weder 90° noch 60° oder 120° ist, wird das Gitter rechteckig zentriert.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Symmetrieelemente der Ebene sind Drehpunkte und Spiegellinien; jede Translation wiederholt sie. Jedes Gitter hat 2-zählige Drehpunkte auf den Gitterpunkten, Kantenmitten und Zellmitten.</li>
+          <li>Ein Gitter kann nur 1-, 2-, 3-, 4- und 6-zählige Drehpunkte haben.</li>
+          <li>Die Symmetrie eines Gitters erzwingt seine Metrik: vier Kristallsysteme, schiefwinklig, rechteckig, quadratisch, hexagonal.</li>
+          <li>Die Elementarzelle soll kurz sein, die Symmetrie zeigen und möglichst rechtwinklig sein. Dafür wählt man im rechteckigen System manchmal eine zentrierte Zelle. Fünf Bravais-Gitter: <i>mp</i>, <i>op</i>, <i>oc</i>, <i>tp</i>, <i>hp</i>.</li>
+          <li>Die konventionelle Zelle nach ITA ist die kleinste, die die Symmetrie am besten zeigt. Sie kann von der gegebenen Zelle abweichen, die Struktur bleibt dieselbe.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Die Netzebenen von Kristallflächen bilden je nach Gitter und Fläche verschiedene Bravais-Gitter der Ebene.</li>
+          <li>Ein „zentriertes quadratisches“ Gitter ist ein quadratisches Gitter mit unnötig grosser Zelle.</li>
+        </ul>
+      </div>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Borchardt-Ott &amp; Sowa (2018), Kap. 6 (Symmetrieoperation und Symmetrieelement, S. 67–69), Abschn. 6.1 (2-zählige Drehachsen der allgemeinen Netzebene auf Gitterpunkten, Kantenmitten und Zellmitte, nicht gleichwertig, Abb. 6.5, S. 69–70; im Gitter unendlich viele parallele Elemente, S. 70; 3-, 4-, 6-zählige Drehachsen, Abb. 6.7, S. 71; 5-zählige und mehr als 6-zählige unmöglich, cos ε = <i>m</i>/2, Abb. 6.8, Tab. 6.1, S. 71–73), Abschn. 6.2 (zentrierte Elementarmasche, Abb. 6.10, S. 73–74), Kap. 7 (allgemeine und spezielle Netzebenen, Abb. 7.1–7.6, S. 83–86), Abschn. 10.2 (fünf Netzebenen in vier Achsensystemen, Symbole <i>p</i> und <i>c</i>, Symmetrie der Netzebenen; Motive niedrigerer Symmetrie senken die Symmetrie des Musters, Tab. 10.1, Abb. 10.9, S. 205–208).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 2.3 (Regeln zur Wahl der Elementarzelle, S. 56; zentrierte Zelle, Symmetrie unabhängig von der Wahl der Zelle, Abb. 2.30–2.34, S. 56–59), 3.2.3 (Inversion bei zweidimensionalen Objekten, Abb. 3.12, S. 103), 4.2 (die fünf Bravais-Gitter der Ebene, Abb. 4.12, S. 135–136), 4.2.4 (Netzebenen von Flächen kubischer Gitter, Bedeutung für die Katalyse, S. 146–148; zentriert-rechteckige Zelle mit <i>a</i> = <i>b</i> unnötig gross, um 45° gedrehtes primitiv-quadratisches Gitter vorzuziehen, Abb. 4.25–4.26, S. 149–150), 4.4 (Inversion in der Ebene gleich Drehung um 180°, S. 153), 8.1–8.2 (Gitter mit 5-zähliger Symmetrie unmöglich, Parkettierungen, Abb. 8.1–8.3, S. 268–269).</li>
+          <li>International Tables for Crystallography, Vol. A (2006), Abschn. 1.4.1 und 1.4.5 (Symbole der Spiegellinien und Drehpunkte in zwei Dimensionen, S. 7–9), Abschn. 2.1.3 und Tab. 2.1.2.1 (Kristallsysteme und Bravais-Gitter der Ebene, Bedingungen an die Metrik; konventionelle Zelle; zusätzliche Konventionen im schiefwinkligen und rechteckigen System, S. 14–15), Tab. 1.2.1 (Zentrierungstypen der Ebene: <i>p</i> mit einem, <i>c</i> mit zwei Gitterpunkten bei 0,&nbsp;0 und ½,&nbsp;½, S. 4).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="gitter-motiv">
+      <h2><span class="nr">3</span>Gitter und Motiv</h2>
+      <p class="lead">Das Gitter legt fest, welche Symmetrie eine Struktur höchstens haben kann. Das Motiv entscheidet, wie viel davon übrig bleibt. Mit der Symmetrie können sich auch die konventionelle Zelle und ihr Ursprung ändern.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>die zehn Punktgruppen der Ebene nennen und ihre Symbole lesen</li>
+          <li>das Symbol einer Ebenengruppe in groben Zügen lesen</li>
+          <li>die Symmetrie eines Musters aus Gitter und Motiv bestimmen und begründen, warum das Motiv die Symmetrie des Gitters nur erniedrigen kann</li>
+          <li>erklären, warum es auf die Orientierung des Motivs ankommt</li>
+          <li>beim Ändern der Basis erkennen, ob sich die Ebenengruppe, die Grösse der Zelle, ihre Achsen oder ihr Ursprung ändern</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>die Punktgruppen der Ebene den polaren Punktgruppen des Raums zuordnen</li>
+        </ul>
+      </div>
+
+      <section id="punktgruppen-ebene">
+        <h3>Die zehn Punktgruppen der Ebene</h3>
+        <p>Auch ein einzelnes Motiv kann symmetrisch sein. Seine Symmetrieoperationen lassen alle einen Punkt fest, die Mitte des Motivs; sie bilden eine <span class="term">Punktgruppe</span>. Ein Motiv kann jede Symmetrie haben, auch eine 5-zählige wie ein Fünfeck. Ein rundes Atom hat einen ∞-zähligen Drehpunkt, denn jede Drehung um seine Mitte bringt es zur Deckung, und unendlich viele Spiegellinien durch seine Mitte; die App schreibt dafür ∞<i>m</i>, wie im Raum die Symmetrie eines Kegels. Ein periodisches Muster dagegen hat immer eine von zehn Punktgruppen, den zehn <span class="term">kristallographischen Punktgruppen</span> der Ebene, weil nur 1-, 2-, 3-, 4- und 6-zählige Drehungen mit einem Gitter vereinbar sind (Abschnitt 2.2).</p>
+        <div class="box grundlagen">
+          <h4>Grundlagen · <b>Gruppe, Ordnung, Untergruppe</b></h4>
+          <p>Die Symmetrieoperationen eines Objekts bilden eine <span class="term">Gruppe</span>. Das heisst: Führt man zwei Symmetrieoperationen nacheinander aus, ist das Ergebnis wieder eine Symmetrieoperation des Objekts. Zu jeder gibt es eine, die sie rückgängig macht. Und die <span class="term">Identität</span>, die nichts verändert, gehört immer dazu; man kann sie als Drehung um 360° auffassen, sie ist die 1 in den Symbolen. Die Zahl der Operationen heisst <span class="term">Ordnung</span> der Gruppe. Bilden einige Operationen einer Gruppe für sich allein schon eine Gruppe, heisst diese <span class="term">Untergruppe</span>. Die vier Drehungen eines Quadrats (um 90°, 180°, 270°, 360°) bilden zum Beispiel die Untergruppe 4 seiner Punktgruppe 4<i>mm</i>. Ausführlicher, mit den vier Gruppenaxiomen: <a href="https://manganite.github.io/stereography/skript.html#gruppe">Skript „Stereographische Projektion“, Abschnitt 3.3</a>.</p>
+        </div>
+        <p>Die Tabelle nennt die zehn Punktgruppen mit ihren Symmetrieelementen, ihrer Ordnung und dem Kristallsystem, zu dem sie gehören:</p>
+        <div class="tabwrap">
+          <table class="tab">
+            <thead><tr><th>Punktgruppe</th><th>Symmetrieelemente</th><th>Ordnung</th><th>Kristallsystem</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>keine</td><td>1</td><td rowspan="2">schiefwinklig</td></tr>
+              <tr><td>2</td><td>2-zähliger Drehpunkt</td><td>2</td></tr>
+              <tr><td><i>m</i></td><td>eine Spiegellinie</td><td>2</td><td rowspan="2">rechteckig</td></tr>
+              <tr><td>2<i>mm</i></td><td>2-zähliger Drehpunkt, zwei Spiegellinien</td><td>4</td></tr>
+              <tr><td>4</td><td>4-zähliger Drehpunkt</td><td>4</td><td rowspan="2">quadratisch</td></tr>
+              <tr><td>4<i>mm</i></td><td>4-zähliger Drehpunkt, vier Spiegellinien</td><td>8</td></tr>
+              <tr><td>3</td><td>3-zähliger Drehpunkt</td><td>3</td><td rowspan="4">hexagonal</td></tr>
+              <tr><td>3<i>m</i></td><td>3-zähliger Drehpunkt, drei Spiegellinien</td><td>6</td></tr>
+              <tr><td>6</td><td>6-zähliger Drehpunkt</td><td>6</td></tr>
+              <tr><td>6<i>mm</i></td><td>6-zähliger Drehpunkt, sechs Spiegellinien</td><td>12</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Das Symbol nennt zuerst die höchste Zähligkeit eines Drehpunkts und dann die Spiegellinien; ohne Drehpunkt (<i>m</i>) lässt man die 1 weg. In 2<i>mm</i>, 4<i>mm</i> und 6<i>mm</i> stehen zwei <i>m</i>, weil es zwei Arten von Spiegellinien gibt, die keine Drehung ineinander überführt; bei 4<i>mm</i> etwa die Spiegellinien entlang der Kanten eines Quadrats und die entlang seiner Diagonalen. In 3<i>m</i> dagegen führt die Drehung um 120° die drei Spiegellinien ineinander über; es gibt nur eine Art, deshalb steht nur ein <i>m</i>. Innerhalb eines Kristallsystems sind alle Punktgruppen Untergruppen der letzten in der Tabelle, der Punktgruppe des Gitters.</p>
+        <figure class="fig-card" data-kind="motive" data-viewbox="0 145 520 230" data-alt="Zehn Motive der App mit ihrer Punktgruppe">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 3.1</b> Die Motive der App mit ihrer eigenen Symmetrie: Fähnchen 1, Windrad 2, gleichschenkliges Dreieck <i>m</i>, längliche Insel 2<i>mm</i>; Windrad 3, gleichseitiges Dreieck 3<i>m</i>; Windrad 4, Quadrat 4<i>mm</i>; Windrad 6, Sechseck 6<i>mm</i>. Nicht abgebildet ist das Atom, ein Kreis mit der Symmetrie ∞<i>m</i>.</figcaption>
+        </figure>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Ein periodisches Muster hat eine der zehn Punktgruppen der Ebene: 1, 2, <i>m</i>, 2<i>mm</i>, 4, 4<i>mm</i>, 3, 3<i>m</i>, 6, 6<i>mm</i>. Das Symbol nennt die höchste Zähligkeit und die Arten von Spiegellinien.</p>
+        </div>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Punktgruppen der Ebene und polare Punktgruppen</b></h4>
+          <p>Diese Vertiefung knüpft an die 32 Punktgruppen des Raums an (<a href="https://manganite.github.io/stereography/skript.html#punktgruppe">Skript „Stereographische Projektion“, Abschnitte 3.3–3.4</a>) und zeigt, welche von ihnen ein ebenes Muster haben kann. Liegt das Muster in einer Ebene, darf eine Symmetrieoperation oben und unten nicht vertauschen; sie muss die Normale der Ebene festlassen. Das tun nur Drehungen um die Normale und Spiegelungen an Ebenen, die die Normale enthalten. Ein Drehpunkt der Ebene ist also eine Drehachse senkrecht zu ihr, eine Spiegellinie eine Spiegelebene durch diese Achse. Spiegelebenen parallel zur Ebene, Inversionszentren, 2-zählige Drehachsen in der Ebene und Drehinversionsachsen kommen nicht vor. Übrig bleiben genau die zehn polaren Punktgruppen 1, 2, 3, 4, 6, <i>m</i>, <i>mm</i>2, 3<i>m</i>, 4<i>mm</i>, 6<i>mm</i>, in denen ein Kristall ein elektrisches Dipolmoment haben kann (<a href="https://manganite.github.io/stereography/skript.html#eigenschaften">ebenda, Abschnitt 5.5</a>); 2<i>mm</i> der Ebene heisst im Raum <i>mm</i>2. In der App „Stereographische Projektion“ zeigt ein Pedion mit Flächenmuster diese Symmetrie (für 1 und <i>m</i> das Symmetriegerüst); die Kenndaten der Ebenengruppen verlinken dorthin.</p>
+        </div>
+      </section>
+
+      <section id="gitter-und-motiv">
+        <h3>Gitter + Motiv: die Symmetrie des Musters</h3>
+        <p>Setzt man auf jeden Gitterpunkt dasselbe Motiv, hat das Muster nur die Symmetrie, die Gitter und Motiv gemeinsam haben. Der Grund: Eine Symmetrieoperation des Musters muss das Gitter auf sich abbilden und zugleich jedes Motiv auf ein Motiv in gleicher Ausrichtung. Sie muss also eine Symmetrieoperation des Gitters und des Motivs sein. Abb. 3.2 zeigt das am quadratischen Gitter, dessen Punktgruppe 4<i>mm</i> ist. Ein Quadrat (4<i>mm</i>), dessen Kanten parallel zu denen der Zelle liegen, lässt alle Symmetrie bestehen. Ein Windrad mit vier Flügeln (4) behält die 4-zähligen Drehpunkte, aber keine Spiegellinien. Eine längliche Insel (2<i>mm</i>) behält die Spiegellinien entlang der Kanten, aber nur 2-zählige Drehpunkte. Ein Windrad mit zwei Flügeln (2) lässt nur die 2-zähligen Drehpunkte übrig.</p>
+        <p>Für die Symmetrie eines ganzen Musters braucht man einen eigenen Begriff. Alle Symmetrieoperationen eines periodischen Musters zusammen, also Translationen, Drehungen, Spiegelungen und die Gleitspiegelungen aus Kapitel 4, bilden seine <span class="term">Ebenengruppe</span>. Es gibt genau 17 Ebenengruppen; Kapitel 5 behandelt sie ausführlich. Für dieses Kapitel genügt es, ihre Symbole grob zu lesen. Ein kleiner Buchstabe nennt die konventionelle Zelle, <i>p</i> für primitiv und <i>c</i> für zentriert. Dann folgen wie bei einer Punktgruppe die höchste Zähligkeit und die Spiegellinien; an der Stelle eines <i>m</i> kann auch ein <i>g</i> für eine Gleitspiegellinie stehen, das man für die Punktgruppe wie ein <i>m</i> liest. <i>p</i>4<i>mm</i> ist also ein Muster mit primitiver Zelle und der Punktgruppe 4<i>mm</i>, <i>c</i>2<i>mm</i> eines mit zentrierter Zelle und der Punktgruppe 2<i>mm</i>. Eine 1 hält eine Stelle frei, an der kein Symmetrieelement steht: <i>pm</i> heisst ausführlich <i>p</i>1<i>m</i>1, und in <i>p</i>3<i>m</i>1 liegen die Spiegellinien in einer anderen Richtung als in <i>p</i>31<i>m</i> (Kapitel 5). Die App nennt die Ebenengruppe jeder Struktur in den Kenndaten.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=quadrat,0,0,0,0&amp;sbind=0" data-alt="Quadratisches Gitter mit Quadraten auf den Gitterpunkten">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 3.2a</b> Motiv 4<i>mm</i>: Das Muster hat die volle Symmetrie des Gitters, <i>p</i>4<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=w4,0,0,0,0&amp;sbind=0" data-alt="Quadratisches Gitter mit Windrädern mit vier Flügeln">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Motiv 4: keine Spiegellinien mehr, <i>p</i>4.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=insel,0,0,0,0&amp;sbind=0" data-alt="Quadratisches Gitter mit länglichen Inseln">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Motiv 2<i>mm</i>: keine 4-zähligen Drehpunkte mehr, <i>p</i>2<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=w2,0,0,0,0&amp;sbind=0" data-alt="Quadratisches Gitter mit Windrädern mit zwei Flügeln">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> Motiv 2: nur noch 2-zählige Drehpunkte, <i>p</i>2.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 3.2</b> Quadratisches Gitter mit Motiven verschiedener Symmetrie auf den Gitterpunkten (nach Borchardt-Ott &amp; Sowa Abb. 10.9). Schwarz gestrichelte Linien sind hier und in den folgenden Abbildungen Gleitspiegellinien (Abb. 2.3, Kapitel 4).</p>
+        <p>Daraus folgen drei Regeln.</p>
+        <p><b>Das Gitter begrenzt die Symmetrie.</b> Ein Motiv kann sie nur erniedrigen, nie erhöhen. Ein Sechseck (6<i>mm</i>) auf einem quadratischen Gitter ergibt kein 6-zähliges Muster, sondern höchstens 2<i>mm</i>. Mit „Gitter“ ist dabei das Gitter der Struktur gemeint, also alle Translationen, die die ganze Struktur auf sich abbilden. Das ist nicht immer das Gitter der gegebenen Zelle. Abb. 3.3a zeigt ein rechteckiges Gitter mit <i>b</i> = √3&nbsp;<i>a</i> und einem Atom je Zelle; es hat die Symmetrie <i>p</i>2<i>mm</i>. Setzt man ein zweites, gleiches Atom in die Zellmitte bei (½,&nbsp;½), entsteht eine neue Translation um ½(<i>a</i> + <i>b</i>) (Abschnitt 1.6). Jedes Atom hat jetzt sechs nächste Nachbarn im gleichen Abstand <i>a</i>: Die Atome bilden ein hexagonales Gitter, und die Struktur hat die Symmetrie <i>p</i>6<i>mm</i>, mit der kleineren Zelle <i>a</i>′ = ½(<i>a</i> − <i>b</i>), <i>b</i>′ = ½(<i>a</i> + <i>b</i>) und γ′ = 120° (Abb. 3.3b). Die Symmetrie ist nicht durch das Motiv gestiegen, beide Atome sind rund. Sie ist gestiegen, weil die Struktur ein anderes, symmetrischeres Gitter hat als die gegebene Zelle. Dass es hexagonal wird, liegt an der Metrik <i>b</i> = √3&nbsp;<i>a</i>; mit <i>b</i> = 1,6&nbsp;<i>a</i> entsteht ein rechteckig zentriertes Gitter wie in Abb. 1.6b, mit runden Atomen <i>c</i>2<i>mm</i>.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1.7320508&amp;gamma=90&amp;basis=atom,0,0,0,0" data-alt="Rechteckiges Gitter mit b gleich Wurzel 3 mal a und einem Atom je Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 3.3a</b> Ein Atom je Zelle, <i>b</i> = √3&nbsp;<i>a</i>: <i>p</i>2<i>mm</i>. Die Linien verbinden nächste Nachbarn.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1.7320508&amp;gamma=90&amp;basis=atom,0,0,0,0;atom,0,0.5,0.5,0" data-alt="Dasselbe Gitter mit einem zweiten Atom in der Zellmitte; hexagonale konventionelle Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Zweites Atom bei (½,&nbsp;½): Die Atome bilden ein hexagonales Gitter, <i>p</i>6<i>mm</i>, mit der Zelle <i>a</i>′, <i>b</i>′; die gegebene Zelle ist grau gestrichelt.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 3.3</b> Die Basis ändert das Gitter: Mit dem zweiten Atom hat die Struktur ein hexagonales Gitter, obwohl die gegebene Zelle rechteckig ist.</p>
+        <p><b>Das Kristallsystem folgt der Symmetrie, nicht der Metrik.</b> Das Muster in Abb. 3.2c hat ein quadratisches Gitter, gehört aber zum rechteckigen System; das in Abb. 3.2d zum schiefwinkligen (Abschnitt 2.3).</p>
+        <p><b>Die Symmetrie bleibt nur, wenn jedes Motiv zu seinem Platz passt.</b> Besteht die Basis aus mehreren Motiven, sitzen nicht alle auf den Ecken der Zelle, sondern an verschiedenen Stellen in ihr. Jede solche Stelle hat, durch das Gitter und die übrigen Motive, eine bestimmte Symmetrie. In Abb. 3.4 sitzen Quadrate auf den Ecken eines quadratischen Gitters. Die Zellmitte bei (½,&nbsp;½) ist dann ein 4-zähliger Drehpunkt mit vier Spiegellinien, hat also die Symmetrie 4<i>mm</i>. Ein Atom dort hat sogar mehr Symmetrie (∞<i>m</i>) und lässt sie bestehen, das Muster bleibt <i>p</i>4<i>mm</i> (Abb. 3.4a). Die eigene Symmetrie eines Atoms erniedrigt nie die Symmetrie eines Musters. Eine längliche Insel dort hat nur 2<i>mm</i>: Die 4-zähligen Drehpunkte, auch die an den Ecken, und die diagonalen Spiegellinien fallen weg, das Muster ist <i>p</i>2<i>mm</i> (Abb. 3.4b). Allgemein gilt: Ein Drehpunkt oder eine Spiegellinie, die durch die Mitte eines Motivs geht, bleibt nur erhalten, wenn das Motiv mindestens diese Symmetrie hat und passend ausgerichtet ist. Die Symmetrie, die ein Platz in der fertigen Struktur hat, heisst <span class="term">Lagesymmetrie</span>; für die Zellmitte ist sie in Abb. 3.4a 4<i>mm</i>, in Abb. 3.4b nur 2<i>mm</i>. Sie ist das Thema von Kapitel 6.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=quadrat,0,0,0,0;atom,1,0.5,0.5,0&amp;sbind=0" data-alt="Quadrate auf den Ecken und ein Atom in der Zellmitte">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 3.4a</b> Quadrate auf den Ecken, ein Atom (andere Farbe) in der Zellmitte: <i>p</i>4<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=quadrat,0,0,0,0;insel,0,0.5,0.5,0&amp;sbind=0" data-alt="Quadrate auf den Ecken und eine längliche Insel in der Zellmitte">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Statt des Atoms eine längliche Insel (2<i>mm</i>): <i>p</i>2<i>mm</i>.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 3.4</b> Mit Quadraten auf den Ecken hat die Zellmitte die Symmetrie 4<i>mm</i>. Ein Motiv dort mit geringerer Symmetrie erniedrigt die Symmetrie des ganzen Musters.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Gitter und Motiv bestimmen zusammen die Symmetrie: Das Gitter der Struktur begrenzt sie, das Motiv kann sie nur erniedrigen. Das Kristallsystem einer Struktur folgt ihrer Symmetrie, nicht der Metrik. Ein Symmetrieelement durch die Mitte eines Motivs bleibt nur, wenn das Motiv mindestens diese Symmetrie hat und passend ausgerichtet ist.</p>
+        </div>
+      </section>
+
+      <section id="orientierung">
+        <h3>Die Orientierung des Motivs</h3>
+        <p>Es kommt nicht nur auf die Symmetrie des Motivs an, sondern auch darauf, wie es liegt. Dreht man die Quadrate aus Abb. 3.2a um 20°, liegen ihre Spiegellinien nicht mehr auf denen des Gitters. Gemeinsam bleiben nur die Drehungen: Das Muster hat nur noch die Symmetrie 4 (Abb. 3.5a).</p>
+        <p>Dreht man dagegen die länglichen Inseln aus Abb. 3.2c um 45°, liegen ihre Spiegellinien auf den Diagonalen des Quadrats, und diese sind ebenfalls Spiegellinien des Gitters. Das Muster behält die Symmetrie 2<i>mm</i>, aber mit Spiegellinien entlang der Diagonalen. Es hat keine 4-zähligen Drehpunkte und gehört deshalb zum rechteckigen System. Dort soll die Zelle entlang der Spiegellinien liegen (Abschnitt 2.4). Die konventionelle Zelle ist deshalb um 45° gedreht und zentriert, mit <i>a</i>′ = <i>a</i> + <i>b</i> und <i>b</i>′ = −<i>a</i> + <i>b</i> (Abb. 3.5b). Dasselbe Gitter, nur mit gedrehten Motiven, wird also in einer ganz anderen Zelle beschrieben. Diese Zelle ist ein Quadrat mit einem Gitterpunkt in der Mitte. Für das Gitter allein wäre sie unnötig gross (Vertiefung in Abschnitt 2.4); für dieses Muster ist sie die richtige.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=quadrat,0,0,0,20&amp;sbind=0" data-alt="Quadratisches Gitter mit um 20 Grad gedrehten Quadraten">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 3.5a</b> Quadrate um 20° gedreht: <i>p</i>4.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1&amp;gamma=90&amp;basis=insel,0,0,0,45&amp;sbind=0" data-alt="Quadratisches Gitter mit um 45 Grad gedrehten Inseln und zentrierter Zelle">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Inseln um 45° gedreht: <i>c</i>2<i>mm</i> mit zentrierter Zelle <i>a</i>′, <i>b</i>′.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 3.5</b> Die Orientierung des Motivs entscheidet, welche Symmetrieelemente Gitter und Motiv gemeinsam haben. Die grau gestrichelte Linie in b ist die gegebene Zelle.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Eine Spiegellinie des Motivs bleibt nur erhalten, wenn sie auf einer Spiegellinie des Gitters liegt. Mit der Orientierung des Motivs kann sich auch die konventionelle Zelle ändern.</p>
+        </div>
+      </section>
+
+      <section id="zellwechsel">
+        <h3>Wenn sich die konventionelle Zelle ändert</h3>
+        <p>Abb. 3.5b zeigt, was beim Ändern einer Basis leicht verwirrt: Eine kleine Änderung der Struktur kann ihre Beschreibung stark ändern. Das liegt daran, dass die konventionelle Zelle nach festen Regeln aus der Symmetrie folgt (Abschnitt 2.5). Oft ändert sich nur die Ebenengruppe, und die Zelle bleibt, wie in Abb. 3.2 und 3.5a; es fallen nur Symmetrieelemente weg. Die Zelle selbst kann sich auf drei Arten ändern.</p>
+        <p><b>Die Zelle wird grösser oder kleiner.</b> Neue Translationen verkleinern die primitive Zelle (Abschnitt 1.6, Abb. 3.3b). Braucht die Symmetrie eine zentrierte Zelle, wird die konventionelle Zelle doppelt so gross wie die primitive (Abb. 2.4, 3.5b).</p>
+        <p><b>Die Achsen werden vertauscht oder gedreht.</b> Die International Tables legen für jede Ebenengruppe fest, wie die Symmetrieelemente zu den Achsen liegen. In <i>pm</i> etwa liegt die Spiegellinie parallel zu <i>b</i>, also senkrecht zu <i>a</i>. Zeigen die Spitzen gleichschenkliger Dreiecke entlang <i>a</i>, liegt die Spiegellinie parallel zu <i>a</i>. Die App wählt dann <i>a</i>′ = <i>b</i> und <i>b</i>′ = −<i>a</i>: Die Zelle bleibt dieselbe, nur ihre Achsen sind umbenannt und um 90° gedreht (Abb. 3.6).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1.35&amp;gamma=90&amp;basis=dreieck,0,0,0,90&amp;sbind=0" data-alt="Dreiecke mit Spitze entlang b: Spiegellinie parallel zu b">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 3.6a</b> Spitzen entlang <i>b</i>: Die Spiegellinie liegt wie in den International Tables, <i>a</i>′ = <i>a</i>, <i>b</i>′ = <i>b</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1.35&amp;gamma=90&amp;basis=dreieck,0,0,0,0&amp;sbind=0" data-alt="Dreiecke mit Spitze entlang a: Achsen der konventionellen Zelle vertauscht">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Spitzen entlang <i>a</i>: Die App wählt <i>a</i>′ = <i>b</i>, <i>b</i>′ = −<i>a</i>, damit die Spiegellinie wieder parallel zu <i>b</i>′ liegt.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 3.6</b> Dieselbe Symmetrie <i>pm</i> in zwei Lagen. Die konventionelle Zelle folgt der Spiegellinie.</p>
+        <p><b>Der Ursprung wandert.</b> Auch den Ursprung legen die International Tables fest: auf einen Punkt hoher Symmetrie, für jede Ebenengruppe ausdrücklich angegeben, etwa „Ursprung auf 2<i>mm</i>“ bei <i>p</i>2<i>mm</i>. Liegt der Ursprung der gegebenen Zelle nicht auf einem solchen Punkt, verschiebt ihn die App. Abb. 3.7 zeigt ein rechteckiges Gitter mit einer Basis aus zwei gleichen Atomen bei (0,&nbsp;0) und (0,3;&nbsp;0), einem Molekül aus zwei Atomen. Das Muster hat die Symmetrie <i>p</i>2<i>mm</i>, aber die Atome liegen nur auf Spiegellinien. Die Punkte mit der Symmetrie 2<i>mm</i> liegen zwischen den Atomen, etwa in der Mitte des Moleküls bei (0,15;&nbsp;0). Dorthin legt die App den Ursprung der konventionellen Zelle. Die Zelle hat dieselbe Grösse und dieselben Achsen, aber alle Koordinaten verschieben sich um denselben Betrag: Die Atome liegen jetzt bei (−0,15;&nbsp;0) und (0,15;&nbsp;0), gleichwertig (0,85;&nbsp;0) und (0,15;&nbsp;0).</p>
+        <figure class="fig-card fig-mittel" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;ba=1.35&amp;gamma=90&amp;basis=atom,0,0,0,0;atom,0,0.3,0,0" data-alt="Rechteckiges Gitter mit Molekülen aus zwei Atomen; konventionelle Zelle mit dem Ursprung in der Molekülmitte">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 3.7</b> Molekül aus zwei Atomen auf einem rechteckigen Gitter, <i>p</i>2<i>mm</i>. Der Ursprung der konventionellen Zelle liegt in der Mitte des Moleküls, nicht auf einem Atom; die gegebene Zelle ist grau gestrichelt.</figcaption>
+        </figure>
+        <p>Oft gibt es mehrere Punkte, auf die der Ursprung gelegt werden darf; in <i>p</i>2<i>mm</i> etwa vier verschiedene Arten von Punkten 2<i>mm</i> je Zelle. Alle sind gleich gut. Die App nimmt den, der dem Ursprung der gegebenen Zelle am nächsten liegt, damit er nicht ohne Not wandert. Ein Beispiel ist hexagonales Bornitrid (Vorgabe „h-BN (B und N)“): eine Bienenwabe wie Graphen, aber abwechselnd aus Bor- und Stickstoffatomen. Die Sechseckmitte bei (0,&nbsp;0) und die beiden Atome haben dieselbe Symmetrie 3<i>m</i>. Weil die Sechseckmitte selbst ein erlaubter Ursprung ist, bleibt er dort (Abb. 3.8b). Abb. 3.8 zeigt nebenbei, wie verschiedene Atomsorten die Symmetrie erniedrigen: Eine Symmetrieoperation muss jedes Atom auf ein gleiches abbilden (Abschnitt 1.6, 3.2). In Graphen sind beide Atome gleich, die Struktur hat die Symmetrie <i>p</i>6<i>mm</i>. In h-BN fallen die 6-zähligen Drehpunkte in den Sechseckmitten weg, weil eine Drehung um 60° ein Bor- auf ein Stickstoffatom abbilden würde; ebenso die 2-zähligen Drehpunkte und die Spiegellinien durch die Bindungsmitten. Es bleiben die 3-zähligen Drehpunkte und die Spiegellinien durch die Atome: <i>p</i>3<i>m</i>1.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=graphen" data-alt="Graphen: Bienenwabe aus gleichen Atomen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 3.8a</b> Graphen, zwei gleiche Atome je Zelle: <i>p</i>6<i>mm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=hbn" data-alt="h-BN: Bienenwabe aus Bor- und Stickstoffatomen">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> h-BN, Bor und Stickstoff: <i>p</i>3<i>m</i>1.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 3.8</b> Graphen und hexagonales Bornitrid in derselben gegebenen Zelle. In beiden liegt der Ursprung in der Sechseckmitte.</p>
+        <p>Beim Lesen der App hilft eine feste Reihenfolge: Welche Ebenengruppe hat die Struktur jetzt? Wie viele Gitterpunkte hat die konventionelle Zelle (primitiv oder zentriert)? Wie liegen <i>a</i>′ und <i>b</i>′ zu <i>a</i> und <i>b</i>? Wo liegt der Ursprung? Die Antworten stehen in den Kenndaten. Gegebene und konventionelle Zelle beschreiben dabei immer dieselbe Struktur.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Ändert sich die Symmetrie, kann sich die konventionelle Zelle ändern: ihre Grösse (primitiv, zentriert, neue Translationen), die Lage ihrer Achsen (vertauscht, gedreht) und ihr Ursprung. Gegebene und konventionelle Zelle beschreiben dieselbe Struktur.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Nach jeder Änderung im Modus „Gitter und Basis“ nennen die Kenndaten unter „Geändert“ die alte und die neue Ebenengruppe, unter „Konventionelle Zelle nach ITA“ die neuen Achsen und unter „Ursprung nach ITA“ den neuen Ursprung. Die Tabelle „Basis“ gibt die Lage jedes Motivs in beiden Zellen an. Zum Ausprobieren: Vorgabe „Quadratisch“, das Atom antippen, unter „Basis“ das Motiv „Insel (länglich)“ wählen und die Drehung langsam von 0° auf 45° stellen. Dazwischen ist das Muster <i>p</i>2; „Geändert“ nennt immer nur den letzten Schritt, am Ende also <i>p</i>2 → <i>c</i>2<i>mm</i>.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Ein periodisches Muster hat eine der zehn Punktgruppen der Ebene: 1, 2, <i>m</i>, 2<i>mm</i>, 4, 4<i>mm</i>, 3, 3<i>m</i>, 6, 6<i>mm</i>.</li>
+          <li>Die Symmetrie eines ganzen periodischen Musters ist seine Ebenengruppe, etwa <i>p</i>4<i>mm</i>: Zelle (<i>p</i> oder <i>c</i>), dann Zähligkeit und Spiegellinien.</li>
+          <li>Gitter und Motiv bestimmen zusammen die Symmetrie eines Musters. Das Gitter der Struktur begrenzt sie, das Motiv kann sie nur erniedrigen; das Kristallsystem folgt der Symmetrie, nicht der Metrik. Jedes Motiv muss mindestens die Symmetrie seines Platzes haben, passend ausgerichtet; sonst sinkt die Symmetrie.</li>
+          <li>Auch die Orientierung des Motivs zählt: Seine Spiegellinien bleiben nur, wenn sie auf Spiegellinien des Gitters liegen.</li>
+          <li>Mit der Symmetrie kann sich die konventionelle Zelle ändern: Grösse, Achsen, Ursprung. Oft ändert sich nur die Ebenengruppe, und die Zelle bleibt.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Die zehn Punktgruppen der Ebene sind die zehn polaren Punktgruppen des Raums.</li>
+        </ul>
+      </div>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 9.6.3 (die zehn Punktgruppen mit Dipolmoment: 1, 2, 3, 4, 6, <i>m</i>, <i>mm</i>2, 3<i>m</i>, 4<i>mm</i>, 6<i>mm</i>, S. 171), Abschn. 9.7 (Punktgruppe ∞<i>m</i> des Kegels, S. 172), Abschn. 10.2 (die 17 Ebenengruppen, die zehn Punktgruppen der Ebene; die höchstzählige Drehung zuerst, zwei nicht äquivalente Sätze von Spiegellinien; Punktgitter mit der höchstmöglichen Symmetrie; Motive niedrigerer Symmetrie erniedrigen die Symmetrie des Musters, quadratisches Gitter mit Motiven 4<i>mm</i>, 4, 2<i>mm</i>, 2, Abb. 10.9, S. 206–208), Abschn. 11.2 (Gruppenaxiome, Einselement, Untergruppe, S. 263–264).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 1.8 (nicht die Metrik bestimmt die Symmetrie, sondern umgekehrt, S. 26), 5.3.2 (räumliche Beispiele zu Gitter und Motiv: Motiv erniedrigt die Symmetrie, Orientierung des Motivs entscheidet, ob eine Drehachse erhalten bleibt, S. 182–186; das Gitter zeigt immer die höchste Symmetrie, über das Kristallsystem entscheidet das Motiv, S. 188).</li>
+          <li>International Tables for Crystallography, Vol. A (2006), Tab. 2.1.2.1 (Punktgruppen der Ebene nach Kristallsystem, S. 15), Abschn. 2.1.3 (konventionelle Zelle und Ursprung auf einem Punkt hoher Symmetrie, S. 14), Abschn. 2.2.7 (Angabe des Ursprungs, S. 24), Part 6 (Ebenengruppe <i>pm</i>, volles Symbol <i>p</i>1<i>m</i>1: Spiegellinie 0, <i>y</i>, Ursprung auf <i>m</i>, S. 94; <i>p</i>2<i>mm</i>: Ursprung auf 2<i>mm</i>, vier Lagen 2<i>mm</i>, S. 97).</li>
         </ul>
       </div>
     </section>
