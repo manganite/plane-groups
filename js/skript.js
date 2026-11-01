@@ -196,7 +196,73 @@ function motiveSkizze(fig, f) {
   return svg.join('');
 }
 
-const SKIZZEN = { gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze };
+/**
+ * Fussspuren (Kap. 4, nach Hoffmann Abb. 4.7–4.9): auf einem Bein hüpfen
+ * (Translation), mit beiden Beinen springen (Spiegellinie entlang der Laufrichtung), gehen
+ * (Gleitspiegellinie). Laufrichtung nach rechts; der rechte Fuss liegt unten.
+ */
+function spurenSkizze(fig, f) {
+  // Fuss mit Zehen nach +x; rechts: grosser Zeh innen (nach −y), links gespiegelt
+  const fuss = (x, y, rechts) => {
+    const s = rechts ? 1 : -1;
+    const sohle = `M-16 0 C-16 ${-5.5 * s} -10 ${-6.5 * s} -4 ${-5 * s} C2 ${-4 * s} 7 ${-8 * s} 12 ${-6 * s} C15 ${-4.5 * s} 15 ${4 * s} 12 ${7 * s} C8 ${10 * s} 0 ${8 * s} -5 ${6 * s} C-11 ${5 * s} -16 ${5 * s} -16 0 Z`;
+    const zehen = [[18.5, -4.6, 3.4], [19.3, 0.4, 2.3], [18.2, 4.2, 2], [16.4, 7.2, 1.8], [14, 9.6, 1.5]]
+      .map(([zx, zy, r]) => `<circle cx="${zx}" cy="${zy * s}" r="${r}"/>`).join('');
+    return `<g transform="translate(${x} ${y})" fill="${f.ink}" opacity="0.85"><path d="${sohle}"/>${zehen}</g>`;
+  };
+  const x0 = 120; const t = 96; const n = 4;
+  const zeilen = [
+    { y: 70, name: 'auf einem Bein hüpfen', sym: 't', fuesse: (i) => [fuss(x0 + i * t, 70, true)] },
+    { y: 190, name: 'mit beiden Beinen springen', sym: 'm', fuesse: (i) => [fuss(x0 + i * t, 172, false), fuss(x0 + i * t, 208, true)] },
+    { y: 310, name: 'gehen', sym: 'g', fuesse: (i) => [fuss(x0 + i * t, 292, false), fuss(x0 + i * t + t / 2, 328, true)] },
+  ];
+  const svg = [`<rect width="520" height="380" fill="${f.paper}"/>`, `<defs>${pfeilspitze('sp-pf', f.accent)}</defs>`];
+  for (const z of zeilen) {
+    svg.push(text([12, z.y - 36], z.name, `${SANS} font-size="15" fill="${f.muted}"`));
+    for (let i = 0; i < n; i++) svg.push(...z.fuesse(i));
+    if (z.sym === 'm') svg.push(linie([x0 - 40, z.y], [x0 + (n - 1) * t + 40, z.y], `stroke="${f.accent}" stroke-width="2.4"`));
+    if (z.sym === 'g') svg.push(linie([x0 - 40, z.y], [x0 + (n - 1) * t + t / 2 + 40, z.y], `stroke="${f.accent}" stroke-width="2.4" stroke-dasharray="9 6"`));
+    svg.push(text([28, z.y + 7], z.sym, `${SERIF} font-size="24" fill="${f.accent}"`));
+  }
+  // Translation t in der ersten Zeile, Gleitkomponente t/2 in der dritten
+  const pfeil = (y, x1, x2, label) => linie([x1, y], [x2, y], `stroke="${f.accent}" stroke-width="1.8" marker-end="url(#sp-pf)"`)
+    + text([(x1 + x2) / 2, y - 7], label, `${SERIF} font-size="18" fill="${f.accent}" text-anchor="middle"`);
+  svg.push(pfeil(100, x0 - 15, x0 + t - 15, 't'));
+  svg.push(pfeil(358, x0 - 15, x0 + t / 2 - 15, 't/2'));
+  return svg.join('');
+}
+
+/**
+ * Punktgruppe 3m des gleichseitigen Dreiecks für die Gruppentafel (Kap. 4): Stellen 1 (links unten),
+ * 2 (rechts unten), 3 (oben); Spiegellinien m1, m2, m3 durch die Stellen, fest im Raum; +3 dreht
+ * um 120° gegen den Uhrzeigersinn.
+ */
+function dreieckSkizze(fig, f) {
+  const c = [260, 215]; const R = 115;
+  const pol = (w, r) => [c[0] + r * Math.cos((w * Math.PI) / 180), c[1] - r * Math.sin((w * Math.PI) / 180)];
+  const winkel = [210, 330, 90]; // Stellen 1, 2, 3
+  const ecken = winkel.map((w) => pol(w, R));
+  const svg = [`<rect width="520" height="400" fill="${f.paper}"/>`, `<defs>${pfeilspitze('dr-pf', f.accent2)}</defs>`];
+  svg.push(`<path d="M${ecken.map((q) => `${f2(q[0])} ${f2(q[1])}`).join(' L')} Z" fill="${f.crystal}" fill-opacity="0.35" stroke="${f.ink}" stroke-width="1.6"/>`);
+  winkel.forEach((w, i) => {
+    svg.push(linie(pol(w, 175), pol(w + 180, 95), `stroke="${f.accent}" stroke-width="2.2"`));
+    const t = pol(w, 192);
+    svg.push(`<text x="${f2(t[0])}" y="${f2(t[1] + 7)}" ${SERIF} font-size="21" fill="${f.accent}" text-anchor="middle">m<tspan font-size="14" dy="4" font-style="normal">${i + 1}</tspan></text>`);
+    const z = pol(w - 13, R - 40); // neben der Spiegellinie
+    svg.push(text([z[0], z[1] + 7], String(i + 1), `${SANS} font-size="20" font-weight="600" fill="${f.ink}" text-anchor="middle"`));
+  });
+  // 3-zähliger Drehpunkt in der Mitte
+  const d = [90, 210, 330].map((w) => pol(w, 9));
+  svg.push(`<path d="M${d.map((q) => `${f2(q[0])} ${f2(q[1])}`).join(' L')} Z" fill="${f.ink}"/>`);
+  // +3: Bogen gegen den Uhrzeigersinn
+  const a = pol(-25, 62); const b = pol(45, 62);
+  svg.push(`<path d="M${f2(a[0])} ${f2(a[1])} A62 62 0 0 0 ${f2(b[0])} ${f2(b[1])}" fill="none" stroke="${f.accent2}" stroke-width="2" marker-end="url(#dr-pf)"/>`);
+  const t = pol(10, 84);
+  svg.push(text([t[0], t[1] + 6], '+3', `${SANS} font-size="18" fill="${f.accent2}"`));
+  return svg.join('');
+}
+
+const SKIZZEN = { dreieck3m: dreieckSkizze, gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
 
 function abbildungen() {
   const f = farben();

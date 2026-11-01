@@ -17,6 +17,10 @@
 <style>
 /* Nur in diesem Skript: Stile eigener Abbildungen. Alles Gemeinsame steht in lib/common/css/skript.css. */
 .fig-mittel { max-width: 460px; margin-inline: auto; }
+.tab.tafel th { text-transform: none; letter-spacing: 0; font-size: inherit; color: var(--ink); }
+.tab.tafel td, .tab.tafel th { text-align: center; }
+.mat { display: inline-grid; grid-template-columns: repeat(var(--n), auto); gap: 0.1em 0.7em; justify-items: center; align-items: center; vertical-align: middle; padding: 0.1em 0.5em; border-left: 1.5px solid currentColor; border-right: 1.5px solid currentColor; border-radius: 0.6em; line-height: 1.25; margin: 0.15em 0.1em; }
+.mat-zeile { overflow-x: auto; white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -63,6 +67,15 @@
               <li><a href="#gitter-und-motiv">Die Symmetrie des Musters</a></li>
               <li><a href="#orientierung">Die Orientierung des Motivs</a></li>
               <li><a href="#zellwechsel">Wenn sich die Zelle ändert</a></li>
+            </ol>
+          </li>
+          <li><a href="#gleitspiegelung"><span class="nr">4</span>Gleitspiegelung und Verknüpfung</a>
+            <ol>
+              <li><a href="#gleitung">Die Gleitspiegelung</a></li>
+              <li><a href="#operationen">Symmetrieoperationen in Koordinaten</a></li>
+              <li><a href="#ita-liste">So listen die International Tables</a></li>
+              <li><a href="#verknuepfung">Operationen verknüpfen</a></li>
+              <li><a href="#mehr-elemente">Mehr Elemente, als das Symbol nennt</a></li>
             </ol>
           </li>
         </ol>
@@ -683,6 +696,253 @@
           <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 9.6.3 (die zehn Punktgruppen mit Dipolmoment: 1, 2, 3, 4, 6, <i>m</i>, <i>mm</i>2, 3<i>m</i>, 4<i>mm</i>, 6<i>mm</i>, S. 171), Abschn. 9.7 (Punktgruppe ∞<i>m</i> des Kegels, S. 172), Abschn. 10.2 (die 17 Ebenengruppen, die zehn Punktgruppen der Ebene; die höchstzählige Drehung zuerst, zwei nicht äquivalente Sätze von Spiegellinien; Punktgitter mit der höchstmöglichen Symmetrie; Motive niedrigerer Symmetrie erniedrigen die Symmetrie des Musters, quadratisches Gitter mit Motiven 4<i>mm</i>, 4, 2<i>mm</i>, 2, Abb. 10.9, S. 206–208), Abschn. 11.2 (Gruppenaxiome, Einselement, Untergruppe, S. 263–264).</li>
           <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 1.8 (nicht die Metrik bestimmt die Symmetrie, sondern umgekehrt, S. 26), 5.3.2 (räumliche Beispiele zu Gitter und Motiv: Motiv erniedrigt die Symmetrie, Orientierung des Motivs entscheidet, ob eine Drehachse erhalten bleibt, S. 182–186; das Gitter zeigt immer die höchste Symmetrie, über das Kristallsystem entscheidet das Motiv, S. 188).</li>
           <li>International Tables for Crystallography, Vol. A (2006), Tab. 2.1.2.1 (Punktgruppen der Ebene nach Kristallsystem, S. 15), Abschn. 2.1.3 (konventionelle Zelle und Ursprung auf einem Punkt hoher Symmetrie, S. 14), Abschn. 2.2.7 (Angabe des Ursprungs, S. 24), Part 6 (Ebenengruppe <i>pm</i>, volles Symbol <i>p</i>1<i>m</i>1: Spiegellinie 0, <i>y</i>, Ursprung auf <i>m</i>, S. 94; <i>p</i>2<i>mm</i>: Ursprung auf 2<i>mm</i>, vier Lagen 2<i>mm</i>, S. 97).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="gleitspiegelung">
+      <h2><span class="nr">4</span>Gleitspiegelung und Verknüpfung</h2>
+      <p class="lead">Periodische Muster haben eine Symmetrieoperation, die ein einzelnes Objekt nicht haben kann: die Gleitspiegelung. Und weil jede Symmetrieoperation mit den Translationen zusammenwirkt, folgen aus wenigen Symmetrieelementen zwangsläufig viele weitere: Gleitspiegellinien und Drehpunkte zwischen den Gitterpunkten, die das Symbol einer Ebenengruppe oft gar nicht nennt. Erst mit ihnen ist die Symmetrie einer zweidimensionalen Kristallstruktur vollständig beschrieben.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>eine Gleitspiegelung beschreiben und Gleitspiegellinien in einem Muster erkennen</li>
+          <li>eine Symmetrieoperation in der Schreibweise der International Tables lesen, etwa <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i></li>
+          <li>die Gruppentafel einer Punktgruppe lesen und aufstellen</li>
+          <li>zwei Operationen in Koordinaten nacheinander ausführen und bestimmen, welche Operation sich ergibt</li>
+          <li>begründen, warum ein Muster mehr Symmetrieelemente hat, als sein Symbol nennt</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>zu einer Operation die Matrix und die Verschiebung angeben</li>
+          <li>erklären, warum es nur sieben Arten von Friesen gibt, und drei davon an Fussspuren erkennen</li>
+        </ul>
+      </div>
+
+      <section id="gleitung">
+        <h3>Die Gleitspiegelung</h3>
+        <p>Spuren im Sand zeigen, worum es geht (Abb. 4.1). Wer auf einem Bein hüpft, hinterlässt eine Reihe gleicher Fussabdrücke; die Spur hat nur Translationen. Wer mit beiden Beinen springt, setzt den linken und den rechten Fuss nebeneinander. Die beiden Abdrücke sind Spiegelbilder, und eine Spiegellinie entlang der Laufrichtung bringt die Spur mit sich zur Deckung.</p>
+        <p>Wer geht, setzt die Füsse abwechselnd. Linker und rechter Abdruck sind wieder Spiegelbilder, aber um eine halbe Schrittlänge gegeneinander versetzt. Jetzt hilft weder eine Spiegelung allein noch eine Verschiebung allein: Gespiegelt landet ein linker Fuss zwischen zwei rechten, verschoben auf der falschen Seite. Erst beides zusammen, spiegeln an der Mittellinie und um eine halbe Schrittlänge verschieben, bringt die Spur mit sich zur Deckung.</p>
+        <figure class="fig-card fig-mittel" data-kind="spuren" data-viewbox="0 0 520 380" data-alt="Drei Fussspuren: hüpfen, springen, gehen">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 4.1</b> Fussspuren in Laufrichtung nach rechts. Hüpfen: nur die Translation <i>t</i>. Springen: eine Spiegellinie <i>m</i> entlang der Laufrichtung. Gehen: eine Gleitspiegellinie <i>g</i>, gestrichelt; die Gleitspiegelung spiegelt an ihr und verschiebt um <i>t</i>/2 (nach Hoffmann Abb. 4.7–4.9).</figcaption>
+        </figure>
+        <p>Diese Operation heisst <span class="term">Gleitspiegelung</span>: eine Spiegelung an einer Linie, gekoppelt mit einer Verschiebung parallel zu dieser Linie. Gekoppelt heisst, dass nur beide zusammen eine Symmetrieoperation sind, die Spiegelung allein und die Verschiebung allein nicht (Skript „Stereographische Projektion“, <a href="https://manganite.github.io/stereography/skript.html#drehinversion">Abschnitt 3.2</a>). Das Symmetrieelement ist die <span class="term">Gleitspiegellinie</span>; man zeichnet sie gestrichelt und schreibt <i>g</i>. Die Verschiebung heisst <span class="term">Gleitkomponente</span> (bei Borchardt-Ott Gleitvektor).</p>
+        <p>Führt man eine Gleitspiegelung zweimal aus, heben sich die beiden Spiegelungen auf, und es bleibt eine Verschiebung um die doppelte Gleitkomponente. Diese muss eine Translation des Gitters sein. Die Gleitkomponente ist deshalb immer die Hälfte einer Gittertranslation parallel zur Linie, beim Gehen eine halbe Schrittlänge. Weil eine Gleitspiegelung eine Spiegelung enthält, gibt es Gleitspiegellinien nur in Richtungen, in denen auch Spiegellinien möglich sind, also nicht im schiefwinkligen System.</p>
+        <p>Abb. 4.2 zeigt ein ebenes Muster mit Gleitspiegellinien. Das Fähnchen aus der Zelle wird an der gestrichelten Linie gespiegelt und um <i>b</i>/2 verschoben. Eine Spiegellinie hat dieses Muster nicht. Seine Ebenengruppe heisst <i>pg</i>: primitive Zelle, eine Gleitspiegellinie (Abschnitt 3.2).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=pg" data-alt="Elementarzelle der Ebenengruppe pg mit Gleitspiegellinien und zwei Fähnchen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 4.2a</b> Eine Zelle von <i>pg</i>: das Fähnchen (gestrichelter Kreis) und sein Bild unter der Gleitspiegelung.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=pg" data-alt="Muster der Ebenengruppe pg aus vielen Fähnchen">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Das Muster: Spiegelbilder abwechselnd, um eine halbe Zelle versetzt.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 4.2</b> Die Ebenengruppe <i>pg</i>. Die Gleitspiegellinien liegen bei <i>x</i> = 0 und <i>x</i> = ½, entlang <i>b</i>; die Gleitkomponente ist <i>b</i>/2.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Eine Gleitspiegelung ist eine Spiegelung an einer Linie, gekoppelt mit einer Verschiebung um die Hälfte einer Gittertranslation entlang der Linie. Zweimal ausgeführt ergibt sie eine Gittertranslation. Gleitspiegellinien zeichnet man gestrichelt und schreibt <i>g</i>.</p>
+        </div>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Friesgruppen</b></h4>
+          <p>Diese Vertiefung knüpft an die Fussspuren in Abb. 4.1 an und zeigt, wie man Muster einteilt, die sich nur in einer Richtung wiederholen. Solche Muster heissen Friese oder Bandornamente, man findet sie an Bordüren, Geländern und Gesimsen. Ihre Symmetriegruppen, die <span class="term">Friesgruppen</span>, sind einfacher als die Ebenengruppen: Jede Symmetrieoperation muss die Mittellinie des Frieses auf sich abbilden; die Laufrichtung darf sich dabei umkehren. Drehpunkte können deshalb nur 2-zählig sein, Spiegellinien nur längs oder quer zur Laufrichtung liegen, Gleitspiegellinien nur längs. Es gibt sieben Friesgruppen. Drei davon zeigt Abb. 4.1: nur Translationen (hüpfen), eine Spiegellinie längs (springen), eine Gleitspiegellinie längs (gehen). Die anderen vier haben Spiegellinien quer zur Laufrichtung; 2-zählige Drehpunkte; Spiegellinien quer und eine Gleitspiegellinie längs; oder Spiegellinien längs und quer. In den beiden letzten entstehen die 2-zähligen Drehpunkte von selbst, nach den Regeln aus Abschnitt 4.4.</p>
+        </div>
+      </section>
+
+      <section id="operationen">
+        <h3>Symmetrieoperationen in Koordinaten</h3>
+        <p>Eine Symmetrieoperation bringt jeden Punkt (<i>x</i>,&nbsp;<i>y</i>) an eine neue Stelle. Die International Tables beschreiben sie durch die Koordinaten dieser neuen Stelle, ausgedrückt durch <i>x</i> und <i>y</i>. Dabei steht <span class="ov"><i>x</i></span> für −<i>x</i> (Abschnitt 1.4). Einige Beispiele in einer rechteckigen Zelle:</p>
+        <div class="tabwrap">
+          <table class="tab">
+            <thead><tr><th>Koordinaten</th><th>Operation</th></tr></thead>
+            <tbody>
+              <tr><td><i>x</i>, <i>y</i></td><td>Identität: Jeder Punkt bleibt, wo er ist.</td></tr>
+              <tr><td><i>x</i>&nbsp;+&nbsp;1, <i>y</i></td><td>Translation um <i>a</i></td></tr>
+              <tr><td><span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span></td><td>Drehung um 180° um den Ursprung (0,&nbsp;0)</td></tr>
+              <tr><td><span class="ov"><i>x</i></span>, <i>y</i></td><td>Spiegelung an der Linie <i>x</i> = 0, also an der Gittergeraden entlang <i>b</i> durch den Ursprung</td></tr>
+              <tr><td><span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i></td><td>Spiegelung an der Linie <i>x</i> = ¼</td></tr>
+              <tr><td><i>x</i>&nbsp;+&nbsp;½, <span class="ov"><i>y</i></span></td><td>Gleitspiegelung an der Linie <i>y</i> = 0 mit der Gleitkomponente <i>a</i>/2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Lesen kann man das, indem man einen Punkt einsetzt, etwa (0,12;&nbsp;0,31). Die Drehung <span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span> bringt ihn nach (−0,12;&nbsp;−0,31), die Spiegelung <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i> nach (0,38;&nbsp;0,31) und die Gleitspiegelung <i>x</i>&nbsp;+&nbsp;½, <span class="ov"><i>y</i></span> nach (0,62;&nbsp;−0,31).</p>
+        <p>Wo das Symmetrieelement liegt, findet man mit der Frage, welche Punkte an ihrem Ort bleiben. Bei der Spiegelung <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i> sind es die Punkte mit −<i>x</i>&nbsp;+&nbsp;½ = <i>x</i>, also <i>x</i> = ¼: Dort liegt die Spiegellinie. Bei der Drehung <span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span> bleibt nur (0,&nbsp;0). Die Gleitspiegelung <i>x</i>&nbsp;+&nbsp;½, <span class="ov"><i>y</i></span> lässt keinen Punkt an seinem Ort. Die Punkte mit <i>y</i> = 0 bleiben aber auf ihrer Linie und werden entlang dieser um <i>a</i>/2 verschoben: Das ist die Gleitspiegellinie, und <i>a</i>/2 ist die Gleitkomponente.</p>
+        <div class="box vertiefung">
+          <h4>Vertiefung · <b>Matrix und Verschiebung</b></h4>
+          <p>Diese Vertiefung verbindet die Koordinaten-Schreibweise mit den Matrizen der Punktsymmetrieoperationen; mit ihnen lassen sich Operationen auch rechnerisch verknüpfen. Hinter den Koordinaten stehen eine Matrix <i>W</i> und eine Verschiebung <i>w</i>. Für <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i> etwa gilt</p>
+          <p class="formel mat-zeile"><span class="mat" style="--n:1"><span><i>x</i>′</span><span><i>y</i>′</span></span> = <span class="mat" style="--n:2"><span>−1</span><span>0</span><span>0</span><span>1</span></span> <span class="mat" style="--n:1"><span><i>x</i></span><span><i>y</i></span></span> + <span class="mat" style="--n:1"><span>½</span><span>0</span></span> = <span class="mat" style="--n:1"><span>−<i>x</i></span><span><i>y</i></span></span> + <span class="mat" style="--n:1"><span>½</span><span>0</span></span> = <span class="mat" style="--n:1"><span>−<i>x</i>&nbsp;+&nbsp;½</span><span><i>y</i></span></span></p>
+          <p>Die Matrix <i>W</i> bestimmt die Art der Operation; es sind die Matrizen der Punktsymmetrieoperationen. Die Verschiebung <i>w</i> bestimmt zusammen mit <i>W</i>, wo das Symmetrieelement liegt und ob es eine Gleitkomponente hat. Einige Matrizen:</p>
+          <div class="tabwrap">
+            <table class="tab">
+              <thead><tr><th>Operation</th><th>Koordinaten ohne Verschiebung</th><th><i>W</i></th></tr></thead>
+              <tbody>
+                <tr><td>Identität 1</td><td><i>x</i>, <i>y</i></td><td><span class="mat" style="--n:2"><span>1</span><span>0</span><span>0</span><span>1</span></span></td></tr>
+                <tr><td>Drehung um 180°</td><td><span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span></td><td><span class="mat" style="--n:2"><span>−1</span><span>0</span><span>0</span><span>−1</span></span></td></tr>
+                <tr><td>Spiegelung, Linie entlang <i>b</i></td><td><span class="ov"><i>x</i></span>, <i>y</i></td><td><span class="mat" style="--n:2"><span>−1</span><span>0</span><span>0</span><span>1</span></span></td></tr>
+                <tr><td>Spiegelung, Linie entlang <i>a</i></td><td><i>x</i>, <span class="ov"><i>y</i></span></td><td><span class="mat" style="--n:2"><span>1</span><span>0</span><span>0</span><span>−1</span></span></td></tr>
+                <tr><td>Drehung um 90° (quadratisch)</td><td><span class="ov"><i>y</i></span>, <i>x</i></td><td><span class="mat" style="--n:2"><span>0</span><span>−1</span><span>1</span><span>0</span></span></td></tr>
+                <tr><td>Spiegelung an der Diagonalen (quadratisch)</td><td><i>y</i>, <i>x</i></td><td><span class="mat" style="--n:2"><span>0</span><span>1</span><span>1</span><span>0</span></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Lässt man bei allen Operationen einer Ebenengruppe die Verschiebung weg, bleiben die Matrizen. Sie bilden die Punktgruppe der Ebenengruppe; eine Gleitspiegelung wird dabei zur Spiegelung. Deshalb liest man <i>g</i> für die Punktgruppe wie <i>m</i> (Abschnitt 3.2).</p>
+        </div>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Eine Symmetrieoperation schreibt man als Koordinaten des Bildpunkts, etwa <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i>. Den Ort des Symmetrieelements findet man, indem man fragt, welche Punkte an ihrem Ort bleiben. Spiegelt die Operation und bleibt dennoch kein Punkt an seinem Ort, ist es eine Gleitspiegelung; ihre Linie wird in sich verschoben. Eine Translation lässt ebenfalls keinen Punkt an seinem Ort, spiegelt aber nicht.</p>
+        </div>
+      </section>
+
+      <section id="ita-liste">
+        <h3>So listen die International Tables die Operationen</h3>
+        <p>Die International Tables geben für jede Ebenengruppe die Operationen in einer festen Reihenfolge an, mit Nummern. Zu jeder Operation nennen sie die Koordinaten und ein Symbol aus Art und Lage des Symmetrieelements. Für die Ebenengruppe <i>p</i>2<i>mg</i> sind es vier:</p>
+        <div class="tabwrap">
+          <table class="tab">
+            <thead><tr><th>Nr.</th><th>Koordinaten</th><th>Symbol</th><th>Bedeutung</th></tr></thead>
+            <tbody>
+              <tr><td>(1)</td><td><i>x</i>, <i>y</i></td><td>1</td><td>Identität</td></tr>
+              <tr><td>(2)</td><td><span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span></td><td>2 0,&nbsp;0</td><td>2-zähliger Drehpunkt bei (0,&nbsp;0)</td></tr>
+              <tr><td>(3)</td><td><span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i></td><td><i>m</i> ¼,&nbsp;<i>y</i></td><td>Spiegellinie durch alle Punkte (¼,&nbsp;<i>y</i>)</td></tr>
+              <tr><td>(4)</td><td><i>x</i>&nbsp;+&nbsp;½, <span class="ov"><i>y</i></span></td><td><i>a</i> <i>x</i>,&nbsp;0</td><td>Gleitspiegellinie durch alle Punkte (<i>x</i>,&nbsp;0), Gleitkomponente <i>a</i>/2</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Die Lage einer Linie gibt man an wie eine Menge von Punkten: ¼,&nbsp;<i>y</i> sind alle Punkte mit <i>x</i> = ¼ und beliebigem <i>y</i>. Bei Gleitspiegellinien steht statt <i>m</i> die Richtung der Gleitkomponente: <i>a</i> für <i>a</i>/2, <i>b</i> für <i>b</i>/2. Abb. 4.3 zeigt die Operationen (2) bis (4), angewandt auf das Fähnchen bei (0,12;&nbsp;0,31) aus dem vorigen Abschnitt.</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mg&amp;schritt=2" data-alt="p2mg: Drehung des Fähnchens um 180° um den Ursprung">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 4.3a</b> (2) Drehung um 180° um (0,&nbsp;0).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mg&amp;schritt=3" data-alt="p2mg: Spiegelung des Fähnchens an der Linie x = 1/4">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> (3) Spiegelung an <i>m</i> ¼,&nbsp;<i>y</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2mg&amp;schritt=4" data-alt="p2mg: Gleitspiegelung des Fähnchens an der Linie y = 0">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> (4) Gleitspiegelung an <i>a</i> <i>x</i>,&nbsp;0: spiegeln (blasses Zwischenbild), dann um <i>a</i>/2 verschieben.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 4.3</b> Die Operationen (2) bis (4) von <i>p</i>2<i>mg</i>, jeweils angewandt auf das Fähnchen (1) bei (0,12;&nbsp;0,31). Die Zahlen an den Fähnchen sind die Nummern der Operationen in den International Tables; das Ausgangsfähnchen ist (1). <i>a</i> zeigt nach unten, <i>b</i> nach rechts.</p>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Ebenengruppen“ unter „Schritt für Schritt“ den Schalter „Operationen einzeln anwenden“ einschalten. Die App wendet die Operationen in der Reihenfolge der International Tables auf das Fähnchen an und markiert in den Kenndaten die zugehörige Zeile.</p>
+        </div>
+      </section>
+
+      <section id="verknuepfung">
+        <h3>Operationen verknüpfen</h3>
+        <p>Führt man zwei Symmetrieoperationen nacheinander aus, ergibt sich wieder eine Symmetrieoperation des Musters. Man schreibt <i>A</i> ∘ <i>B</i> und liest von rechts nach links: zuerst <i>B</i>, dann <i>A</i>. In Koordinaten setzt man das Ergebnis von <i>B</i> in <i>A</i> ein.</p>
+        <p>Für eine Gruppe mit endlich vielen Operationen kann man alle Verknüpfungen in einer Tabelle zusammenstellen, der <span class="term">Gruppentafel</span>. Ein Beispiel ist die Punktgruppe 3<i>m</i> des gleichseitigen Dreiecks (Abb. 4.4). Sie hat sechs Operationen: die Identität 1, die Drehungen +3 und −3 um 120° gegen bzw. im Uhrzeigersinn und die Spiegelungen <i>m</i><sub>1</sub>, <i>m</i><sub>2</sub>, <i>m</i><sub>3</sub> an den Linien durch die Stellen 1, 2 und 3. Die Spiegellinien und die Stellen bleiben fest; die Nummern an den Ecken wandern mit dem Dreieck.</p>
+        <figure class="fig-card fig-mittel" data-kind="dreieck3m" data-viewbox="0 0 520 400" data-alt="Gleichseitiges Dreieck mit drei Spiegellinien und 3-zähligem Drehpunkt">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 4.4</b> Die Punktgruppe 3<i>m</i>: Stellen 1 (links unten), 2 (rechts unten) und 3 (oben), die Spiegellinien <i>m</i><sub>1</sub>, <i>m</i><sub>2</sub>, <i>m</i><sub>3</sub> durch diese Stellen und die Drehung +3 um 120° gegen den Uhrzeigersinn.</figcaption>
+        </figure>
+        <p>Was ergibt <i>m</i><sub>2</sub> ∘ <i>m</i><sub>1</sub>? Zuerst <i>m</i><sub>1</sub>: Die Ecke an Stelle 1 bleibt, die Ecken an den Stellen 2 und 3 tauschen. Dann <i>m</i><sub>2</sub>: Jetzt bleibt die Ecke an Stelle 2, die an den Stellen 1 und 3 tauschen. Am Ende ist jede Ecke eine Stelle im Uhrzeigersinn weitergerückt, die Ecke 1 etwa von links unten nach oben: <i>m</i><sub>2</sub> ∘ <i>m</i><sub>1</sub> = −3. In umgekehrter Reihenfolge ergibt sich <i>m</i><sub>1</sub> ∘ <i>m</i><sub>2</sub> = +3. So erhält man alle 36 Verknüpfungen:</p>
+        <div class="tabwrap">
+          <table class="tab tafel">
+            <thead><tr><th><i>A</i> ∘ <i>B</i></th><th>1</th><th>+3</th><th>−3</th><th><i>m</i><sub>1</sub></th><th><i>m</i><sub>2</sub></th><th><i>m</i><sub>3</sub></th></tr></thead>
+            <tbody><tr><th>1</th><td>1</td><td>+3</td><td>−3</td><td><i>m</i><sub>1</sub></td><td><i>m</i><sub>2</sub></td><td><i>m</i><sub>3</sub></td></tr><tr><th>+3</th><td>+3</td><td>−3</td><td>1</td><td><i>m</i><sub>3</sub></td><td><i>m</i><sub>1</sub></td><td><i>m</i><sub>2</sub></td></tr><tr><th>−3</th><td>−3</td><td>1</td><td>+3</td><td><i>m</i><sub>2</sub></td><td><i>m</i><sub>3</sub></td><td><i>m</i><sub>1</sub></td></tr><tr><th><i>m</i><sub>1</sub></th><td><i>m</i><sub>1</sub></td><td><i>m</i><sub>2</sub></td><td><i>m</i><sub>3</sub></td><td>1</td><td>+3</td><td>−3</td></tr><tr><th><i>m</i><sub>2</sub></th><td><i>m</i><sub>2</sub></td><td><i>m</i><sub>3</sub></td><td><i>m</i><sub>1</sub></td><td>−3</td><td>1</td><td>+3</td></tr><tr><th><i>m</i><sub>3</sub></th><td><i>m</i><sub>3</sub></td><td><i>m</i><sub>1</sub></td><td><i>m</i><sub>2</sub></td><td>+3</td><td>−3</td><td>1</td></tr></tbody>
+          </table>
+        </div>
+        <p>Man liest die Tafel so: Zeile <i>A</i>, Spalte <i>B</i>, im Feld steht <i>A</i> ∘ <i>B</i>, also zuerst die Operation über der Spalte, dann die links neben der Zeile. Drei Eigenschaften fallen auf. Jede Operation kommt in jeder Zeile und jeder Spalte genau einmal vor. Die Tafel ist nicht symmetrisch zur Diagonalen, weil es auf die Reihenfolge ankommt. Und der Block links oben enthält nur 1, +3 und −3: Die Drehungen allein bilden die Untergruppe 3 (Abschnitt 3.1).</p>
+        <p>In einem periodischen Muster kommen die Translationen hinzu. Ein Beispiel: <i>B</i> sei die Drehung um 180° um den Ursprung, <span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span>, und <i>A</i> die Translation um <i>a</i>, <i>x</i>&nbsp;+&nbsp;1, <i>y</i>. Zuerst <i>B</i>, dann <i>A</i> ergibt</p>
+        <p class="formel">(<i>x</i>,&nbsp;<i>y</i>) → (−<i>x</i>,&nbsp;−<i>y</i>) → (−<i>x</i>&nbsp;+&nbsp;1,&nbsp;−<i>y</i>).</p>
+        <p>Welche Operation ist <span class="ov"><i>x</i></span>&nbsp;+&nbsp;1, <span class="ov"><i>y</i></span>? Beide Vorzeichen wechseln, also eine Drehung um 180°. An ihrem Ort bleibt der Punkt mit −<i>x</i>&nbsp;+&nbsp;1 = <i>x</i> und −<i>y</i> = <i>y</i>, also (½,&nbsp;0). Die Translation hat den Drehpunkt um die halbe Translation verschoben. Genau so entstehen die 2-zähligen Drehpunkte auf den Kantenmitten und in der Zellmitte, die Abschnitt 2.1 in jedem Gitter gezeigt hat: aus dem Drehpunkt im Ursprung und den Translationen <i>a</i>, <i>b</i> und <i>a</i> + <i>b</i>.</p>
+        <p>Verknüpft man Translationen mit Drehungen und Spiegelungen, findet man auf dieselbe Weise vier Regeln. Abb. 4.5 zeigt zu jeder ein Beispiel, wie es die App mit „Warum ist das da?“ erklärt. Die Fähnchen sind hier anders nummeriert als in Abb. 4.3: Das Fähnchen 0 geht durch <i>B</i> nach 1 und durch <i>A</i> nach 2; die Operation <i>C</i> = <i>A</i> ∘ <i>B</i> bringt es direkt von 0 nach 2.</p>
+        <ol>
+          <li><b>Drehung + Translation = Drehung um denselben Winkel um einen anderen Punkt.</b> Bei einer Drehung um 180° liegt der neue Drehpunkt in der Mitte der Translation (Abb. 4.5a).</li>
+          <li><b>Spiegelung + Translation senkrecht zur Linie = Spiegelung an einer parallelen Linie, um die halbe Translation verschoben.</b> Aus <span class="ov"><i>x</i></span>, <i>y</i> und der Translation um <i>a</i> wird <span class="ov"><i>x</i></span>&nbsp;+&nbsp;1, <i>y</i>: die Spiegellinie bei <i>x</i> = ½ (Abb. 4.5b). Deshalb liegen parallele Spiegellinien im Abstand einer halben Gittertranslation.</li>
+          <li><b>Spiegelung + Translation schräg zur Linie = Gleitspiegelung.</b> Den Anteil der Translation senkrecht zur Linie behandelt man wie in Regel 2: Die Linie verschiebt sich um die Hälfte davon. Der Anteil parallel zur Linie wird zur Gleitkomponente. Aus <span class="ov"><i>x</i></span>, <i>y</i> und der Translation um (<i>a</i> + <i>b</i>)/2 wird <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i> + ½: eine Gleitspiegellinie bei <i>x</i> = ¼ mit der Gleitkomponente <i>b</i>/2 (Abb. 4.5c). Ist der Anteil parallel zur Linie selbst eine Gittertranslation, entsteht keine neue Gleitspiegellinie, sondern wieder eine Spiegellinie: <span class="ov"><i>x</i></span>, <i>y</i> und die Translation um <i>a</i> + <i>b</i> ergeben <span class="ov"><i>x</i></span>&nbsp;+&nbsp;1, <i>y</i>&nbsp;+&nbsp;1, die Spiegellinie bei <i>x</i> = ½, gefolgt von der Translation um <i>b</i>.</li>
+          <li><b>Zwei Spiegelungen an Linien, die sich im Winkel α schneiden, ergeben eine Drehung um 2α um den Schnittpunkt.</b> Zwei senkrechte Spiegellinien, <span class="ov"><i>x</i></span>, <i>y</i> und <i>x</i>, <span class="ov"><i>y</i></span>, ergeben <span class="ov"><i>x</i></span>, <span class="ov"><i>y</i></span>, die Drehung um 180°; das ist der Symmetriesatz II (Skript „Stereographische Projektion“, <a href="https://manganite.github.io/stereography/skript.html#symmetriesaetze">Abschnitt 4.3</a>). Umgekehrt ergeben eine Drehung und eine Spiegelung eine Spiegelung oder Gleitspiegelung an einer Linie, die um den halben Drehwinkel gedreht ist (Abb. 4.5d).</li>
+        </ol>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p2&amp;erkl=2;1/2,0" data-alt="p2: Drehung um den Ursprung und Translation um a ergeben die Drehung um (1/2, 0)">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 4.5a</b> <i>p</i>2: <i>B</i> Drehung um (0,&nbsp;0), <i>A</i> Translation um <i>a</i>, <i>C</i> Drehung um (½,&nbsp;0).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=pm&amp;erkl=m;1/2,0;0,1" data-alt="pm: Spiegelung und Translation senkrecht dazu ergeben die Spiegelung an der Linie x = 1/2">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> <i>pm</i>: <i>B</i> Spiegelung an <i>m</i> 0,&nbsp;<i>y</i>, <i>A</i> Translation um <i>a</i>, <i>C</i> Spiegelung an <i>m</i> ½,&nbsp;<i>y</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=c2mm&amp;erkl=g;1/4,0;0,1" data-alt="c2mm: Spiegelung und Zentrierungstranslation ergeben eine Gleitspiegelung">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> <i>c</i>2<i>mm</i>: <i>B</i> Spiegelung an <i>m</i> 0,&nbsp;<i>y</i>, <i>A</i> Translation um (<i>a</i> + <i>b</i>)/2, <i>C</i> Gleitspiegelung an <i>b</i> ¼,&nbsp;<i>y</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p4mm&amp;erkl=m;0,0;1,1" data-alt="p4mm: Drehung um 90 Grad und Spiegelung ergeben die Spiegelung an der Diagonalen">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> <i>p</i>4<i>mm</i>: <i>B</i> Drehung um 90° gegen den Uhrzeigersinn um (0,&nbsp;0), 4<sup>+</sup> 0,&nbsp;0, <i>A</i> Spiegelung an <i>m</i> 0,&nbsp;<i>y</i>, <i>C</i> Spiegelung an der Diagonalen <i>m</i> <i>x</i>,&nbsp;<i>x</i>.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 4.5</b> Die vier Regeln an Beispielen der App. Hervorgehoben sind die beteiligten Symmetrieelemente; die Wege des Fähnchens tragen die Buchstaben der Operationen.</p>
+        <p>Regel 4 steht auch in der Gruppentafel: Die Linien von <i>m</i><sub>1</sub> und <i>m</i><sub>2</sub> schneiden sich unter 60°, und <i>m</i><sub>2</sub> ∘ <i>m</i><sub>1</sub> ist eine Drehung um 120°. Neu ist im periodischen Muster nur, dass die Translationen hinzukommen. Sie machen aus jedem Symmetrieelement unendlich viele, und nach den Regeln 1 bis 3 liegen diese nicht nur auf den Gitterpunkten, sondern auch dazwischen.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p><i>A</i> ∘ <i>B</i>: zuerst <i>B</i>, dann <i>A</i>. Drehung + Translation = Drehung um einen anderen Punkt; Spiegelung + Translation senkrecht = parallele Spiegellinie, um die halbe Translation verschoben; Spiegelung + Translation schräg = Gleitspiegelung, wenn der Anteil entlang der Linie eine halbe Gittertranslation ist; zwei Spiegelungen im Winkel α = Drehung um 2α.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Mit dem Werkzeug „Warum ist das da?“ über der Tafel ein Symmetrieelement antippen. Die App zeigt, aus welchen zwei Operationen es folgt, die Wege des Fähnchens und die passende Regel; „Abspielen“ führt die Schritte nacheinander vor. Unter „Aufbau aus Erzeugenden“ mit dem Schalter „Schrittweise aufbauen“ entsteht das ganze Symmetriegerüst Schritt für Schritt aus den Erzeugenden der International Tables.</p>
+        </div>
+      </section>
+
+      <section id="mehr-elemente">
+        <h3>Mehr Symmetrieelemente, als das Symbol nennt</h3>
+        <p>Die Regeln erklären, warum ein Symmetriegerüst oft mehr Elemente zeigt, als das Symbol der Ebenengruppe vermuten lässt.</p>
+        <p><b><i>p</i>4<i>mm</i>.</b> Das Symbol nennt den 4-zähligen Drehpunkt und Spiegellinien. Im Symmetriegerüst liegen aber auch diagonale Gleitspiegellinien zwischen den diagonalen Spiegellinien (Abb. 4.6a). Sie folgen aus Regel 3: Die Spiegelung an der Diagonalen, <i>y</i>,&nbsp;<i>x</i>, und die Translation um <i>a</i> ergeben <i>y</i>&nbsp;+&nbsp;1, <i>x</i>. Die Translation <i>a</i> liegt schräg zur Diagonalen. Ihr Anteil senkrecht zur Linie ist (<i>a</i> − <i>b</i>)/2; die Linie verschiebt sich um die Hälfte davon und geht dann durch (¼,&nbsp;−¼) und (½,&nbsp;0). Ihr Anteil parallel zur Linie, (<i>a</i> + <i>b</i>)/2, wird zur Gleitkomponente. Die International Tables schreiben eine solche Gleitspiegelung mit schräger Gleitkomponente als <i>g</i>(½,&nbsp;½); die Probe: <i>y</i>&nbsp;+&nbsp;1, <i>x</i> bringt (½,&nbsp;0) nach (1,&nbsp;½), also um (½,&nbsp;½) entlang der Linie (Abb. 4.6b).</p>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p4mm&amp;obj=0" data-alt="Symmetriegerüst von p4mm mit diagonalen Gleitspiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 4.6a</b> Symmetriegerüst von <i>p</i>4<i>mm</i>. Gestrichelt: Gleitspiegellinien.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=p4mm&amp;erkl=g;1/2,0;1,1" data-alt="p4mm: diagonale Spiegelung und Translation um a ergeben eine diagonale Gleitspiegelung">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> <i>B</i> Spiegelung an <i>m</i> <i>x</i>,&nbsp;<i>x</i>, <i>A</i> Translation um <i>a</i>, <i>C</i> Gleitspiegelung an der Linie durch (½,&nbsp;0) parallel zur Diagonalen.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 4.6</b> Die diagonalen Gleitspiegellinien von <i>p</i>4<i>mm</i> stehen nicht im Symbol, folgen aber aus Spiegelung und Translation.</p>
+        <p><b><i>c</i>2<i>mm</i>.</b> Hier ist die Zentrierungstranslation um (<i>a</i> + <i>b</i>)/2 schräg zu allen Spiegellinien. Nach Regel 3 liegt deshalb zwischen je zwei parallelen Spiegellinien eine Gleitspiegellinie, bei <i>x</i> = ¼ und bei <i>y</i> = ¼ (Abb. 4.5c). Dasselbe geschieht in Abb. 1.6b, Ebenengruppe <i>cm</i>: Die Spiegellinien durch die Dreiecke erzeugen mit der Zentrierung Gleitspiegellinien bei <i>x</i> = ¼ und ¾; in der App sieht man sie mit „Symmetrieelemente“. Die Symbole <i>cm</i>, <i>c</i>2<i>mm</i>, <i>p</i>4<i>mm</i> und <i>p</i>6<i>mm</i> nennen diese Gleitspiegellinien nicht; welche Elemente ein Symbol nennt, zeigt Kapitel 5.</p>
+        <p><b>Das Dreiecksbeispiel.</b> Dreht man in Abb. 1.6b das Dreieck in der Zellmitte um, sodass seine Spitze entlang −<i>b</i> zeigt, ist die Verschiebung um (<i>a</i> + <i>b</i>)/2 keine Symmetrieoperation mehr. Man könnte erwarten, dass nur die Spiegellinien durch die Dreiecke bleiben. Die App findet aber die Ebenengruppe <i>p</i>2<i>mg</i>, mit 2-zähligen Drehpunkten und Gleitspiegellinien, die niemand hineingesteckt hat (Abb. 4.7).</p>
+        <p>Die Drehung um 180° um (¼,&nbsp;¼) bringt das Dreieck bei (0,&nbsp;0) nach (½,&nbsp;½) und kehrt dabei seine Spitze um: genau das umgedrehte Dreieck in der Zellmitte. In Koordinaten ist das <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <span class="ov"><i>y</i></span> + ½. Mit der Spiegelung an der Linie durch die Dreiecke, <span class="ov"><i>x</i></span>, <i>y</i>, ergibt sie nach Regel 4 eine Operation an einer dazu senkrechten Linie: zuerst die Spiegelung, dann die Drehung, ergibt <i>x</i>&nbsp;+&nbsp;½, <span class="ov"><i>y</i></span> + ½. Das ist eine Gleitspiegelung an der Linie <i>y</i> = ¼ mit der Gleitkomponente <i>a</i>/2. Auch sie bringt das eine Dreieck auf das andere.</p>
+        <p>Die konventionelle Zelle hat ihren Ursprung deshalb auf dem Drehpunkt bei (¼,&nbsp;¼), wie es die International Tables für <i>p</i>2<i>mg</i> verlangen („Ursprung auf 2 1 <i>g</i>“; Abschnitt 3.4).</p>
+        <figure class="fig-card fig-mittel" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=dreieck3" data-alt="Zwei entgegengesetzt zeigende Dreiecke in einer rechteckigen Zelle mit dem Symmetriegerüst von p2mg">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 4.7</b> Dreiecke bei (0,&nbsp;0) mit Spitze entlang <i>b</i> und bei (½,&nbsp;½) mit Spitze entlang −<i>b</i>: <i>p</i>2<i>mg</i>. Die konventionelle Zelle <i>a</i>′, <i>b</i>′ hat ihren Ursprung auf dem 2-zähligen Drehpunkt bei (¼,&nbsp;¼) der gegebenen Zelle (grau gestrichelt).</figcaption>
+        </figure>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Aus wenigen Symmetrieelementen und den Translationen folgen nach festen Regeln weitere: Drehpunkte zwischen den Gitterpunkten, parallele Spiegellinien im halben Abstand, Gleitspiegellinien. Das Symbol einer Ebenengruppe nennt nur einen Teil davon.</p>
+        </div>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Gitter und Basis“ unter „Vorgabe“ (Gruppe „Dreiecksbeispiel“) „Stufe 3: Spitze im Zentrum umgekehrt“ wählen; die Kenndaten zeigen <i>p</i>2<i>mg</i>. Der Knopf „im Modus ‚Ebenengruppen‘ ansehen“ öffnet die Gruppe, und „Warum ist das da?“ erklärt jedes ihrer Elemente.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Eine Gleitspiegelung koppelt eine Spiegelung mit einer Verschiebung um eine halbe Gittertranslation entlang der Linie. Gleitspiegellinien sind gestrichelt und heissen <i>g</i>, in den International Tables nach der Gleitrichtung <i>a</i>, <i>b</i> oder <i>g</i>(…).</li>
+          <li>Eine Symmetrieoperation schreibt man als Koordinaten des Bildpunkts, etwa <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i>. Der Ort des Elements sind die Punkte, die an ihrem Ort bleiben, bei einer Gleitspiegelung die Linie, die in sich verschoben wird.</li>
+          <li><i>A</i> ∘ <i>B</i> heisst: zuerst <i>B</i>, dann <i>A</i>; die Reihenfolge kann das Ergebnis ändern. Die Gruppentafel listet alle Verknüpfungen einer Gruppe. Vier Regeln beschreiben, was aus Drehungen, Spiegelungen und Translationen entsteht.</li>
+          <li>Deshalb hat ein Muster mehr Symmetrieelemente, als sein Symbol nennt, etwa die Gleitspiegellinien in <i>p</i>4<i>mm</i> und <i>c</i>2<i>mm</i> oder die Drehpunkte im Dreiecksbeispiel.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Hinter jeder Operation stehen eine Matrix und eine Verschiebung; die Matrizen allein bilden die Punktgruppe.</li>
+          <li>Muster, die sich nur in einer Richtung wiederholen, haben eine der sieben Friesgruppen.</li>
+        </ul>
+      </div>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Borchardt-Ott &amp; Sowa (2018), Abschn. 6.4 (Koppelung und Kombination von Symmetrieoperationen, Tab. 6.2, S. 75–76), Abschn. 6.1 (2-zählige Drehachsen auch auf den Kantenmitten und in der Zellmitte, S. 69), Abschn. 7.2 (Symmetriesatz II, S. 102), Abschn. 10.1.1 (Gleitspiegelebene: Koppelung von Spiegelung und Translation parallel zur Ebene, Gleitvektor die Hälfte einer Gittertranslation, zweimal ausgeführt eine Gittertranslation, nur in Orientierungen, in denen Spiegelebenen vorkommen, S. 198), Abschn. 10.2 (zusätzliche Gleitspiegellinien in <i>c</i>2<i>mm</i>, <i>p</i>4<i>mm</i>, <i>p</i>6<i>mm</i>, nicht im Symbol, S. 206), Abschn. 11.1 (Symmetrieoperationen als Matrix und Vektor; beim Nacheinanderausführen steht die zuerst ausgeführte Operation rechts, S. 258–260), Abschn. 11.2 (das Kommutativgesetz gilt nur in manchen Gruppen, S. 264), Abschn. 11.4 (Gruppentafeln; jedes Element genau einmal in jeder Zeile und Spalte; Gruppentafel von 3<i>m</i> nicht symmetrisch; zuerst die Operation der obersten Zeile, dann die der linken Spalte, Abb. 11.5, S. 268–270).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.1.1 (Gleitspiegelung an Fussabdrücken: hüpfen, wie ein Känguru springen, gehen; Abb. 4.7–4.9, S. 133–134).</li>
+          <li>International Tables for Crystallography, Vol. A (2006), Abschn. 2.2.9 (Koordinaten der allgemeinen Lage als Kurzschreibweise der Symmetrieoperationen; Symbole der Operationen mit Gleitanteil <i>a</i>, <i>b</i> bzw. <i>g</i>(…) und Lage des Elements, S. 26–27), Part 6 (<i>pg</i>: <i>b</i> 0,&nbsp;<i>y</i>, S. 95; <i>p</i>2<i>mg</i>: Operationen (1)–(4), „Origin at 2 1 g“, S. 98; <i>c</i>2<i>mm</i>: <i>b</i> ¼,&nbsp;<i>y</i> und <i>a</i> <i>x</i>,&nbsp;¼, S. 100; <i>p</i>4<i>mm</i>: <i>m</i> <i>x</i>,&nbsp;<i>x</i>, S. 102; <i>p</i>4<i>gm</i>: <i>g</i>(½,&nbsp;½) <i>x</i>,&nbsp;<i>x</i>, S. 103), Abschn. 8.1.1 (Friesgruppen werden in Vol. E behandelt, S. 720).</li>
+          <li>International Tables for Crystallography, Vol. E, hrsg. von V. Kopský und D. B. Litvin, 2. Online-Ausgabe (2010): die sieben Friesgruppen.</li>
         </ul>
       </div>
     </section>
