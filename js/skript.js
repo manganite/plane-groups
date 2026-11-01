@@ -27,6 +27,20 @@ function zustandVon(hash) {
   return z;
 }
 
+/**
+ * Grösse der Symbole und Fähnchen im Skript. Die App zeichnet sie für eine Tafel von etwa 520 px;
+ * im Skript ist eine Abbildung oft nur halb oder ein Drittel so breit, und die Symbole würden
+ * neben der Zelle winzig. Deshalb wachsen sie mit der Spaltenzahl der Abbildungsreihe
+ * (data-gross setzt den Wert für eine Abbildung fest). Muster (Tafel B) sind dichter, dort
+ * etwas weniger.
+ */
+function symbolGroesse(fig, tafelB) {
+  if (fig.dataset.gross) return Number(fig.dataset.gross);
+  const reihe = fig.parentElement?.classList;
+  const k = reihe?.contains('fig-row3') ? 2.3 : reihe?.contains('fig-grid5') ? 1.9 : reihe?.contains('fig-row') ? 1.5 : 1.4;
+  return tafelB ? 1 + (k - 1) * 0.5 : k;
+}
+
 /** Tafel A oder B der App zu ihrer Link-Adresse. */
 function appTafel(fig, f) {
   const z = zustandVon(fig.dataset.app);
@@ -36,7 +50,8 @@ function appTafel(fig, f) {
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
     return b ? strukturTafelB(st, f, a.ergebnis).svg : a.svg;
   }
-  return b ? tafelB(z.gruppe, z, f).svg : tafelA(z.gruppe, z, f).svg;
+  const k = symbolGroesse(fig, b);
+  return b ? tafelB(z.gruppe, z, f, { k }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
 
 // ------------------------------------------------------------------ Skizzen
@@ -271,7 +286,29 @@ function abbildungen() {
     const art = fig.querySelector('.fig-art');
     const inhalt = fig.dataset.kind === 'app' ? appTafel(fig, f) : SKIZZEN[fig.dataset.kind](fig, f);
     art.innerHTML = `<svg viewBox="${fig.dataset.viewbox || '0 0 520 520'}" role="img" aria-label="${fig.dataset.alt || 'Abbildung'}">${inhalt}</svg>`;
+    if (fig.dataset.kind === 'app' && fig.dataset.tafel !== 'b' && !fig.dataset.viewbox) zuschneiden(art.firstElementChild);
   }
+}
+
+/**
+ * Tafel A ist ein Quadrat von 520 px; eine rechteckige oder schiefe Zelle lässt oben und unten
+ * viel leeren Rand. Das Skript schneidet das Bild deshalb auf den Inhalt zu (ohne den
+ * Hintergrund), mit etwas Rand; der Hintergrund wird mitgezogen.
+ */
+function zuschneiden(svg) {
+  const kinder = [...svg.children].slice(1);
+  if (!kinder.length || !svg.getBBox) return;
+  let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
+  for (const el of kinder) {
+    let b;
+    try { b = el.getBBox(); } catch { continue; }
+    if (!b.width && !b.height) continue;
+    x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height);
+  }
+  if (!Number.isFinite(x0)) return;
+  const r = 14;
+  x0 = Math.max(0, x0 - r); y0 = Math.max(0, y0 - r); x1 = Math.min(520, x1 + r); y1 = Math.min(520, y1 + r);
+  svg.setAttribute('viewBox', `${f2(x0)} ${f2(y0)} ${f2(x1 - x0)} ${f2(y1 - y0)}`);
 }
 
 versionEintragen(VERSION);
