@@ -40,8 +40,8 @@ export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
 /** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. */
-export const ZOOM_BEREICH = [1, 3];
-export const OBJ_BEREICH = [0.5, 2.5];
+export const ZOOM_BEREICH = [0.5, 3];
+export const OBJ_BEREICH = [0.5, 3];
 export const STRUKTUR_START = 'dreieck1';
 const kopie = (x) => JSON.parse(JSON.stringify(x));
 
@@ -72,7 +72,7 @@ export function startzustand() {
     ae: false, // asymmetrische Einheit
     zellen: 1, // 1 oder 2 (2 × 2 Zellen) in Tafel A
     form: 'fahne', // eine der FORMEN: Fähnchen, Kreis mit Komma (ITA) oder ein Ornament
-    tapete: false, // Muster (Tafel B) als Tapete: ohne Zelle und Elemente, grösserer Ausschnitt, einfarbig
+    tapete: false, // Muster (Tafel B) als Tapete: ohne Zelle und Elemente, einfarbig
     zoomB: 1, // Vergrösserung des Musters (Tafel B): kleinerer Ausschnitt, alles grösser (ZOOM_BEREICH)
     objGroesse: 1, // Grösse des Objekts (Fähnchen, Ornament) in beiden Tafeln (OBJ_BEREICH)
     farben: true, // nach Blickrichtung färben

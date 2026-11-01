@@ -940,11 +940,12 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
   const M = brechen ? brechen.M : metrik(z.gitter[sys]);
   const mitte = kart(M, [0.5, 0.5]);
-  // Tapete: grösserer Ausschnitt, ohne Zelle und Elemente, alles in einer Farbe
+  // Tapete: ohne Zelle und Elemente, alles in einer Farbe; Ausschnitt und Grösse wie sonst, damit
+  // das Umschalten nichts verschiebt (mehr zeigen: Vergrösserung unter 1)
   const tapete = !!z.tapete;
   // Vergrösserung zoomB: kleinerer Ausschnitt, Objekte im selben Verhältnis grösser
   const zoom = z.zoomB ?? 1;
-  const w = ((tapete ? 6.5 : 4.4) * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
+  const w = (4.4 * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt
@@ -964,7 +965,7 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   }
   const einfarbig = tapete ? farben.upper : null;
   teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, (tapete ? 0.9 : 0.8) * k * zoom * (z.objGroesse ?? 1), undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben)));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, 0.8 * k * zoom * (z.objGroesse ?? 1), undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben)));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };
