@@ -156,8 +156,8 @@ export const PUNKTGRUPPE = {
 };
 
 // ------------------------------------------------------------------ Lage: Zähligkeit und Lagesymmetrie
-// Stufe 1: primitive symmorphe Gruppen; Stufe 2: zentrierte und die mit g im Symbol
-const GRUND = ['p2', 'pm', 'p2mm', 'p4', 'p4mm', 'p3', 'p3m1', 'p31m', 'p6', 'p6mm'];
+// Stufe 1: die Gruppen, deren Lagen Skript Kap. 6 ausführlich zeigt; Stufe 2: die übrigen
+const GRUND = ['p2mm', 'p4mm', 'c2mm', 'p2mg', 'p6mm'];
 /** Punkt auf der Wyckoff-Lage b (mit festen Werten für freie Parameter) und die Lage, wie die App sie bestimmt. */
 export function lagePunkt(symbol, b) {
   const g = gruppe(symbol);
