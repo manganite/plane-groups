@@ -54,7 +54,7 @@ export function motivSVG(e, p, A, M, farbe, papier, { auswahl = false } = {}) {
       return bild([g * (Math.cos(rad) * u - Math.sin(rad) * v), g * (Math.sin(rad) * u + Math.cos(rad) * v)]);
     });
     svg = `<polygon points="${umriss.map(pt).join(' ')}" fill="${farbe}" fill-opacity="0.9" stroke="${papier}" stroke-width="0.8"/>`;
-  } else svg = `<polygon points="${q.map(pt).join(' ')}" fill="${farbe}" fill-opacity="0.9" stroke="${papier}" stroke-width="0.8" stroke-linejoin="round"/>`;
+  } else svg = `<polygon points="${q.map(pt).join(' ')}" fill="${farbe}" fill-opacity="${d.deckkraft ?? 0.9}" stroke="${papier}" stroke-width="0.8" stroke-linejoin="round"/>`;
   if (auswahl) svg += `<circle cx="${f2(mitte[0])}" cy="${f2(mitte[1])}" r="${f2(Math.max(14, s * 1.35))}" fill="none" stroke="${farbe}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`;
   return svg;
 }

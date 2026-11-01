@@ -36,7 +36,7 @@ export const FREI = {
 };
 
 /** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). */
-export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 0.4] };
+export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 1] };
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
 export const STRUKTUR_START = 'dreieck1';

@@ -5,7 +5,7 @@
 export const TIPS = {
   'tab-eg': 'Die 17 Ebenengruppen: Symmetrieelemente, Lagen und Muster.',
   'tab-struktur': 'Gitter und Basis: eine Struktur aus Gitter und Motiven aufbauen; die App bestimmt ihre Ebenengruppe.',
-  's-vorgabe': 'Fertige Strukturen: Bravais-Gitter, ein Dreiecksbeispiel in drei Stufen, 2D-Materialien in Draufsicht, Archimedische Parkettierungen und künstliches Spin-Eis.',
+  's-vorgabe': 'Fertige Strukturen: Bravais-Gitter, ein Dreiecksbeispiel in drei Stufen, 2D-Materialien in Draufsicht, Archimedische Parkettierungen, Mauerwerk und Pflaster sowie künstliches Spin-Eis.',
   's-zuruecksetzen': 'Gitter und Basis wieder wie in der gewählten Vorgabe.',
   's-elemente': 'Symmetrieelemente der gefundenen Ebenengruppe über der Struktur, in der konventionellen Zelle.',
   's-zelle': 'Konventionelle Zelle nach den International Tables (a′, b′), mit dem Ursprung nach ITA. Sie kann von der gegebenen Zelle abweichen.',

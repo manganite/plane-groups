@@ -31,7 +31,7 @@ In Arbeit; das erste Release folgt.
 
 - **Modus „Gitter und Basis“:** Eine Struktur aus Gitter (*b*/*a*, γ frei) und Basis aus Motiven mit eigener Symmetrie (Atom, Fähnchen 1, Windräder 2, 3, 4, 6, gleichschenkliges Dreieck m, längliche Insel 2mm, gleichseitiges Dreieck 3m, Quadrat 4mm, Sechseck 6mm), in vier Farben (Atomsorten). Motive lassen sich setzen, ziehen (mit Einrasten auf Zwölftel der Zelle), drehen, vergrössern und entfernen.
   - **Symmetrie bestimmen:** Die App bestimmt die Ebenengruppe in der Standardaufstellung der ITA mit konventioneller Zelle (*a*′, *b*′) und Ursprung und zeigt darüber Symmetrieelemente und asymmetrische Einheit. Die Kenndaten nennen je Motiv Lage, Wyckoff-Lage und Lagesymmetrie und, nach einer Änderung, wie sich die Gruppe geändert hat. Ein Knopf öffnet die Gruppe im Modus „Ebenengruppen“.
-  - **Vorgaben:** die fünf Bravais-Gitter; ein Dreiecksbeispiel in drei Stufen (pm → cm → p2mg); 2D-Materialien in Draufsicht (Graphen, h-BN, MoS₂ 1H, Kagome, Lieb-Gitter); die Archimedischen Parkettierungen 4.8.8, 3.4.6.4, 3.3.4.3.4 und 3.3.3.3.6 (chiral); künstliches Spin-Eis (square, kagome, pinwheel). Bindungen zwischen nächsten Nachbarn wahlweise.
+  - **Vorgaben:** die fünf Bravais-Gitter; ein Dreiecksbeispiel in drei Stufen (pm → cm → p2mg); 2D-Materialien in Draufsicht (Graphen, h-BN, MoS₂ 1H, Kagome, Lieb-Gitter); die Archimedischen Parkettierungen 4.8.8, 3.4.6.4, 3.3.4.3.4 und 3.3.3.3.6 (chiral); Mauerwerk und Pflaster aus Ziegeln 2 : 1 (ohne Versatz, Läuferverband, um ein Drittel versetzt, Fischgrät- und Flechtverband); künstliches Spin-Eis (square, kagome, pinwheel). Bindungen zwischen nächsten Nachbarn wahlweise.
 
 ## Links auf Ansichten
 

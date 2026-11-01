@@ -184,7 +184,7 @@ test('Link-Adresse: Vorgabe kurz, veränderte Struktur ausgeschrieben, hin und z
 });
 
 test('Basis als Text: ungültige Einträge fallen weg', () => {
-  const b = liesBasis('atom,0,0,0,0;gibtsnicht,0,0,0,0;atom,7,0,0,0;atom,1,x,0,0;fahne,3,1/3,2/3,-45,0.9;fahne,3,1/3,2/3,-45,0.1');
+  const b = liesBasis('atom,0,0,0,0;gibtsnicht,0,0,0,0;atom,7,0,0,0;atom,1,x,0,0;fahne,3,1/3,2/3,-45,1.5;fahne,3,1/3,2/3,-45,0.1');
   assert.equal(b.length, 3);
   assert.equal(b[1].groesse, undefined, 'Grösse ausserhalb des Bereichs: Standard');
   assert.equal(b[2].groesse, 0.1);
