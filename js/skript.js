@@ -197,7 +197,7 @@ function motiveSkizze(fig, f) {
 }
 
 /**
- * Fussspuren (Kap. 4, nach Hoffmann Abb. 4.7–4.9 und Vorlesung Folie 181): auf einem Bein hüpfen
+ * Fussspuren (Kap. 4, nach Hoffmann Abb. 4.7–4.9): auf einem Bein hüpfen
  * (Translation), mit beiden Beinen springen (Spiegellinie entlang der Laufrichtung), gehen
  * (Gleitspiegellinie). Laufrichtung nach rechts; der rechte Fuss liegt unten.
  */
