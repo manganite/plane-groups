@@ -72,9 +72,13 @@ function basisSVG(st, A, M, bereich, farben, auswahl = null) {
   const out = [];
   st.basis.forEach((e, k) => {
     const p0 = e.p.map(mod1);
-    for (let i = Math.floor(lo0) - 1; i <= Math.ceil(hi0); i++) for (let j = Math.floor(lo1) - 1; j <= Math.ceil(hi1); j++) {
+    // Ausdehnung des Motivs in Bruchkoordinaten: Kopien, deren Mitte knapp ausserhalb liegt,
+    // ragen bei grossen Motiven (z. B. Ziegel) noch ins Bild
+    const r = [0, 1].map((n) => Math.max(0, ...motivKart(e).map((q) => Math.abs(bruchVon(M, q.c)[n]))));
+    const [a0, b0, a1, b1] = [lo0 - r[0], hi0 + r[0], lo1 - r[1], hi1 + r[1]];
+    for (let i = Math.floor(a0) - 1; i <= Math.ceil(b0); i++) for (let j = Math.floor(a1) - 1; j <= Math.ceil(b1); j++) {
       const p = [p0[0] + i, p0[1] + j];
-      if (p[0] < lo0 || p[0] > hi0 || p[1] < lo1 || p[1] > hi1) continue;
+      if (p[0] < a0 || p[0] > b0 || p[1] < a1 || p[1] > b1) continue;
       out.push(motivSVG(e, p, A, M, f[(e.farbe ?? 0) % f.length], farben.paper, { auswahl: auswahl === k && !i && !j }));
     }
   });
