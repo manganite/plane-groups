@@ -567,7 +567,14 @@ function bahnFarbe(brechen, farben) {
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
  * Ergebnis: { svg (Inhalt des <svg>), ansicht }.
  */
-export function tafelA(id, z, farben, { phase = 3, k = 1 } = {}) {
+/** Vergrösserung der Lupe in Tafel A. */
+export const LUPE = 2;
+
+/**
+ * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript), lupeMitte (Bruchkoordinaten
+ * der Bildmitte, wenn z.lupe an ist; sonst die Stelle des Objekts).
+ */
+export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
@@ -595,7 +602,18 @@ export function tafelA(id, z, farben, { phase = 3, k = 1 } = {}) {
       box = [Math.min(box[0], c[0] - r), Math.min(box[1], c[1] - r), Math.max(box[2], c[0] + r), Math.max(box[3], c[1] + r)];
     }
   }
-  const A = ansicht(M, box);
+  // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb der ganzen Ansicht
+  if (z.lupe) {
+    const c = kart(M, lupeMitte ?? ausgangsstelle(z.punkt, n));
+    const w = (box[2] - box[0]) / LUPE; const h = (box[3] - box[1]) / LUPE;
+    const s0 = Math.max(w, h);
+    // Bildmitte so, dass der Ausschnitt in der ganzen Ansicht bleibt (ist er grösser, in deren Mitte)
+    const lage = (m, lo, hi) => (s0 >= hi - lo ? (lo + hi) / 2 : Math.min(Math.max(m, lo + s0 / 2), hi - s0 / 2));
+    const mx = lage(c[0], box[0], box[2]); const my = lage(c[1], box[1], box[3]);
+    box = [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
+  }
+  // hexagonal: die Zelle ist eine flache Raute, die das Bild nur in der Breite füllt; schmalerer Rand
+  const A = ansicht(M, box, 520, z.lupe ? 0 : sys === 'hexagonal' ? 24 : 46);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   if (z.ae && !brechen) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');

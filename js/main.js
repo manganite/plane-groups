@@ -137,6 +137,7 @@ function bedienungAbgleichen() {
   $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
   document.body.classList.toggle('zeichnen', z.zeichnen);
   $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
+  $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
   $('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
   document.body.classList.toggle('radieren', z.radieren);
   $('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
@@ -187,13 +188,23 @@ function bedienungAbgleichen() {
 
 // ------------------------------------------------------------------ Zeichnen
 let ansichtA = null;
+/**
+ * Mitte der Lupe (Bruchkoordinaten): folgt dem Objekt, bleibt aber stehen, solange gezogen,
+ * gezeichnet oder radiert wird, damit der Zeiger und das Bild zusammenpassen.
+ */
+let lupeMitte = null;
+function lupeMitteJetzt() {
+  if (!z.lupe) return null;
+  if (!lupeMitte || !(ziehen || strich || radierStelle)) lupeMitte = ausgangsstelle(z.punkt, z.zellen);
+  return lupeMitte;
+}
 const sUI = strukturUI({ z, $, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
 let erklaerung = null;
 let phase = 3;
 function zeichnen() {
   if (z.modus === 'struktur') { ansichtA = null; $('sub-a').textContent = 'gegebene und konventionelle Zelle'; sUI.zeichnen(); return; }
   const f = farben();
-  const a = tafelA(z.gruppe, z, f, { phase });
+  const a = tafelA(z.gruppe, z, f, { phase, lupeMitte: lupeMitteJetzt() });
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
   if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
@@ -491,7 +502,7 @@ function zeichneA() {
   nurA = true;
   requestAnimationFrame(() => {
     nurA = false;
-    const a = tafelA(z.gruppe, z, farben(), { phase });
+    const a = tafelA(z.gruppe, z, farben(), { phase, lupeMitte: lupeMitteJetzt() });
     ansichtA = a.ansicht;
     // Radierer als Kreis an der Stelle des Zeigers
     $('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${farben().muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
@@ -687,6 +698,7 @@ function init() {
     if (z.zeichnen) { z.warum = false; z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
     aktualisieren();
   });
+  $('werkzeug-lupe').addEventListener('click', () => { z.lupe = !z.lupe; lupeMitte = null; aktualisieren(); });
   $('werkzeug-radieren').addEventListener('click', () => {
     z.radieren = !z.radieren;
     if (z.radieren) { z.warum = false; z.zeichnen = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }

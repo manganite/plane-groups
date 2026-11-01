@@ -40,6 +40,7 @@ export const TIPS = {
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
   'werkzeug-zeichnen': 'Werkzeug: Im Symmetriegerüst ziehen zeichnet einen Strich. Die Gruppe vervielfältigt ihn mit allen Operationen, auch im Muster.',
+  'werkzeug-lupe': 'Das Symmetriegerüst doppelt so gross um das Objekt zeigen, etwa um es in p6mm genau zu setzen. Die Ansicht folgt dem Objekt, wenn man es loslässt.',
   'werkzeug-radieren': 'Werkzeug: Über Striche ziehen radiert die überfahrenen Stücke, am Original und an allen Kopien zugleich.',
   'zeichnen-zurueck': 'Den letzten Strich oder das letzte Radieren rückgängig machen.',
   'zeichnen-loeschen': 'Alle Striche entfernen.',

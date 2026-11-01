@@ -68,6 +68,7 @@ export function startzustand() {
     form: 'fahne', // 'fahne' oder 'komma'
     farben: true, // nach Blickrichtung färben
     einrasten: true,
+    lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
     warum: false, // Werkzeug „Warum ist das da?“: Antippen wählt ein Element
@@ -111,7 +112,7 @@ export function koordText(v) {
 const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
-const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell']];
+const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['lupe', 'lupe']];
 
 /** Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse]. */
 export function basisText(basis) {
