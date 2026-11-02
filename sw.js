@@ -29,6 +29,7 @@ const FILES = [
   'js/quiz-kapitel.js',
   'js/quiz.js',
   'js/schritte.js',
+  'js/skizzen.js',
   'js/skript.js',
   'js/struktur-ui.js',
   'js/struktur.js',

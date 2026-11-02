@@ -5,6 +5,17 @@
 
 const ov = (s) => `<i><span class="ov">${s}</span></i>`;
 const sym = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
+/**
+ * Matrix oder Spaltenvektor (Zeilen als Arrays) als kleine Tabelle mit runden Klammern. Nur
+ * Inline-Stile, damit sie auf der Quizseite, in der Prüfliste und in Moodle gleich erscheint.
+ */
+const mat = (zeilen) => {
+  const n = zeilen.length;
+  const klammer = (seite) => `<td rowspan="${n}" style="width:0.3em;padding:0;border:1.5px solid;border-${seite === 'l' ? 'right' : 'left'}:none;border-radius:${seite === 'l' ? '0.6em 0 0 0.6em' : '0 0.6em 0.6em 0'}"></td>`;
+  const zelle = (x) => `<td style="padding:0.05em 0.35em;text-align:center">${x}</td>`;
+  const tr = zeilen.map((z, i) => `<tr>${i === 0 ? klammer('l') : ''}${z.map(zelle).join('')}${i === 0 ? klammer('r') : ''}</tr>`).join('');
+  return `<table style="display:inline-table;vertical-align:middle;border-collapse:separate;border-spacing:0;margin:0.1em 0.15em;line-height:1.2"><tbody>${tr}</tbody></table>`;
+};
 
 const LZ = {
   // Kap. 1
@@ -669,12 +680,12 @@ export const BANK = [
       'Spiegelung an einer Linie und Verschiebung um eine halbe Gittertranslation entlang der Linie',
       'Spiegelung an einer Linie und Verschiebung um eine halbe Gittertranslation senkrecht dazu',
       'Spiegelung an einer Linie und Verschiebung um eine beliebige Strecke entlang der Linie',
-      'Drehung um 180° um einen Punkt und Verschiebung um eine halbe Gittertranslation'],
+      'Spiegelung an einer Linie und Verschiebung um eine ganze Gittertranslation entlang der Linie'],
     richtig: [0],
     hinweise: [null,
       'Spiegelung und Verschiebung senkrecht zur Linie ergeben eine Spiegelung an einer parallelen Linie, keine Gleitspiegelung.',
       'Zweimal ausgeführt muss sie eine Gittertranslation ergeben; die Gleitkomponente ist deshalb die Hälfte einer Gittertranslation.',
-      'Drehung und Verschiebung ergeben wieder eine Drehung, um einen anderen Punkt.'],
+      'Eine ganze Gittertranslation entlang der Linie ergibt nur die Spiegelung, gefolgt von einer Translation; das Symmetrieelement bleibt eine Spiegellinie.'],
     erklaerung: 'Die Gleitspiegelung spiegelt an einer Linie und verschiebt entlang dieser Linie um die Gleitkomponente, die Hälfte einer Gittertranslation. Nur beides zusammen ist eine Symmetrieoperation.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1',
@@ -696,10 +707,10 @@ export const BANK = [
     erklaerung: 'Erst Spiegeln an der Mittellinie und Verschieben um eine halbe Schrittlänge zusammen bringen die Spur mit sich zur Deckung: eine Gleitspiegellinie.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1, Abb. 4.1; Hoffmann (2016), Abb. 4.7–4.9',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gl-4-03', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
+    id: 'gl-4-03', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
     frage: `Welche Operation beschreiben die Koordinaten ${ov('x')} + ½, <i>y</i> in einer rechteckigen Zelle? (${ov('x')} steht für −<i>x</i>.)`,
     antworten: [
       'eine Spiegelung an der Linie <i>x</i> = ¼',
@@ -728,7 +739,7 @@ export const BANK = [
     erklaerung: `${ov('x')}, ${ov('y')} heisst: Beide Koordinaten wechseln das Vorzeichen. (0,12;&nbsp;0,31) geht nach (−0,12;&nbsp;−0,31), gleichwertig (0,88;&nbsp;0,69) in der Zelle.`,
     skript: 'operationen', app: '#m=eg&g=p2&x=0.12&y=0.31',
     quelle: 'Skript, Abschn. 4.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-05', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
@@ -746,7 +757,7 @@ export const BANK = [
     erklaerung: `Zuerst <i>B</i>, dann <i>A</i>: (<i>x</i>,&nbsp;<i>y</i>) → (−<i>x</i>,&nbsp;−<i>y</i>) → (−<i>x</i> + 1,&nbsp;−<i>y</i>). Das ist ${ov('x')} + 1, ${ov('y')}, eine Drehung um 180° um (½,&nbsp;0).`,
     skript: 'verknuepfung', app: '#m=eg&g=p2&erkl=2;1/2,0',
     quelle: 'Skript, Abschn. 4.4, Abb. 4.5a',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-06', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
@@ -764,7 +775,7 @@ export const BANK = [
     erklaerung: '<i>A</i> ∘ <i>B</i> heisst: zuerst <i>B</i>, dann <i>A</i>. In der Tafel steht <i>B</i> über der Spalte, <i>A</i> links neben der Zeile.',
     skript: 'verknuepfung',
     quelle: 'Skript, Abschn. 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-07', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
@@ -782,12 +793,12 @@ export const BANK = [
     erklaerung: 'Zwei Spiegelungen an Linien im Winkel α ergeben eine Drehung um 2α um den Schnittpunkt, hier um 120°. So steht es auch in der Gruppentafel von 3<i>m</i>.',
     skript: 'verknuepfung', app: '#m=eg&g=p3m1',
     quelle: 'Skript, Abschn. 4.4, Regel 4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-08', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.mehr,
     frage: 'Das Bild zeigt das Symmetriegerüst von <i>p</i>4<i>mm</i>. Welche Aussage trifft zu?',
-    bild: '#m=eg&g=p4mm&obj=0', bildAlt: 'Symmetriegerüst von p4mm',
+    bild: '#m=eg&g=p4mm&obj=0@2', bildAlt: 'Symmetriegerüst von p4mm',
     antworten: [
       '<i>p</i>4<i>mm</i> hat diagonale Gleitspiegellinien zwischen den diagonalen Spiegellinien.',
       '<i>p</i>4<i>mm</i> hat nur die Elemente, die sein Symbol nennt, und keine weiteren.',
@@ -795,9 +806,9 @@ export const BANK = [
       'Die Gleitspiegellinien von <i>p</i>4<i>mm</i> liegen auf den Spiegellinien.'],
     richtig: [0],
     hinweise: [null,
-      'Aus Spiegelung und Translation folgen Gleitspiegellinien (Regel 3); das Symbol nennt sie nicht.',
+      'Aus Spiegelung und Translation schräg zur Linie folgen Gleitspiegellinien; das Symbol nennt sie nicht.',
       'Die 2-zähligen Drehpunkte bei (½,&nbsp;0) und (0,&nbsp;½) liegen auf Schnittpunkten von Spiegellinien (Lagesymmetrie 2<i>mm</i>).',
-      'Nach Regel 3 rückt die neue Linie um die Hälfte des Anteils der Translation senkrecht zur Spiegellinie.'],
+      'Die neue Linie rückt um die Hälfte des Anteils der Translation senkrecht zur Spiegellinie.'],
     erklaerung: 'Die Spiegelung an der Diagonalen und die Translation <i>a</i> ergeben eine Gleitspiegelung an der Linie durch (½,&nbsp;0) parallel zur Diagonalen, mit der Gleitkomponente (<i>a</i> + <i>b</i>)/2.',
     skript: 'mehr-elemente', app: '#m=eg&g=p4mm&erkl=g;1/2,0;1,1',
     quelle: 'Skript, Abschn. 4.5, Abb. 4.6',
@@ -820,22 +831,22 @@ export const BANK = [
     erklaerung: 'Die Drehung um (¼,&nbsp;¼), <i><span class="ov">x</span></i> + ½, <i><span class="ov">y</span></i> + ½, bildet jedes Dreieck auf das umgedrehte ab. Mit den Spiegellinien folgen daraus auch Gleitspiegellinien: <i>p</i>2<i>mg</i>.',
     skript: 'mehr-elemente', app: '#m=struktur&v=dreieck3',
     quelle: 'Skript, Abschn. 4.5, Abb. 4.7',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-10', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.matrix,
     frage: `Welche Matrix <i>W</i> und welche Verschiebung <i>w</i> gehören zur Operation ${ov('x')} + ½, <i>y</i>?`,
     antworten: [
-      '<i>W</i> mit den Zeilen (−1&nbsp;0) und (0&nbsp;1), <i>w</i> = (½,&nbsp;0)',
-      '<i>W</i> mit den Zeilen (1&nbsp;0) und (0&nbsp;−1), <i>w</i> = (½,&nbsp;0)',
-      '<i>W</i> mit den Zeilen (−1&nbsp;0) und (0&nbsp;1), <i>w</i> = (0,&nbsp;0)',
-      '<i>W</i> mit den Zeilen (−1&nbsp;0) und (0&nbsp;−1), <i>w</i> = (½,&nbsp;0)'],
+      `<i>W</i> = ${mat([['−1', '0'], ['0', '1']])}, <i>w</i> = ${mat([['½'], ['0']])}`,
+      `<i>W</i> = ${mat([['1', '0'], ['0', '−1']])}, <i>w</i> = ${mat([['½'], ['0']])}`,
+      `<i>W</i> = ${mat([['−1', '0'], ['0', '1']])}, <i>w</i> = ${mat([['0'], ['0']])}`,
+      `<i>W</i> = ${mat([['−1', '0'], ['0', '−1']])}, <i>w</i> = ${mat([['½'], ['0']])}`],
     richtig: [0],
     hinweise: [null,
       'Diese Matrix wechselt das Vorzeichen von <i>y</i>, nicht von <i>x</i>.',
       'Das ½ gehört zur Verschiebung; ohne sie läge die Spiegellinie bei <i>x</i> = 0.',
       'Diese Matrix wechselt beide Vorzeichen: eine Drehung um 180°.'],
-    erklaerung: '<i>x</i>′ = −<i>x</i> + ½, <i>y</i>′ = <i>y</i>: Die Matrix wechselt das Vorzeichen von <i>x</i>, die Verschiebung ist (½,&nbsp;0).',
+    erklaerung: `${mat([['<i>x</i>′'], ['<i>y</i>′']])} = ${mat([['−1', '0'], ['0', '1']])} ${mat([['<i>x</i>'], ['<i>y</i>']])} + ${mat([['½'], ['0']])} = ${mat([['−<i>x</i> + ½'], ['<i>y</i>']])}: Die Matrix wechselt das Vorzeichen von <i>x</i>, die Verschiebung ist (½,&nbsp;0).`,
     skript: 'operationen',
     quelle: 'Skript, Abschn. 4.2, Vertiefung „Matrix und Verschiebung“',
     status: 'entwurf',
@@ -852,7 +863,7 @@ export const BANK = [
     erklaerung: 'Jede Operation muss die Mittellinie des Frieses auf sich abbilden; die Laufrichtung darf sich dabei umkehren: Drehpunkte nur 2-zählig, Spiegellinien längs oder quer, Gleitspiegellinien nur längs. Daraus ergeben sich sieben Friesgruppen.',
     skript: 'gleitung',
     quelle: 'Skript, Abschn. 4.1, Vertiefung „Friesgruppen“',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-12', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
@@ -870,11 +881,12 @@ export const BANK = [
     erklaerung: 'Nur <i>y</i> wechselt das Vorzeichen; die Linie liegt also entlang <i>a</i>, bei −<i>y</i> + ½ = <i>y</i>, <i>y</i> = ¼. Die Punkte dieser Linie werden um <i>a</i>/2 entlang der Linie verschoben: eine Gleitspiegelung, wie in <i>c</i>2<i>mm</i>.',
     skript: 'operationen', app: '#m=eg&g=c2mm&erkl=g;0,1/4;1,0',
     quelle: 'Skript, Abschn. 4.2 und 4.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gl-4-13', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
-    frage: 'Was ergibt +3 ∘ <i>m</i>₁ in der Punktgruppe 3<i>m</i> (Abb. 4.4)?',
+    id: 'gl-4-13', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.tafel,
+    frage: 'Das Bild zeigt die Punktgruppe 3<i>m</i> mit den Stellen 1, 2, 3 und den Spiegellinien <i>m</i>₁, <i>m</i>₂, <i>m</i>₃. Was ergibt +3 ∘ <i>m</i>₁?',
+    bild: 'skizze:3m', bildAlt: 'Gleichseitiges Dreieck mit drei Spiegellinien und 3-zähligem Drehpunkt',
     antworten: ['<i>m</i>₃', '<i>m</i>₂', '−3', '<i>m</i>₁'],
     richtig: [0],
     hinweise: [null,
@@ -899,7 +911,7 @@ export const BANK = [
       'Eine Gleitkomponente ist die Hälfte einer Gittertranslation. Eine ganze Translation entlang der Linie wiederholt nur die Spiegelung.',
       'Die Linie rückt um die Hälfte des Anteils senkrecht zu ihr.',
       'Nur <i>y</i> wechselt das Vorzeichen; die Operation spiegelt.'],
-    erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> verschiebt die Linie nach <i>y</i> = ½ (Regel 2). Der Anteil <i>a</i> ist eine ganze Gittertranslation: Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>, keine neue Gleitspiegellinie (Regel 3).`,
+    erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> der Translation steht senkrecht zur Linie und verschiebt sie um die Hälfte, nach <i>y</i> = ½. Der Anteil <i>a</i> liegt parallel zur Linie und ist eine ganze Gittertranslation: Das Ergebnis ist die Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>; eine neue Gleitspiegellinie entsteht nicht.`,
     skript: 'verknuepfung', app: '#m=eg&g=p2mm&erkl=m;0,1/2;1,0',
     quelle: 'Skript, Abschn. 4.4',
     status: 'entwurf',
@@ -916,10 +928,10 @@ export const BANK = [
     erklaerung: 'In der Gruppentafel steht in Zeile −3, Spalte +3 die Identität: −3 ∘ +3 = 1. Zu jeder Operation einer Gruppe gibt es eine, die sie rückgängig macht.',
     skript: 'verknuepfung',
     quelle: 'Skript, Abschn. 3.1 (Grundlagen) und 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gl-4-16', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
+    id: 'gl-4-16', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
     frage: 'Welche Teilmenge der Punktgruppe 3<i>m</i> ist selbst eine Gruppe (eine Untergruppe)?',
     antworten: ['{1, +3, −3}', '{+3, −3}', '{1, +3, <i>m</i>₁}', '{1, <i>m</i>₁, <i>m</i>₂}'],
     richtig: [0],

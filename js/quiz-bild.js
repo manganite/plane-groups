@@ -1,10 +1,16 @@
 // Bilder des Quiz aus dem Code der App: eine Bildangabe ist eine Link-Adresse der App („#m=eg&g=p4mm“,
-// Tafel A) oder dieselbe mit „B“ davor („B#m=eg&g=p4mm“, Tafel B, das Muster). Die Seite (quiz.js) und
-// der Moodle-Export (tools/moodle-export.mjs) zeichnen damit dieselben Bilder.
+// Tafel A) oder dieselbe mit „B“ davor („B#m=eg&g=p4mm“, Tafel B, das Muster). „@1.8“ am Ende setzt
+// die Grösse der Symbole fest („#m=eg&g=p4mm&obj=0@1.8“). Skizzen aus dem Skript, die es in der App
+// nicht gibt, heissen „skizze:…“ (SKIZZEN). Die Seite (quiz.js) und der Moodle-Export
+// (tools/moodle-export.mjs) zeichnen damit dieselben Bilder.
 
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB } from './struktur.js';
+import { dreieck3m } from './skizzen.js';
+
+/** Skizzen aus dem Skript (viewBox 520 × 400), im Quizbild vergrössert und mittig. */
+const SKIZZEN = { '3m': dreieck3m };
 
 /** Farben aus CSS-Variablen ({ paper: '#fff', …, dir1, dir2, dir3, fc0 … fc5 }) in der Form der Tafeln. */
 export const farbenAus = (v) => ({
@@ -13,13 +19,18 @@ export const farbenAus = (v) => ({
   fc: [0, 1, 2, 3, 4, 5].map((i) => v[`fc${i}`]),
 });
 
-/** Bildangabe → { tafel: 'a' | 'b', hash }. */
+/** Bildangabe → { tafel: 'a' | 'b', hash, k } oder { skizze } (k: Grösse der Symbole oder null). */
 export function zerlege(angabe) {
-  const b = angabe.startsWith('B#');
-  return { tafel: b ? 'b' : 'a', hash: b ? angabe.slice(1) : angabe };
+  if (angabe.startsWith('skizze:')) return { skizze: angabe.slice(7), hash: '' };
+  const [rest, gross] = angabe.split('@');
+  const b = rest.startsWith('B#');
+  return { tafel: b ? 'b' : 'a', hash: b ? rest.slice(1) : rest, k: gross ? Number(gross) : null };
 }
 
-/** Link-Adresse der App zu einer Bildangabe (für „In der App öffnen“). */
+/** Gibt es die Skizze? */
+export const istSkizze = (name) => Object.hasOwn(SKIZZEN, name);
+
+/** Link-Adresse der App zu einer Bildangabe (für „In der App öffnen“; leer bei Skizzen). */
 export const appAdresse = (angabe) => zerlege(angabe).hash;
 
 /**
@@ -27,7 +38,8 @@ export const appAdresse = (angabe) => zerlege(angabe).hash;
  * Gibt null zurück, wenn die Link-Adresse keinen Modus enthält.
  */
 export function bildInhalt(angabe, f, opt = {}) {
-  const { tafel, hash } = zerlege(angabe);
+  const { tafel, hash, k: gross, skizze } = zerlege(angabe);
+  if (skizze) return istSkizze(skizze) ? `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(1.35) translate(-260 -185)">${SKIZZEN[skizze](f)}</g>` : null;
   const z = startzustand();
   if (!hashAnwenden(z, hash)) return null;
   if (z.modus === 'struktur') {
@@ -35,6 +47,6 @@ export function bildInhalt(angabe, f, opt = {}) {
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
     return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
-  const k = opt.klein ? 2 : 1.3;
+  const k = gross ?? (opt.klein ? 2 : 1.3);
   return tafel === 'b' ? tafelB(z.gruppe, z, f, { k: 1 + (k - 1) * 0.5 }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
