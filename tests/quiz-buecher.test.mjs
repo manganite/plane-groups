@@ -5,6 +5,7 @@ import { KOORDINATEN, ELEMENTE_LAGE, elementOp, GLEIT_UNGENANNT, REIHENFOLGE, MU
 import { gruppe, elemente, art, liesOp, gleichModGitter, anwenden } from '../js/symmetrie.js';
 import { OPERATIONEN, verknuepfe, gruppentafel } from '../js/punktoperationen.js';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
+import { startzustand, hashAnwenden } from '../js/zustand.js';
 
 const text = (h) => h.replace(/<span class="ov">(\w)<\/span>/g, '-$1').replace(/<sub>(?:<i>)?(\w)(?:<\/i>)?<\/sub>/g, '$1')
   .replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/[₀-₉]/g, (c) => String(c.charCodeAt(0) - 0x2080));
@@ -85,5 +86,10 @@ test('Muster → Ebenengruppe: alle 17 Gruppen, Bild ist das Muster (Tafel B) oh
     const q = MUSTER.make(g);
     assert.ok(q.bild.startsWith('B#') && !/[&#]mel=1/.test(q.bild), g);
     assert.equal(text(q.antworten[0]), g);
+    // Lage und Grösse des Fähnchens kommen in der App an (ausserhalb des Bereichs fiele og still weg)
+    const z = startzustand(); hashAnwenden(z, q.bild.slice(1));
+    const og = Number(new URLSearchParams(q.bild.split('#')[1]).get('og') ?? 1);
+    assert.equal(z.objGroesse, og, g);
+    assert.equal(z.gruppe, g);
   }
 });

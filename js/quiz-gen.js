@@ -373,7 +373,10 @@ export const UNTERGRUPPE = {
 // Nach Borchardt-Ott, Aufg. 10.1 („nach Kockel“): das Muster aus Fähnchen ohne Symmetrieelemente,
 // die Elementarzelle hervorgehoben. Spiegelbildliche Fähnchen haben eine andere Farbe (wie in der App).
 // Lage des Fähnchens je Gruppe: allgemeine Lage mit möglichst grossem Abstand zwischen den Kopien
-// (Raster 1/40, gesucht mit bahn() aus symmetrie.js), damit sich die Fähnchen nicht überdecken.
+// (Raster 1/40, gesucht mit bahn() aus symmetrie.js). Wo die Kopien trotzdem eng liegen, ist das
+// Fähnchen kleiner (MUSTER_GROESSE, Link „og“), damit sich die Fähnchen nicht überdecken.
+const MUSTER_GROESSE = { p1: 1, p2: 1, pg: 1, p2gg: 1, p3: 1, p6mm: 0.5 };
+const MUSTER_ZOOM = { p6mm: 1.7 };
 const MUSTER_PUNKT = {
   p1: [0.1, 0.1], p2: [0.2, 0.275], pm: [0.25, 0.1], pg: [0.25, 0.1], cm: [0.25, 0.1], p2mm: [0.25, 0.2], p2mg: [0.5, 0.2],
   p2gg: [0.25, 0.125], c2mm: [0.175, 0.125], p4: [0.2, 0.3], p4mm: [0.15, 0.35], p4gm: [0.25, 0.5],
@@ -385,12 +388,13 @@ export const MUSTER = {
   make(g) {
     const ab = gruppenAblenker(g);
     const [x, y] = MUSTER_PUNKT[g];
-    const adr = `#m=eg&g=${g}&x=${x}&y=${y}`;
+    const og = MUSTER_GROESSE[g] ?? 0.7;
+    const adr = `#m=eg&g=${g}&x=${x}&y=${y}${og === 1 ? '' : `&og=${og}`}`;
     return {
       typ: 'bild-text',
       lernziel: 'die beiden Diagramme einer Ebenengruppe in den International Tables lesen',
       frage: 'Das Bild zeigt ein Muster aus Fähnchen; hervorgehoben ist eine Elementarzelle, spiegelbildliche Fähnchen haben die andere Farbe. Welche Ebenengruppe hat das Muster?',
-      bild: `B${adr}&zoom=1.3`, bildAlt: 'Muster aus Fähnchen mit hervorgehobener Elementarzelle',
+      bild: `B${adr}&zoom=${MUSTER_ZOOM[g] ?? 1.3}`, bildAlt: 'Muster aus Fähnchen mit hervorgehobener Elementarzelle',
       antworten: [g, ...ab].map(S),
       richtig: [0],
       hinweise: [null, ...ab.map(hinweisGruppe)],
