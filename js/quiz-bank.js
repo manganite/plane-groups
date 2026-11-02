@@ -66,6 +66,7 @@ const LZ = {
   anordnung: 'erklären, warum die Ebenengruppe eines Musters von der Anordnung der Motive abhängt und bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt',
   mauer: 'an Mauerwerk und Pflaster zeigen, wie der Versatz der Reihen die Symmetrie ändert, und die Ebenengruppen der Beispiele im Bild nachvollziehen',
   parkett: 'Parkettierungen aus regelmässigen Vielecken beschreiben und ihre Symmetrie angeben',
+  archimedes: 'die Namen archimedischer Parkettierungen lesen und erklären, was eine chirale Parkettierung ist',
   escher: 'erklären, wie man Kacheln im Stil von Escher konstruiert',
   farbe: 'am Schachbrett erklären, was eine Operation mit Farbwechsel ist',
   conway: 'die Signatur einer Ebenengruppe nach Conway lesen und ihren Preis berechnen',
@@ -1541,7 +1542,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-06', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.parkett,
+    id: 'tk-7-06', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.archimedes,
     frage: 'Was bedeutet der Name 4.8.8 einer archimedischen Parkettierung?',
     antworten: [
       'An jeder Ecke treffen ein Quadrat und zwei Achtecke zusammen.',
@@ -1559,7 +1560,7 @@ export const BANK = [
     status: 'entwurf',
   },
   {
-    id: 'tk-7-07', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.parkett,
+    id: 'tk-7-07', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.archimedes,
     frage: 'Warum gibt es die Parkettierung 3.3.3.3.6 in zwei Formen?',
     antworten: [
       'Sie hat keine Spiegellinie; ihr Spiegelbild ist eine zweite Form.',
@@ -1577,7 +1578,7 @@ export const BANK = [
     status: 'entwurf',
   },
   {
-    id: 'tk-7-08', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
+    id: 'tk-7-08', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
     frage: 'Wie konstruiert man eine Kachel im Stil von Escher für <i>p</i>1?',
     antworten: [
       'Man verformt je eine Kante jedes Paars und überträgt die Verformung verschoben auf die Gegenkante.',
@@ -1595,7 +1596,7 @@ export const BANK = [
     status: 'entwurf',
   },
   {
-    id: 'tk-7-09', stufe: 2, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
+    id: 'tk-7-09', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
     frage: 'Die vier Kanten einer Kachel sind verschieden geformt, jede punktsymmetrisch zu ihrer Mitte; die Nachbarkacheln sind um die Kantenmitten gedreht. Welche Symmetrie hat das Muster?',
     antworten: [
       '<i>p</i>2, mit 2-zähligen Drehpunkten auf den Kantenmitten',
@@ -1613,7 +1614,7 @@ export const BANK = [
     status: 'entwurf',
   },
   {
-    id: 'tk-7-10', stufe: 2, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
+    id: 'tk-7-10', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
     frage: 'Bei einem Schachbrett ohne Farben ist die Zelle ein Feld. Wie ändert sich die Zelle, wenn man die Farben beachtet?',
     antworten: [
       'Sie wird doppelt so gross und um 45° gedreht.',
@@ -1628,7 +1629,7 @@ export const BANK = [
     erklaerung: 'Mit Farben ist erst die Verschiebung schräg über die Ecke eine Translation. Die Zelle ist um 45° gedreht und doppelt so gross; die Ebenengruppe bleibt <i>p</i>4<i>mm</i>. Die Verschiebung um ein Feld ist eine Operation mit Farbwechsel.',
     skript: 'farbe', app: '#m=struktur&ba=1&gamma=90&basis=quadrat,0,1/4,1/4,0,0.332;quadrat,1,1/4,3/4,0,0.332;quadrat,1,3/4,1/4,0,0.332;quadrat,0,3/4,3/4,0,0.332',
     quelle: 'Skript, Abschn. 7.5, Abb. 7.7; Hoffmann (2016), S. 202–203, 314–315',
-    status: 'geprüft',
+    status: 'entwurf',
   },
   {
     id: 'tk-7-11', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
@@ -1678,7 +1679,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-14', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
+    id: 'tk-7-14', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
     frage: 'Was ist auf einem schwarz-weissen Schachbrett die Verschiebung um ein Feld?',
     antworten: [
       'eine Operation mit Farbwechsel: Sie bringt jedes Feld auf eines der anderen Farbe',
