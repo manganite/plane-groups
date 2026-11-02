@@ -1,17 +1,25 @@
 // Die Operationen der Punktgruppen der Ebene mit Namen wie im Skript (Abschn. 4.4, Abb. 4.4 und 4.5):
 // Identität 1; Drehung um 180° 2; Drehungen um 360°/n gegen bzw. im Uhrzeigersinn +n und −n
-// (n = 3, 4, 6); Spiegelungen mit Index. In 3m gehen m1, m2, m3 durch die Stellen 1, 2, 3 der
-// Abb. 4.4; in 4mm und 6mm sind die Spiegellinien gegen den Uhrzeigersinn nummeriert, m1 waagrecht;
-// in 2mm steht der Index für die Achse senkrecht zur Linie: ma ⊥ a (a im Bild nach unten wie in der App,
-// die Linie also waagrecht), mb ⊥ b (b nach rechts, die Linie senkrecht).
+// (n = 3, 4, 6). Spiegelungen: In 3m gehen m1, m2, m3 durch die Stellen 1, 2, 3
+// der Abb. 4.4. In 2mm und 4mm steht im Index die Richtung der Normalen, also die Achse senkrecht
+// zur Spiegellinie: 2mm ma, mb; 4mm ma, mb, ma+b, ma−b. In 6mm gehören zu jeder Achse ai zwei
+// Spiegellinien; das Zeichen am m sagt, wie die Linie zur Achse liegt: mai⊥ senkrecht, mai∥
+// parallel. Achsen wie in der App: quadratisch a nach unten,
+// b nach rechts; hexagonal a1 = a unter 240°, a2 = b nach rechts, a3 = −(a1 + a2) unter 120°.
 //
 // Eine Operation: { name, html, art: 'd' | 'm', w }. w ist bei einer Drehung der Drehwinkel, bei
 // einer Spiegelung der Winkel der Linie, in Grad gegen den Uhrzeigersinn ab der Waagrechten im Bild.
+// Bei Spiegelungen zusätzlich index (Text im Index, Buchstaben kursiv) und zeichen ('⊥', '∥' oder '').
 
 const mod = (x, n) => ((x % n) + n) % n;
 const D = (w, name) => ({ name, html: name, art: 'd', w: mod(w, 360) });
-const M = (w, index, kursiv = false) => ({
-  name: `m${index}`, html: `<i>m</i>${kursiv ? `<sub><i>${index}</i></sub>` : '₀₁₂₃₄₅₆₇₈₉'[index]}`, art: 'm', w: mod(w, 180),
+const TIEF = '₀₁₂₃₄₅₆₇₈₉';
+/** Index als HTML: Buchstaben kursiv, Ziffern und Zeichen aufrecht. */
+export const indexHTML = (t) => t.replace(/[a-z]/g, (c) => `<i>${c}</i>`);
+const M = (w, index, zeichen = '') => ({
+  name: `m${index}${zeichen}`,
+  html: `<i>m</i>${/^\d$/.test(index) ? TIEF[index] : `<sub>${indexHTML(index)}</sub>`}${zeichen ? `<sup>${zeichen}</sup>` : ''}`,
+  art: 'm', w: mod(w, 180), index, zeichen,
 });
 
 const E = D(0, '1');
@@ -21,11 +29,11 @@ const DREH = { 3: [D(120, '+3'), D(240, '−3')], 4: [D(90, '+4'), D(270, '−4'
 /** Punktgruppen mit mindestens einer echten Untergruppe ausser 1, in der Reihenfolge der Systeme. */
 export const OPERATIONEN = {
   4: [E, ZWEI, ...DREH[4]],
-  '2mm': [E, ZWEI, M(0, 'a', true), M(90, 'b', true)],
+  '2mm': [E, ZWEI, M(0, 'a'), M(90, 'b')],
   '3m': [E, ...DREH[3], M(30, 1), M(150, 2), M(90, 3)],
-  '4mm': [E, ZWEI, ...DREH[4], ...[0, 45, 90, 135].map((w, i) => M(w, i + 1))],
+  '4mm': [E, ZWEI, ...DREH[4], M(0, 'a'), M(90, 'b'), M(45, 'a+b'), M(135, 'a−b')],
   6: [E, ZWEI, ...DREH[3], ...DREH[6]],
-  '6mm': [E, ZWEI, ...DREH[3], ...DREH[6], ...[0, 30, 60, 90, 120, 150].map((w, i) => M(w, i + 1))],
+  '6mm': [E, ZWEI, ...DREH[3], ...DREH[6], M(150, 'a1', '⊥'), M(90, 'a2', '⊥'), M(30, 'a3', '⊥'), M(60, 'a1', '∥'), M(0, 'a2', '∥'), M(120, 'a3', '∥')],
 };
 
 /** Verknüpfung A ∘ B (zuerst B, dann A) als { art, w }. */

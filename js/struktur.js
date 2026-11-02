@@ -196,10 +196,12 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   if (anzeige.bindungen) teile.push(bindungenSVG(st, A, M, bildBereich(A), farben.muted));
   teile.push(basisSVG(st, A, M, bildBereich(A), farben, auswahl));
   // Symmetrieelemente über den Motiven, damit Drehpunkte auf Atomen sichtbar bleiben
-  if (r && anzeige.elemente) teile.push(elementeSVG(gruppe(r.symbol), elementeImBereich(gruppe(r.symbol), 1), konvAnsicht(A, r), farben, anzeige.farben));
+  if (r && anzeige.elemente) teile.push(elementeSVG(gruppe(r.symbol), elementeImBereich(gruppe(r.symbol), 1), konvAnsicht(A, r), farben, anzeige.farben, { k: anzeige.k ?? 1 }));
   // Achsen: gegebene Zelle a, b; konventionelle a′, b′ (nur wenn verschieden)
-  teile.push(achsenSVG(A, ['a', 'b'], gegeben || !anzeige.zelle ? farben.accent : farben.muted, 18));
-  if (r && !gegeben && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, 18));
+  // Beschriftung der Achsen wie in Tafel A der Ebenengruppen (zeichnung.js): wächst mit der Symbolgrösse k
+  const schrift = f2(19 * Math.min(anzeige.k ?? 1, 1.4));
+  teile.push(achsenSVG(A, ['a', 'b'], gegeben || !anzeige.zelle ? farben.accent : farben.muted, schrift));
+  if (r && !gegeben && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, schrift));
   return { svg: teile.join(''), ansicht: A, ergebnis: r };
 }
 

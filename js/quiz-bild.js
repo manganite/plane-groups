@@ -11,7 +11,7 @@ import { dreieck3m, punktgruppe } from './skizzen.js';
 
 /** Skizzen aus dem Skript (viewBox 520 × 400): Zeichnung und Höhe ihrer Mitte; im Quizbild vergrössert und mittig. */
 const SKIZZEN = {
-  '3m': [dreieck3m, 185],
+  '3m': [dreieck3m, 190],
   '2mm': [(f) => punktgruppe('2mm', f), 200],
   '4mm': [(f) => punktgruppe('4mm', f), 200],
   '6mm': [(f) => punktgruppe('6mm', f), 200],
@@ -23,6 +23,12 @@ export const farbenAus = (v) => ({
   upper: v.upper, crystal: v.crystal, dir: [v.dir1, v.dir2, v.dir3], fc3: v.fc3, fc4: v.fc4,
   fc: [0, 1, 2, 3, 4, 5].map((i) => v[`fc${i}`]),
 });
+
+/** Grösse der Symbole und Fähnchen: Fragebild Tafel A, Antwortbild Tafel A, Muster (Tafel B), Skizzen. */
+export const K_FRAGE = 1.8;
+export const K_ANTWORT = 2;
+export const K_MUSTER = 1.15;
+const K_SKIZZE = 1.25;
 
 /** Bildangabe → { tafel: 'a' | 'b', hash, k } oder { skizze } (k: Grösse der Symbole oder null). */
 export function zerlege(angabe) {
@@ -46,16 +52,18 @@ export function bildInhalt(angabe, f, opt = {}) {
   const { tafel, hash, k: gross, skizze } = zerlege(angabe);
   if (skizze) {
     if (!istSkizze(skizze)) return null;
-    const [zeichne, mitte] = SKIZZEN[skizze];
-    return `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(1.35) translate(-260 -${mitte})">${zeichne(f)}</g>`;
+    const [zeichne, mitte] = SKIZZEN[skizze]; const k = K_SKIZZE;
+    return `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(${k}) translate(-260 -${mitte})">${zeichne(f)}</g>`;
   }
   const z = startzustand();
   if (!hashAnwenden(z, hash)) return null;
   if (z.modus === 'struktur') {
     const st = z.struktur;
-    const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
+    const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false, k: gross ?? K_FRAGE }, f);
     return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
-  const k = gross ?? (opt.klein ? 2 : 1.3);
-  return tafel === 'b' ? tafelB(z.gruppe, z, f, { k: 1 + (k - 1) * 0.5 }).svg : tafelA(z.gruppe, z, f, { k }).svg;
+  // Tafel A: Symbole und Fähnchen in allen Fragebildern gleich gross (K_FRAGE), in Antwortbildern grösser;
+  // Tafel B (Muster): eigene, kleinere Grösse, damit sich die Fähnchen nicht überdecken
+  if (tafel === 'b') return tafelB(z.gruppe, z, f, { k: gross ?? K_MUSTER }).svg;
+  return tafelA(z.gruppe, z, f, { k: gross ?? (opt.klein ? K_ANTWORT : K_FRAGE) }).svg;
 }

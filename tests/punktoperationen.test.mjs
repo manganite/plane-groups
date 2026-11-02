@@ -4,6 +4,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { OPERATIONEN, verknuepfe, gruppentafel, istGruppe, untergruppen } from '../js/punktoperationen.js';
 import { UNTERGRUPPE } from '../js/quiz-gen.js';
+import { startzustand } from '../js/zustand.js';
+import { metrik, kart } from '../js/zeichnung.js';
+import { gruppe, elemente } from '../js/symmetrie.js';
+
+const mod180 = (x) => ((x % 180) + 180) % 180;
 
 const skript = readFileSync(new URL('../skript.html', import.meta.url), 'utf8');
 const name = (h) => h.replace(/<sub>(?:<i>)?(\w)(?:<\/i>)?<\/sub>/g, '$1').replace(/<[^>]+>/g, '')
@@ -34,16 +39,14 @@ test('Punktgruppen: Ordnung, Gruppenaxiome, Beispiele im Skript', () => {
       for (const b of I) for (const c of I) assert.equal(verknuepfe(pg, verknuepfe(pg, a, b), c), verknuepfe(pg, a, verknuepfe(pg, b, c)));
     }
   }
-  // Skript: m2 ∘ m1 = −3 in 3m (Abb. 4.4); in 4mm m2 ∘ m1 = +4, {1, 2, m1, m3} Untergruppe, {1, 2, m1, m2} nicht
+  // Skript: m2 ∘ m1 = −3 in 3m (Abb. 4.4); in 4mm ma+b ∘ ma = +4, {1, 2, ma, mb} Untergruppe, {1, 2, ma, ma+b} nicht
   assert.equal(OPERATIONEN['3m'][verknuepfe('3m', index('3m', 'm2'), index('3m', 'm1'))].name, '−3');
-  assert.equal(OPERATIONEN['4mm'][verknuepfe('4mm', index('4mm', 'm2'), index('4mm', 'm1'))].name, '+4');
-  assert.ok(istGruppe('4mm', ['1', '2', 'm1', 'm3'].map((x) => index('4mm', x))));
-  assert.ok(!istGruppe('4mm', ['1', '2', 'm1', 'm2'].map((x) => index('4mm', x))));
-  assert.ok(skript.includes('<i>m</i><sub>2</sub> ∘ <i>m</i><sub>1</sub> = +4'));
-  // 2mm: Index = Achse senkrecht zur Linie; a zeigt im Bild nach unten (wie in der App), b nach rechts
-  assert.equal(OPERATIONEN['2mm'][index('2mm', 'ma')].w, 0);
-  assert.equal(OPERATIONEN['2mm'][index('2mm', 'mb')].w, 90);
-  assert.ok(skript.includes('<i>m</i><sub><i>a</i></sub> spiegelt an der Linie senkrecht zu <i>a</i>'));
+  assert.equal(OPERATIONEN['4mm'][verknuepfe('4mm', index('4mm', 'ma+b'), index('4mm', 'ma'))].name, '+4');
+  assert.equal(OPERATIONEN['4mm'][verknuepfe('4mm', index('4mm', 'ma'), index('4mm', 'ma+b'))].name, '−4');
+  assert.ok(istGruppe('4mm', ['1', '2', 'ma', 'mb'].map((x) => index('4mm', x))));
+  assert.ok(!istGruppe('4mm', ['1', '2', 'ma', 'ma+b'].map((x) => index('4mm', x))));
+  assert.ok(skript.includes('<i>m</i><sub><i>a</i>+<i>b</i></sub> ∘ <i>m</i><sub><i>a</i></sub> = +4'));
+  assert.ok(skript.includes('spiegelt <i>m</i><sub><i>a</i></sub> an der Linie senkrecht zu <i>a</i>'));
   // Untergruppen von 6mm: 2, 3, 6, sechs m, drei 2mm, zwei 3m
   assert.equal(untergruppen('6mm').length, 14);
 });
@@ -73,4 +76,37 @@ test('Erzeugte Fragen zu Untergruppen: Antworten und Hinweise nachgerechnet', ()
     const mr = merk(mengen[0]);
     mr.forEach((v, k) => assert.ok(mengen.slice(1).some((s) => merk(s)[k] === v), `${p}: Merkmal ${k}`));
   }
+});
+
+test('Spiegelungen: Index = Richtung senkrecht zur Linie, mit den Achsen der App; in 6mm ⊥ bzw. ∥ zur Achse', () => {
+  const st = startzustand();
+  const richtung = (sys, v) => { const c = kart(metrik(st.gitter[sys]), v); return [c[0], -c[1]]; }; // y im Bild nach oben
+  const achsen = {
+    rechteckig: { a: [1, 0], b: [0, 1] },
+    quadratisch: { a: [1, 0], b: [0, 1], 'a+b': [1, 1], 'a−b': [1, -1] },
+    hexagonal: { a1: [1, 0], a2: [0, 1], a3: [-1, -1] },
+  };
+  const sys = { '2mm': 'rechteckig', '4mm': 'quadratisch', '6mm': 'hexagonal' };
+  for (const pg of ['2mm', '4mm', '6mm']) {
+    const ms = OPERATIONEN[pg].filter((o) => o.art === 'm');
+    for (const o of ms) {
+      const n = richtung(sys[pg], achsen[sys[pg]][o.index]);
+      const l = [Math.cos((o.w * Math.PI) / 180), Math.sin((o.w * Math.PI) / 180)];
+      const dot = (n[0] * l[0] + n[1] * l[1]) / Math.hypot(...n);
+      // ohne Zeichen oder mit ⊥: Linie senkrecht zur Richtung im Index; mit ∥: Linie entlang dieser Richtung
+      if (o.zeichen === '∥') assert.ok(Math.abs(Math.abs(dot) - 1) < 1e-9, `${pg} ${o.name}`);
+      else assert.ok(Math.abs(dot) < 1e-9, `${pg} ${o.name}`);
+    }
+    // jede Spiegelung mit ∥ steht senkrecht auf der mit ⊥ zur selben Achse
+    for (const o of ms.filter((x) => x.zeichen === '∥')) {
+      const p = ms.find((x) => x.zeichen === '⊥' && x.index === o.index);
+      assert.equal(mod180(o.w - p.w), 90, `${pg} ${o.name}`);
+    }
+  }
+  // p3m1 hat die Spiegelungen m_ai⊥, p31m die Spiegelungen m_ai∥ (Skript Abschn. 4.4)
+  const winkel = (g) => elemente(gruppe(g)).linien.filter((l) => l.art === 'spiegel')
+    .map((l) => { const d = richtung('hexagonal', l.richtung); return Math.round(mod180((Math.atan2(d[1], d[0]) * 180) / Math.PI)); });
+  const soll = (z) => OPERATIONEN['6mm'].filter((o) => o.art === 'm' && o.zeichen === z).map((o) => o.w).sort((x, y) => x - y);
+  assert.deepEqual([...new Set(winkel('p3m1'))].sort((x, y) => x - y), soll('⊥'));
+  assert.deepEqual([...new Set(winkel('p31m'))].sort((x, y) => x - y), soll('∥'));
 });

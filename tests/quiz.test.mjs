@@ -134,7 +134,7 @@ test('Erzeugte Fragen: richtige Antworten aus den Daten der App', () => {
     const [symbol, b] = p.split(':');
     const q = LAGE.make(p);
     assert.equal(q.pruefung.buchstabe, b, p);
-    const z = startzustand(); hashAnwenden(z, q.bild);
+    const z = startzustand(); hashAnwenden(z, zerlege(q.bild).hash);
     const l = lage(gruppe(symbol), z.punkt);
     const w = ebenengruppe(symbol).wyckoff.find((x) => x.b === b);
     assert.equal(l.buchstabe, b, p);
@@ -361,7 +361,8 @@ test('Seite: Schalter „Auch ungeprüfte Fragen zeigen“, ?entwurf schaltet ei
   assert.match(html, /<input type="checkbox" id="entwurf-schalter">/);
   assert.ok(html.indexOf('id="entwurf-schalter"') > html.indexOf('</form>'));
   assert.match(js, /let entwurf = START\.has\('entwurf'\);/);
-  const bank = [...BANK, { ...BANK[0], id: 'test-geprueft', status: 'geprüft' }];
+  // je eine geprüfte und eine ungeprüfte Frage dazu, damit der Test nicht vom Stand der Bank abhängt
+  const bank = [...BANK, { ...BANK[0], id: 'test-geprueft', status: 'geprüft' }, { ...BANK[0], id: 'test-entwurf', status: 'entwurf' }];
   const ohne = kandidaten(bank, GENERATOREN, {}), mit = kandidaten(bank, GENERATOREN, { entwurf: true });
   assert.ok(ohne.every((k) => (k.frage ? k.frage.status : k.gen.status) === 'geprüft'));
   assert.ok(mit.length > ohne.length);
@@ -379,4 +380,15 @@ test('Fragen: Die richtige Antwort verrät sich nicht durch ihre Länge', () => 
     if (r >= 30 && r > 1.3 * mittel) fehler.push(`${q.id}: ${r} Zeichen, falsche im Mittel ${Math.round(mittel)}`);
   }
   assert.deepEqual(fehler, []);
+});
+
+test('Fragentexte: keine Block-Elemente (sie dürfen nicht in einem Absatz stehen, Prüfliste und Moodle setzen <p>)', () => {
+  const block = /<(table|tbody|tr|td|div|p|ul|ol|li|h\d|figure)[\s>]/i;
+  const pruefe = (q) => {
+    for (const t of [q.frage, q.erklaerung, ...(q.hinweise || []), ...q.antworten.map((a) => (typeof a === 'string' ? a : ''))].filter(Boolean)) {
+      assert.ok(!block.test(t), `${q.id}: Block-Element in „${t.slice(0, 60)}…“`);
+    }
+  };
+  BANK.forEach(pruefe);
+  alleErzeugten().forEach(pruefe);
 });
