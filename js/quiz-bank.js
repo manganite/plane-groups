@@ -5,6 +5,17 @@
 
 const ov = (s) => `<i><span class="ov">${s}</span></i>`;
 const sym = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
+/**
+ * Matrix oder Spaltenvektor (Zeilen als Arrays) als kleine Tabelle mit runden Klammern. Nur
+ * Inline-Stile, damit sie auf der Quizseite, in der Prüfliste und in Moodle gleich erscheint.
+ */
+const mat = (zeilen) => {
+  const n = zeilen.length;
+  const klammer = (seite) => `<td rowspan="${n}" style="width:0.3em;padding:0;border:1.5px solid;border-${seite === 'l' ? 'right' : 'left'}:none;border-radius:${seite === 'l' ? '0.6em 0 0 0.6em' : '0 0.6em 0.6em 0'}"></td>`;
+  const zelle = (x) => `<td style="padding:0.05em 0.35em;text-align:center">${x}</td>`;
+  const tr = zeilen.map((z, i) => `<tr>${i === 0 ? klammer('l') : ''}${z.map(zelle).join('')}${i === 0 ? klammer('r') : ''}</tr>`).join('');
+  return `<table style="display:inline-table;vertical-align:middle;border-collapse:separate;border-spacing:0;margin:0.1em 0.15em;line-height:1.2"><tbody>${tr}</tbody></table>`;
+};
 
 const LZ = {
   // Kap. 1
@@ -135,7 +146,7 @@ export const BANK = [
     erklaerung: 'Graphen ist ein hexagonales Gitter mit zwei Atomen in der Basis, bei (⅓,&nbsp;⅔) und (⅔,&nbsp;⅓). Die beiden Atome haben gleiche, aber um 180° gedrehte Umgebungen; deshalb bilden die Atome allein kein Gitter.',
     skript: 'basis', app: '#m=struktur&v=graphen',
     quelle: 'Skript, Abschn. 1.5; Hoffmann (2016), Abschn. 2.7',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gb-1-06', stufe: 1, kapitel: 1, typ: 'bild-text', lernziel: LZ.basisGitter,
@@ -169,7 +180,7 @@ export const BANK = [
     erklaerung: 'Die Verschiebung um ½<i>a</i> + ½<i>b</i> wird zur Translation. Die neue primitive Zelle mit <i>a</i>′ = ½(<i>a</i> − <i>b</i>), <i>b</i>′ = ½(<i>a</i> + <i>b</i>) hat die halbe Fläche und ist um 45° gedreht.',
     skript: 'basis-gitter', app: '#m=struktur&ba=1&gamma=90&basis=atom,1,1/2,0,0;atom,1,0,1/2,0',
     quelle: 'Skript, Abschn. 1.6, Abb. 1.7',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gb-1-08', stufe: 1, kapitel: 1, typ: 'einfach', lernziel: LZ.zelle,
@@ -213,7 +224,7 @@ export const BANK = [
     skript: 'koordinaten', app: '#m=struktur&v=graphen',
     quelle: 'Skript, Abschn. 1.4, Vertiefung „Abstände aus Bruchkoordinaten“',
     pruefung: { art: 'abstand', a: 2.46, gamma: 120, p1: [1 / 3, 2 / 3], p2: [2 / 3, 1 / 3], wert: '1,42' },
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gb-1-11', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.primitiv,
@@ -263,7 +274,7 @@ export const BANK = [
     erklaerung: 'Die Verschiebung von (½,&nbsp;0) nach (0,&nbsp;½) bringt etwa das Atom bei (½,&nbsp;½) nach (0,&nbsp;1), wo kein Atom sitzt. Keine der Verschiebungen zwischen zwei Atomen bringt alle Atome auf Atome. Das Gitter ist hexagonal, die Basis besteht aus drei Atomen.',
     skript: 'basis', app: '#m=struktur&v=kagome',
     quelle: 'Skript, Abschn. 1.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 2 Symmetrie des Gitters
@@ -297,7 +308,7 @@ export const BANK = [
     erklaerung: 'Jedes Gitter hat 2-zählige Drehpunkte bei (0,&nbsp;0), (½,&nbsp;0), (0,&nbsp;½) und (½,&nbsp;½), und mit ihnen alle durch Translationen verschobenen. Im quadratischen und im hexagonalen Gitter sind einige davon sogar 4- bzw. 6-zählig.',
     skript: 'drehpunkte', app: '#m=struktur&v=schiefwinklig&sbind=0',
     quelle: 'Skript, Abschn. 2.1, Abb. 2.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-03', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
@@ -343,7 +354,7 @@ export const BANK = [
     erklaerung: 'Die Elementarzelle soll die Symmetrie des Gitters wiedergeben. Keine primitive Zelle dieses Gitters hat beide Kanten parallel oder senkrecht zu den Spiegellinien. Die zentrierte Zelle mit <i>a</i>′ = <i>a</i> + <i>b</i>, <i>b</i>′ = −<i>a</i> + <i>b</i> tut es und ist rechtwinklig; dafür enthält sie zwei Gitterpunkte.',
     skript: 'zentriert', app: '#m=struktur&ba=1&gamma=70&basis=atom,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 2.4, Abb. 2.4; Hoffmann (2016), Abschn. 2.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-06', stufe: 1, kapitel: 2, typ: 'bild-text', lernziel: LZ.bravais,
@@ -371,7 +382,7 @@ export const BANK = [
     erklaerung: 'Mit der Zelle ändern sich die Gittervektoren, die Koordinaten der Atome und die Zahl der Atome je Zelle. Struktur und Symmetrie bleiben dieselben.',
     skript: 'konventionell', app: '#m=struktur&ba=1&gamma=90&basis=atom,1,1/2,0,0;atom,1,0,1/2,0',
     quelle: 'Skript, Abschn. 2.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-08', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
@@ -403,7 +414,7 @@ export const BANK = [
     erklaerung: 'Mit den Kanten <i>a</i>′ = ½(<i>a</i> − <i>b</i>), <i>b</i>′ = ½(<i>a</i> + <i>b</i>) entsteht eine primitive quadratische Zelle mit kürzeren Gittervektoren. Das „zentrierte quadratische“ Gitter ist ein gewöhnliches quadratisches Gitter.',
     skript: 'zentriert', app: '#m=struktur&ba=1&gamma=90&basis=atom,1,1/2,0,0;atom,1,0,1/2,0',
     quelle: 'Skript, Abschn. 2.4; Hoffmann (2016), Abschn. 4.2.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-10', stufe: 3, kapitel: 2, typ: 'einfach', lernziel: LZ.netz,
@@ -431,7 +442,7 @@ export const BANK = [
     erklaerung: 'Bei <i>a</i> = <i>b</i> und γ = 60° ist auch <i>b</i> − <i>a</i> so lang wie <i>a</i>: Um jeden Gitterpunkt liegen sechs nächste Nachbarn im gleichen Abstand, je 60° auseinander. Das Gitter hat 6-zählige Drehpunkte und die Punktgruppe 6<i>mm</i>, ist also hexagonal (<i>hp</i>). Die Zelle mit 60° ist eine seiner primitiven Zellen; konventionell nimmt man zwei gleich lange Gittervektoren unter 120°, etwa <i>a</i> und <i>b</i> − <i>a</i>. Ein Rhombus mit einem anderen Winkel als 60°, 90° oder 120° führt dagegen auf <i>oc</i>.',
     skript: 'konventionell', app: '#m=struktur&ba=1&gamma=60&basis=atom,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 2.3 und 2.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-12', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
@@ -467,7 +478,7 @@ export const BANK = [
     erklaerung: 'Ganzzahlig sind nur <i>m</i> = −2 … 2, also ε = 360°, 60°, 90°, 120° und 180°: 1-, 6-, 4-, 3- und 2-zählige Drehpunkte.',
     skript: 'zaehligkeit',
     quelle: 'Skript, Abschn. 2.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-14', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
@@ -511,13 +522,13 @@ export const BANK = [
     erklaerung: 'Die zehn kristallographischen Punktgruppen der Ebene: 1, 2, <i>m</i>, 2<i>mm</i>, 4, 4<i>mm</i>, 3, 3<i>m</i>, 6, 6<i>mm</i>.',
     skript: 'punktgruppen-ebene',
     quelle: 'Skript, Abschn. 3.1; Borchardt-Ott & Sowa (2018), Abschn. 10.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gm-3-02', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.pg10,
     frage: 'Warum steht im Symbol 3<i>m</i> nur ein <i>m</i>, in 4<i>mm</i> aber zwei?',
     antworten: [
-      'In 3<i>m</i> führt die Drehung alle Spiegellinien ineinander über, in 4<i>mm</i> bleiben zwei Arten.',
+      'In 3<i>m</i> führt die Drehung alle Spiegellinien ineinander über, in 4<i>mm</i> gibt es zwei Arten.',
       '3<i>m</i> hat nur eine Spiegellinie, 4<i>mm</i> dagegen hat genau zwei Spiegellinien.',
       'Bei ungerader Zähligkeit lässt man das zweite <i>m</i> weg, ohne tiefere Bedeutung.',
       'In 4<i>mm</i> steht ein <i>m</i> für Spiegellinien, das andere für Gleitspiegellinien.'],
@@ -534,7 +545,7 @@ export const BANK = [
   {
     id: 'gm-3-03', stufe: 1, kapitel: 3, typ: 'bild-text', lernziel: LZ.gitterMotiv,
     frage: 'Auf jedem Gitterpunkt eines quadratischen Gitters sitzt ein Windrad mit zwei Flügeln. Welche Ebenengruppe hat das Muster?',
-    bild: 'B#m=struktur&ba=1&gamma=90&basis=w2,0,0,0,0&sbind=0', bildAlt: 'Quadratisches Gitter mit Windrädern mit zwei Flügeln',
+    bild: 'B#m=struktur&ba=1&gamma=90&basis=w2,0,0,0,0,0.3&sbind=0', bildAlt: 'Quadratisches Gitter mit Windrädern mit zwei Flügeln',
     antworten: [sym('p2'), sym('p4'), sym('p2mm'), sym('p4mm')],
     richtig: [0],
     hinweise: [null,
@@ -542,7 +553,7 @@ export const BANK = [
       'Das Windrad hat keine Spiegellinien; seine Flügel sind schief.',
       'Das wäre die Symmetrie des Gitters allein; das Motiv erniedrigt sie.'],
     erklaerung: 'Gitter (4<i>mm</i>) und Windrad (2) haben nur die 2-zähligen Drehungen gemeinsam: <i>p</i>2. Das Muster gehört trotz quadratischer Metrik zum schiefwinkligen System.',
-    skript: 'gitter-und-motiv', app: '#m=struktur&ba=1&gamma=90&basis=w2,0,0,0,0&sbind=0',
+    skript: 'gitter-und-motiv', app: '#m=struktur&ba=1&gamma=90&basis=w2,0,0,0,0,0.3&sbind=0',
     quelle: 'Skript, Abschn. 3.2, Abb. 3.2d; Borchardt-Ott & Sowa (2018), Abb. 10.9',
     pruefung: { art: 'struktur' },
     status: 'entwurf',
@@ -559,12 +570,12 @@ export const BANK = [
     erklaerung: 'Ein Motiv kann die Symmetrie des Gitters nur erniedrigen. Gemeinsam haben 4<i>mm</i> und 6<i>mm</i> höchstens 2<i>mm</i>.',
     skript: 'gitter-und-motiv', app: '#m=struktur&ba=1&gamma=90&basis=sechseck,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 3.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gm-3-05', stufe: 1, kapitel: 3, typ: 'bild-text', lernziel: LZ.orient,
     frage: 'Auf einem quadratischen Gitter sitzen Quadrate, um 20° gegen die Zellkanten gedreht. Welche Ebenengruppe hat das Muster?',
-    bild: 'B#m=struktur&ba=1&gamma=90&basis=quadrat,0,0,0,20&sbind=0', bildAlt: 'Quadratisches Gitter mit gedrehten Quadraten',
+    bild: 'B#m=struktur&ba=1&gamma=90&basis=quadrat,0,0,0,20,0.25&sbind=0', bildAlt: 'Quadratisches Gitter mit gedrehten Quadraten',
     antworten: [sym('p4'), sym('p4mm'), sym('p2mm'), sym('p1')],
     richtig: [0],
     hinweise: [null,
@@ -572,7 +583,7 @@ export const BANK = [
       'Spiegellinien bleiben keine, die 4-zähligen Drehungen aber haben Gitter und Quadrat gemeinsam.',
       'Die Drehungen um 90° bleiben, denn Gitter und Quadrat haben sie beide.'],
     erklaerung: 'Eine Spiegellinie des Motivs bleibt nur, wenn sie auf einer Spiegellinie des Gitters liegt. Gedreht bleiben nur die 4-zähligen Drehungen: <i>p</i>4.',
-    skript: 'orientierung', app: '#m=struktur&ba=1&gamma=90&basis=quadrat,0,0,0,20&sbind=0',
+    skript: 'orientierung', app: '#m=struktur&ba=1&gamma=90&basis=quadrat,0,0,0,20,0.25&sbind=0',
     quelle: 'Skript, Abschn. 3.3, Abb. 3.5a',
     pruefung: { art: 'struktur' },
     status: 'entwurf',
@@ -594,7 +605,7 @@ export const BANK = [
     skript: 'orientierung', app: '#m=struktur&ba=1&gamma=90&basis=insel,0,0,0,45&sbind=0',
     quelle: 'Skript, Abschn. 3.3, Abb. 3.5b',
     pruefung: { art: 'struktur' },
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gm-3-07', stufe: 1, kapitel: 3, typ: 'mehrfach', lernziel: LZ.symbolGrob,
@@ -611,7 +622,7 @@ export const BANK = [
     erklaerung: '<i>c</i>: zentrierte Zelle; dann wie bei einer Punktgruppe die höchste Zähligkeit (2) und die Spiegellinien (<i>mm</i>).',
     skript: 'gitter-und-motiv', app: '#m=eg&g=c2mm',
     quelle: 'Skript, Abschn. 3.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gm-3-08', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.wechsel,
@@ -626,22 +637,22 @@ export const BANK = [
     skript: 'zellwechsel', app: '#m=struktur&v=hbn',
     quelle: 'Skript, Abschn. 3.4, Abb. 3.8',
     pruefung: { art: 'struktur' },
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gm-3-09', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.wechsel,
-    frage: 'Ein Molekül aus zwei gleichen Atomen bei (0,&nbsp;0) und (0,4;&nbsp;0) sitzt auf einem rechteckigen Gitter; das Muster hat <i>p</i>2<i>mm</i>. Wohin legt die App den Ursprung der konventionellen Zelle?',
+    frage: 'Ein Molekül aus zwei gleichen Atomen bei (0,&nbsp;0) und (0,4;&nbsp;0) sitzt auf einem rechteckigen Gitter; das Muster hat <i>p</i>2<i>mm</i>. Wohin legt man nach den International Tables den Ursprung der konventionellen Zelle?',
     antworten: [
-      'in die Mitte des Moleküls, bei (0,2;&nbsp;0)',
-      'auf das Atom bei (0,&nbsp;0)',
-      'in die Zellmitte bei (½,&nbsp;½)',
-      'Er bleibt bei (0,&nbsp;0); die International Tables legen ihn nicht fest.'],
+      'auf einen Punkt mit der Lagesymmetrie 2<i>mm</i>, etwa die Mitte des Moleküls',
+      'auf ein Atom, etwa auf das Atom bei (0,&nbsp;0) in der Zellecke',
+      'in die Zellmitte bei (½,&nbsp;½), also zwischen die Moleküle',
+      'an eine beliebige Stelle; die Konvention legt ihn nicht fest'],
     richtig: [0],
     hinweise: [null,
       'Jedes Atom liegt nur auf einer Spiegellinie (Lagesymmetrie <i>m</i>). Der Ursprung von <i>p</i>2<i>mm</i> liegt auf einem Punkt mit der Lagesymmetrie 2<i>mm</i>.',
-      'Die Punkte 2<i>mm</i> liegen in der Mitte des Moleküls und um halbe Gittertranslationen dazu verschoben, etwa bei (0,7;&nbsp;½); (½,&nbsp;½) gehört nicht dazu.',
+      '(½,&nbsp;½) liegt nur auf einer Spiegellinie (Lagesymmetrie <i>m</i>), nicht auf einem Punkt 2<i>mm</i>. Diese liegen in der Mitte des Moleküls und um halbe Gittertranslationen dazu verschoben, etwa bei (0,7;&nbsp;½).',
       'Die International Tables legen ihn fest: bei <i>p</i>2<i>mm</i> auf einen Punkt 2<i>mm</i>.'],
-    erklaerung: 'Die Punkte mit der Symmetrie 2<i>mm</i> liegen zwischen den Atomen. Die App nimmt den nächsten zum gegebenen Ursprung, die Mitte des Moleküls; die Atome liegen dann bei (−0,2;&nbsp;0) und (0,2;&nbsp;0).',
+    erklaerung: 'Nach den International Tables liegt der Ursprung von <i>p</i>2<i>mm</i> auf einem Punkt mit der Lagesymmetrie 2<i>mm</i>. Davon gibt es vier je Zelle: die Mitte des Moleküls und die um halbe Gittertranslationen verschobenen Punkte. Alle sind gleich gut. Die App folgt der Konvention und nimmt den, der dem Ursprung der gegebenen Zelle am nächsten liegt, hier die Mitte des Moleküls bei (0,2;&nbsp;0); die Atome liegen dann bei (−0,2;&nbsp;0) und (0,2;&nbsp;0).',
     skript: 'zellwechsel', app: '#m=struktur&ba=1.35&gamma=90&basis=atom,0,0,0,0;atom,0,0.4,0,0',
     quelle: 'Skript, Abschn. 3.4, Abb. 3.7',
     status: 'entwurf',
@@ -655,7 +666,7 @@ export const BANK = [
       '<i>mmm</i> hat eine Spiegelebene parallel zur Ebene und ein Inversionszentrum; beide vertauschen oben und unten.',
       '222 hat 2-zählige Drehachsen in der Ebene; sie drehen die Ebene um.',
       '2/<i>m</i> hat ein Inversionszentrum; es vertauscht oben und unten.'],
-    erklaerung: 'Eine Symmetrieoperation eines ebenen Musters muss die Normale festlassen. Übrig bleiben die zehn polaren Punktgruppen; 2<i>mm</i> der Ebene heisst im Raum <i>mm</i>2.',
+    erklaerung: 'Eine Symmetrieoperation eines ebenen Musters muss die Normale der Ebene festlassen und darf oben und unten nicht vertauschen. Übrig bleiben die zehn polaren Punktgruppen. Die Symbole unterscheiden sich nur in der Reihenfolge: In der Ebene steht die Drehachse (senkrecht zur Ebene) immer an erster Stelle, danach folgen die Spiegellinien. Im Raum ist die Standardaufstellung von <i>mm</i>2 eine andere: Die beiden Spiegelebenen stehen senkrecht zu <i>a</i> und <i>b</i>, die 2-zählige Achse liegt entlang <i>c</i> und steht an dritter Stelle. Deshalb heisst 2<i>mm</i> der Ebene im Raum <i>mm</i>2.',
     skript: 'punktgruppen-ebene',
     quelle: 'Skript, Abschn. 3.1, Vertiefung „Punktgruppen der Ebene und polare Punktgruppen“',
     status: 'entwurf',
@@ -669,12 +680,12 @@ export const BANK = [
       'Spiegelung an einer Linie und Verschiebung um eine halbe Gittertranslation entlang der Linie',
       'Spiegelung an einer Linie und Verschiebung um eine halbe Gittertranslation senkrecht dazu',
       'Spiegelung an einer Linie und Verschiebung um eine beliebige Strecke entlang der Linie',
-      'Drehung um 180° um einen Punkt und Verschiebung um eine halbe Gittertranslation'],
+      'Spiegelung an einer Linie und Verschiebung um eine ganze Gittertranslation entlang der Linie'],
     richtig: [0],
     hinweise: [null,
       'Spiegelung und Verschiebung senkrecht zur Linie ergeben eine Spiegelung an einer parallelen Linie, keine Gleitspiegelung.',
       'Zweimal ausgeführt muss sie eine Gittertranslation ergeben; die Gleitkomponente ist deshalb die Hälfte einer Gittertranslation.',
-      'Drehung und Verschiebung ergeben wieder eine Drehung, um einen anderen Punkt.'],
+      'Eine ganze Gittertranslation entlang der Linie ergibt nur die Spiegelung, gefolgt von einer Translation; das Symmetrieelement bleibt eine Spiegellinie.'],
     erklaerung: 'Die Gleitspiegelung spiegelt an einer Linie und verschiebt entlang dieser Linie um die Gleitkomponente, die Hälfte einer Gittertranslation. Nur beides zusammen ist eine Symmetrieoperation.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1',
@@ -696,10 +707,10 @@ export const BANK = [
     erklaerung: 'Erst Spiegeln an der Mittellinie und Verschieben um eine halbe Schrittlänge zusammen bringen die Spur mit sich zur Deckung: eine Gleitspiegellinie.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1, Abb. 4.1; Hoffmann (2016), Abb. 4.7–4.9',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gl-4-03', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
+    id: 'gl-4-03', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
     frage: `Welche Operation beschreiben die Koordinaten ${ov('x')} + ½, <i>y</i> in einer rechteckigen Zelle? (${ov('x')} steht für −<i>x</i>.)`,
     antworten: [
       'eine Spiegelung an der Linie <i>x</i> = ¼',
@@ -728,7 +739,7 @@ export const BANK = [
     erklaerung: `${ov('x')}, ${ov('y')} heisst: Beide Koordinaten wechseln das Vorzeichen. (0,12;&nbsp;0,31) geht nach (−0,12;&nbsp;−0,31), gleichwertig (0,88;&nbsp;0,69) in der Zelle.`,
     skript: 'operationen', app: '#m=eg&g=p2&x=0.12&y=0.31',
     quelle: 'Skript, Abschn. 4.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-05', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
@@ -745,8 +756,8 @@ export const BANK = [
       'Eine Spiegelung wechselt nur ein Vorzeichen; hier wechseln beide.'],
     erklaerung: `Zuerst <i>B</i>, dann <i>A</i>: (<i>x</i>,&nbsp;<i>y</i>) → (−<i>x</i>,&nbsp;−<i>y</i>) → (−<i>x</i> + 1,&nbsp;−<i>y</i>). Das ist ${ov('x')} + 1, ${ov('y')}, eine Drehung um 180° um (½,&nbsp;0).`,
     skript: 'verknuepfung', app: '#m=eg&g=p2&erkl=2;1/2,0',
-    quelle: 'Skript, Abschn. 4.4, Abb. 4.5a',
-    status: 'entwurf',
+    quelle: 'Skript, Abschn. 4.4, Abb. 4.6a',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-06', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
@@ -764,7 +775,7 @@ export const BANK = [
     erklaerung: '<i>A</i> ∘ <i>B</i> heisst: zuerst <i>B</i>, dann <i>A</i>. In der Tafel steht <i>B</i> über der Spalte, <i>A</i> links neben der Zeile.',
     skript: 'verknuepfung',
     quelle: 'Skript, Abschn. 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-07', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
@@ -782,12 +793,12 @@ export const BANK = [
     erklaerung: 'Zwei Spiegelungen an Linien im Winkel α ergeben eine Drehung um 2α um den Schnittpunkt, hier um 120°. So steht es auch in der Gruppentafel von 3<i>m</i>.',
     skript: 'verknuepfung', app: '#m=eg&g=p3m1',
     quelle: 'Skript, Abschn. 4.4, Regel 4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-08', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.mehr,
     frage: 'Das Bild zeigt das Symmetriegerüst von <i>p</i>4<i>mm</i>. Welche Aussage trifft zu?',
-    bild: '#m=eg&g=p4mm&obj=0', bildAlt: 'Symmetriegerüst von p4mm',
+    bild: '#m=eg&g=p4mm&obj=0@2', bildAlt: 'Symmetriegerüst von p4mm',
     antworten: [
       '<i>p</i>4<i>mm</i> hat diagonale Gleitspiegellinien zwischen den diagonalen Spiegellinien.',
       '<i>p</i>4<i>mm</i> hat nur die Elemente, die sein Symbol nennt, und keine weiteren.',
@@ -795,12 +806,12 @@ export const BANK = [
       'Die Gleitspiegellinien von <i>p</i>4<i>mm</i> liegen auf den Spiegellinien.'],
     richtig: [0],
     hinweise: [null,
-      'Aus Spiegelung und Translation folgen Gleitspiegellinien (Regel 3); das Symbol nennt sie nicht.',
+      'Aus Spiegelung und Translation schräg zur Linie folgen Gleitspiegellinien; das Symbol nennt sie nicht.',
       'Die 2-zähligen Drehpunkte bei (½,&nbsp;0) und (0,&nbsp;½) liegen auf Schnittpunkten von Spiegellinien (Lagesymmetrie 2<i>mm</i>).',
-      'Nach Regel 3 rückt die neue Linie um die Hälfte des Anteils der Translation senkrecht zur Spiegellinie.'],
+      'Die neue Linie rückt um die Hälfte des Anteils der Translation senkrecht zur Spiegellinie.'],
     erklaerung: 'Die Spiegelung an der Diagonalen und die Translation <i>a</i> ergeben eine Gleitspiegelung an der Linie durch (½,&nbsp;0) parallel zur Diagonalen, mit der Gleitkomponente (<i>a</i> + <i>b</i>)/2.',
     skript: 'mehr-elemente', app: '#m=eg&g=p4mm&erkl=g;1/2,0;1,1',
-    quelle: 'Skript, Abschn. 4.5, Abb. 4.6',
+    quelle: 'Skript, Abschn. 4.5, Abb. 4.7',
     status: 'entwurf',
   },
   {
@@ -819,23 +830,23 @@ export const BANK = [
       'Nicht mehr: Die Spitzen zeigen in Gegenrichtungen, die Verschiebung bringt kein Dreieck auf ein gleich ausgerichtetes.'],
     erklaerung: 'Die Drehung um (¼,&nbsp;¼), <i><span class="ov">x</span></i> + ½, <i><span class="ov">y</span></i> + ½, bildet jedes Dreieck auf das umgedrehte ab. Mit den Spiegellinien folgen daraus auch Gleitspiegellinien: <i>p</i>2<i>mg</i>.',
     skript: 'mehr-elemente', app: '#m=struktur&v=dreieck3',
-    quelle: 'Skript, Abschn. 4.5, Abb. 4.7',
-    status: 'entwurf',
+    quelle: 'Skript, Abschn. 4.5, Abb. 4.8',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-10', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.matrix,
     frage: `Welche Matrix <i>W</i> und welche Verschiebung <i>w</i> gehören zur Operation ${ov('x')} + ½, <i>y</i>?`,
     antworten: [
-      '<i>W</i> mit den Zeilen (−1&nbsp;0) und (0&nbsp;1), <i>w</i> = (½,&nbsp;0)',
-      '<i>W</i> mit den Zeilen (1&nbsp;0) und (0&nbsp;−1), <i>w</i> = (½,&nbsp;0)',
-      '<i>W</i> mit den Zeilen (−1&nbsp;0) und (0&nbsp;1), <i>w</i> = (0,&nbsp;0)',
-      '<i>W</i> mit den Zeilen (−1&nbsp;0) und (0&nbsp;−1), <i>w</i> = (½,&nbsp;0)'],
+      `<i>W</i> = ${mat([['−1', '0'], ['0', '1']])}, <i>w</i> = ${mat([['½'], ['0']])}`,
+      `<i>W</i> = ${mat([['1', '0'], ['0', '−1']])}, <i>w</i> = ${mat([['½'], ['0']])}`,
+      `<i>W</i> = ${mat([['−1', '0'], ['0', '1']])}, <i>w</i> = ${mat([['0'], ['0']])}`,
+      `<i>W</i> = ${mat([['−1', '0'], ['0', '−1']])}, <i>w</i> = ${mat([['½'], ['0']])}`],
     richtig: [0],
     hinweise: [null,
       'Diese Matrix wechselt das Vorzeichen von <i>y</i>, nicht von <i>x</i>.',
       'Das ½ gehört zur Verschiebung; ohne sie läge die Spiegellinie bei <i>x</i> = 0.',
       'Diese Matrix wechselt beide Vorzeichen: eine Drehung um 180°.'],
-    erklaerung: '<i>x</i>′ = −<i>x</i> + ½, <i>y</i>′ = <i>y</i>: Die Matrix wechselt das Vorzeichen von <i>x</i>, die Verschiebung ist (½,&nbsp;0).',
+    erklaerung: `${mat([['<i>x</i>′'], ['<i>y</i>′']])} = ${mat([['−1', '0'], ['0', '1']])} ${mat([['<i>x</i>'], ['<i>y</i>']])} + ${mat([['½'], ['0']])} = ${mat([['−<i>x</i> + ½'], ['<i>y</i>']])}: Die Matrix wechselt das Vorzeichen von <i>x</i>, die Verschiebung ist (½,&nbsp;0).`,
     skript: 'operationen',
     quelle: 'Skript, Abschn. 4.2, Vertiefung „Matrix und Verschiebung“',
     status: 'entwurf',
@@ -852,7 +863,7 @@ export const BANK = [
     erklaerung: 'Jede Operation muss die Mittellinie des Frieses auf sich abbilden; die Laufrichtung darf sich dabei umkehren: Drehpunkte nur 2-zählig, Spiegellinien längs oder quer, Gleitspiegellinien nur längs. Daraus ergeben sich sieben Friesgruppen.',
     skript: 'gleitung',
     quelle: 'Skript, Abschn. 4.1, Vertiefung „Friesgruppen“',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-12', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
@@ -870,11 +881,12 @@ export const BANK = [
     erklaerung: 'Nur <i>y</i> wechselt das Vorzeichen; die Linie liegt also entlang <i>a</i>, bei −<i>y</i> + ½ = <i>y</i>, <i>y</i> = ¼. Die Punkte dieser Linie werden um <i>a</i>/2 entlang der Linie verschoben: eine Gleitspiegelung, wie in <i>c</i>2<i>mm</i>.',
     skript: 'operationen', app: '#m=eg&g=c2mm&erkl=g;0,1/4;1,0',
     quelle: 'Skript, Abschn. 4.2 und 4.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gl-4-13', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
-    frage: 'Was ergibt +3 ∘ <i>m</i>₁ in der Punktgruppe 3<i>m</i> (Abb. 4.4)?',
+    id: 'gl-4-13', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.tafel,
+    frage: 'Das Bild zeigt die Punktgruppe 3<i>m</i> mit den Stellen 1, 2, 3 und den Spiegellinien <i>m</i>₁, <i>m</i>₂, <i>m</i>₃. Was ergibt +3 ∘ <i>m</i>₁?',
+    bild: 'skizze:3m', bildAlt: 'Gleichseitiges Dreieck mit drei Spiegellinien und 3-zähligem Drehpunkt',
     antworten: ['<i>m</i>₃', '<i>m</i>₂', '−3', '<i>m</i>₁'],
     richtig: [0],
     hinweise: [null,
@@ -899,7 +911,7 @@ export const BANK = [
       'Eine Gleitkomponente ist die Hälfte einer Gittertranslation. Eine ganze Translation entlang der Linie wiederholt nur die Spiegelung.',
       'Die Linie rückt um die Hälfte des Anteils senkrecht zu ihr.',
       'Nur <i>y</i> wechselt das Vorzeichen; die Operation spiegelt.'],
-    erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> verschiebt die Linie nach <i>y</i> = ½ (Regel 2). Der Anteil <i>a</i> ist eine ganze Gittertranslation: Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>, keine neue Gleitspiegellinie (Regel 3).`,
+    erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> der Translation steht senkrecht zur Linie und verschiebt sie um die Hälfte, nach <i>y</i> = ½. Der Anteil <i>a</i> liegt parallel zur Linie und ist eine ganze Gittertranslation: Das Ergebnis ist die Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>; eine neue Gleitspiegellinie entsteht nicht.`,
     skript: 'verknuepfung', app: '#m=eg&g=p2mm&erkl=m;0,1/2;1,0',
     quelle: 'Skript, Abschn. 4.4',
     status: 'entwurf',
@@ -916,10 +928,10 @@ export const BANK = [
     erklaerung: 'In der Gruppentafel steht in Zeile −3, Spalte +3 die Identität: −3 ∘ +3 = 1. Zu jeder Operation einer Gruppe gibt es eine, die sie rückgängig macht.',
     skript: 'verknuepfung',
     quelle: 'Skript, Abschn. 3.1 (Grundlagen) und 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
-    id: 'gl-4-16', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
+    id: 'gl-4-16', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
     frage: 'Welche Teilmenge der Punktgruppe 3<i>m</i> ist selbst eine Gruppe (eine Untergruppe)?',
     antworten: ['{1, +3, −3}', '{+3, −3}', '{1, +3, <i>m</i>₁}', '{1, <i>m</i>₁, <i>m</i>₂}'],
     richtig: [0],

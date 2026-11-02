@@ -145,6 +145,10 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
         <label class="check"><input type="checkbox" id="s-zelle">Konventionelle Zelle</label>
         <label class="check"><input type="checkbox" id="s-ae">Asymmetrische Einheit</label>
         <label class="check"><input type="checkbox" id="s-bindungen">Bindungen (nächste Nachbarn)</label>
+        <div class="range">
+          <label for="s-zoom">Vergrösserung des Musters</label><output id="s-zoom-out"></output>
+          <input type="range" id="s-zoom" min="0.5" max="3" step="0.05">
+        </div>
       </section>
     </div>
 

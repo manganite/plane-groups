@@ -87,34 +87,52 @@ function basisSVG(st, A, M, bereich, farben, auswahl = null) {
 
 /**
  * Bindungen zwischen nächsten Nachbarn: Linien zwischen den Mitten der Atome (Motiv „Atom“),
- * deren Abstand höchstens 5 % über dem kleinsten Abstand zweier Atome liegt.
+ * deren Abstand höchstens 5 % über dem kleinsten Abstand zweier Atome liegt. Die Bindungen werden
+ * einmal in der periodischen Zelle bestimmt (je Atom der Basis die Partner mit Gitterverschiebung)
+ * und dann auf die Gitterbilder im Bereich übertragen; der Aufwand wächst so nur linear mit der
+ * Zahl der Atome im Bild.
  */
+export function bindungenBasis(st, M) {
+  const atome = st.basis.filter((e) => e.motiv === 'atom').map((e) => e.p.map(mod1));
+  if (!atome.length) return [];
+  const a = kart(M, [1, 0]); const b = kart(M, [0, 1]);
+  const flaeche = Math.abs(a[0] * b[1] - a[1] * b[0]);
+  if (!(flaeche > 1e-12)) return [];
+  const abstand = (k, l, t) => {
+    const c = kart(M, [atome[l][0] + t[0] - atome[k][0], atome[l][1] + t[1] - atome[k][1]]);
+    return Math.hypot(c[0], c[1]);
+  };
+  // obere Schranke für den kleinsten Abstand: kürzester Gittervektor unter (±1, ±1)
+  const L = Math.min(Math.hypot(...a), Math.hypot(...b), Math.hypot(a[0] + b[0], a[1] + b[1]), Math.hypot(a[0] - b[0], a[1] - b[1]));
+  // Bindungen sind höchstens 1,05 L lang; |Bruchkoordinate| ≤ Länge · |reziproker Vektor|, Basisdifferenzen < 1
+  const D = 1.05 * L + 1e-9;
+  const R = [Math.ceil((D * Math.hypot(...b)) / flaeche) + 1, Math.ceil((D * Math.hypot(...a)) / flaeche) + 1];
+  const kandidaten = [];
+  for (let k = 0; k < atome.length; k++) for (let l = k; l < atome.length; l++) {
+    for (let i = -R[0]; i <= R[0]; i++) for (let j = -R[1]; j <= R[1]; j++) {
+      // jede Bindung nur einmal: (k, l, t) und (l, k, −t) sind dieselbe
+      if (k === l && (i < 0 || (i === 0 && j <= 0))) continue;
+      const d = abstand(k, l, [i, j]);
+      if (d > 1e-6 && d <= D) kandidaten.push({ k, l, t: [i, j], d });
+    }
+  }
+  const dmin = Math.min(...kandidaten.map((x) => x.d));
+  return kandidaten.filter((x) => x.d <= dmin * 1.05).map(({ k, l, t }) => ({ k, l, t, von: atome[k], nach: atome[l] }));
+}
+
 function bindungenSVG(st, A, M, bereich, farbe) {
   const [[lo0, hi0], [lo1, hi1]] = bereich;
-  const pos = [];
-  for (const e of st.basis) {
-    if (e.motiv !== 'atom') continue;
-    const p0 = e.p.map(mod1);
-    for (let i = Math.floor(lo0) - 1; i <= Math.ceil(hi0); i++) for (let j = Math.floor(lo1) - 1; j <= Math.ceil(hi1); j++) {
-      const p = [p0[0] + i, p0[1] + j];
-      if (p[0] >= lo0 && p[0] <= hi0 && p[1] >= lo1 && p[1] <= hi1) pos.push({ p, c: kart(M, p) });
-    }
-  }
-  let dmin = Infinity;
-  for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) {
-    const d = Math.hypot(pos[i].c[0] - pos[j].c[0], pos[i].c[1] - pos[j].c[1]);
-    if (d > 1e-6 && d < dmin) dmin = d;
-  }
-  if (!Number.isFinite(dmin)) return '';
+  const drin = (p) => p[0] >= lo0 && p[0] <= hi0 && p[1] >= lo1 && p[1] <= hi1;
   const out = [];
-  for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) {
-    const d = Math.hypot(pos[i].c[0] - pos[j].c[0], pos[i].c[1] - pos[j].c[1]);
-    if (d > 1e-6 && d <= dmin * 1.05) {
-      const a = A.zuBild(pos[i].p); const b = A.zuBild(pos[j].p);
-      out.push(`M${f2(a[0])} ${f2(a[1])}L${f2(b[0])} ${f2(b[1])}`);
+  for (const { t, von, nach } of bindungenBasis(st, M)) {
+    for (let i = Math.floor(lo0) - 1; i <= Math.ceil(hi0); i++) for (let j = Math.floor(lo1) - 1; j <= Math.ceil(hi1); j++) {
+      const p = [von[0] + i, von[1] + j]; const q = [nach[0] + t[0] + i, nach[1] + t[1] + j];
+      if (!drin(p) || !drin(q)) continue;
+      const u = A.zuBild(p); const v = A.zuBild(q);
+      out.push(`M${f2(u[0])} ${f2(u[1])}L${f2(v[0])} ${f2(v[1])}`);
     }
   }
-  return `<path d="${out.join('')}" stroke="${farbe}" stroke-width="1.6" stroke-linecap="round" fill="none"/>`;
+  return out.length ? `<path d="${out.join('')}" stroke="${farbe}" stroke-width="1.6" stroke-linecap="round" fill="none"/>` : '';
 }
 
 /** Ansicht der konventionellen Zelle: Bruchkoordinaten der konventionellen Zelle → Bild. */
@@ -185,11 +203,11 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   return { svg: teile.join(''), ansicht: A, ergebnis: r };
 }
 
-/** Tafel B: grösserer Ausschnitt der Struktur, konventionelle Zelle hervorgehoben. */
-export function strukturTafelB(st, farben, r) {
+/** Tafel B: grösserer Ausschnitt der Struktur, konventionelle Zelle hervorgehoben; zoom > 1 zeigt einen kleineren Ausschnitt grösser. */
+export function strukturTafelB(st, farben, r, zoom = 1) {
   const M = metrik(st);
   const mitte = kart(M, [0.5, 0.5]);
-  const w = 4.4 * Math.max(1, st.ba);
+  const w = (4.4 * Math.max(1, st.ba)) / zoom;
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   const ecken = [[box[0], box[1]], [box[2], box[1]], [box[0], box[3]], [box[2], box[3]]].map((c) => bruchVon(M, c));

@@ -7,7 +7,7 @@ import {
   GENERATOREN, DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, MERKMALE, gruppenAblenker,
   punktgruppeAusSymbol, systemAusPunktgruppe, lagePunkt,
 } from '../js/quiz-gen.js';
-import { bildInhalt, zerlege, farbenAus } from '../js/quiz-bild.js';
+import { bildInhalt, zerlege, farbenAus, istSkizze } from '../js/quiz-bild.js';
 import { KAPITEL, SPEICHER } from '../js/quiz-kapitel.js';
 import {
   kandidaten, zaehlen, ziehen, stellen, pruefen, rng, GEN_ANTEIL, GEN_GESAMT,
@@ -85,8 +85,10 @@ function pruefeFrage(q) {
   if (q.stufe < 3) assert.ok(!a.vertiefung, `${q.id}: Stufe ${q.stufe} verweist auf eine Vertiefung`);
   // Bilder und App-Links: gültige Adressen, Bilder aus dem Code der App
   for (const h of [q.bild, q.app].filter(Boolean)) {
-    const { hash } = zerlege(h);
+    const { hash, skizze, k } = zerlege(h);
+    if (skizze !== undefined) { assert.ok(h === q.bild && istSkizze(skizze), `${q.id}: keine Skizze ${h}`); continue; }
     assert.ok(hashAnwenden(startzustand(), hash), `${q.id}: kein gültiger Link ${h}`);
+    if (k !== null) assert.ok(h === q.bild && k >= 1 && k <= 3, `${q.id}: Symbolgrösse ${h}`);
   }
   if (q.app) assert.ok(q.app.startsWith('#m='), `${q.id}: „In der App öffnen“ braucht eine Link-Adresse`);
   if (q.bild) assert.match(bildInhalt(q.bild, F), /<(polygon|line|circle|path)/, `${q.id}: ${q.bild}`);
