@@ -4,7 +4,7 @@
 // Bildangaben: Link-Adresse der App (Tafel A) oder „B#…“ (Tafel B, das Muster); siehe quiz-bild.js.
 
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
-import { gruppe, punktAufLage, lage } from './symmetrie.js';
+import { gruppe, punktAufLage, lage, elemente, art, gleichModGitter } from './symmetrie.js';
 import { koordText } from './zustand.js';
 import { symbolHTML } from './text.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
@@ -369,4 +369,204 @@ export const UNTERGRUPPE = {
   },
 };
 
-export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, UNTERGRUPPE];
+// ------------------------------------------------------------------ Muster → Ebenengruppe (Kap. 5)
+// Nach Borchardt-Ott, Aufg. 10.1 („nach Kockel“): das Muster aus Fähnchen ohne Symmetrieelemente,
+// die Elementarzelle hervorgehoben. Spiegelbildliche Fähnchen haben eine andere Farbe (wie in der App).
+// Lage des Fähnchens je Gruppe: allgemeine Lage mit möglichst grossem Abstand zwischen den Kopien
+// (Raster 1/40, gesucht mit bahn() aus symmetrie.js), damit sich die Fähnchen nicht überdecken.
+const MUSTER_PUNKT = {
+  p1: [0.1, 0.1], p2: [0.2, 0.275], pm: [0.25, 0.1], pg: [0.25, 0.1], cm: [0.25, 0.1], p2mm: [0.25, 0.2], p2mg: [0.5, 0.2],
+  p2gg: [0.25, 0.125], c2mm: [0.175, 0.125], p4: [0.2, 0.3], p4mm: [0.15, 0.35], p4gm: [0.25, 0.5],
+  p3: [0.35, 0.35], p3m1: [0.325, 0.325], p31m: [0.2, 0.4], p6: [0.15, 0.425], p6mm: [0.125, 0.45],
+};
+export const MUSTER = {
+  id: 'muster', kapitel: 5, stufen: [2], status: 'entwurf',
+  params: () => ALLE,
+  make(g) {
+    const ab = gruppenAblenker(g);
+    const [x, y] = MUSTER_PUNKT[g];
+    const adr = `#m=eg&g=${g}&x=${x}&y=${y}`;
+    return {
+      typ: 'bild-text',
+      lernziel: 'die beiden Diagramme einer Ebenengruppe in den International Tables lesen',
+      frage: 'Das Bild zeigt ein Muster aus Fähnchen; hervorgehoben ist eine Elementarzelle, spiegelbildliche Fähnchen haben die andere Farbe. Welche Ebenengruppe hat das Muster?',
+      bild: `B${adr}&zoom=1.3`, bildAlt: 'Muster aus Fähnchen mit hervorgehobener Elementarzelle',
+      antworten: [g, ...ab].map(S),
+      richtig: [0],
+      hinweise: [null, ...ab.map(hinweisGruppe)],
+      erklaerung: `Das Muster hat ${S(g)}: ${MERKMALE[g]}.`,
+      skript: 'diagramme', app: `${adr}&mel=1`,
+      quelle: 'Borchardt-Ott & Sowa (2018), Aufg. 10.1; Symmetrieelemente aus den Daten der App',
+    };
+  },
+};
+
+// ------------------------------------------------------------------ Element an gegebener Lage → Koordinaten (Kap. 4)
+// Nach Borchardt-Ott, Aufg. 10.2 b, d, l: In einer rechteckigen Zelle liegt ein Symmetrieelement an
+// gegebener Stelle; gesucht sind die Koordinaten des Bildpunkts von (x, y) wie in den International Tables.
+const BR = { 0: '0', 0.125: '⅛', 0.25: '¼', 0.375: '⅜', 0.5: '½', 0.75: '¾', 1: '1' };
+const br = (v) => BR[Math.round(v * 1000) / 1000] ?? String(v);
+const MX = [[-1, 0], [0, 1]]; const MY = [[1, 0], [0, -1]]; const ZWEI = [[-1, 0], [0, -1]];
+/** Elemente: Spiegellinie oder Gleitspiegellinie x = c bzw. y = c, Drehpunkt (p, q). */
+export const ELEMENTE_LAGE = {
+  'm-x14': { art: 'm', achse: 'x', c: 0.25 },
+  'm-y14': { art: 'm', achse: 'y', c: 0.25 },
+  'g-x14': { art: 'g', achse: 'x', c: 0.25 },
+  'g-y14': { art: 'g', achse: 'y', c: 0.25 },
+  'g-x0': { art: 'g', achse: 'x', c: 0 },
+  'g-y0': { art: 'g', achse: 'y', c: 0 },
+  '2-1414': { art: '2', punkt: [0.25, 0.25] },
+  '2-140': { art: '2', punkt: [0.25, 0] },
+  '2-014': { art: '2', punkt: [0, 0.25] },
+};
+/** Operation { R, t } zum Element. */
+export function elementOp(e) {
+  if (e.art === '2') return { R: ZWEI, t: [2 * e.punkt[0], 2 * e.punkt[1]] };
+  const gl = e.art === 'g' ? 0.5 : 0;
+  return e.achse === 'x' ? { R: MX, t: [2 * e.c, gl] } : { R: MY, t: [gl, 2 * e.c] };
+}
+/** Das Element in Worten, wie es in der Zelle liegt. */
+export function elementText(e) {
+  if (e.art === '2') return `ein 2-zähliger Drehpunkt bei (${br(e.punkt[0])},&nbsp;${br(e.punkt[1])})`;
+  const linie = `<i>${e.achse}</i> = ${br(e.c)}`;
+  return e.art === 'm' ? `eine Spiegellinie bei ${linie}` : `eine Gleitspiegellinie bei ${linie} mit der Gleitkomponente ${e.achse === 'x' ? '<i>b</i>' : '<i>a</i>'}/2`;
+}
+/** Koordinaten des Bildpunkts in der Schreibweise des Skripts, etwa x̄ + ½, y. */
+export function koordHTML(op) {
+  const zeile = (r, t) => {
+    const v = r[0] !== 0 ? 'x' : 'y'; const c = r[0] !== 0 ? r[0] : r[1];
+    const kern = c < 0 ? ov(v) : `<i>${v}</i>`;
+    return Math.abs(t) < 1e-9 ? kern : `${kern} ${t < 0 ? '−' : '+'} ${br(Math.abs(t))}`;
+  };
+  return `${zeile(op.R[0], op.t[0])}, ${zeile(op.R[1], op.t[1])}`;
+}
+const ov = (v) => `<i><span class="ov">${v}</span></i>`;
+/** Das Element einer Operation in Worten (nur Spiegelung, Gleitspiegelung mit halber Translation und Drehung um 180°). */
+export function elementWort(op) {
+  const a = art(op);
+  if (a.art === 'dreh' && a.n === 2) return `die Drehung um 180° um den Punkt (${br(a.punkt[0])},&nbsp;${br(a.punkt[1])})`;
+  if (a.art !== 'spiegel' && a.art !== 'gleit') return null;
+  const linie = a.richtung[0] === 0 ? `<i>x</i> = ${br(a.punkt[0])}` : `<i>y</i> = ${br(a.punkt[1])}`;
+  if (a.art === 'spiegel') return `die Spiegelung an der Linie ${linie}`;
+  const w = a.richtung[0] === 0 ? a.gleit[1] : a.gleit[0];
+  if (Math.abs(Math.abs(w) - 0.5) > 1e-9) return null;
+  return `die Gleitspiegelung an der Linie ${linie} mit der Gleitkomponente ${a.richtung[0] === 0 ? '<i>b</i>' : '<i>a</i>'}/2`;
+}
+/** Drei falsche Bildkoordinaten: Verschiebung nur einfach statt doppelt, Gleitanteil vertauscht, andere Operation. */
+export function koordAblenker(e) {
+  const op = elementOp(e);
+  const kand = [];
+  if (e.art === '2') {
+    kand.push({ R: ZWEI, t: [op.t[0] / 2, op.t[1] / 2] });
+    kand.push({ R: MX, t: [...op.t] }, { R: MY, t: [...op.t] });
+  } else {
+    const senk = e.achse === 'x' ? 0 : 1; const entlang = 1 - senk;
+    const halb = [...op.t]; halb[senk] /= 2; kand.push({ R: op.R, t: halb });
+    const tausch = [...op.t]; tausch[entlang] = e.art === 'g' ? 0 : 0.5; kand.push({ R: op.R, t: tausch });
+    kand.push({ R: ZWEI, t: [...op.t] });
+    const andere = [...op.t].reverse(); kand.push({ R: e.achse === 'x' ? MY : MX, t: andere });
+  }
+  // Reserve: alle Spiegelungen, Gleitspiegelungen und Drehungen mit Verschiebungen 0, ¼, ½
+  for (const R of [op.R, MX, MY, ZWEI]) for (const t0 of [0, 0.25, 0.5]) for (const t1 of [0, 0.25, 0.5]) kand.push({ R, t: [t0, t1] });
+  const out = [];
+  for (const d of kand) {
+    if (out.length === 3) break;
+    if (gleichModGitter(d, op) || out.some((x) => gleichModGitter(x, d)) || !elementWort(d)) continue;
+    out.push(d);
+  }
+  return out;
+}
+export const KOORDINATEN = {
+  id: 'koordinaten', kapitel: 4, stufen: [2], status: 'entwurf',
+  params: () => Object.keys(ELEMENTE_LAGE),
+  make(id) {
+    const e = ELEMENTE_LAGE[id];
+    const op = elementOp(e);
+    const ab = koordAblenker(e);
+    let regel;
+    if (e.art === '2') regel = `Bei der Drehung um 180° um (<i>p</i>,&nbsp;<i>q</i>) wird <i>x</i> zu −<i>x</i> + 2<i>p</i> und <i>y</i> zu −<i>y</i> + 2<i>q</i>; der Drehpunkt liegt in der Mitte zwischen Punkt und Bild.`;
+    else {
+      const [v, w] = e.achse === 'x' ? ['x', 'y'] : ['y', 'x'];
+      regel = `Bei der Spiegelung an der Linie <i>${v}</i> = <i>c</i> wird <i>${v}</i> zu −<i>${v}</i> + 2<i>c</i>; die Linie liegt in der Mitte zwischen Punkt und Bild.${e.art === 'g' ? ` Die Gleitkomponente verschiebt zusätzlich entlang der Linie: <i>${w}</i> wird zu <i>${w}</i> + ½.` : ''}`;
+    }
+    return {
+      typ: 'einfach',
+      lernziel: 'eine Symmetrieoperation in der Schreibweise der International Tables lesen, etwa <i><span class="ov">x</span></i>&nbsp;+&nbsp;½, <i>y</i>',
+      frage: `In einer rechteckigen Zelle liegt ${elementText(e)}. Welche Koordinaten hat das Bild des Punktes (<i>x</i>,&nbsp;<i>y</i>) bei der zugehörigen Operation?`,
+      antworten: [op, ...ab].map(koordHTML),
+      richtig: [0],
+      hinweise: [null, ...ab.map((d) => `Das wäre ${elementWort(d)}.`)],
+      erklaerung: `${regel} Hier: ${koordHTML(op)}.`,
+      skript: 'operationen',
+      quelle: 'Borchardt-Ott & Sowa (2018), Aufg. 10.2; Skript Abschn. 4.2',
+      pruefung: { art: 'koordinaten', element: id },
+    };
+  },
+};
+
+// ------------------------------------------------------------------ Gleitspiegellinien, die das Symbol nicht nennt (Kap. 4)
+// Borchardt-Ott S. 206; Skript Abschn. 4.5. Aus den Symmetrieelementen der App.
+const linienArten = (g) => { const l = elemente(gruppe(g)).linien; return { m: l.some((x) => x.art === 'spiegel'), g: l.some((x) => x.art === 'gleit') }; };
+export const MIT_GLEIT = ALLE.filter((g) => !g.includes('g') && linienArten(g).g);
+export const OHNE_GLEIT = ALLE.filter((g) => !linienArten(g).g);
+const NAEHE = { cm: ['pm', 'p2mm', 'p1'], c2mm: ['p2mm', 'pm', 'p2'], p4mm: ['p4', 'p2mm', 'pm'], p3m1: ['p3', 'p6', 'pm'], p31m: ['p3', 'p6', 'p2mm'], p6mm: ['p6', 'p3', 'p2mm'] };
+export const GLEIT_UNGENANNT = {
+  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'entwurf',
+  params: () => MIT_GLEIT,
+  make(g) {
+    const ab = (NAEHE[g] || OHNE_GLEIT).filter((x) => OHNE_GLEIT.includes(x)).slice(0, 3);
+    return {
+      typ: 'einfach',
+      lernziel: 'begründen, warum ein Muster mehr Symmetrieelemente hat, als sein Symbol nennt',
+      frage: 'Welche dieser Ebenengruppen hat Gleitspiegellinien, obwohl ihr Symbol kein <i>g</i> enthält?',
+      antworten: [g, ...ab].map(S),
+      richtig: [0],
+      hinweise: [null, ...ab.map((x) => `${S(x)} hat ${MERKMALE[x]}.`)],
+      erklaerung: `${S(g)} hat ${MERKMALE[g]}. Die Gleitspiegellinien folgen aus Spiegelungen und Translationen schräg zu den Spiegellinien; das Symbol nennt je Blickrichtung nur die Spiegellinie.`,
+      skript: 'mehr-elemente', app: `#m=eg&g=${g}`,
+      quelle: 'Borchardt-Ott & Sowa (2018), S. 206; Symmetrieelemente aus den Daten der App',
+    };
+  },
+};
+
+// ------------------------------------------------------------------ Kommt es auf die Reihenfolge an? (Kap. 4)
+// Borchardt-Ott S. 264 ff. (abelsche Gruppen). Aus punktoperationen.js.
+const PG_ALLE = ['2mm', '4', '6', '3m', '4mm', '6mm'];
+/** Erstes Paar (A, B) mit A ∘ B ≠ B ∘ A oder null. */
+export function nichtVertauschbar(pg) {
+  const n = OPERATIONEN[pg].length;
+  for (let a = 1; a < n; a++) for (let b = a + 1; b < n; b++) if (verknuepfe(pg, a, b) !== verknuepfe(pg, b, a)) return [a, b];
+  return null;
+}
+const ABELSCH = PG_ALLE.filter((pg) => !nichtVertauschbar(pg));
+const NICHT_ABELSCH = PG_ALLE.filter((pg) => nichtVertauschbar(pg));
+const gegenbeispiel = (pg) => {
+  const o = OPERATIONEN[pg]; const [a, b] = nichtVertauschbar(pg);
+  return `${o[b].html} ∘ ${o[a].html} = ${o[verknuepfe(pg, b, a)].html}, aber ${o[a].html} ∘ ${o[b].html} = ${o[verknuepfe(pg, a, b)].html}`;
+};
+const grundAbelsch = (pg) => (pg === '2mm' ? 'jede Operation ist zu sich selbst invers, zum Beispiel <i>m</i><sub><i>a</i></sub> ∘ <i>m</i><sub><i>b</i></sub> = <i>m</i><sub><i>b</i></sub> ∘ <i>m</i><sub><i>a</i></sub> = 2' : 'Drehungen um denselben Punkt sind vertauschbar');
+export const REIHENFOLGE = {
+  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'entwurf',
+  params: () => [...NICHT_ABELSCH.map((pg) => `ja:${pg}`), ...ABELSCH.map((pg) => `nein:${pg}`)],
+  make(param) {
+    const [ja, pg] = param.split(':');
+    const kommt = ja === 'ja';
+    const ab = kommt ? ABELSCH : NICHT_ABELSCH;
+    return {
+      typ: 'einfach',
+      lernziel: 'die Gruppentafel einer Punktgruppe lesen und aufstellen',
+      frage: `In welcher dieser Punktgruppen kommt es bei der Verknüpfung zweier Operationen ${kommt ? '' : 'nie '}auf die Reihenfolge an?`,
+      antworten: [pg, ...ab].map(pgHTML),
+      richtig: [0],
+      hinweise: [null, ...ab.map((x) => (kommt ? `In ${pgHTML(x)} kommt es nicht darauf an: ${grundAbelsch(x)}.` : `In ${pgHTML(x)} kommt es darauf an: ${gegenbeispiel(x)}.`))],
+      erklaerung: kommt
+        ? `In ${pgHTML(pg)} ist ${gegenbeispiel(pg)}; die Gruppentafel ist nicht symmetrisch zur Diagonalen, die Gruppe ist nicht abelsch.`
+        : `${pgHTML(pg)} ist abelsch: ${grundAbelsch(pg)}. Die Gruppentafel ist symmetrisch zur Diagonalen.`,
+      skript: 'verknuepfung',
+      quelle: 'Skript, Abschn. 4.4; Borchardt-Ott & Sowa (2018), Abschn. 11.4',
+      pruefung: { art: 'reihenfolge', pg, kommt },
+    };
+  },
+};
+
+export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, UNTERGRUPPE, MUSTER, KOORDINATEN, GLEIT_UNGENANNT, REIHENFOLGE];
