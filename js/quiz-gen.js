@@ -60,7 +60,7 @@ const hinweisGruppe = (falsch) => `${S(falsch)} hätte ${MERKMALE[falsch]}.`;
 // Blickrichtungen sicher unterscheidet (p3m1/p31m) oder deren Gerüst unübersichtlich ist (p4gm)
 const STUFE2_DIAGRAMM = ['p3m1', 'p31m', 'p4gm'];
 export const DIAGRAMM = {
-  id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'entwurf',
+  id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'geprüft',
   params: (s) => ALLE.filter((g) => (s === 2) === STUFE2_DIAGRAMM.includes(g)),
   make(g) {
     const ab = gruppenAblenker(g);
@@ -122,7 +122,7 @@ function hinweisPunktgruppe(symbol, richtig, falsch) {
   return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. ${symbol === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: 1.' : `Für ${S(symbol)} lässt man den Zellbuchstaben und die Einsen weg und liest <i>g</i> als <i>m</i>.`}`;
 }
 export const PUNKTGRUPPE = {
-  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'entwurf',
+  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'geprüft',
   params: () => ALLE.flatMap((g) => [`${g}:pg`, `${g}:sys`]),
   make(param) {
     const [g, art] = param.split(':');
@@ -176,7 +176,7 @@ const ordnung = (sym) => {
 // Lagesymmetrie als Punktgruppe (ohne die Punkte des orientierten Symbols, Skript Abschn. 6.2)
 const symHTML = (sym) => (sym.replace(/\./g, '') || '1').replace(/m/g, '<i>m</i>');
 export const LAGE = {
-  id: 'lage', kapitel: 6, stufen: [1, 2], status: 'entwurf',
+  id: 'lage', kapitel: 6, stufen: [1, 2], status: 'geprüft',
   params: (s) => EBENENGRUPPEN.filter((d) => (s === 1) === GRUND.includes(d.symbol))
     .flatMap((d) => {
       // je Gruppe nur eine Lage je Paar aus Zähligkeit und Lagesymmetrie (sonst gleiche Fragen)
@@ -333,7 +333,7 @@ export function untergruppenHinweis(pg, s) {
 }
 
 export const UNTERGRUPPE = {
-  id: 'untergruppe', kapitel: 4, stufen: [1], status: 'entwurf',
+  id: 'untergruppe', kapitel: 4, stufen: [1], status: 'geprüft',
   // je Punktgruppe eine Frage je Art von Untergruppe (z. B. nur eine der beiden Untergruppen 2mm von 4mm)
   params: () => PG_REIHE.flatMap((pg) => {
     const gesehen = new Set();
@@ -385,7 +385,7 @@ const MUSTER_PUNKT = {
   p3: [0.35, 0.35], p3m1: [0.325, 0.325], p31m: [0.2, 0.4], p6: [0.15, 0.425], p6mm: [0.125, 0.45],
 };
 export const MUSTER = {
-  id: 'muster', kapitel: 5, stufen: [2], status: 'entwurf',
+  id: 'muster', kapitel: 5, stufen: [2], status: 'geprüft',
   // ohne p1: Dort sind alle Fähnchen nur verschoben, die Antwort liegt ohne Überlegen auf der Hand
   params: () => ALLE.filter((g) => g !== 'p1'),
   make(g) {
@@ -486,7 +486,7 @@ export function koordAblenker(e) {
   return out;
 }
 export const KOORDINATEN = {
-  id: 'koordinaten', kapitel: 4, stufen: [2], status: 'entwurf',
+  id: 'koordinaten', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => Object.keys(ELEMENTE_LAGE),
   make(id) {
     const e = ELEMENTE_LAGE[id];

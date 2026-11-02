@@ -713,7 +713,7 @@ export const BANK = [
     erklaerung: 'Ein runder Punkt geht bei jeder Drehung um seine Mitte und jeder Spiegelung an einer Linie durch seine Mitte in sich über; man sieht ihm nicht an, ob er gespiegelt oder gedreht wurde. Erst ein Objekt ohne eigene Symmetrie wie das Fähnchen zeigt den Unterschied: Gespiegelt wird es zu seinem Spiegelbild, gedreht nicht. Deshalb zeigen die App und die International Tables Fähnchen bzw. Kreise mit Komma.',
     skript: 'gitter-und-motiv',
     quelle: 'Skript, Abschn. 3.2; Borchardt-Ott & Sowa (2018), Aufg. 10.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 4 Gleitspiegelung und Verknüpfung
@@ -893,7 +893,7 @@ export const BANK = [
     erklaerung: `${mat([['<i>x</i>′'], ['<i>y</i>′']])} = ${mat([['−1', '0'], ['0', '1']])} ${mat([['<i>x</i>'], ['<i>y</i>']])} + ${mat([['½'], ['0']])} = ${mat([['−<i>x</i> + ½'], ['<i>y</i>']])}: Die Matrix wechselt das Vorzeichen von <i>x</i>, die Verschiebung ist (½,&nbsp;0).`,
     skript: 'operationen',
     quelle: 'Skript, Abschn. 4.2, Vertiefung „Matrix und Verschiebung“',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-4-11', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.fries,
@@ -1132,7 +1132,7 @@ export const BANK = [
     erklaerung: 'Die Punktgruppe enthält die Symmetrieelemente ohne Translationen und ohne Gleitkomponenten. Eine Gleitspiegellinie hat dieselbe Richtung wie eine Spiegellinie.',
     skript: 'punktgruppe-system', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 5.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-5-07', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.punktgruppe,
@@ -1197,7 +1197,7 @@ export const BANK = [
     erklaerung: 'Die Klassen bilden die Faktorgruppe <i>E</i>/<i>T</i>; sie hat dieselbe Gruppentafel wie die Punktgruppe, <i>P</i> ≅ <i>E</i>/<i>T</i>. Das gilt für jede Ebenengruppe: Es gibt so viele Klassen, wie die Punktgruppe Operationen hat; eine Zentrierung zählt dabei zu den Gittertranslationen. Deshalb listen die International Tables für <i>p</i>2<i>mg</i> vier Operationen, eine je Klasse.',
     skript: 'punktgruppe-system', app: '#m=eg&g=p2mg&schritt=1',
     quelle: 'Skript, Abschn. 5.4, Vertiefung „Die Punktgruppe als Faktorgruppe“; ITA (2006), S. 98',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-5-11', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
@@ -1215,7 +1215,7 @@ export const BANK = [
     erklaerung: 'In <i>p</i>4<i>gm</i> liegt kein 4-zähliger Drehpunkt auf einer Spiegellinie. Um einen Drehpunkt entstehen vier Fähnchen gleichen Drehsinns; Spiegel- und Gleitspiegellinien bilden jedes Windrad spiegelbildlich auf die benachbarten ab.',
     skript: 'symbol', app: '#m=eg&g=p4gm',
     quelle: 'Skript, Abschn. 5.2, Abb. 5.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 6 Punktlagen
@@ -1358,7 +1358,7 @@ export const BANK = [
     erklaerung: 'Eine Wyckoff-Lage umfasst alle Punkte, die durch die Operationen der Gruppe auseinander hervorgehen; ihre Zähligkeit gibt an, wie viele das je Zelle sind. Die beiden C-Atome bei (⅓,&nbsp;⅔) und (⅔,&nbsp;⅓) gehen durch die Drehung um 180° um den Ursprung ineinander über und bilden zusammen die eine Lage 2<i>b</i>. Wer jedes Atom als eigene Lage 2<i>b</i> zählt, zählt sie doppelt: Es sind zwei Atome je Zelle, nicht vier.',
     skript: 'struktur-beschreiben', app: '#m=struktur&v=graphen',
     quelle: 'Skript, Abschn. 6.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'pl-6-10', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.seite,
@@ -1438,7 +1438,7 @@ export const BANK = [
     skript: 'wyckoff', app: '#m=eg&g=c2mm',
     quelle: 'Skript, Abschn. 6.2, Abb. 6.3',
     pruefung: { art: 'zaehligkeit', gruppe: 'c2mm', punkt: [0.12, 0.31] },
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'pl-6-15', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
@@ -1480,19 +1480,19 @@ export const BANK = [
   },
   {
     id: 'tk-7-02', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.anordnung,
-    frage: 'Das Bild zeigt ein Muster aus Blättern. Ersetzt man in einem Muster das Fähnchen durch ein solches Ornament ohne eigene Symmetrie, an derselben Stelle der Zelle in allgemeiner Lage, was ändert sich?',
+    frage: 'Das Bild zeigt ein Muster mit einem Blatt als Motiv in allgemeiner Lage. Was ändert sich, wenn man das Blatt durch ein anderes Motiv ohne eigene Symmetrie an derselben Stelle der Zelle ersetzt?',
     bild: 'B#m=eg&g=p4gm&form=blatt&tap=1&zoom=1.76&og=2.65', bildAlt: 'Tapete der Ebenengruppe p4gm mit Blättern',
     antworten: [
       'nur das Aussehen, nicht die Ebenengruppe',
-      'die Ebenengruppe, weil das Ornament anders aussieht',
-      'die Elementarzelle',
-      'Das Muster wird symmetrischer, weil Ornamente symmetrisch wirken.'],
+      'die Ebenengruppe, weil das neue Motiv anders aussieht',
+      'die Elementarzelle, weil das neue Motiv eine andere Form hat',
+      'die Ebenengruppe, falls das neue Motiv das Spiegelbild des Blattes ist'],
     richtig: [0],
     hinweise: [null,
-      'Die Gestalt eines Motivs ohne eigene Symmetrie ändert die Gruppe nicht; es zählt, wie die Kopien zueinander liegen.',
-      'Die Translationen bleiben dieselben, also auch die Zelle.',
-      'Wirkt ein Ornament mit seinem Spiegelbild zusammen symmetrisch, zeigt es nur eine Spiegellinie, die die Gruppe schon hat.'],
-    erklaerung: 'Die Ebenengruppe hängt davon ab, wie die Kopien des Motivs zueinander liegen. Ein Motiv ohne eigene Symmetrie zeigt alle Operationen, gleich wie es aussieht.',
+      'Die Gestalt eines Motivs ohne eigene Symmetrie ändert die Gruppe nicht; es zählt nur, wie die Kopien zueinander liegen.',
+      'Die Zelle hängt an den Translationen der Gruppe, nicht an der Form des Motivs; die Translationen bleiben dieselben.',
+      'Auch das Spiegelbild des Blattes ist ein Motiv ohne eigene Symmetrie; die Operationen, die seine Kopien erzeugen, bleiben dieselben.'],
+    erklaerung: 'Die Ebenengruppe hängt davon ab, wie die Kopien des Motivs zueinander liegen, nicht davon, wie das Motiv aussieht. Das Blatt hat keine eigene Symmetrie, das neue Motiv ebenso wenig; beide sitzen in allgemeiner Lage, und jede Operation der Gruppe erzeugt eine eigene Kopie. Ebenengruppe und Elementarzelle bleiben deshalb gleich, nur das Bild ändert sich.',
     skript: 'tapetengruppen', app: '#m=eg&g=p4gm&form=blatt&tap=1&zoom=1.76&og=2.65',
     quelle: 'Skript, Abschn. 7.1, Abb. 7.1',
     status: 'entwurf',
