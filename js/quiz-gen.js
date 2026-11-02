@@ -68,7 +68,7 @@ export const DIAGRAMM = {
       typ: 'bild-text',
       lernziel: 'die beiden Diagramme einer Ebenengruppe in den International Tables lesen',
       frage: 'Das Bild zeigt die Symmetrieelemente einer Elementarzelle wie im Diagramm der International Tables. Zu welcher Ebenengruppe gehört es?',
-      bild: `#m=eg&g=${g}&obj=0&farb=0@1.8`, bildAlt: 'Symmetriegerüst einer Elementarzelle',
+      bild: `#m=eg&g=${g}&obj=0&farb=0`, bildAlt: 'Symmetriegerüst einer Elementarzelle',
       antworten: [g, ...ab].map(S),
       richtig: [0],
       hinweise: [null, ...ab.map(hinweisGruppe)],
@@ -214,7 +214,7 @@ export const LAGE = {
       typ: 'bild-text',
       lernziel: 'allgemeine und spezielle Lagen unterscheiden und für eine Lage Zähligkeit, Lagesymmetrie und Freiheitsgrade angeben',
       frage: `Das markierte Fähnchen (gestrichelter Kreis) sitzt auf einer speziellen Lage der Ebenengruppe ${S(symbol)}. Welche Zähligkeit und welche Lagesymmetrie hat diese Lage?`,
-      bild: `#m=eg&g=${symbol}&x=${koordText(p[0])}&y=${koordText(p[1])}@1.8`, bildAlt: `Elementarzelle von ${symbol} mit einem Fähnchen auf einer speziellen Lage`,
+      bild: `#m=eg&g=${symbol}&x=${koordText(p[0])}&y=${koordText(p[1])}`, bildAlt: `Elementarzelle von ${symbol} mit einem Fähnchen auf einer speziellen Lage`,
       antworten: [richtig, ...ab.map((a) => a.t)],
       richtig: [0],
       hinweise: [null, ...ab.map((a) => a.h)],
@@ -375,6 +375,8 @@ export const UNTERGRUPPE = {
 // Lage des Fähnchens je Gruppe: allgemeine Lage mit möglichst grossem Abstand zwischen den Kopien
 // (Raster 1/40, gesucht mit bahn() aus symmetrie.js). Wo die Kopien trotzdem eng liegen, ist das
 // Fähnchen kleiner (MUSTER_GROESSE, Link „og“), damit sich die Fähnchen nicht überdecken.
+const NUR_DREHUNG = ['p1', 'p2', 'p3', 'p4', 'p6'];
+const DREH_ABLENKER = { p1: ['p2', 'p3', 'p4'], p2: ['p1', 'p4', 'p6'], p3: ['p6', 'p1', 'p2'], p4: ['p2', 'p6', 'p3'], p6: ['p3', 'p2', 'p4'] };
 const MUSTER_GROESSE = { p1: 1, p2: 1, pg: 1, p2gg: 1, p3: 1, p6mm: 0.5 };
 const MUSTER_ZOOM = { p6mm: 1.7 };
 const MUSTER_PUNKT = {
@@ -386,7 +388,9 @@ export const MUSTER = {
   id: 'muster', kapitel: 5, stufen: [2], status: 'entwurf',
   params: () => ALLE,
   make(g) {
-    const ab = gruppenAblenker(g);
+    // Ablenker derselben Art: Gruppen ohne Spiegel- und Gleitspiegellinien haben nur eine Fähnchenfarbe,
+    // die übrigen zwei; so verrät die Farbe die Antwort nicht
+    const ab = NUR_DREHUNG.includes(g) ? DREH_ABLENKER[g] : gruppenAblenker(g, 3, NUR_DREHUNG);
     const [x, y] = MUSTER_PUNKT[g];
     const og = MUSTER_GROESSE[g] ?? 0.7;
     const adr = `#m=eg&g=${g}&x=${x}&y=${y}${og === 1 ? '' : `&og=${og}`}`;
@@ -496,7 +500,7 @@ export const KOORDINATEN = {
     return {
       typ: 'einfach',
       lernziel: 'eine Symmetrieoperation in der Schreibweise der International Tables lesen, etwa <i><span class="ov">x</span></i>&nbsp;+&nbsp;½, <i>y</i>',
-      frage: `In einer rechteckigen Zelle liegt ${elementText(e)}. Welche Koordinaten hat das Bild des Punktes (<i>x</i>,&nbsp;<i>y</i>) bei der zugehörigen Operation?`,
+      frage: `In einer rechteckigen Zelle liegt ${elementText(e)}. Welche Koordinaten hat das Bild des Punktes (<i>x</i>,&nbsp;<i>y</i>) bei ${e.art === '2' ? 'der Drehung um 180° um diesen Punkt' : e.art === 'm' ? 'der Spiegelung an dieser Linie' : 'der Gleitspiegelung an dieser Linie'}?`,
       antworten: [op, ...ab].map(koordHTML),
       richtig: [0],
       hinweise: [null, ...ab.map((d) => `Das wäre ${elementWort(d)}.`)],
