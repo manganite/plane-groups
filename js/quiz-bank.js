@@ -1,5 +1,7 @@
 // Fragen des Quiz (handgeschrieben). Aufbau siehe lib/common/js/quiz-core.js.
 // Nur Fragen mit status 'geprüft' erscheinen; Entwürfe zeigt quiz.html?entwurf.
+// id wie im Stereo-Quiz: Kürzel des Kapitels, Stufe, laufende Nummer je Kürzel und Stufe (z. B. gl-2-03).
+// Wechselt eine Frage die Stufe, bekommt sie die nächste freie Nummer der neuen Stufe; die übrigen IDs bleiben.
 // lernziel steht wörtlich in den Lernzielen oder der Zusammenfassung des Kapitels (Test).
 // Bildangaben: Link-Adresse der App (Tafel A) oder „B#…“ (Tafel B, das Muster); siehe quiz-bild.js.
 
@@ -140,7 +142,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-05', stufe: 2, kapitel: 1, typ: 'mehrfach', lernziel: LZ.graphen,
+    id: 'gb-2-01', stufe: 2, kapitel: 1, typ: 'mehrfach', lernziel: LZ.graphen,
     frage: 'Welche Aussagen über eine Graphenschicht treffen zu?',
     antworten: [
       'Das Gitter ist hexagonal, die Basis besteht aus zwei Kohlenstoffatomen.',
@@ -157,7 +159,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-06', stufe: 1, kapitel: 1, typ: 'bild-text', lernziel: LZ.basisGitter,
+    id: 'gb-1-05', stufe: 1, kapitel: 1, typ: 'bild-text', lernziel: LZ.basisGitter,
     frage: 'Das Bild zeigt eine rechteckige gegebene Zelle mit zwei Dreiecken, bei (0,&nbsp;0) und bei (½,&nbsp;½). Wie viele Gitterpunkte enthält die gegebene Zelle?',
     bild: '#m=struktur&v=dreieck2&sel=0', bildAlt: 'Rechteckige Zelle mit zwei gleichen, gleich ausgerichteten Dreiecken gleicher Farbe, an der Ecke und in der Mitte',
     antworten: ['zwei', 'einen, denn die gegebene Zelle ist immer primitiv', 'einen, denn nur Atome, nicht Dreiecke, erzeugen Translationen', 'vier'],
@@ -172,7 +174,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-07', stufe: 2, kapitel: 1, typ: 'bild-text', lernziel: LZ.basisGitter,
+    id: 'gb-2-02', stufe: 2, kapitel: 1, typ: 'bild-text', lernziel: LZ.basisGitter,
     frage: 'Im Lieb-Gitter sitzt ein Cu-Atom bei (0,&nbsp;0) und je ein O-Atom bei (½,&nbsp;0) und (0,&nbsp;½) einer quadratischen Zelle. Man entfernt das Cu-Atom. Was geschieht mit der primitiven Zelle mit den kürzesten Gittervektoren?',
     bild: '#m=struktur&v=lieb&sel=0', bildAlt: 'Lieb-Gitter: Cu an den Ecken, O auf den Kantenmitten einer quadratischen Zelle',
     antworten: [
@@ -191,7 +193,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-08', stufe: 1, kapitel: 1, typ: 'einfach', lernziel: LZ.zelle,
+    id: 'gb-1-06', stufe: 1, kapitel: 1, typ: 'einfach', lernziel: LZ.zelle,
     frage: 'Ein Muster hat die primitiven Gittervektoren <i>a</i> und <i>b</i>. Welche Verschiebung ist mit Sicherheit ebenfalls eine Translation des Musters?',
     antworten: ['2<i>a</i> − 3<i>b</i>', '½(<i>a</i> + <i>b</i>)', '1,5 <i>a</i>', '<i>a</i> + 0,1 <i>b</i>'],
     richtig: [0],
@@ -205,7 +207,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-09', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.zelle,
+    id: 'gb-2-03', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.zelle,
     frage: 'Eine Elementarzelle hat <i>a</i> = 3 Å, <i>b</i> = 4 Å und γ = 120°. Wie gross ist ihre Fläche?',
     antworten: ['6√3 Å² ≈ 10,4 Å²', '12 Å²', '6 Å²', '3√3 Å² ≈ 5,2 Å²'],
     richtig: [0],
@@ -220,7 +222,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-10', stufe: 3, kapitel: 1, typ: 'einfach', lernziel: LZ.abstand,
+    id: 'gb-3-01', stufe: 3, kapitel: 1, typ: 'einfach', lernziel: LZ.abstand,
     frage: 'In Graphen liegen zwei benachbarte Kohlenstoffatome bei (⅓,&nbsp;⅔) und (⅔,&nbsp;⅓); <i>a</i> = <i>b</i> = 2,46 Å, γ = 120°. Wie gross ist ihr Abstand?',
     antworten: ['1,42 Å', '1,16 Å', '0,82 Å', '2,46 Å'],
     richtig: [0],
@@ -235,7 +237,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-11', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.primitiv,
+    id: 'gb-2-04', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.primitiv,
     frage: 'In einem quadratischen Gitter mit den primitiven Gittervektoren <i>a</i> und <i>b</i> spannen <i>a</i>′ = <i>a</i> + <i>b</i> und <i>b</i>′ = −<i>a</i> + <i>b</i> eine Zelle auf. Wie viele Gitterpunkte enthält sie?',
     antworten: ['zwei', 'einen', 'vier', 'Das hängt von der Basis ab.'],
     richtig: [0],
@@ -249,7 +251,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-12', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.basisGitter,
+    id: 'gb-2-05', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.basisGitter,
     frage: 'Eine rechteckige Zelle enthält zwei gleiche Atome, bei (0,&nbsp;0) und bei (½,&nbsp;0). Ist sie eine primitive Zelle der Struktur?',
     antworten: [
       'Nein: ½<i>a</i> ist eine Translation; die primitive Zelle ist halb so gross.',
@@ -267,7 +269,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gb-1-13', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.graphen,
+    id: 'gb-2-06', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.graphen,
     frage: 'Im Kagome-Gitter sitzen gleiche Atome bei (½,&nbsp;0), (0,&nbsp;½) und (½,&nbsp;½) einer hexagonalen Zelle. Bilden die Atome selbst ein Gitter?',
     antworten: [
       'Nein: Die Verschiebung von (½,&nbsp;0) nach (0,&nbsp;½) bringt nicht jedes Atom auf ein Atom.',
@@ -287,7 +289,7 @@ export const BANK = [
 
   // ================================================================== Kap. 2 Symmetrie des Gitters
   {
-    id: 'gs-2-01', stufe: 1, kapitel: 2, typ: 'mehrfach', lernziel: LZ.zaehlig,
+    id: 'gs-1-01', stufe: 1, kapitel: 2, typ: 'mehrfach', lernziel: LZ.zaehlig,
     frage: 'Welche Drehpunkte kann ein Gitter in der Ebene haben?',
     antworten: ['2-zählige', '3-zählige', '4-zählige', '5-zählige', '6-zählige', '8-zählige'],
     richtig: [0, 1, 2, 4],
@@ -301,7 +303,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-02', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
+    id: 'gs-1-02', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
     frage: 'Wo liegen in jedem Gitter 2-zählige Drehpunkte, bezogen auf eine primitive Zelle?',
     antworten: [
       'auf Gitterpunkten, Kantenmitten und Zellmitten',
@@ -319,7 +321,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-03', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
+    id: 'gs-1-03', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
     frage: 'Welche Bedingung an die Metrik gilt für das hexagonale Kristallsystem?',
     antworten: ['<i>a</i> = <i>b</i>, γ = 120°', '<i>a</i> = <i>b</i>, γ = 90°', 'γ = 90°', 'keine Bedingung'],
     richtig: [0],
@@ -333,7 +335,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-04', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
+    id: 'gs-1-04', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Wie viele Bravais-Gitter gibt es in der Ebene?',
     antworten: ['5', '4', '14', '17'],
     richtig: [0],
@@ -347,7 +349,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-05', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
+    id: 'gs-2-01', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Die kürzesten Gittervektoren eines Gitters sind gleich lang und schliessen 70° ein; die Spiegellinien laufen entlang der Diagonalen dieses Rhombus. Warum wählt man eine zentrierte rechteckige Zelle?',
     antworten: [
       'Sie zeigt die Symmetrie des Gitters besser: rechtwinklig, entlang der Spiegellinien.',
@@ -365,7 +367,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-06', stufe: 1, kapitel: 2, typ: 'bild-text', lernziel: LZ.bravais,
+    id: 'gs-1-05', stufe: 1, kapitel: 2, typ: 'bild-text', lernziel: LZ.bravais,
     frage: 'Welches Bravais-Gitter zeigt das Bild?',
     bild: '#m=struktur&v=zentriert&sbind=0&sel=0', bildAlt: 'Gitter mit konventioneller Zelle',
     antworten: ['<i>oc</i>, rechteckig zentriert', '<i>op</i>, rechteckig primitiv', '<i>tp</i>, quadratisch', '<i>mp</i>, schiefwinklig'],
@@ -380,7 +382,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-07', stufe: 2, kapitel: 2, typ: 'mehrfach', lernziel: LZ.konv,
+    id: 'gs-2-02', stufe: 2, kapitel: 2, typ: 'mehrfach', lernziel: LZ.konv,
     frage: 'Die App beschreibt eine Struktur statt in der gegebenen in der konventionellen Zelle. Was kann sich dabei ändern?',
     antworten: ['die Gittervektoren', 'die Koordinaten der Atome', 'die Zahl der Atome je Zelle', 'die Struktur selbst', 'die Symmetrie der Struktur'],
     richtig: [0, 1, 2],
@@ -393,7 +395,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-08', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
+    id: 'gs-2-03', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
     frage: 'Eine Struktur hat eine quadratische Zelle (<i>a</i> = <i>b</i>, γ = 90°). Wegen ihrer Basis hat sie aber nur 2-zählige Drehpunkte und Spiegellinien entlang der Zellkanten. Zu welchem Kristallsystem gehört sie?',
     antworten: ['rechteckig', 'quadratisch', 'schiefwinklig', 'hexagonal'],
     richtig: [0],
@@ -407,7 +409,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-09', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
+    id: 'gs-2-04', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Warum gibt es in der Ebene kein zentriertes quadratisches Gitter?',
     antworten: [
       'Die zentrierte Zelle lässt sich durch ein kleineres, um 45° gedrehtes Quadrat ersetzen.',
@@ -425,7 +427,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-10', stufe: 3, kapitel: 2, typ: 'einfach', lernziel: LZ.netz,
+    id: 'gs-3-01', stufe: 3, kapitel: 2, typ: 'einfach', lernziel: LZ.netz,
     frage: 'Welches Bravais-Gitter der Ebene bildet die Netzebene (111) eines kubisch primitiven Gitters?',
     antworten: ['hexagonal (<i>hp</i>)', 'quadratisch (<i>tp</i>)', 'rechteckig (<i>op</i>)', 'rechteckig zentriert (<i>oc</i>)'],
     richtig: [0],
@@ -439,7 +441,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-11', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
+    id: 'gs-2-05', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Ein Gitter hat die Gittervektoren <i>a</i> = <i>b</i> und γ = 60°. Welches Bravais-Gitter ist es?',
     antworten: ['<i>hp</i>, hexagonal', '<i>oc</i>, rechteckig zentriert', '<i>tp</i>, quadratisch', '<i>mp</i>, schiefwinklig'],
     richtig: [0],
@@ -453,7 +455,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-12', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
+    id: 'gs-2-06', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
     frage: 'Welches Symbol zeichnen die International Tables in die Zellmitte (½,&nbsp;½) eines quadratischen Gitters?',
     antworten: [
       'ein gefülltes Quadrat (4-zähliger Drehpunkt)',
@@ -471,7 +473,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-13', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.zaehlig,
+    id: 'gs-2-07', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.zaehlig,
     frage: 'Kann ein Gitter einen 5-zähligen Drehpunkt (ε = 72°) haben? Was sagt die Bedingung cos ε = <i>m</i>/2?',
     antworten: [
       'Nein, denn <i>m</i> = 2 cos 72° ≈ 0,618 ist keine ganze Zahl.',
@@ -489,7 +491,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-14', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
+    id: 'gs-1-06', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
     frage: 'Welche Punktgruppe hat ein hexagonales Gitter?',
     antworten: ['6<i>mm</i>', '6', '3<i>m</i>', '4<i>mm</i>'],
     richtig: [0],
@@ -503,7 +505,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-15', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
+    id: 'gs-1-07', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
     frage: 'Welche Punktgruppe hat ein schiefwinkliges Gitter?',
     antworten: ['2', '1', '<i>m</i>', '2<i>mm</i>'],
     richtig: [0],
@@ -517,7 +519,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-2-16', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
+    id: 'gs-1-08', stufe: 1, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
     frage: 'Im Raum bringt die Inversion (<i>x</i>,&nbsp;<i>y</i>,&nbsp;<i>z</i>) nach (−<i>x</i>,&nbsp;−<i>y</i>,&nbsp;−<i>z</i>). Welcher Operation der Ebene entspricht die Abbildung (<i>x</i>,&nbsp;<i>y</i>) → (−<i>x</i>,&nbsp;−<i>y</i>)?',
     antworten: [
       'der Drehung um 180° um den Ursprung',
@@ -537,7 +539,7 @@ export const BANK = [
 
   // ================================================================== Kap. 3 Gitter und Motiv
   {
-    id: 'gm-3-01', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.pg10,
+    id: 'gm-1-01', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.pg10,
     frage: 'Wie viele verschiedene Punktgruppen kann ein periodisches Muster in der Ebene haben?',
     antworten: ['10', '17', '32', 'unendlich viele'],
     richtig: [0],
@@ -551,7 +553,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-02', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.pg10,
+    id: 'gm-1-02', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.pg10,
     frage: 'Warum steht im Symbol 3<i>m</i> nur ein <i>m</i>, in 4<i>mm</i> aber zwei?',
     antworten: [
       'In 3<i>m</i> führt die Drehung alle Spiegellinien ineinander über, in 4<i>mm</i> gibt es zwei Arten.',
@@ -569,7 +571,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-03', stufe: 1, kapitel: 3, typ: 'bild-text', lernziel: LZ.gitterMotiv,
+    id: 'gm-1-03', stufe: 1, kapitel: 3, typ: 'bild-text', lernziel: LZ.gitterMotiv,
     frage: 'Auf jedem Gitterpunkt eines quadratischen Gitters sitzt ein Windrad mit zwei Flügeln. Welche Ebenengruppe hat das Muster?',
     bild: 'B#m=struktur&ba=1&gamma=90&basis=w2,0,0,0,0,0.3&sbind=0', bildAlt: 'Quadratisches Gitter mit Windrädern mit zwei Flügeln',
     antworten: [sym('p2'), sym('p4'), sym('p2mm'), sym('p4mm')],
@@ -585,7 +587,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-04', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.gitterMotiv,
+    id: 'gm-1-04', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.gitterMotiv,
     frage: 'Auf jedem Gitterpunkt eines quadratischen Gitters sitzt ein regelmässiges Sechseck (6<i>mm</i>). Welche Punktgruppe hat das Muster höchstens?',
     antworten: ['2<i>mm</i>', '6<i>mm</i>', '4<i>mm</i>', '1'],
     richtig: [0],
@@ -599,7 +601,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-05', stufe: 1, kapitel: 3, typ: 'bild-text', lernziel: LZ.orient,
+    id: 'gm-1-05', stufe: 1, kapitel: 3, typ: 'bild-text', lernziel: LZ.orient,
     frage: 'Auf einem quadratischen Gitter sitzen Quadrate, um 20° gegen die Zellkanten gedreht. Welche Ebenengruppe hat das Muster?',
     bild: 'B#m=struktur&ba=1&gamma=90&basis=quadrat,0,0,0,20,0.25&sbind=0', bildAlt: 'Quadratisches Gitter mit gedrehten Quadraten',
     antworten: [sym('p4'), sym('p4mm'), sym('p2mm'), sym('p1')],
@@ -615,7 +617,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-06', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.orient,
+    id: 'gm-2-01', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.orient,
     frage: 'Längliche Inseln (2<i>mm</i>) auf einem quadratischen Gitter werden um 45° gedreht, sodass sie entlang der Diagonalen liegen. Welche Ebenengruppe ergibt sich?',
     antworten: [
       '<i>c</i>2<i>mm</i>, mit einer zentrierten Zelle entlang der Diagonalen',
@@ -634,7 +636,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-07', stufe: 1, kapitel: 3, typ: 'mehrfach', lernziel: LZ.symbolGrob,
+    id: 'gm-1-06', stufe: 1, kapitel: 3, typ: 'mehrfach', lernziel: LZ.symbolGrob,
     frage: 'Was sagt das Symbol <i>c</i>2<i>mm</i>?',
     antworten: [
       'Die konventionelle Zelle ist zentriert.',
@@ -651,7 +653,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-08', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.wechsel,
+    id: 'gm-2-02', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.wechsel,
     frage: 'Graphen hat die Ebenengruppe <i>p</i>6<i>mm</i>. In h-BN sitzen auf denselben Lagen abwechselnd Bor- und Stickstoffatome. Welche Ebenengruppe hat h-BN?',
     antworten: [sym('p3m1'), sym('p6mm'), sym('p3'), sym('p6')],
     richtig: [0],
@@ -666,7 +668,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-09', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.wechsel,
+    id: 'gm-2-03', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.wechsel,
     frage: 'Ein Molekül aus zwei gleichen Atomen bei (0,&nbsp;0) und (0,4;&nbsp;0) sitzt auf einem rechteckigen Gitter; das Muster hat <i>p</i>2<i>mm</i>. Wohin legt man nach den International Tables den Ursprung der konventionellen Zelle?',
     antworten: [
       'auf einen Punkt mit der Lagesymmetrie 2<i>mm</i>, etwa die Mitte des Moleküls',
@@ -684,7 +686,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-10', stufe: 3, kapitel: 3, typ: 'einfach', lernziel: LZ.polar,
+    id: 'gm-3-01', stufe: 3, kapitel: 3, typ: 'einfach', lernziel: LZ.polar,
     frage: 'Welche Punktgruppe des Raums entspricht der Punktgruppe 2<i>mm</i> eines ebenen Musters?',
     antworten: [`<i>mm</i>2`, `<i>mmm</i>`, '222', `2/<i>m</i>`],
     richtig: [0],
@@ -698,7 +700,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gm-3-11', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.gitterMotiv,
+    id: 'gm-2-04', stufe: 2, kapitel: 3, typ: 'einfach', lernziel: LZ.gitterMotiv,
     frage: 'Ein Muster besteht aus gleichen runden Punkten. Zwei Punkte liegen bei (<i>x</i>,&nbsp;<i>y</i>) und (−<i>x</i>,&nbsp;<i>y</i>). Welche der beiden Operationen führt den einen Punkt in den anderen über: die Spiegelung an der Linie <i>x</i> = 0 oder die Drehung um 180° um (0,&nbsp;<i>y</i>)?',
     antworten: [
       'jede der beiden; einem runden Punkt sieht man den Unterschied nicht an',
@@ -718,7 +720,7 @@ export const BANK = [
 
   // ================================================================== Kap. 4 Gleitspiegelung und Verknüpfung
   {
-    id: 'gl-4-01', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
+    id: 'gl-1-01', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
     frage: 'Was ist eine Gleitspiegelung als Symmetrieoperation eines periodischen Musters?',
     antworten: [
       'Spiegelung an einer Linie und Verschiebung um eine halbe Gittertranslation entlang der Linie',
@@ -736,7 +738,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-02', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
+    id: 'gl-1-02', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
     frage: 'Wer geht, hinterlässt abwechselnd linke und rechte Fussabdrücke, um eine halbe Schrittlänge versetzt. Welches Symmetrieelement hat die Spur ausser den Translationen?',
     antworten: [
       'eine Gleitspiegellinie entlang der Laufrichtung',
@@ -754,7 +756,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-03', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
+    id: 'gl-2-01', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
     frage: `Welche Operation beschreiben die Koordinaten ${ov('x')} + ½, <i>y</i> in einer rechteckigen Zelle? (${ov('x')} steht für −<i>x</i>.)`,
     antworten: [
       'eine Spiegelung an der Linie <i>x</i> = ¼',
@@ -772,7 +774,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-04', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
+    id: 'gl-1-03', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
     frage: `Wohin bringt die Drehung ${ov('x')}, ${ov('y')} den Punkt (0,12;&nbsp;0,31)? (${ov('x')} steht für −<i>x</i>.)`,
     antworten: ['(−0,12;&nbsp;−0,31)', '(0,12;&nbsp;−0,31)', '(−0,31;&nbsp;0,12)', '(0,38;&nbsp;0,19)'],
     richtig: [0],
@@ -786,7 +788,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-05', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
+    id: 'gl-2-02', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
     frage: `<i>B</i> sei die Drehung ${ov('x')}, ${ov('y')} um den Ursprung, <i>A</i> die Translation <i>x</i> + 1, <i>y</i>. Welche Operation ist <i>A</i> ∘ <i>B</i>?`,
     antworten: [
       'eine Drehung um 180° um (½,&nbsp;0)',
@@ -804,7 +806,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-06', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
+    id: 'gl-1-04', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
     frage: 'In der Gruppentafel steht in Zeile <i>A</i> und Spalte <i>B</i> das Ergebnis <i>A</i> ∘ <i>B</i>. Welche Operation wird zuerst ausgeführt?',
     antworten: [
       'die Operation über der Spalte, <i>B</i>',
@@ -822,7 +824,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-07', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
+    id: 'gl-2-03', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
     frage: 'Zwei Spiegellinien schneiden sich unter 60°. Was ergeben die beiden Spiegelungen nacheinander?',
     antworten: [
       'eine Drehung um 120° um den Schnittpunkt',
@@ -840,7 +842,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-08', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.mehr,
+    id: 'gl-2-04', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.mehr,
     frage: 'Das Bild zeigt das Symmetriegerüst von <i>p</i>4<i>mm</i>. Welche Aussage trifft zu?',
     bild: '#m=eg&g=p4mm&obj=0', bildAlt: 'Symmetriegerüst von p4mm',
     antworten: [
@@ -859,7 +861,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-09', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.mehr,
+    id: 'gl-2-05', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.mehr,
     frage: 'In der Zelle sitzen Dreiecke bei (0,&nbsp;0) mit der Spitze entlang <i>b</i> und bei (½,&nbsp;½) mit der Spitze entlang −<i>b</i>. Warum hat das Muster 2-zählige Drehpunkte?',
     bild: '#m=struktur&v=dreieck3&sel=0&szelle=0', bildAlt: 'Muster aus Dreiecken, die abwechselnd nach rechts und nach links zeigen',
     antworten: [
@@ -878,7 +880,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-10', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.matrix,
+    id: 'gl-3-01', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.matrix,
     frage: `Welche Matrix <i>W</i> und welche Verschiebung <i>w</i> gehören zur Operation ${ov('x')} + ½, <i>y</i>?`,
     antworten: [
       `<i>W</i> = ${mat([['−1', '0'], ['0', '1']])}, <i>w</i> = ${mat([['½'], ['0']])}`,
@@ -896,7 +898,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-11', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.fries,
+    id: 'gl-3-02', stufe: 3, kapitel: 4, typ: 'einfach', lernziel: LZ.fries,
     frage: 'Wie viele Friesgruppen gibt es?',
     antworten: ['7', '17', '4', '3'],
     richtig: [0],
@@ -910,7 +912,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-12', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
+    id: 'gl-2-06', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
     frage: `Welche Operation beschreiben die Koordinaten <i>x</i> + ½, ${ov('y')} + ½ in einer rechteckigen Zelle?`,
     antworten: [
       'eine Gleitspiegelung an der Linie <i>y</i> = ¼ mit der Gleitkomponente <i>a</i>/2',
@@ -928,7 +930,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-13', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.tafel,
+    id: 'gl-2-07', stufe: 2, kapitel: 4, typ: 'bild-text', lernziel: LZ.tafel,
     frage: 'Das Bild zeigt die Punktgruppe 3<i>m</i> mit den Stellen 1, 2, 3 und den Spiegellinien <i>m</i>₁, <i>m</i>₂, <i>m</i>₃. Was ergibt +3 ∘ <i>m</i>₁?',
     bild: 'skizze:3m', bildAlt: 'Gleichseitiges Dreieck mit drei Spiegellinien und 3-zähligem Drehpunkt',
     antworten: ['<i>m</i>₃', '<i>m</i>₂', '−3', '<i>m</i>₁'],
@@ -943,7 +945,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-14', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
+    id: 'gl-2-08', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
     frage: `<i>B</i> sei die Spiegelung <i>x</i>, ${ov('y')}, <i>A</i> die Translation <i>x</i> + 1, <i>y</i> + 1 (rechteckige Zelle). Welches Symmetrieelement gehört zu <i>A</i> ∘ <i>B</i>?`,
     antworten: [
       'eine Spiegellinie bei <i>y</i> = ½',
@@ -961,7 +963,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-15', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
+    id: 'gl-1-05', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
     frage: 'Welche Operation der Punktgruppe 3<i>m</i> macht die Drehung +3 rückgängig?',
     antworten: ['−3', '+3', '<i>m</i>₁', '1'],
     richtig: [0],
@@ -975,7 +977,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-16', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
+    id: 'gl-1-06', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
     frage: 'Welche Teilmenge der Punktgruppe 3<i>m</i> ist selbst eine Gruppe (eine Untergruppe)?',
     antworten: ['{1, +3, −3}', '{+3, −3}', '{1, +3, <i>m</i>₁}', '{1, <i>m</i>₁, <i>m</i>₂}'],
     richtig: [0],
@@ -989,7 +991,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-17', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
+    id: 'gl-1-07', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
     frage: 'Welche Operationen der Ebene sind zu sich selbst invers, machen sich also selbst rückgängig?',
     antworten: [
       'die Identität, die Drehung um 180° und jede Spiegelung',
@@ -1007,7 +1009,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gl-4-18', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
+    id: 'gl-1-08', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
     frage: 'Drei Spuren im Sand: auf einem Bein hüpfen, mit beiden Beinen springen wie ein Känguru, normal gehen. Welche Spur hat eine Spiegellinie entlang der Laufrichtung?',
     antworten: [
       'die Spur beim Springen mit beiden Beinen',
@@ -1027,7 +1029,7 @@ export const BANK = [
 
   // ================================================================== Kap. 5 Die 17 Ebenengruppen
   {
-    id: 'eg-5-01', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.siebzehn,
+    id: 'eg-1-01', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.siebzehn,
     frage: 'Wie entstehen die 17 Ebenengruppen aus Punktgruppen und Bravais-Gittern?',
     antworten: [
       '13 aus Punktgruppe und Gitter, 4 mit Gleitspiegellinien statt Spiegellinien',
@@ -1045,7 +1047,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-02', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
+    id: 'eg-1-02', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
     frage: 'Was bedeutet das Symbol <i>p</i>2<i>mg</i>?',
     antworten: [
       'primitive Zelle, 2-zählige Drehpunkte, Spiegellinien senkrecht zu <i>a</i>, Gleitspiegellinien senkrecht zu <i>b</i>',
@@ -1063,7 +1065,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-03', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
+    id: 'eg-1-03', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
     frage: 'Warum schreibt man <i>p</i>6 und nicht <i>p</i>611?',
     antworten: [
       'Stehen an der 2. und 3. Blickrichtung nur Einsen, lässt man beide weg.',
@@ -1081,7 +1083,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-04', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
+    id: 'eg-2-01', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
     frage: 'Worin unterscheiden sich <i>p</i>3<i>m</i>1 und <i>p</i>31<i>m</i>?',
     antworten: [
       'In <i>p</i>3<i>m</i>1 stehen die Spiegellinien senkrecht zu <i>a</i>, <i>b</i> und <i>a</i> + <i>b</i>, in <i>p</i>31<i>m</i> entlang dieser Richtungen.',
@@ -1099,7 +1101,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-05', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
+    id: 'eg-1-04', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
     frage: 'Welche Elemente hat <i>c</i>2<i>mm</i>, ohne dass das Symbol sie nennt?',
     antworten: [
       'Gleitspiegellinien zwischen den Spiegellinien',
@@ -1117,7 +1119,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-06', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.punktgruppe,
+    id: 'eg-2-02', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.punktgruppe,
     frage: 'Die Ebenengruppe <i>pg</i> hat keine Spiegellinie. Warum ist ihre Punktgruppe trotzdem <i>m</i>?',
     antworten: [
       'Die Punktgruppe lässt die Gleitkomponente weg; übrig bleibt eine Spiegelung, also <i>m</i>.',
@@ -1135,7 +1137,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-07', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.punktgruppe,
+    id: 'eg-1-05', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.punktgruppe,
     frage: 'Wie viele Ebenengruppen haben die Punktgruppe 2<i>mm</i>?',
     antworten: ['4', '2', '1', '3'],
     richtig: [0],
@@ -1149,7 +1151,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-08', stufe: 1, kapitel: 5, typ: 'bild-text', lernziel: LZ.diagramm,
+    id: 'eg-1-06', stufe: 1, kapitel: 5, typ: 'bild-text', lernziel: LZ.diagramm,
     frage: 'Das Bild zeigt die allgemeine Lage von <i>p</i>2<i>mg</i> wie in den International Tables. Was bedeutet ein Kreis mit Komma?',
     bild: '#m=eg&g=p2mg&form=komma&el=0&orbit=1', bildAlt: 'Diagramm der allgemeinen Lage von p2mg mit Kreisen und Kreisen mit Komma',
     antworten: [
@@ -1168,7 +1170,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-09', stufe: 3, kapitel: 5, typ: 'einfach', lernziel: LZ.symmorph,
+    id: 'eg-3-01', stufe: 3, kapitel: 5, typ: 'einfach', lernziel: LZ.symmorph,
     frage: 'Welche dieser Ebenengruppen ist symmorph, obwohl sie Gleitspiegellinien hat?',
     antworten: [sym('c2mm'), sym('p2gg'), sym('pg'), sym('p2mg')],
     richtig: [0],
@@ -1182,7 +1184,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-10', stufe: 3, kapitel: 5, typ: 'einfach', lernziel: LZ.faktor,
+    id: 'eg-3-02', stufe: 3, kapitel: 5, typ: 'einfach', lernziel: LZ.faktor,
     frage: 'Jede Ebenengruppe hat unendlich viele Operationen. Fasst man die zusammen, die sich nur um eine Gittertranslation unterscheiden, entstehen Klassen. Wie viele Klassen sind es zum Beispiel bei <i>p</i>2<i>mg</i>, und warum?',
     antworten: [
       'vier, so viele, wie die Punktgruppe 2<i>mm</i> Operationen hat',
@@ -1200,7 +1202,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'eg-5-11', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
+    id: 'eg-2-03', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
     frage: '<i>p</i>4<i>mm</i> und <i>p</i>4<i>gm</i> haben dasselbe Gitter und dieselbe Punktgruppe 4<i>mm</i>. Woran erkennt man <i>p</i>4<i>gm</i> im Muster?',
     antworten: [
       'Fähnchen um einen 4-zähligen Drehpunkt bilden ein Windrad; benachbarte Windräder drehen entgegengesetzt.',
@@ -1220,7 +1222,7 @@ export const BANK = [
 
   // ================================================================== Kap. 6 Punktlagen
   {
-    id: 'pl-6-01', stufe: 1, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
+    id: 'pl-1-01', stufe: 1, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
     frage: 'In <i>pg</i> sitzt ein Fähnchen genau auf einer Gleitspiegellinie. Wie viele Fähnchen gibt es je Zelle?',
     antworten: ['2', '1', '4', '3'],
     richtig: [0],
@@ -1235,7 +1237,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-02', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
+    id: 'pl-2-01', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
     frage: 'In <i>p</i>4<i>mm</i> hat die allgemeine Lage die Zähligkeit 8. Welche Zähligkeit hat eine Lage mit der Lagesymmetrie 4<i>mm</i>?',
     antworten: ['1', '4', '2', '8'],
     richtig: [0],
@@ -1250,7 +1252,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-03', stufe: 1, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
+    id: 'pl-1-02', stufe: 1, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
     frage: 'Wie vergeben die International Tables die Wyckoff-Buchstaben?',
     antworten: [
       'von unten nach oben: <i>a</i> für eine Lage höchster Lagesymmetrie',
@@ -1268,7 +1270,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-04', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
+    id: 'pl-2-02', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
     frage: 'Die Lagen 1<i>a</i> (0,&nbsp;0) und 1<i>c</i> (½,&nbsp;0) in <i>p</i>2<i>mm</i> haben beide die Lagesymmetrie 2<i>mm</i>. Warum sind es verschiedene Wyckoff-Lagen?',
     antworten: [
       'Keine Operation von <i>p</i>2<i>mm</i> bringt (0,&nbsp;0) nach (½,&nbsp;0).',
@@ -1286,7 +1288,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-05', stufe: 1, kapitel: 6, typ: 'bild-text', lernziel: LZ.ae,
+    id: 'pl-1-03', stufe: 1, kapitel: 6, typ: 'bild-text', lernziel: LZ.ae,
     frage: 'Welchen Teil der Zellfläche nimmt die asymmetrische Einheit von <i>p</i>2<i>mm</i> ein?',
     bild: '#m=eg&g=p2mm&obj=0', bildAlt: 'Zelle von p2mm mit ihren Symmetrieelementen',
     antworten: ['¼', '½', '⅛', 'die ganze Zelle'],
@@ -1301,7 +1303,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-06', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.ae,
+    id: 'pl-2-03', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.ae,
     frage: 'Welche Symmetrieelemente dürfen im Innern einer asymmetrischen Einheit liegen?',
     antworten: ['Gleitspiegellinien', 'Spiegellinien', '2-zählige Drehpunkte', 'alle, solange die Fläche stimmt'],
     richtig: [0],
@@ -1315,7 +1317,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-07', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.ae,
+    id: 'pl-2-04', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.ae,
     frage: 'Die asymmetrische Einheit von <i>p</i>4<i>gm</i> ist das Dreieck mit den Ecken (0,&nbsp;0), (½,&nbsp;0) und (0,&nbsp;½). Welche Ungleichung gehört zu seiner schrägen Kante?',
     antworten: ['<i>y</i> ≤ ½ − <i>x</i>', '<i>y</i> ≥ ½ − <i>x</i>', '<i>x</i> ≤ <i>y</i>', '<i>x</i> + <i>y</i> ≤ 1'],
     richtig: [0],
@@ -1329,7 +1331,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-08', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
+    id: 'pl-2-05', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
     frage: 'Im Lieb-Gitter (<i>p</i>4<i>mm</i>) sitzt Cu auf 1<i>a</i> und O auf 2<i>c</i>. Wie viele Atome enthält die Zelle?',
     antworten: ['drei: ein Cu und zwei O', 'zwei: ein Cu und ein O', 'fünf: ein Cu und vier O auf den Kantenmitten', 'acht: vier Cu an den Ecken und vier O auf den Kantenmitten'],
     richtig: [0],
@@ -1343,7 +1345,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-09', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
+    id: 'pl-2-06', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
     frage: 'Graphen hat die Ebenengruppe <i>p</i>6<i>mm</i>; die beiden C-Atome der Zelle liegen auf 2<i>b</i>. Jemand zählt für jedes Atom eine Lage 2<i>b</i> und kommt auf vier Atome je Zelle. Was ist falsch?',
     antworten: [
       'Beide Atome gehören zur selben Lage 2<i>b</i>; sie zählt nur einmal.',
@@ -1361,7 +1363,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-10', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.seite,
+    id: 'pl-2-07', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.seite,
     frage: 'Was bedeutet in den International Tables die Angabe „Origin at 2 1 g“ bei <i>p</i>2<i>mg</i>?',
     antworten: [
       'Der Ursprung liegt auf einem Drehpunkt 2 und auf einer Gleitspiegellinie senkrecht zu <i>b</i>.',
@@ -1379,7 +1381,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-11', stufe: 3, kapitel: 6, typ: 'einfach', lernziel: LZ.ursprung,
+    id: 'pl-3-01', stufe: 3, kapitel: 6, typ: 'einfach', lernziel: LZ.ursprung,
     frage: 'Wohin legen die International Tables den Ursprung von <i>pm</i>?',
     antworten: ['auf eine Spiegellinie', 'auf einen 2-zähligen Drehpunkt', 'auf eine Gleitspiegellinie', 'an eine beliebige Stelle'],
     richtig: [0],
@@ -1393,7 +1395,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-12', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
+    id: 'pl-2-08', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
     frage: 'Wie viele Freiheitsgrade hat die Lage 2<i>h</i> mit den Koordinaten ½,&nbsp;<i>y</i> in <i>p</i>2<i>mm</i>?',
     antworten: ['1', '2', '0', '3'],
     richtig: [0],
@@ -1408,7 +1410,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-13', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
+    id: 'pl-2-09', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
     frage: 'In <i>p</i>2<i>mm</i> haben die Lagen 2<i>h</i> (½,&nbsp;<i>y</i>) und 2<i>f</i> (<i>x</i>,&nbsp;½) beide die Lagesymmetrie <i>m</i>. Wie unterscheidet sie das orientierte Lagesymbol?',
     antworten: [
       '2<i>h</i> heisst .<i>m</i>., 2<i>f</i> heisst ..<i>m</i>',
@@ -1426,7 +1428,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-14', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
+    id: 'pl-2-10', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.wyckoff,
     frage: 'Wie viele Punkte hat die allgemeine Lage von <i>c</i>2<i>mm</i> je konventioneller Zelle?',
     antworten: ['8', '4', '16', '2'],
     richtig: [0],
@@ -1441,7 +1443,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'pl-6-15', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
+    id: 'pl-2-11', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.struktur,
     frage: 'Ein Molekül soll in <i>p</i>4<i>mm</i> auf der Lage 1<i>a</i> mit der Lagesymmetrie 4<i>mm</i> sitzen. Welche Bedingung muss es erfüllen?',
     antworten: [
       'Es muss mindestens die Symmetrie 4<i>mm</i> haben und passend ausgerichtet sein.',
@@ -1461,7 +1463,7 @@ export const BANK = [
 
   // ================================================================== Kap. 7 Tapeten, Ornamente und Kunst
   {
-    id: 'tk-7-01', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.wallpaper,
+    id: 'tk-1-01', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.wallpaper,
     frage: 'Was bezeichnet der englische Ausdruck <i>wallpaper group</i>?',
     antworten: [
       'eine Ebenengruppe, im Englischen auch <i>plane symmetry group</i>',
@@ -1479,7 +1481,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-02', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.anordnung,
+    id: 'tk-1-02', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.anordnung,
     frage: 'Das Bild zeigt ein Muster mit einem Blatt als Motiv in allgemeiner Lage. Was ändert sich, wenn man das Blatt durch ein anderes Motiv ohne eigene Symmetrie an derselben Stelle der Zelle ersetzt?',
     bild: 'B#m=eg&g=p4gm&form=blatt&tap=1&zoom=1.76&og=2.65', bildAlt: 'Tapete der Ebenengruppe p4gm mit Blättern',
     antworten: [
@@ -1498,7 +1500,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-03', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.mauer,
+    id: 'tk-1-03', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.mauer,
     frage: 'Ziegel liegen ohne Versatz in Reihen und Spalten (<i>p</i>2<i>mm</i>). Was ändert sich, wenn man jede zweite Reihe um eine halbe Steinlänge versetzt?',
     antworten: [
       'Die Ebenengruppe wird <i>c</i>2<i>mm</i>; die Punktgruppe bleibt 2<i>mm</i>.',
@@ -1516,7 +1518,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-04', stufe: 2, kapitel: 7, typ: 'bild-text', lernziel: LZ.mauer,
+    id: 'tk-2-01', stufe: 2, kapitel: 7, typ: 'bild-text', lernziel: LZ.mauer,
     frage: 'Das Bild zeigt den Läuferverband. Wo liegen die Gleitspiegellinien, die entlang der Reihen laufen?',
     bild: '#m=struktur&v=laeufer&sel=0', bildAlt: 'Läuferverband ohne eingezeichnete Symmetrieelemente',
     antworten: [
@@ -1535,7 +1537,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-05', stufe: 1, kapitel: 7, typ: 'mehrfach', lernziel: LZ.parkett,
+    id: 'tk-1-04', stufe: 1, kapitel: 7, typ: 'mehrfach', lernziel: LZ.parkett,
     frage: 'Mit welchen gleichen regelmässigen Vielecken allein lässt sich die Ebene lückenlos auslegen?',
     antworten: ['gleichseitige Dreiecke', 'Quadrate', 'regelmässige Fünfecke', 'regelmässige Sechsecke', 'regelmässige Achtecke'],
     richtig: [0, 1, 3],
@@ -1549,7 +1551,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-06', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.archimedes,
+    id: 'tk-3-01', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.archimedes,
     frage: 'Was bedeutet der Name 4.8.8 einer archimedischen Parkettierung?',
     antworten: [
       'An jeder Ecke treffen ein Quadrat und zwei Achtecke zusammen.',
@@ -1567,7 +1569,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-07', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.archimedes,
+    id: 'tk-3-02', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.archimedes,
     frage: 'Warum gibt es die Parkettierung 3.3.3.3.6 in zwei Formen?',
     antworten: [
       'Sie hat keine Spiegellinie; ihr Spiegelbild ist eine zweite Form.',
@@ -1585,7 +1587,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-08', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
+    id: 'tk-3-03', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
     frage: 'Wie konstruiert man eine Kachel im Stil von Escher für <i>p</i>1?',
     antworten: [
       'Man verformt je eine Kante jedes Paars und überträgt die Verformung verschoben auf die Gegenkante.',
@@ -1603,7 +1605,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-09', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
+    id: 'tk-3-04', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
     frage: 'Die vier Kanten einer Kachel sind verschieden geformt, jede punktsymmetrisch zu ihrer Mitte; die Nachbarkacheln sind um die Kantenmitten gedreht. Welche Symmetrie hat das Muster?',
     antworten: [
       '<i>p</i>2, mit 2-zähligen Drehpunkten auf den Kantenmitten',
@@ -1621,7 +1623,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-10', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
+    id: 'tk-3-05', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
     frage: 'Bei einem Schachbrett ohne Farben ist die Zelle ein Feld. Wie ändert sich die Zelle, wenn man die Farben beachtet?',
     antworten: [
       'Sie wird doppelt so gross und um 45° gedreht.',
@@ -1639,7 +1641,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-11', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
+    id: 'tk-3-06', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
     frage: 'Welche dieser Signaturen gehört zu keiner Ebenengruppe?',
     antworten: ['4*4', '3*3', '22×', '2*22'],
     richtig: [0],
@@ -1654,7 +1656,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-12', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
+    id: 'tk-3-07', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
     frage: 'Welche Ebenengruppe hat die Signatur *442?',
     antworten: [sym('p4mm'), sym('p4gm'), sym('p4'), sym('p2mm')],
     richtig: [0],
@@ -1668,7 +1670,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-13', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
+    id: 'tk-3-08', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
     frage: 'Was bedeutet das Zeichen × (Wunder) in einer Signatur nach Conway?',
     antworten: [
       'Man kommt zum Spiegelbild eines Motivs, ohne eine Spiegellinie zu kreuzen.',
@@ -1686,7 +1688,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-14', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
+    id: 'tk-3-09', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
     frage: 'Was ist auf einem schwarz-weissen Schachbrett die Verschiebung um ein Feld?',
     antworten: [
       'eine Operation mit Farbwechsel: Sie bringt jedes Feld auf eines der anderen Farbe',
@@ -1704,7 +1706,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'tk-7-15', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway17,
+    id: 'tk-3-10', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway17,
     frage: 'Warum braucht eine Signatur, die nur aus Ziffern besteht (ohne *, × und o), mindestens drei Ziffern?',
     antworten: [
       'Jede Ziffer kostet weniger als 1; erst drei erreichen den Preis 2.',
