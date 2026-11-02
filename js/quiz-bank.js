@@ -1495,7 +1495,7 @@ export const BANK = [
     erklaerung: 'Die Ebenengruppe hängt davon ab, wie die Kopien des Motivs zueinander liegen, nicht davon, wie das Motiv aussieht. Das Blatt hat keine eigene Symmetrie, das neue Motiv ebenso wenig; beide sitzen in allgemeiner Lage, und jede Operation der Gruppe erzeugt eine eigene Kopie. Ebenengruppe und Elementarzelle bleiben deshalb gleich, nur das Bild ändert sich.',
     skript: 'tapetengruppen', app: '#m=eg&g=p4gm&form=blatt&tap=1&zoom=1.76&og=2.65',
     quelle: 'Skript, Abschn. 7.1, Abb. 7.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-7-03', stufe: 1, kapitel: 7, typ: 'einfach', lernziel: LZ.mauer,
