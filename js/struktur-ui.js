@@ -52,6 +52,8 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-zelle').checked = s.zelle;
     $('s-ae').checked = s.ae;
     $('s-bindungen').checked = s.bindungen;
+    $('s-zoom').value = String(z.zoomB);
+    $('s-zoom-out').textContent = `${dezimal(z.zoomB, 2)} ×`;
     $('s-einrasten').checked = rasten;
     for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
@@ -112,7 +114,7 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
     $('bild-a').innerHTML = a.svg;
     if (nurA) return;
-    $('bild-b').innerHTML = strukturTafelB(s, f, r).svg;
+    $('bild-b').innerHTML = strukturTafelB(s, f, r, z.zoomB).svg;
     legende(f, r);
     $('info').innerHTML = strukturHTML(s, r, vorher, f);
   }
@@ -207,6 +209,7 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     for (const [id, feld] of [['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']]) {
       $(id).addEventListener('change', () => { st()[feld] = $(id).checked; aktualisieren(); });
     }
+    $('s-zoom').addEventListener('input', () => { z.zoomB = Number($('s-zoom').value); aktualisieren(); });
     $('s-einrasten').addEventListener('change', () => { rasten = $('s-einrasten').checked; aktualisieren(); });
     $('s-werkzeug-verschieben').addEventListener('click', () => { werkzeug = 'verschieben'; aktualisieren(); });
     $('s-werkzeug-hinzufuegen').addEventListener('click', () => {
@@ -255,7 +258,7 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). */
   function bild(f, tafel) {
     const s = st();
-    if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s)).svg;
+    if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s), z.zoomB).svg;
     return strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, null, ansicht).svg;
   }
 

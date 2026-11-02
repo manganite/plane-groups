@@ -98,5 +98,8 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
   assert.equal(w.zoomB, 2.2); assert.equal(w.objGroesse, 1.6);
   const u = startzustand(); hashAnwenden(u, '#m=eg&g=p4&zoom=9&og=0.1');
   assert.equal(u.zoomB, 1); assert.equal(u.objGroesse, 1);
-  assert.doesNotMatch(hashVon(startzustand()), /zoom|og=/);
+  assert.doesNotMatch(hashVon(startzustand()), /zoom|og=/);  // auch im Modus „Gitter und Basis“ (Muster in Tafel B)
+  const st = startzustand(); hashAnwenden(st, '#m=struktur&v=graphen&zoom=1.6');
+  assert.equal(st.modus, 'struktur'); assert.equal(st.zoomB, 1.6);
+  assert.match(hashVon(st), /^#m=struktur&v=graphen&zoom=1\.6$/);
 });

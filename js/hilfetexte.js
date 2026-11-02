@@ -10,6 +10,7 @@ export const TIPS = {
   's-elemente': 'Symmetrieelemente der gefundenen Ebenengruppe über der Struktur, in der konventionellen Zelle.',
   's-zelle': 'Konventionelle Zelle nach den International Tables (a′, b′), mit dem Ursprung nach ITA. Sie kann von der gegebenen Zelle abweichen.',
   's-ae': 'Asymmetrische Einheit der gefundenen Ebenengruppe, in der konventionellen Zelle.',
+  's-zoom': 'Vergrössert das Muster (über 1) oder zeigt einen grösseren Ausschnitt (unter 1).',
   's-bindungen': 'Linien zwischen nächsten Nachbarn: zwischen Atomen, deren Abstand der kleinste Atomabstand der Struktur ist (bis 5 % mehr). Nur für das Motiv „Atom“.',
   's-werkzeug-verschieben': 'Werkzeug: Motiv antippen wählt es; Ziehen verschiebt es (alle Gitterbilder folgen).',
   's-werkzeug-hinzufuegen': 'Werkzeug: Stelle antippen setzt ein neues Motiv mit den Einstellungen unter „Basis“.',
@@ -64,7 +65,7 @@ export const TIPS = {
 
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
-  { heading: '#ctl-struktur > h2', intro: 'Eine Struktur ist Gitter plus Basis. Die App bestimmt aus beiden die Ebenengruppe und zeigt sie mit konventioneller Zelle und Symmetrieelementen.', ids: ['s-vorgabe', 's-zuruecksetzen', 's-elemente', 's-zelle', 's-ae', 's-bindungen'] },
+  { heading: '#ctl-struktur > h2', intro: 'Eine Struktur ist Gitter plus Basis. Die App bestimmt aus beiden die Ebenengruppe und zeigt sie mit konventioneller Zelle und Symmetrieelementen.', ids: ['s-vorgabe', 's-zuruecksetzen', 's-elemente', 's-zelle', 's-ae', 's-bindungen', 's-zoom'] },
   { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Werkzeuge über der Struktur: „Wählen und ziehen“ und „Hinzufügen“.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 's-motiv', 's-farbe', 's-winkel', 's-groesse', 's-entfernen', 's-einrasten'] },
   { heading: '#sec-sgitter > summary', intro: 'Gitter der gegebenen Zelle; anders als im Modus „Ebenengruppen“ ohne Bindung an ein Kristallsystem.', ids: ['s-ba', 's-gamma', 's-metrik'] },
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'seg-ornament', 'opt-einrasten', 'opt-orbit'] },

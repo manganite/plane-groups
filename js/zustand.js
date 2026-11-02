@@ -178,6 +178,7 @@ function strukturHash(z, q) {
     q.set('basis', basisText(st.basis));
   }
   for (const [k, f] of STRUKTUR_SCHALTER) if (st[f] !== s0[f]) q.set(k, B(st[f]));
+  if (z.zoomB !== startzustand().zoomB) q.set('zoom', kurz(z.zoomB, 3));
 }
 
 /** Link-Adresse (Hash) zum Zustand. */
@@ -241,6 +242,7 @@ export function hashAnwenden(z, hash) {
     }
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
     z.struktur = st;
+    z.zoomB = zahl(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
     return true;
   }
   if (SYMBOLE.has(q.get('g'))) z.gruppe = q.get('g');

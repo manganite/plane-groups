@@ -185,11 +185,11 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   return { svg: teile.join(''), ansicht: A, ergebnis: r };
 }
 
-/** Tafel B: grösserer Ausschnitt der Struktur, konventionelle Zelle hervorgehoben. */
-export function strukturTafelB(st, farben, r) {
+/** Tafel B: grösserer Ausschnitt der Struktur, konventionelle Zelle hervorgehoben; zoom > 1 zeigt einen kleineren Ausschnitt grösser. */
+export function strukturTafelB(st, farben, r, zoom = 1) {
   const M = metrik(st);
   const mitte = kart(M, [0.5, 0.5]);
-  const w = 4.4 * Math.max(1, st.ba);
+  const w = (4.4 * Math.max(1, st.ba)) / zoom;
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   const ecken = [[box[0], box[1]], [box[2], box[1]], [box[0], box[3]], [box[2], box[3]]].map((c) => bruchVon(M, c));

@@ -33,7 +33,7 @@ export function bildInhalt(angabe, f, opt = {}) {
   if (z.modus === 'struktur') {
     const st = z.struktur;
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
-    return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis).svg : a.svg;
+    return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
   const k = opt.klein ? 2 : 1.3;
   return tafel === 'b' ? tafelB(z.gruppe, z, f, { k: 1 + (k - 1) * 0.5 }).svg : tafelA(z.gruppe, z, f, { k }).svg;

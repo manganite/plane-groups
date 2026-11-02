@@ -48,7 +48,7 @@ function appTafel(fig, f) {
   if (z.modus === 'struktur') {
     const st = z.struktur;
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
-    return b ? strukturTafelB(st, f, a.ergebnis).svg : a.svg;
+    return b ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
   // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
   const k = /[#&]og=/.test(fig.dataset.app) ? 1 : symbolGroesse(fig, b);

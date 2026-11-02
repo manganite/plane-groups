@@ -7,7 +7,7 @@ import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe, punktAufLage, lage } from './symmetrie.js';
 import { koordText } from './zustand.js';
 import { symbolHTML } from './text.js';
-import { VORGABEN } from './vorgaben.js';
+import { VORGABEN, vorgabe } from './vorgaben.js';
 
 const S = symbolHTML;
 const ALLE = EBENENGRUPPEN.map((d) => d.symbol);
@@ -227,7 +227,7 @@ export const LAGE = {
 };
 
 // ------------------------------------------------------------------ Struktur (Vorgabe) → Ebenengruppe
-function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, lernziel, skript }) {
+function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
     id, kapitel, stufen: [2], status: 'entwurf',
@@ -236,16 +236,17 @@ function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage
       const v = vorgaben.find((x) => x.id === vid);
       const g = v.erwartet;
       const ab = gruppenAblenker(g, 3, ausser);
+      const zz = zoom(vid) === 1 ? '' : `&zoom=${zoom(vid)}`; // Vergrösserung des Musters (Tafel B), auch im App-Link
       return {
         typ: 'bild-text',
         lernziel,
         frage,
-        bild: `B#m=struktur&v=${vid}${bindungen ? '' : '&sbind=0'}`, bildAlt: 'Periodisches Muster mit hervorgehobener Elementarzelle',
+        bild: `B#m=struktur&v=${vid}${bindungen ? '' : '&sbind=0'}${zz}`, bildAlt: 'Periodisches Muster mit hervorgehobener Elementarzelle',
         antworten: [g, ...ab].map(S),
         richtig: [0],
         hinweise: [null, ...ab.map(hinweisGruppe)],
         erklaerung: `Das Muster hat ${S(g)}: ${MERKMALE[g]}.`,
-        skript, app: `#m=struktur&v=${vid}`,
+        skript, app: `#m=struktur&v=${vid}${zz}`,
         quelle: 'Symmetriebestimmung der App (Vorgaben im Modus „Gitter und Basis“)',
       };
     },
@@ -258,6 +259,8 @@ export const STRUKTUR = strukturGenerator({
   ohne: ['dreieck2', 'dreieck3', 'asi-pinwheel'],
   ausser: ['pg', 'p2mg', 'p2gg', 'p4gm', 'p31m'],
   frage: 'Welche Ebenengruppe hat das Muster? Hervorgehoben ist eine Elementarzelle; gleiche Farbe und Form heissen gleiches Motiv.',
+  // Motive gross genug: Gitter etwas, Strukturen deutlich vergrössert; das dichte Kagome-Spin-Eis nicht
+  zoom: (vid) => (vorgabe(vid).gruppe === 'Bravais-Gitter' ? 1.25 : vid === 'asi-kagome' ? 1 : 1.6),
   lernziel: 'die Symmetrie eines Musters aus Gitter und Motiv bestimmen und begründen, warum das Motiv die Symmetrie des Gitters nur erniedrigen kann',
   skript: 'gitter-und-motiv',
 });
