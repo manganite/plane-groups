@@ -386,7 +386,8 @@ const MUSTER_PUNKT = {
 };
 export const MUSTER = {
   id: 'muster', kapitel: 5, stufen: [2], status: 'entwurf',
-  params: () => ALLE,
+  // ohne p1: Dort sind alle Fähnchen nur verschoben, die Antwort liegt ohne Überlegen auf der Hand
+  params: () => ALLE.filter((g) => g !== 'p1'),
   make(g) {
     // Ablenker derselben Art: Gruppen ohne Spiegel- und Gleitspiegellinien haben nur eine Fähnchenfarbe,
     // die übrigen zwei; so verrät die Farbe die Antwort nicht
@@ -397,7 +398,7 @@ export const MUSTER = {
     return {
       typ: 'bild-text',
       lernziel: 'die beiden Diagramme einer Ebenengruppe in den International Tables lesen',
-      frage: 'Das Bild zeigt ein Muster aus Fähnchen; hervorgehoben ist eine Elementarzelle, spiegelbildliche Fähnchen haben die andere Farbe. Welche Ebenengruppe hat das Muster?',
+      frage: `Das Bild zeigt ein Muster aus Fähnchen; hervorgehoben ist eine Elementarzelle${NUR_DREHUNG.includes(g) ? '' : ', spiegelbildliche Fähnchen haben die andere Farbe'}. Welche Ebenengruppe hat das Muster?`,
       bild: `B${adr}&zoom=${MUSTER_ZOOM[g] ?? 1.3}`, bildAlt: 'Muster aus Fähnchen mit hervorgehobener Elementarzelle',
       antworten: [g, ...ab].map(S),
       richtig: [0],

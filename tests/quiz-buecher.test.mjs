@@ -80,8 +80,8 @@ test('Reihenfolge der Verknüpfung: abelsch genau dann, wenn die Gruppentafel sy
   }
 });
 
-test('Muster → Ebenengruppe: alle 17 Gruppen, Bild ist das Muster (Tafel B) ohne Symmetrieelemente', () => {
-  assert.equal(MUSTER.params(2).length, EBENENGRUPPEN.length);
+test('Muster → Ebenengruppe: 16 Gruppen (ohne p1), Bild ist das Muster (Tafel B) ohne Symmetrieelemente', () => {
+  assert.equal(MUSTER.params(2).length, EBENENGRUPPEN.length - 1); // ohne p1
   for (const g of MUSTER.params(2)) {
     const q = MUSTER.make(g);
     assert.ok(q.bild.startsWith('B#') && !/[&#]mel=1/.test(q.bild), g);
