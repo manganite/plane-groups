@@ -104,6 +104,17 @@ test('Fragen: Pflichtfelder, eindeutige IDs, Antworten, Hinweise, Lernziel, Anke
     assert.ok(['entwurf', 'geprüft'].includes(q.status), q.id);
     pruefeFrage(q);
   }
+  // ID wie im Stereo-Quiz: Kürzel des Kapitels, Stufe, laufende Nummer (zweistellig). Lücken sind erlaubt,
+  // damit eine ID stabil bleibt, wenn eine andere Frage die Stufe wechselt oder wegfällt.
+  const kuerzel = new Map();
+  for (const q of BANK) {
+    const m = /^([a-z]{2})-([123])-(\d{2})$/.exec(q.id);
+    assert.ok(m, `ID ${q.id} nicht im Schema Kürzel-Stufe-Nummer`);
+    assert.equal(Number(m[2]), q.stufe, `${q.id}: Stufe in der ID passt nicht zu stufe ${q.stufe}`);
+    if (!kuerzel.has(m[1])) kuerzel.set(m[1], q.kapitel);
+    assert.equal(kuerzel.get(m[1]), q.kapitel, `${q.id}: Kürzel ${m[1]} gehört zu Kapitel ${kuerzel.get(m[1])}`);
+  }
+  assert.equal(new Set(kuerzel.values()).size, kuerzel.size, 'ein Kürzel je Kapitel');
   // jedes Kapitel hat handgeschriebene Fragen der Stufen 1 und 2
   for (const k of KAPITEL) for (const s of [1, 2]) assert.ok(BANK.some((q) => q.kapitel === k.nr && q.stufe === s), `Kap. ${k.nr}, Stufe ${s}`);
 });
