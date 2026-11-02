@@ -228,10 +228,10 @@ export const LAGE = {
 };
 
 // ------------------------------------------------------------------ Struktur (Vorgabe) → Ebenengruppe
-function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript }) {
+function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript, stufen = [2], status = 'geprüft' }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
-    id, kapitel, stufen: [2], status: 'geprüft',
+    id, kapitel, stufen, status,
     params: () => vorgaben.map((v) => v.id),
     make(vid) {
       const v = vorgaben.find((x) => x.id === vid);
@@ -280,6 +280,8 @@ export const PARKETT = strukturGenerator({
   frage: 'Welche Ebenengruppe hat die Parkettierung? Hervorgehoben ist eine Elementarzelle.',
   lernziel: 'Parkettierungen aus regelmässigen Vielecken beschreiben und ihre Symmetrie angeben',
   skript: 'fliesen',
+  stufen: [3], // Abschnitt „Fliesen und die Alhambra“ ist Vertiefung
+  status: 'geprüft',
 });
 
 // ------------------------------------------------------------------ Untergruppen der Punktgruppen (Kap. 4)

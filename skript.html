@@ -100,7 +100,7 @@
             <ol>
               <li><a href="#tapetengruppen">Tapetengruppen</a></li>
               <li><a href="#mauerwerk">Mauerwerk und Pflaster</a></li>
-              <li><a href="#fliesen">Fliesen und die Alhambra</a></li>
+              <li><a href="#fliesen">Fliesen und die Alhambra (Vertiefung)</a></li>
               <li><a href="#escher">Escher und die Kachel (Vertiefung)</a></li>
               <li><a href="#farbe">Ausblick: Farbe als Symmetrie (Vertiefung)</a></li>
               <li><a href="#conway">Die Signatur nach Conway (Vertiefung)</a></li>
@@ -1487,17 +1487,17 @@
 
     <section id="kunst">
       <h2><span class="nr">7</span>Tapeten, Ornamente und Kunst</h2>
-      <p class="lead">Periodische Muster gibt es nicht nur in Kristallen. Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster wiederholen ein Motiv in zwei Richtungen, und für sie gelten dieselben 17 Ebenengruppen. Dieses Kapitel zeigt solche Muster, alle mit dem Code der App gezeichnet, und wie Handwerker und Künstler mit Symmetrie gearbeitet haben. Die Vertiefungen am Ende zeigen, wie Escher seine Kacheln konstruierte, wie Farbe selbst zur Symmetrie werden kann, und einen zweiten, sehr anschaulichen Blick auf die 17 Gruppen, den von John Conway.</p>
+      <p class="lead">Periodische Muster gibt es nicht nur in Kristallen. Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster wiederholen ein Motiv in zwei Richtungen, und für sie gelten dieselben 17 Ebenengruppen. Dieses Kapitel zeigt solche Muster, alle mit dem Code der App gezeichnet, und wie Handwerker und Künstler mit Symmetrie gearbeitet haben. Die Vertiefungen am Ende führen weiter: zu Parkettierungen aus regelmässigen Vielecken und den Mosaiken der Alhambra, zu den Kacheln von Escher, zu Farbe als Symmetrie und zu einem zweiten, sehr anschaulichen Blick auf die 17 Gruppen, dem von John Conway.</p>
 
       <div class="box ziele">
         <h4>Lernziele</h4>
         <ul>
           <li>erklären, warum die Ebenengruppe eines Musters von der Anordnung der Motive abhängt und bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt</li>
           <li>an Mauerwerk und Pflaster zeigen, wie der Versatz der Reihen die Symmetrie ändert, und die Ebenengruppen der Beispiele im Bild nachvollziehen</li>
-          <li>Parkettierungen aus regelmässigen Vielecken beschreiben und ihre Symmetrie angeben</li>
         </ul>
         <h5>Zur Vertiefung</h5>
         <ul>
+          <li>Parkettierungen aus regelmässigen Vielecken beschreiben und ihre Symmetrie angeben</li>
           <li>die Namen archimedischer Parkettierungen lesen und erklären, was eine chirale Parkettierung ist</li>
           <li>erklären, wie man Kacheln im Stil von Escher konstruiert</li>
           <li>am Schachbrett erklären, was eine Operation mit Farbwechsel ist</li>
@@ -1599,9 +1599,10 @@
         </div>
       </section>
 
-      <section id="fliesen">
-        <h3>Fliesen und Ornamente der Alhambra</h3>
-        <p>Mit gleichen regelmässigen Vielecken lässt sich die Ebene nur mit drei Sorten lückenlos auslegen: mit gleichseitigen Dreiecken, Quadraten oder Sechsecken (Abschnitt 2.2). Legt man sie Kante an Kante, ergeben Quadrate <i>p</i>4<i>mm</i>, Dreiecke und Sechsecke <i>p</i>6<i>mm</i>. Mischt man verschiedene regelmässige Vielecke, Kante an Kante und so, dass jede Ecke gleich aussieht, mit denselben Vielecken in derselben Reihenfolge, erhält man die archimedischen Parkettierungen. Abb. 7.5 zeigt vier davon mit ihren Ebenengruppen; was ihre Namen bedeuten, erklärt der Kasten unten. Die Ecken der Parkettierung sind dort Atome, die Kanten Bindungen.</p>
+      <section id="fliesen" data-level="vertiefung">
+        <h3>Fliesen und die Alhambra</h3>
+        <p>Ein Fliesenboden ist eine <span class="term">Parkettierung</span>: Fliesen bedecken die Ebene lückenlos und ohne Überlappung. Die einfachsten Parkettierungen bestehen aus regelmässigen Vielecken. Mit gleichen regelmässigen Vielecken allein geht es nur mit drei Sorten: mit gleichseitigen Dreiecken, Quadraten oder Sechsecken (Abschnitt 2.2). Legt man sie Kante an Kante, ergeben Quadrate <i>p</i>4<i>mm</i>, Dreiecke und Sechsecke <i>p</i>6<i>mm</i>. Mischt man verschiedene regelmässige Vielecke, Kante an Kante und so, dass jede Ecke gleich aussieht, mit denselben Vielecken in derselben Reihenfolge, erhält man die <span class="term">archimedischen Parkettierungen</span>.</p>
+        <p>Der Name einer archimedischen Parkettierung zählt die Vielecke auf, die an einer Ecke zusammentreffen, in der Reihenfolge rundherum: 4.8.8 heisst ein Quadrat und zwei Achtecke, 3.4.6.4 ein Dreieck, ein Quadrat, ein Sechseck und wieder ein Quadrat. Weil jede Ecke gleich aussieht, beschreibt dieser Name die ganze Parkettierung. Abb. 7.5 zeigt vier davon mit ihren Ebenengruppen. Die Ecken der Parkettierung sind dort Atome, die Kanten Bindungen.</p>
         <div class="fig-row">
           <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=a488" data-viewbox="100 100 320 320" data-alt="Parkettierung 4.8.8 aus Quadraten und Achtecken">
             <div class="fig-art"></div>
@@ -1624,11 +1625,8 @@
         </div>
         <p class="fig-note"><b>Abb. 7.5</b> Vier archimedische Parkettierungen (Vorgaben im Modus „Gitter und Basis“).</p>
         <p>In 3.3.4.3.4 sind die Quadrate gekippt. Dadurch liegt der 4-zählige Drehpunkt in der Mitte jedes Quadrats auf keiner Spiegellinie mehr; Spiegellinien laufen nur noch durch die Ecken der Parkettierung, zwischen den Quadraten hindurch, und die Gruppe ist <i>p</i>4<i>gm</i> wie beim Flechtverband. 3.3.3.3.6 hat gar keine Spiegellinie, nur Drehpunkte, und die Ebenengruppe <i>p</i>6.</p>
-        <div class="box vertiefung">
-          <h4>Vertiefung · <b>Namen und Händigkeit archimedischer Parkettierungen</b></h4>
-          <p>Der Name einer archimedischen Parkettierung zählt die Vielecke auf, die an einer Ecke zusammentreffen, in der Reihenfolge rundherum: 4.8.8 heisst ein Quadrat und zwei Achtecke, 3.4.6.4 ein Dreieck, ein Quadrat, ein Sechseck und wieder ein Quadrat. Weil jede Ecke gleich aussieht, beschreibt dieser Name die ganze Parkettierung. 3.3.3.3.6 hat keine Spiegellinie. Ihr Spiegelbild ist deshalb eine zweite, ebenso gültige Form, die sich durch Drehen und Verschieben nicht mit der ersten zur Deckung bringen lässt, wie eine linke und eine rechte Hand; man nennt die Parkettierung <span class="term">chiral</span>. Beide Formen haben die Ebenengruppe <i>p</i>6.</p>
-        </div>
-        <p>Zu besonderer Meisterschaft hat es die islamische Kunst mit flächenfüllenden Mustern gebracht. Ein berühmtes Beispiel ist die Alhambra in Granada, eine palastartige Festungsanlage, die seit 1984 zum Weltkulturerbe der UNESCO gehört und für ihre Kachelungen und Mosaiken berühmt ist. Seit Jahrzehnten wird gestritten, ob dort alle 17 Ebenengruppen vorkommen oder nicht. Hoffmann sieht darin auch ein Zeichen dafür, wie schwierig es sein kann, die Ebenengruppe eines Musters eindeutig zu bestimmen. Für die Handwerker, die die Mosaiken schufen, war die Frage ohne Bedeutung: Die 17 Ebenengruppen hat erst Fedorov 1891 abgeleitet, rund fünf Jahrhunderte später.</p>
+        <p>Weil 3.3.3.3.6 keine Spiegellinie hat, ist ihr Spiegelbild eine zweite, ebenso gültige Form, die sich durch Drehen und Verschieben nicht mit der ersten zur Deckung bringen lässt, wie eine linke und eine rechte Hand; man nennt die Parkettierung <span class="term">chiral</span>. Beide Formen haben die Ebenengruppe <i>p</i>6.</p>
+        <p>Archimedische Parkettierungen sind streng geregelt: nur regelmässige Vielecke, jede Ecke gleich. Fliesenkunst kennt diese Beschränkung nicht. Zu besonderer Meisterschaft hat es die islamische Kunst mit flächenfüllenden Mustern gebracht. Ein berühmtes Beispiel ist die Alhambra in Granada, eine palastartige Festungsanlage, die seit 1984 zum Weltkulturerbe der UNESCO gehört und für ihre Kachelungen und Mosaiken berühmt ist. Auch diese Mosaiken sind Parkettierungen, aber aus Fliesen vieler verschiedener Formen, zu weit verwickelteren Mustern zusammengesetzt; Hoffmann zeigt eine Auswahl (Abb. 4.20 dort). Ihre Ebenengruppe bestimmt man wie bei jedem Muster: aus den Operationen, die das ganze Mosaik mit allen Fliesen und Farben in sich überführen. Das ist bei so reichen Mustern nicht leicht. Seit Jahrzehnten wird gestritten, ob dort alle 17 Ebenengruppen vorkommen oder nicht. Hoffmann sieht darin auch ein Zeichen dafür, wie schwierig es sein kann, die Ebenengruppe eines Musters eindeutig zu bestimmen. Für die Handwerker, die die Mosaiken schufen, war die Frage ohne Bedeutung: Die 17 Ebenengruppen hat erst Fedorov 1891 abgeleitet, rund fünf Jahrhunderte später.</p>
       </section>
 
       <section id="escher" data-level="vertiefung">
@@ -1667,7 +1665,9 @@
           </figure>
         </div>
         <p class="fig-note"><b>Abb. 7.7</b> Ein Schachbrett im Modus „Gitter und Basis“. Die gestrichelte Zelle ist die gegebene, die durchgezogene die konventionelle. Hier unterscheiden die Farben zwei Sorten von Feldern wie zwei Atomsorten.</p>
-        <p>Die Verschiebung um ein Feld bringt das Muster also nicht in sich über, aber fast: Jedes Feld kommt auf ein Feld gleicher Form, nur mit der anderen Farbe. Nimmt man solche Operationen mit Farbwechsel hinzu, erhält man die Schwarz-Weiss-Gruppen, auch Antisymmetriegruppen genannt. In der Ebene gibt es 46 von ihnen; zusammen mit den 17 gewöhnlichen und 17 „grauen“ Gruppen, in denen jede Operation auch mit Farbwechsel vorkommt, sind es 80. In den grauen Gruppen ist auch der Farbwechsel allein eine Operation, als wäre jedes Feld zugleich schwarz und weiss, also grau. Mit derselben Idee beschreibt man magnetische Strukturen, etwa antiferromagnetische: Dort spielt die Umkehr der magnetischen Momente die Rolle des Farbwechsels.</p>
+        <p>Die Verschiebung um ein Feld bringt das Muster also nicht in sich über, aber fast: Jedes Feld kommt auf ein Feld gleicher Form, nur mit der anderen Farbe. Nimmt man solche Operationen mit Farbwechsel hinzu, erhält man die Schwarz-Weiss-Gruppen, auch Antisymmetriegruppen genannt. In der Ebene gibt es 46 von ihnen.</p>
+        <p>Insgesamt unterscheidet man drei Arten von Gruppen, je nachdem, welche Rolle der Farbwechsel spielt. In den 17 gewöhnlichen Ebenengruppen ändert keine Operation eine Farbe. In den 46 Schwarz-Weiss-Gruppen wechselt ein Teil der Operationen die Farben, wie die Verschiebung um ein Feld auf dem Schachbrett, die übrigen behalten sie. In den 17 <span class="term">grauen Gruppen</span> schliesslich ist schon der Farbwechsel allein eine Symmetrieoperation, ohne jede Bewegung: Vertauscht man überall Schwarz und Weiss, sieht das Muster genau gleich aus. Das geht nur, wenn kein Feld eine bestimmte Farbe hat. Anschaulich ist jedes Feld zugleich schwarz und weiss, also grau; ein graues Schachbrett hat keine Farben mehr, die man vertauschen könnte. Zu jeder gewöhnlichen Gruppe gehört so genau eine graue, mit denselben Bewegungen, jede einmal ohne und einmal mit Farbwechsel. Zusammen sind es 17 + 46 + 17 = 80 Gruppen.</p>
+        <p>Mit derselben Idee beschreibt man magnetische Strukturen: Dort spielt die Umkehr der magnetischen Momente, die Zeitumkehr, die Rolle des Farbwechsels. Ein Paramagnet, dessen Momente im Mittel verschwinden, hat eine graue Gruppe. Bringt in einem Antiferromagneten wie beim Schachbrett eine Verschiebung jedes Moment auf ein entgegengesetztes, hat er eine Schwarz-Weiss-Gruppe mit einer solchen Translation mit Farbwechsel. Ein Ferromagnet kann eine solche Gruppe nie haben, denn diese Operation kehrte sein Gesamtmoment um. Seine Gruppe ist eine gewöhnliche oder eine Schwarz-Weiss-Gruppe, in der keine reine Translation die Farbe wechselt.</p>
       </section>
 
       <section id="conway" data-level="vertiefung">
@@ -1710,13 +1710,12 @@
           <li>Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster sind periodische Muster mit denselben 17 Ebenengruppen; englisch heissen sie <i>wallpaper groups</i>.</li>
           <li>Die Ebenengruppe hängt von der Anordnung der Motive ab; bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt.</li>
           <li>Der Versatz der Reihen bestimmt die Symmetrie eines Verbands: ohne Versatz <i>p</i>2<i>mm</i>, halb versetzt <i>c</i>2<i>mm</i> mit Gleitspiegellinien entlang der Fugen, um ein Drittel versetzt <i>p</i>2. Fischgrät- und Flechtverband haben <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>.</li>
-          <li>Regelmässige Vielecke parkettieren die Ebene allein nur als Dreiecke, Quadrate oder Sechsecke; gemischt ergeben sie die archimedischen Parkettierungen.</li>
         </ul>
         <h5>Zur Vertiefung</h5>
         <ul>
-          <li>Der Name einer archimedischen Parkettierung zählt die Vielecke um eine Ecke auf; 3.3.3.3.6 ist chiral, mit <i>p</i>6.</li>
+          <li>Regelmässige Vielecke parkettieren die Ebene allein nur als Dreiecke, Quadrate oder Sechsecke; gemischt ergeben sie die archimedischen Parkettierungen. Ihr Name zählt die Vielecke um eine Ecke auf; 3.3.3.3.6 ist chiral, mit <i>p</i>6.</li>
           <li>Kacheln im Stil von Escher entstehen, indem man die Kanten einer Zelle paarweise gleich verformt; eine Kante, die punktsymmetrisch zu ihrer Mitte ist, ergibt 2-zählige Drehpunkte.</li>
-          <li>Operationen mit Farbwechsel führen auf die Schwarz-Weiss-Gruppen, 46 in der Ebene.</li>
+          <li>Operationen mit Farbwechsel führen auf die Schwarz-Weiss-Gruppen, 46 in der Ebene. In den 17 grauen Gruppen ist schon der Farbwechsel allein eine Operation; anschaulich ist jedes Feld zugleich schwarz und weiss.</li>
           <li>Conways Signatur nennt Drehpunkte ohne Spiegellinie, Kaleidoskope, Wunder und Wanderungen; der Preis jeder Signatur ist 2, und genau 17 Signaturen erfüllen das.</li>
         </ul>
       </div>
