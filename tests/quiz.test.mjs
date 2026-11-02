@@ -134,7 +134,7 @@ test('Erzeugte Fragen: richtige Antworten aus den Daten der App', () => {
     const [symbol, b] = p.split(':');
     const q = LAGE.make(p);
     assert.equal(q.pruefung.buchstabe, b, p);
-    const z = startzustand(); hashAnwenden(z, q.bild);
+    const z = startzustand(); hashAnwenden(z, zerlege(q.bild).hash);
     const l = lage(gruppe(symbol), z.punkt);
     const w = ebenengruppe(symbol).wyckoff.find((x) => x.b === b);
     assert.equal(l.buchstabe, b, p);

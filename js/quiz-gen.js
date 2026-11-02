@@ -68,7 +68,7 @@ export const DIAGRAMM = {
       typ: 'bild-text',
       lernziel: 'die beiden Diagramme einer Ebenengruppe in den International Tables lesen',
       frage: 'Das Bild zeigt die Symmetrieelemente einer Elementarzelle wie im Diagramm der International Tables. Zu welcher Ebenengruppe gehört es?',
-      bild: `#m=eg&g=${g}&obj=0&farb=0`, bildAlt: 'Symmetriegerüst einer Elementarzelle',
+      bild: `#m=eg&g=${g}&obj=0&farb=0@1.8`, bildAlt: 'Symmetriegerüst einer Elementarzelle',
       antworten: [g, ...ab].map(S),
       richtig: [0],
       hinweise: [null, ...ab.map(hinweisGruppe)],
@@ -214,7 +214,7 @@ export const LAGE = {
       typ: 'bild-text',
       lernziel: 'allgemeine und spezielle Lagen unterscheiden und für eine Lage Zähligkeit, Lagesymmetrie und Freiheitsgrade angeben',
       frage: `Das markierte Fähnchen (gestrichelter Kreis) sitzt auf einer speziellen Lage der Ebenengruppe ${S(symbol)}. Welche Zähligkeit und welche Lagesymmetrie hat diese Lage?`,
-      bild: `#m=eg&g=${symbol}&x=${koordText(p[0])}&y=${koordText(p[1])}`, bildAlt: `Elementarzelle von ${symbol} mit einem Fähnchen auf einer speziellen Lage`,
+      bild: `#m=eg&g=${symbol}&x=${koordText(p[0])}&y=${koordText(p[1])}@1.8`, bildAlt: `Elementarzelle von ${symbol} mit einem Fähnchen auf einer speziellen Lage`,
       antworten: [richtig, ...ab.map((a) => a.t)],
       richtig: [0],
       hinweise: [null, ...ab.map((a) => a.h)],
@@ -231,7 +231,7 @@ export const LAGE = {
 function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
-    id, kapitel, stufen: [2], status: 'entwurf',
+    id, kapitel, stufen: [2], status: 'geprüft',
     params: () => vorgaben.map((v) => v.id),
     make(vid) {
       const v = vorgaben.find((x) => x.id === vid);
@@ -515,7 +515,7 @@ export const MIT_GLEIT = ALLE.filter((g) => !g.includes('g') && linienArten(g).g
 export const OHNE_GLEIT = ALLE.filter((g) => !linienArten(g).g);
 const NAEHE = { cm: ['pm', 'p2mm', 'p1'], c2mm: ['p2mm', 'pm', 'p2'], p4mm: ['p4', 'p2mm', 'pm'], p3m1: ['p3', 'p6', 'pm'], p31m: ['p3', 'p6', 'p2mm'], p6mm: ['p6', 'p3', 'p2mm'] };
 export const GLEIT_UNGENANNT = {
-  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'entwurf',
+  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => MIT_GLEIT,
   make(g) {
     const ab = (NAEHE[g] || OHNE_GLEIT).filter((x) => OHNE_GLEIT.includes(x)).slice(0, 3);
@@ -550,7 +550,7 @@ const gegenbeispiel = (pg) => {
 };
 const grundAbelsch = (pg) => (pg === '2mm' ? 'jede Operation ist zu sich selbst invers, zum Beispiel <i>m</i><sub><i>a</i></sub> ∘ <i>m</i><sub><i>b</i></sub> = <i>m</i><sub><i>b</i></sub> ∘ <i>m</i><sub><i>a</i></sub> = 2' : 'Drehungen um denselben Punkt sind vertauschbar');
 export const REIHENFOLGE = {
-  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'entwurf',
+  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => [...NICHT_ABELSCH.map((pg) => `ja:${pg}`), ...ABELSCH.map((pg) => `nein:${pg}`)],
   make(param) {
     const [ja, pg] = param.split(':');
