@@ -40,6 +40,10 @@ test('Punktgruppen: Ordnung, Gruppenaxiome, Beispiele im Skript', () => {
   assert.ok(istGruppe('4mm', ['1', '2', 'm1', 'm3'].map((x) => index('4mm', x))));
   assert.ok(!istGruppe('4mm', ['1', '2', 'm1', 'm2'].map((x) => index('4mm', x))));
   assert.ok(skript.includes('<i>m</i><sub>2</sub> ∘ <i>m</i><sub>1</sub> = +4'));
+  // 2mm: Index = Achse senkrecht zur Linie; a zeigt im Bild nach unten (wie in der App), b nach rechts
+  assert.equal(OPERATIONEN['2mm'][index('2mm', 'ma')].w, 0);
+  assert.equal(OPERATIONEN['2mm'][index('2mm', 'mb')].w, 90);
+  assert.ok(skript.includes('<i>m</i><sub><i>a</i></sub> spiegelt an der Linie senkrecht zu <i>a</i>'));
   // Untergruppen von 6mm: 2, 3, 6, sechs m, drei 2mm, zwei 3m
   assert.equal(untergruppen('6mm').length, 14);
 });

@@ -43,7 +43,7 @@ export function dreieck3m(f) {
 /**
  * Punktgruppen 2mm, 4mm und 6mm mit den Bezeichnungen der Operationen (Abb. 4.5, punktoperationen.js):
  * Rechteck, Quadrat oder Sechseck; Spiegellinien gegen den Uhrzeigersinn nummeriert, m1 waagrecht;
- * in 2mm ma entlang a (nach unten) und mb entlang b (nach rechts); Drehpunkt in der Mitte, Pfeil +n.
+ * in 2mm ma ⊥ a (a nach unten) und mb ⊥ b (b nach rechts); Drehpunkt in der Mitte, Pfeil +n.
  */
 export function punktgruppe(pg, f) {
   const c = [260, 200];

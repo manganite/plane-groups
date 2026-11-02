@@ -2,7 +2,8 @@
 // Identität 1; Drehung um 180° 2; Drehungen um 360°/n gegen bzw. im Uhrzeigersinn +n und −n
 // (n = 3, 4, 6); Spiegelungen mit Index. In 3m gehen m1, m2, m3 durch die Stellen 1, 2, 3 der
 // Abb. 4.4; in 4mm und 6mm sind die Spiegellinien gegen den Uhrzeigersinn nummeriert, m1 waagrecht;
-// in 2mm liegt ma entlang a (im Bild nach unten wie in der App), mb entlang b (nach rechts).
+// in 2mm steht der Index für die Achse senkrecht zur Linie: ma ⊥ a (a im Bild nach unten wie in der App,
+// die Linie also waagrecht), mb ⊥ b (b nach rechts, die Linie senkrecht).
 //
 // Eine Operation: { name, html, art: 'd' | 'm', w }. w ist bei einer Drehung der Drehwinkel, bei
 // einer Spiegelung der Winkel der Linie, in Grad gegen den Uhrzeigersinn ab der Waagrechten im Bild.
@@ -20,7 +21,7 @@ const DREH = { 3: [D(120, '+3'), D(240, '−3')], 4: [D(90, '+4'), D(270, '−4'
 /** Punktgruppen mit mindestens einer echten Untergruppe ausser 1, in der Reihenfolge der Systeme. */
 export const OPERATIONEN = {
   4: [E, ZWEI, ...DREH[4]],
-  '2mm': [E, ZWEI, M(90, 'a', true), M(0, 'b', true)],
+  '2mm': [E, ZWEI, M(0, 'a', true), M(90, 'b', true)],
   '3m': [E, ...DREH[3], M(30, 1), M(150, 2), M(90, 3)],
   '4mm': [E, ZWEI, ...DREH[4], ...[0, 45, 90, 135].map((w, i) => M(w, i + 1))],
   6: [E, ZWEI, ...DREH[3], ...DREH[6]],
