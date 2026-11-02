@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { VORGABEN, vorgabe } from '../js/vorgaben.js';
 import { MOTIVE, motivKart } from '../js/motive.js';
-import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell } from '../js/struktur.js';
+import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur } from '../js/zustand.js';
 import { metrik, kart } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
@@ -198,4 +198,18 @@ test('Struktur aus dem Speicher prüfen', () => {
   assert.equal(s.basis.length, 1);
   assert.equal(s.vorgabe, 'dreieck1');
   assert.deepEqual([s.elemente, s.zelle, s.ae, s.bindungen], [true, true, false, true]);
+});
+
+test('Bindungen: nächste Nachbarn je Zelle, auch bei kleiner Vergrösserung schnell', () => {
+  // je Zelle: Quadrat 4/2, Hexagonal 6/2, Graphen 2 · 3/2, Kagome 3 · 4/2 Bindungen
+  for (const [id, n] of [['quadratisch', 2], ['hexagonal', 3], ['graphen', 3], ['kagome', 6]]) {
+    const s = st(id);
+    assert.equal(bindungenBasis(s, metrik(s)).length, n, id);
+  }
+  // spitzwinkliges, gestauchtes Gitter bei Vergrösserung 0,5: früher ein Paarvergleich aller Atome im Bild
+  const s = { ...st('a33336'), ba: 0.5, gamma: 150, bindungen: true };
+  const t = performance.now();
+  const { svg } = strukturTafelB(s, FARBEN, strukturSymmetrie(s), 0.5);
+  assert.ok(performance.now() - t < 2000);
+  assert.match(svg, /<path d="M[^"]+L/);
 });
