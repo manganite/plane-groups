@@ -548,7 +548,7 @@ export const BANK = [
     erklaerung: 'Nur gleichseitige Dreiecke, Quadrate und regelmässige Sechsecke parkettieren die Ebene allein, passend zu den 3-, 4- und 6-zähligen Drehpunkten eines Gitters.',
     skript: 'zaehligkeit', app: '#m=struktur&v=graphen',
     quelle: 'Skript, Abschn. 2.2 und 7.3; Hoffmann (2016), Abschn. 8.2, Abb. 8.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 3 Gitter und Motiv
@@ -1548,7 +1548,7 @@ export const BANK = [
     erklaerung: 'Im Fischgrätverband liegen die Steine im Zickzack, abwechselnd um 90° gedreht. Er hat keine Spiegellinie, aber Gleitspiegellinien in zwei Richtungen und 2-zählige Drehpunkte: die Ebenengruppe <i>p</i>2<i>gg</i>.',
     skript: 'mauerwerk', app: '#m=struktur&v=fisch',
     quelle: 'Skript, Abschn. 7.2, Abb. 7.3d und 7.4b',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-2-01', stufe: 2, kapitel: 7, typ: 'bild-text', lernziel: LZ.mauer,

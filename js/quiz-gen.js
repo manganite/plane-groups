@@ -281,7 +281,7 @@ export const PARKETT = strukturGenerator({
   lernziel: 'Parkettierungen aus regelmässigen Vielecken beschreiben und ihre Symmetrie angeben',
   skript: 'fliesen',
   stufen: [3], // Abschnitt „Fliesen und die Alhambra“ ist Vertiefung
-  status: 'entwurf',
+  status: 'geprüft',
 });
 
 // ------------------------------------------------------------------ Untergruppen der Punktgruppen (Kap. 4)
