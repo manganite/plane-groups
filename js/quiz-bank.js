@@ -6,15 +6,22 @@
 const ov = (s) => `<i><span class="ov">${s}</span></i>`;
 const sym = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
 /**
- * Matrix oder Spaltenvektor (Zeilen als Arrays) als kleine Tabelle mit runden Klammern. Nur
- * Inline-Stile, damit sie auf der Quizseite, in der Prüfliste und in Moodle gleich erscheint.
+ * Matrix oder Spaltenvektor (Zeilen als Arrays) mit Klammern. Nur <span> mit Inline-Stilen (Tabellen-
+ * Darstellung über CSS): Ein <table> darf nicht in einem Absatz stehen, und Fragen und Erklärungen
+ * landen auf der Prüfliste und in Moodle in einem <p>. Die Klammern sind Ränder der ersten und letzten
+ * Spalte, oben und unten mit kurzem Haken (abgerundet, wo die Darstellung border-radius erlaubt).
  */
 const mat = (zeilen) => {
   const n = zeilen.length;
-  const klammer = (seite) => `<td rowspan="${n}" style="width:0.3em;min-width:0.3em;max-width:0.3em;padding:0;border:1.5px solid;border-${seite === 'l' ? 'right' : 'left'}:none;border-radius:${seite === 'l' ? '0.6em 0 0 0.6em' : '0 0.6em 0.6em 0'}"></td>`;
-  const zelle = (x) => `<td style="padding:0.05em 0.35em;text-align:center">${x}</td>`;
-  const tr = zeilen.map((z, i) => `<tr>${i === 0 ? klammer('l') : ''}${z.map(zelle).join('')}${i === 0 ? klammer('r') : ''}</tr>`).join('');
-  return `<table style="display:inline-table;width:auto;table-layout:auto;vertical-align:middle;border-collapse:separate;border-spacing:0;margin:0.1em 0.15em;line-height:1.2"><tbody>${tr}</tbody></table>`;
+  const klammer = (seite, i) => {
+    const r = seite === 'l' ? 'left' : 'right';
+    const oben = i === 0 ? `border-top:1.5px solid;border-top-${r}-radius:0.5em;` : '';
+    const unten = i === n - 1 ? `border-bottom:1.5px solid;border-bottom-${r}-radius:0.5em;` : '';
+    return `<span style="display:table-cell;width:0.3em;min-width:0.3em;padding:0;border-${r}:1.5px solid;${oben}${unten}"></span>`;
+  };
+  const zelle = (x) => `<span style="display:table-cell;padding:0.05em 0.35em;text-align:center;white-space:nowrap">${x}</span>`;
+  const reihe = (z, i) => `<span style="display:table-row">${klammer('l', i)}${z.map(zelle).join('')}${klammer('r', i)}</span>`;
+  return `<span style="display:inline-table;vertical-align:middle;border-collapse:separate;border-spacing:0;margin:0.1em 0.15em;line-height:1.25">${zeilen.map(reihe).join('')}</span>`;
 };
 
 const LZ = {

@@ -380,3 +380,14 @@ test('Fragen: Die richtige Antwort verrät sich nicht durch ihre Länge', () => 
   }
   assert.deepEqual(fehler, []);
 });
+
+test('Fragentexte: keine Block-Elemente (sie dürfen nicht in einem Absatz stehen, Prüfliste und Moodle setzen <p>)', () => {
+  const block = /<(table|tbody|tr|td|div|p|ul|ol|li|h\d|figure)[\s>]/i;
+  const pruefe = (q) => {
+    for (const t of [q.frage, q.erklaerung, ...(q.hinweise || []), ...q.antworten.map((a) => (typeof a === 'string' ? a : ''))].filter(Boolean)) {
+      assert.ok(!block.test(t), `${q.id}: Block-Element in „${t.slice(0, 60)}…“`);
+    }
+  };
+  BANK.forEach(pruefe);
+  alleErzeugten().forEach(pruefe);
+});
