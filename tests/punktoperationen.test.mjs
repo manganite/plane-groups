@@ -78,7 +78,7 @@ test('Erzeugte Fragen zu Untergruppen: Antworten und Hinweise nachgerechnet', ()
   }
 });
 
-test('Spiegelungen: Index = Richtung senkrecht zur Linie, mit den Achsen der App; ⊥ = senkrechter Partner', () => {
+test('Spiegelungen: Index = Richtung senkrecht zur Linie, mit den Achsen der App; in 6mm ⊥ bzw. ∥ zur Achse', () => {
   const st = startzustand();
   const richtung = (sys, v) => { const c = kart(metrik(st.gitter[sys]), v); return [c[0], -c[1]]; }; // y im Bild nach oben
   const achsen = {
@@ -93,20 +93,20 @@ test('Spiegelungen: Index = Richtung senkrecht zur Linie, mit den Achsen der App
       const n = richtung(sys[pg], achsen[sys[pg]][o.index]);
       const l = [Math.cos((o.w * Math.PI) / 180), Math.sin((o.w * Math.PI) / 180)];
       const dot = (n[0] * l[0] + n[1] * l[1]) / Math.hypot(...n);
-      // ohne ⊥: Linie senkrecht zur Richtung im Index; mit ⊥: Linie entlang dieser Richtung
-      if (o.senkrecht) assert.ok(Math.abs(Math.abs(dot) - 1) < 1e-9, `${pg} ${o.name}`);
+      // ohne Zeichen oder mit ⊥: Linie senkrecht zur Richtung im Index; mit ∥: Linie entlang dieser Richtung
+      if (o.zeichen === '∥') assert.ok(Math.abs(Math.abs(dot) - 1) < 1e-9, `${pg} ${o.name}`);
       else assert.ok(Math.abs(dot) < 1e-9, `${pg} ${o.name}`);
     }
-    // jede Spiegelung mit ⊥ steht senkrecht auf der gleichnamigen ohne ⊥
-    for (const o of ms.filter((x) => x.senkrecht)) {
-      const p = ms.find((x) => !x.senkrecht && x.index === o.index);
+    // jede Spiegelung mit ∥ steht senkrecht auf der mit ⊥ zur selben Achse
+    for (const o of ms.filter((x) => x.zeichen === '∥')) {
+      const p = ms.find((x) => x.zeichen === '⊥' && x.index === o.index);
       assert.equal(mod180(o.w - p.w), 90, `${pg} ${o.name}`);
     }
   }
-  // p3m1 hat die Spiegelungen m_ai, p31m die Spiegelungen m_ai⊥ (Skript Abschn. 4.4)
+  // p3m1 hat die Spiegelungen m_ai⊥, p31m die Spiegelungen m_ai∥ (Skript Abschn. 4.4)
   const winkel = (g) => elemente(gruppe(g)).linien.filter((l) => l.art === 'spiegel')
     .map((l) => { const d = richtung('hexagonal', l.richtung); return Math.round(mod180((Math.atan2(d[1], d[0]) * 180) / Math.PI)); });
-  const soll = (senk) => OPERATIONEN['6mm'].filter((o) => o.art === 'm' && o.senkrecht === senk).map((o) => o.w).sort((x, y) => x - y);
-  assert.deepEqual([...new Set(winkel('p3m1'))].sort((x, y) => x - y), soll(false));
-  assert.deepEqual([...new Set(winkel('p31m'))].sort((x, y) => x - y), soll(true));
+  const soll = (z) => OPERATIONEN['6mm'].filter((o) => o.art === 'm' && o.zeichen === z).map((o) => o.w).sort((x, y) => x - y);
+  assert.deepEqual([...new Set(winkel('p3m1'))].sort((x, y) => x - y), soll('⊥'));
+  assert.deepEqual([...new Set(winkel('p31m'))].sort((x, y) => x - y), soll('∥'));
 });

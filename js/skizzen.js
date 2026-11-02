@@ -54,7 +54,7 @@ export function punktgruppe(pg, f) {
   const teil = (t) => t.replace(/[a-z]/g, (x) => `\u0000${x}\u0001`).split(/(\u0000.\u0001)/).filter(Boolean)
     .map((x) => (x[0] === '\u0000' ? `<tspan font-style="italic">${x[1]}</tspan>` : `<tspan font-style="normal">${x}</tspan>`)).join('');
   const marke = (q, o) => `<text x="${f2(q[0])}" y="${f2(q[1] + 7)}" ${SERIF} font-size="30" fill="${f.accent}" text-anchor="middle">m`
-    + `${o.senkrecht ? '<tspan font-size="20" dy="-12" font-style="normal">⊥</tspan><tspan font-size="20" dy="18" dx="-12">' : '<tspan font-size="20" dy="6">'}${teil(o.index)}</tspan></text>`;
+    + `${o.zeichen ? `<tspan font-size="20" dy="-12" font-style="normal">${o.zeichen}</tspan><tspan font-size="20" dy="18" dx="-12">` : '<tspan font-size="20" dy="6">'}${teil(o.index)}</tspan></text>`;
   const ecken = pg === '2mm' ? [[-125, -80], [125, -80], [125, 80], [-125, 80]].map(([x, y]) => [c[0] + x, c[1] + y])
     : Array.from({ length: n }, (_, i) => pol(n === 4 ? 45 + 90 * i : 60 * i, n === 4 ? 92 * Math.SQRT2 : 118));
   svg.push(`<path d="M${ecken.map((q) => `${f2(q[0])} ${f2(q[1])}`).join(' L')} Z" fill="${f.crystal}" fill-opacity="0.35" stroke="${f.ink}" stroke-width="1.6"/>`);
