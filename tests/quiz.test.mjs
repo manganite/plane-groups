@@ -361,7 +361,8 @@ test('Seite: Schalter „Auch ungeprüfte Fragen zeigen“, ?entwurf schaltet ei
   assert.match(html, /<input type="checkbox" id="entwurf-schalter">/);
   assert.ok(html.indexOf('id="entwurf-schalter"') > html.indexOf('</form>'));
   assert.match(js, /let entwurf = START\.has\('entwurf'\);/);
-  const bank = [...BANK, { ...BANK[0], id: 'test-geprueft', status: 'geprüft' }];
+  // je eine geprüfte und eine ungeprüfte Frage dazu, damit der Test nicht vom Stand der Bank abhängt
+  const bank = [...BANK, { ...BANK[0], id: 'test-geprueft', status: 'geprüft' }, { ...BANK[0], id: 'test-entwurf', status: 'entwurf' }];
   const ohne = kandidaten(bank, GENERATOREN, {}), mit = kandidaten(bank, GENERATOREN, { entwurf: true });
   assert.ok(ohne.every((k) => (k.frage ? k.frage.status : k.gen.status) === 'geprüft'));
   assert.ok(mit.length > ohne.length);
