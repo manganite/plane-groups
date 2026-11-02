@@ -7,10 +7,15 @@
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB } from './struktur.js';
-import { dreieck3m } from './skizzen.js';
+import { dreieck3m, punktgruppe } from './skizzen.js';
 
-/** Skizzen aus dem Skript (viewBox 520 × 400), im Quizbild vergrössert und mittig. */
-const SKIZZEN = { '3m': dreieck3m };
+/** Skizzen aus dem Skript (viewBox 520 × 400): Zeichnung und Höhe ihrer Mitte; im Quizbild vergrössert und mittig. */
+const SKIZZEN = {
+  '3m': [dreieck3m, 185],
+  '2mm': [(f) => punktgruppe('2mm', f), 200],
+  '4mm': [(f) => punktgruppe('4mm', f), 200],
+  '6mm': [(f) => punktgruppe('6mm', f), 200],
+};
 
 /** Farben aus CSS-Variablen ({ paper: '#fff', …, dir1, dir2, dir3, fc0 … fc5 }) in der Form der Tafeln. */
 export const farbenAus = (v) => ({
@@ -39,7 +44,11 @@ export const appAdresse = (angabe) => zerlege(angabe).hash;
  */
 export function bildInhalt(angabe, f, opt = {}) {
   const { tafel, hash, k: gross, skizze } = zerlege(angabe);
-  if (skizze) return istSkizze(skizze) ? `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(1.35) translate(-260 -185)">${SKIZZEN[skizze](f)}</g>` : null;
+  if (skizze) {
+    if (!istSkizze(skizze)) return null;
+    const [zeichne, mitte] = SKIZZEN[skizze];
+    return `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(1.35) translate(-260 -${mitte})">${zeichne(f)}</g>`;
+  }
   const z = startzustand();
   if (!hashAnwenden(z, hash)) return null;
   if (z.modus === 'struktur') {

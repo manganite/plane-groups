@@ -23,6 +23,7 @@ const FILES = [
   'js/hilfetexte.js',
   'js/main.js',
   'js/motive.js',
+  'js/punktoperationen.js',
   'js/quiz-bank.js',
   'js/quiz-bild.js',
   'js/quiz-gen.js',

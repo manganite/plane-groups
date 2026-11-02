@@ -12,7 +12,7 @@ import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, drehSymbol } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
 import { MOTIVE } from './motive.js';
-import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m } from './skizzen.js';
+import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe } from './skizzen.js';
 
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
 const farben = () => ({
@@ -317,7 +317,7 @@ function kachelSkizze(fig, f) {
   return svg.join('');
 }
 
-const SKIZZEN = { kachel: kachelSkizze, dreieck3m: (fig, f) => dreieck3m(f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
+const SKIZZEN = { kachel: kachelSkizze, dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(fig.dataset.pg, f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
 
 function abbildungen() {
   const f = farben();

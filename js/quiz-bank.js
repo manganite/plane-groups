@@ -756,7 +756,7 @@ export const BANK = [
       'Eine Spiegelung wechselt nur ein Vorzeichen; hier wechseln beide.'],
     erklaerung: `Zuerst <i>B</i>, dann <i>A</i>: (<i>x</i>,&nbsp;<i>y</i>) → (−<i>x</i>,&nbsp;−<i>y</i>) → (−<i>x</i> + 1,&nbsp;−<i>y</i>). Das ist ${ov('x')} + 1, ${ov('y')}, eine Drehung um 180° um (½,&nbsp;0).`,
     skript: 'verknuepfung', app: '#m=eg&g=p2&erkl=2;1/2,0',
-    quelle: 'Skript, Abschn. 4.4, Abb. 4.5a',
+    quelle: 'Skript, Abschn. 4.4, Abb. 4.6a',
     status: 'geprüft',
   },
   {
@@ -811,7 +811,7 @@ export const BANK = [
       'Die neue Linie rückt um die Hälfte des Anteils der Translation senkrecht zur Spiegellinie.'],
     erklaerung: 'Die Spiegelung an der Diagonalen und die Translation <i>a</i> ergeben eine Gleitspiegelung an der Linie durch (½,&nbsp;0) parallel zur Diagonalen, mit der Gleitkomponente (<i>a</i> + <i>b</i>)/2.',
     skript: 'mehr-elemente', app: '#m=eg&g=p4mm&erkl=g;1/2,0;1,1',
-    quelle: 'Skript, Abschn. 4.5, Abb. 4.6',
+    quelle: 'Skript, Abschn. 4.5, Abb. 4.7',
     status: 'entwurf',
   },
   {
@@ -830,7 +830,7 @@ export const BANK = [
       'Nicht mehr: Die Spitzen zeigen in Gegenrichtungen, die Verschiebung bringt kein Dreieck auf ein gleich ausgerichtetes.'],
     erklaerung: 'Die Drehung um (¼,&nbsp;¼), <i><span class="ov">x</span></i> + ½, <i><span class="ov">y</span></i> + ½, bildet jedes Dreieck auf das umgedrehte ab. Mit den Spiegellinien folgen daraus auch Gleitspiegellinien: <i>p</i>2<i>mg</i>.',
     skript: 'mehr-elemente', app: '#m=struktur&v=dreieck3',
-    quelle: 'Skript, Abschn. 4.5, Abb. 4.7',
+    quelle: 'Skript, Abschn. 4.5, Abb. 4.8',
     status: 'geprüft',
   },
   {

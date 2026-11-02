@@ -8,6 +8,7 @@ import { gruppe, punktAufLage, lage } from './symmetrie.js';
 import { koordText } from './zustand.js';
 import { symbolHTML } from './text.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
+import { OPERATIONEN, verknuepfe, istGruppe, nichtAbgeschlossen, teilmengen, untergruppen, symbolVon } from './punktoperationen.js';
 
 const S = symbolHTML;
 const ALLE = EBENENGRUPPEN.map((d) => d.symbol);
@@ -281,4 +282,91 @@ export const PARKETT = strukturGenerator({
   skript: 'fliesen',
 });
 
-export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT];
+// ------------------------------------------------------------------ Untergruppen der Punktgruppen (Kap. 4)
+// Operationen und Verknüpfungen aus punktoperationen.js (Test: Gruppentafel 3m = Tafel im Skript).
+// Ohne 2mm und ohne die Untergruppen m: Jede Menge {1, X} mit X ∘ X = 1 ist eine Gruppe; die richtige
+// Antwort wäre dort die einzige zweielementige Menge mit der Identität.
+const PG_REIHE = ['4', '3m', '4mm', '6', '6mm'];
+const BILD_PG = { '3m': 'skizze:3m', '4mm': 'skizze:4mm', '6mm': 'skizze:6mm' };
+export const mengeHTML = (pg, s) => `{${s.map((i) => OPERATIONEN[pg][i].html).join(', ')}}`;
+const zusammensetzung = (pg, s) => { const d = s.filter((i) => OPERATIONEN[pg][i].art === 'd').length; return [d, s.length - d]; };
+const symDiff = (x, y) => x.filter((i) => !y.includes(i)).length + y.filter((i) => !x.includes(i)).length;
+
+/**
+ * Drei Teilmengen, die keine Gruppen sind, möglichst ähnlich zur Untergruppe t und untereinander
+ * verschieden. Die richtige Antwort soll sich nicht durch eine äussere Eigenschaft verraten: Für
+ * Grösse, Zahl der Spiegelungen und „enthält die Identität“ hat möglichst ein Ablenker denselben Wert.
+ */
+export function untergruppenAblenker(pg, t) {
+  const n = OPERATIONEN[pg].length;
+  const [td, tm] = zusammensetzung(pg, t);
+  const merkmale = (s) => [s.length, zusammensetzung(pg, s)[1], s.includes(0)];
+  const mt = merkmale(t);
+  const kand = teilmengen(n, 2, n - 1).filter((s) => !istGruppe(pg, s));
+  const gewaehlt = [];
+  const kleiner = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
+  while (gewaehlt.length < 3) {
+    const offen = mt.map((v, i) => !gewaehlt.some((g) => merkmale(g)[i] === v));
+    let best = null; let bestKey = null;
+    for (const s of kand) {
+      if (gewaehlt.includes(s)) continue;
+      const [d, m] = zusammensetzung(pg, s);
+      const neu = merkmale(s).filter((v, i) => offen[i] && v === mt[i]).length;
+      const vielfalt = gewaehlt.length ? Math.min(...gewaehlt.map((g) => symDiff(g, s))) : 0;
+      const key = [-neu, Math.abs(s.length - t.length), s.includes(0) ? 0 : 1, Math.abs(d - td) + Math.abs(m - tm), -Math.min(vielfalt, 2), symDiff(s, t)];
+      if (!bestKey || kleiner(key, bestKey)) { best = s; bestKey = key; }
+    }
+    gewaehlt.push(best);
+  }
+  return gewaehlt;
+}
+
+/** Warum die Menge keine Gruppe ist (Text mit HTML). */
+export function untergruppenHinweis(pg, s) {
+  const o = OPERATIONEN[pg];
+  if (!s.includes(0)) {
+    for (const a of s) for (const b of s) if (verknuepfe(pg, a, b) === 0) return `Es fehlt die Identität: ${o[a].html} ∘ ${o[b].html} = 1 liegt nicht in der Menge.`;
+    return 'Es fehlt die Identität 1; jede Gruppe enthält sie.';
+  }
+  const [a, b] = nichtAbgeschlossen(pg, s);
+  return `${o[a].html} ∘ ${o[b].html} = ${o[verknuepfe(pg, a, b)].html} liegt nicht in der Menge.`;
+}
+
+export const UNTERGRUPPE = {
+  id: 'untergruppe', kapitel: 4, stufen: [1], status: 'entwurf',
+  // je Punktgruppe eine Frage je Art von Untergruppe (z. B. nur eine der beiden Untergruppen 2mm von 4mm)
+  params: () => PG_REIHE.flatMap((pg) => {
+    const gesehen = new Set();
+    // in 4mm und 6mm ohne die Drehgruppen 2 und 3: dieselbe Frage wie in 4 und 6
+    const nurDrehungen = (s) => zusammensetzung(pg, s)[1] === 0 && s.length < zusammensetzung(pg, OPERATIONEN[pg].map((_, i) => i))[0];
+    return untergruppen(pg)
+      .filter((s) => symbolVon(pg, s) !== 'm' && !(pg.endsWith('mm') && nurDrehungen(s)))
+      .filter((s) => !gesehen.has(symbolVon(pg, s)) && gesehen.add(symbolVon(pg, s)))
+      .map((s) => `${pg}:${s.join('.')}`);
+  }),
+  make(param) {
+    const [pg, liste] = param.split(':');
+    const t = liste.split('.').map(Number);
+    const ab = untergruppenAblenker(pg, t);
+    const o = OPERATIONEN[pg];
+    // ein Beispiel für die Abgeschlossenheit: zwei Operationen ausser der Identität
+    const x = t.filter((i) => i !== 0);
+    const [a, b] = x.length > 1 ? [x[1], x[0]] : [x[0], x[0]];
+    const bild = BILD_PG[pg];
+    return {
+      typ: bild ? 'bild-text' : 'einfach',
+      lernziel: 'die Gruppentafel einer Punktgruppe lesen und aufstellen',
+      frage: `Welche Teilmenge der Punktgruppe ${pgHTML(pg)} ist selbst eine Gruppe (eine Untergruppe)?${bild ? ' Das Bild zeigt die Bezeichnungen der Operationen.' : ''}`,
+      ...(bild ? { bild, bildAlt: `Punktgruppe ${pg} mit den Bezeichnungen der Spiegellinien` } : {}),
+      antworten: [t, ...ab].map((s) => mengeHTML(pg, s)),
+      richtig: [0],
+      hinweise: [null, ...ab.map((s) => untergruppenHinweis(pg, s))],
+      erklaerung: `Die Menge enthält die Identität, und jede Verknüpfung zweier ihrer Operationen liegt wieder in ihr, zum Beispiel ${o[a].html} ∘ ${o[b].html} = ${o[verknuepfe(pg, a, b)].html}. Sie bildet die Punktgruppe ${pgHTML(symbolVon(pg, t))}.`,
+      skript: 'verknuepfung',
+      quelle: 'Skript, Abschn. 4.4, Abb. 4.4 und 4.5',
+      pruefung: { art: 'untergruppe', pg, menge: t },
+    };
+  },
+};
+
+export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, UNTERGRUPPE];
