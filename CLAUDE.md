@@ -9,16 +9,8 @@ Literaturregeln) und `../crystallography-common/LEITFADEN.md`. Fehlt der Ordner,
 
 ## Qualitätsablauf Quiz
 
-- Nur Thomas setzt Fragen auf „geprüft“, über sein Urteil „in Ordnung“ in der **Prüfliste**
-  (Artifact https://claude.ai/artifact/3xMFfo1yGZn7VBF8fbpfC3, Speicher `befunde`, Dokument je Frage-
-  bzw. Generator-ID: `urteil` ok|aendern|offen, `notiz`, `zeit`). Die Prüfliste zeigt nur Entwürfe.
-- Jede geänderte oder neue Frage geht auf `status: 'entwurf'` und in `befunde` auf `urteil: 'offen'`
-  mit Notiz „Claude: …“ (was geändert, warum).
-- **Fragenliste** (dauerhaft): https://claude.ai/artifact/HBvBEy12fiPkF1e1r9MrSf, Speicher
-  `rueckmeldungen`; nach dem Einarbeiten als erledigt markieren, mit Notiz.
-- Beide Listen erzeugt `node tools/listen/liste-extract.mjs pruefliste|fragenliste`. Beim
-  Neuveröffentlichen immer die URL des bestehenden Artifacts angeben (sonst entsteht ein neues); die
-  Seite braucht die Fähigkeit `db`.
+- **Prüfung und Rückmeldungen** in der gemeinsamen Fragenliste (`CLAUDE.md` von common, Abschnitt
+  „Quiz“); diese App liefert ihre Fragen über `tools/quiz-quelle.mjs`.
 - **Vorschau der App** (nicht öffentlich): Artifact https://claude.ai/artifact/KTA1WqaG68wj964pRJXP2i mit
   App, Skript, Quiz und `skript.pdf`. Beim Neuveröffentlichen URL angeben, geänderte Dateien in `files`
   aufführen; `skript.pdf` vorher mit `node tools/skript-pdf.mjs` erzeugen (in `.gitignore`).
