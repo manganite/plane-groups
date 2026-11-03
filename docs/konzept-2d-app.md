@@ -14,7 +14,7 @@
 Stand 3.11.2026, Abend, neunter Entwurf (zuletzt ergänzt: erstes Release v1.0.0, Entscheidungen 31–34; Status Ende Abschnitt 13). Er enthält die Entscheidungen von Thomas vom 30.10. bis 3.11. (Abschnitt 12); offene Fragen stehen in Abschnitt 13.
 
 Grundlage:
-- Vorlesung HS 2026: Kap. 6, Kap. 7 (141–158), Kap. 9 (180–193)
+- Vorlesung HS 2026: Kap. 6, 7 und 9
 - Hoffmann, *Faszination Kristalle und Symmetrie* (2016), Kap. 4, mit Abschn. 1.9, 2.3, 2.7 und 6.1: Didaktik und Anregungen
 - Borchardt-Ott & Sowa (2018), Abschn. 7.1–7.2, 10.1–10.2: Begriffe
 - ITA Vol. A (2006), Abschn. 2.2.6.1 und Part 6 (die 17 Ebenengruppen, S. 92–109): Konventionen und Daten
