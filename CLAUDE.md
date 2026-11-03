@@ -55,7 +55,7 @@ Literaturregeln) und `../crystallography-common/LEITFADEN.md`. Fehlt der Ordner,
   Gruppe. Schwarz-Weiss-Gruppe mit farbwechselnder Translation nur bei Antiferromagneten, nie bei
   Ferromagneten. Vergleich Farbe ↔ Moment in der Ebene nur qualitativ (eine Spiegellinie kehrt ein
   Moment ⊥ Ebene um).
-- **Modi und Umfang:** kein eigener Trainingsmodus für die Klausuraufgabe (Konzept 1a); „Gitter und
+- **Modi und Umfang:** kein eigener Trainingsmodus für den Aufgabentyp aus Konzept 1a; „Gitter und
   Basis“ muss deren Schritte zeigen. Planung: Modus „Bestimmen“ und Kap. 8 Issue #38, Beugung (Kap. 9)
   Issue #36.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
@@ -119,7 +119,8 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
 - **Vorlesung HS 2026** nur zum Abgleich, nie zitiert.
 - **`oxrd.py`** (Laserbeugung, Tzschaschel, Lehmann 2018): Ideen für Konzept 3.3, nicht die Oberfläche.
 
-## Unterlagen ausserhalb des Repositories
+## Konzept
 
-Im claude.ai-Projekt der App (noch nicht hier): `konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34,
-offene Fragen).
+`docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) mit Statuskopf. Es bleibt das Konzept für
+die offenen Teile (Beugung, „Bestimmen“, Erweiterungen); neue Entwurfsentscheidungen kommen dort hinzu,
+der Fortschritt steht in Issues und PRs.
