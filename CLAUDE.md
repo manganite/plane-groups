@@ -56,8 +56,8 @@ Literaturregeln) und `../crystallography-common/LEITFADEN.md`. Fehlt der Ordner,
   Ferromagneten. Vergleich Farbe ↔ Moment in der Ebene nur qualitativ (eine Spiegellinie kehrt ein
   Moment ⊥ Ebene um).
 - **Modi und Umfang:** kein eigener Trainingsmodus für die Klausuraufgabe (Konzept 1a); „Gitter und
-  Basis“ muss deren Schritte zeigen. Modus „Bestimmen“ und Kap. 8 nach dem ersten Release (Issue #38),
-  Beugung (Kap. 9) im zweiten (Issue #36).
+  Basis“ muss deren Schritte zeigen. Planung: Modus „Bestimmen“ und Kap. 8 Issue #38, Beugung (Kap. 9)
+  Issue #36.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
