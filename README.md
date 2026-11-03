@@ -88,7 +88,7 @@ Statische Webseite ohne Build-Schritt: im Ordner `python3 -m http.server 8000` s
 - Gemeinsame Dateien übernehmen: `node tools/common/sync.mjs ../crystallography-common` (von einem Release-Tag)
 - Skript als PDF: `node tools/skript-pdf.mjs` (braucht Playwright mit Chromium)
 - Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml`
-- Prüfliste und Fragenliste des Quiz: `node tools/listen/liste-extract.mjs pruefliste` bzw. `fragenliste` schreibt `tools/listen/pruefliste.html` bzw. `fragenliste.html` (nicht im Repository). Die Prüfliste zeigt nur Entwürfe; Eine Frage wird erst „geprüft“, wenn sie dort mit „in Ordnung“ beurteilt ist. Die Fragenliste zeigt alle Fragen und sammelt Rückmeldungen. Beide sind als Artifacts in claude.ai veröffentlicht und speichern Urteile bzw. Rückmeldungen dort.
+- Prüfliste und Fragenliste des Quiz: `node tools/listen/liste-extract.mjs pruefliste` bzw. `fragenliste` schreibt `tools/listen/pruefliste.html` bzw. `fragenliste.html` (nicht im Repository). Die Prüfliste zeigt nur Entwürfe; eine Frage wird erst „geprüft“, wenn sie dort mit „in Ordnung“ beurteilt ist. Die Fragenliste zeigt alle Fragen und sammelt Rückmeldungen. Beide sind als Artifacts in claude.ai veröffentlicht und speichern Urteile bzw. Rückmeldungen dort.
 - Releases: Version in `js/version.js`, `sw.js`, `CITATION.cff` und `CHANGELOG.md`, dann Tag `vX.Y.Z` auf `main`. Die Live-Seite ändert sich nur mit einem Release-Tag.
 
 ## Lizenz
