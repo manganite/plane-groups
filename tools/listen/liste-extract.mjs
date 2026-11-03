@@ -20,16 +20,19 @@ const { bildInhalt, farbenAus, appAdresse } = await imp('js/quiz-bild.js');
 const { helleFarben } = await imp('tools/common/moodle.mjs');
 
 const col = farbenAus(helleFarben(join(repo, 'lib/common/css/base.css')));
-const svg = (angabe, opt = {}) => {
+const attr = (t) => String(t).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+// Bild mit dem Alternativtext der Frage als zugänglichem Namen (so lässt sich auch der Bildtext prüfen)
+const svg = (angabe, opt = {}, alt = '') => {
   if (!angabe) return null;
   const inhalt = bildInhalt(angabe, col, opt);
-  return inhalt ? `<svg viewBox="0 0 520 520">${inhalt}</svg>` : null;
+  const name = alt ? ` role="img" aria-label="${attr(alt)}"` : '';
+  return inhalt ? `<svg viewBox="0 0 520 520"${name}>${inhalt}</svg>` : null;
 };
 const bildAnt = (q) => q.typ === 'text-bild' || q.typ === 'bild-bild';
 const conv = (q, extra = {}) => ({
   id: q.id, kapitel: q.kapitel, stufe: q.stufe, typ: q.typ, lernziel: q.lernziel || '',
-  frage: q.frage, bild: q.bild ? svg(q.bild) : null, bildHash: q.bild ? appAdresse(q.bild) : null,
-  antworten: q.antworten.map((a) => (bildAnt(q) ? { svg: svg(a.app, { klein: true }), hash: appAdresse(a.app) } : { html: a })),
+  frage: q.frage, bild: q.bild ? svg(q.bild, {}, q.bildAlt || '') : null, bildHash: q.bild ? appAdresse(q.bild) : null,
+  antworten: q.antworten.map((a) => (bildAnt(q) ? { svg: svg(a.app, { klein: true }, a.alt || ''), hash: appAdresse(a.app) } : { html: a })),
   richtig: q.richtig, hinweise: q.hinweise || [], erklaerung: q.erklaerung || '', skript: q.skript || '',
   app: q.app || '', quelle: q.quelle || '', nachgerechnet: q.pruefung ? (q.pruefung.art || 'ja') : '', ...extra,
 });

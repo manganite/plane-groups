@@ -267,7 +267,8 @@ ol.antw .fig svg { display: block; width: 100%; height: auto; }
     const a = el.querySelector('.antwort');
     a.hidden = !r.antwort; a.innerHTML = r.antwort ? `<b>Claude:</b> ${esc(r.antwort)}` : '';
     const passt = filter === 'alle' || (filter === 'entwurf' ? el.querySelector('.pille.entwurf') : filter === s);
-    el.hidden = !(passt && (!suche || texte[k].includes(suche)));
+    // Die Karte, in der gerade geschrieben wird, bleibt sichtbar; der Filter greift beim Verlassen
+    el.hidden = !((passt && (!suche || texte[k].includes(suche))) || el.contains(document.activeElement));
   }
   function zeigeStand() {
     let neu = 0, erl = 0, entw = 0;
@@ -318,6 +319,7 @@ ol.antw .fig svg { display: block; width: 100%; height: auto; }
     const f = ev.target.closest && ev.target.closest('textarea, input.von'); if (!f) return;
     const k = f.closest('.karte').dataset.key;
     if (entwuerfe[k]) { clearTimeout(timer[k]); entwuerfe[k] = false; speichern(k); }
+    setTimeout(() => { zeigeKarte(k); zeigeStand(); }, 0);
   });
   liste.addEventListener('click', (ev) => {
     const b = ev.target.closest('.b-erl'); if (!b || b.disabled) return;

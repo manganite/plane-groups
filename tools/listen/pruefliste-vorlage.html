@@ -232,7 +232,8 @@ ol.antw .fig svg { display: block; width: 100%; height: auto; }
     el.querySelectorAll('.knoepfe button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.u === u)));
     const ta = el.querySelector('textarea');
     if (document.activeElement !== ta && !entwuerfe[k]) ta.value = (befunde[k] && befunde[k].notiz) || '';
-    el.hidden = !(filter === 'alle' || filter === u);
+    // Die Karte, in der gerade geschrieben wird, bleibt sichtbar; der Filter greift beim Verlassen
+    el.hidden = !(filter === 'alle' || filter === u || el.contains(document.activeElement));
   }
   function zeigeStand() {
     const n = eintraege.length;
@@ -298,6 +299,7 @@ ol.antw .fig svg { display: block; width: 100%; height: auto; }
     const ta = ev.target.closest && ev.target.closest('textarea'); if (!ta) return;
     const k = ta.closest('.karte').dataset.key;
     if (entwuerfe[k]) { clearTimeout(timer[k]); entwuerfe[k] = false; speichern(k); }
+    setTimeout(() => { zeigeKarte(k); zeigeStand(); }, 0);
   });
   document.querySelector('.seg').addEventListener('click', (ev) => {
     const b = ev.target.closest('button'); if (!b) return;
@@ -320,7 +322,8 @@ ol.antw .fig svg { display: block; width: 100%; height: auto; }
       return;
     }
     db.collection('befunde').onSnapshot((snap) => {
-      for (const d of snap.docs) if (d.exists) befunde[d.id] = { ...d.data() };
+      // ungespeicherte Eingaben nicht mit dem älteren Stand überschreiben
+      for (const d of snap.docs) if (d.exists && !entwuerfe[d.id]) befunde[d.id] = { ...d.data() };
       alles();
     }, () => { hinweis.hidden = false; hinweis.textContent = 'Verbindung zum Speicher unterbrochen; bitte die Seite neu laden.'; });
   };
