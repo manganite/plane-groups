@@ -46,8 +46,7 @@ Literaturregeln) und `../crystallography-common/LEITFADEN.md`. Fehlt der Ordner,
     nur mit ⊥ wirkte im Bild widersprüchlich).
   - Ausnahme 3*m*: *m*₁–*m*₃ wie in der Vorlesung.
 - **Kein LaTeX** in App, Skript und Quiz; Formeln in HTML (kursiv, Unicode, `<sub>`/`<sup>`, `.ov`).
-  Für Kap. 9 (Beugung) offen: Vorschlag KaTeX, selbst gehostet, nur für abgesetzte Formeln, dann als
-  Regel im Leitfaden der Familie.
+  Formelsatz für Kap. 9 (Beugung) offen: Issue #35.
 - **Kap. 7:** „Fliesen und die Alhambra“, „Escher“, „Farbe“, „Conway“ sind Vertiefung (über die
   Vorlesung hinaus); Fragen dazu Stufe 3, Generator `parkett` ebenfalls.
 - **Alhambra:** Archimedische Parkettierungen und Alhambra nur über den Begriff Parkettierung verbinden.
@@ -57,8 +56,8 @@ Literaturregeln) und `../crystallography-common/LEITFADEN.md`. Fehlt der Ordner,
   Ferromagneten. Vergleich Farbe ↔ Moment in der Ebene nur qualitativ (eine Spiegellinie kehrt ein
   Moment ⊥ Ebene um).
 - **Modi und Umfang:** kein eigener Trainingsmodus für die Klausuraufgabe (Konzept 1a); „Gitter und
-  Basis“ muss deren Schritte zeigen. Modus „Bestimmen“ und Kap. 8 nach dem ersten Release, Beugung
-  (Kap. 9) im zweiten.
+  Basis“ muss deren Schritte zeigen. Modus „Bestimmen“ und Kap. 8 nach dem ersten Release (Issue #38),
+  Beugung (Kap. 9) im zweiten (Issue #36).
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
@@ -86,7 +85,7 @@ Literaturregeln) und `../crystallography-common/LEITFADEN.md`. Fehlt der Ordner,
 
 ## Fallstricke
 
-- **README-Tabelle der Link-Adressen unvollständig:** es fehlen `zoom`, `og`, `tap`, `lupe`; bei `form`
+- **README-Tabelle der Link-Adressen unvollständig** (Issue #34): es fehlen `zoom`, `og`, `tap`, `lupe`; bei `form`
   fehlen `blatt`, `tropfen`, `ranke`.
 - **Lokale Tests mit HTML-Fragmenten** laufen im Quirks-Modus; Fehler wie `<table>` in `<p>` zeigen sich
   erst im Standards-Modus.
@@ -113,7 +112,7 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
 - **Conway, Burgiel, Goodman-Strauss, *The Symmetries of Things*:** Kap. 2 (Tab. 2.1, S. 27); Kap. 3
   (Magic Theorem S. 29–30; Signatur S. 30–31; die 17 Typen S. 33–40, Tab. 3.2; Übungsmuster S. 42–49);
   Kap. 11–13 Farbsymmetrie, S. 135–169. **Achtung:** Konzept nennt A K Peters 2008, `skript.html`
-  A K Peters/CRC 2016; vor dem Zitieren klären.
+  A K Peters/CRC 2016; vor dem Zitieren klären (Issue #42).
 - **Weitere:** Schattschneider, *M. C. Escher: Visions of Symmetry* (2. Aufl. 2004); Grünbaum, Notices
   AMS 53, 670–673 (2006) (Alhambra); ITA Vol. E (Friesgruppen); Lexikon der Geowissenschaften,
   „Antisymmetriegruppen“ (2000).
