@@ -12,9 +12,8 @@ für diese App gilt.
 
 - **Prüfung und Rückmeldungen** in der gemeinsamen Fragenliste (`CLAUDE.md` von common, Abschnitt
   „Quiz“); diese App liefert ihre Fragen über `tools/quiz-quelle.mjs`.
-- **Vorschau der App** (nicht öffentlich): Artifact https://claude.ai/artifact/KTA1WqaG68wj964pRJXP2i mit
-  App, Skript, Quiz und `skript.pdf`. Beim Neuveröffentlichen URL angeben, geänderte Dateien in `files`
-  aufführen; `skript.pdf` vorher mit `node tools/skript-pdf.mjs` erzeugen (in `.gitignore`).
+- **Vorschau der App** (nicht öffentlich): Artifact https://claude.ai/artifact/KTA1WqaG68wj964pRJXP2i;
+  Ablauf in der `CLAUDE.md` von common, Abschnitt „Vorschau einer App“.
 
 ### Regeln für Fragen
 - Richtige Antwort nicht an Länge oder Ausführlichkeit erkennbar (Test).
