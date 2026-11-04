@@ -6,7 +6,7 @@
 // lib/common/js/skript-kern.js.
 
 import { appLink, inhaltsverzeichnis, querstriche } from '../lib/common/js/skript-kern.js';
-import { versionEintragen, offline } from '../lib/common/js/seite.js';
+import { versionEintragen, offline, elemente } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, drehSymbol, grad } from './zeichnung.js';
@@ -353,7 +353,7 @@ const SKIZZEN = { kachel: kachelSkizze, dreieck3m: (fig, f) => dreieck3m(f), pun
 
 function abbildungen() {
   const f = farben();
-  for (const fig of /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('figure[data-kind]'))) {
+  for (const fig of elemente('figure[data-kind]')) {
     if (fig.dataset.app) appLink(fig, 'index.html');
     const art = /** @type {HTMLElement} */ (fig.querySelector('.fig-art'));
     const kind = /** @type {string} */ (fig.dataset.kind);

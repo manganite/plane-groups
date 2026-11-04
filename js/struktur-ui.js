@@ -9,6 +9,7 @@ import { gruppe, mod1 } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { dezimal } from './text.js';
+import { $, eingabe, auswahl, knopf, grafik } from '../lib/common/js/seite.js';
 
 /** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
 /** @import { Zustand } from './zustand.js' */
@@ -20,24 +21,17 @@ import { dezimal } from './text.js';
 const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
 
 /**
- * ctx: { z, $, farben(), aktualisieren(), svgPunkt(e), coarse }.
+ * ctx: { z, farben(), aktualisieren(), svgPunkt(e), coarse }.
  * Rückgabe: Funktionen, die main.js aufruft.
- * @param {{ z: Zustand, $: (id: string) => HTMLElement, farben: () => Farben, aktualisieren: () => void,
+ * @param {{ z: Zustand, farben: () => Farben, aktualisieren: () => void,
  *   svgPunkt: (e: { clientX: number, clientY: number }) => Vec2, coarse: MediaQueryList }} ctx
  */
-export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
-  // Elemente der Seite (index.html), als Eingabefeld, Auswahlliste oder Knopf
-  /** @param {string} id */
-  const eingabe = (id) => /** @type {HTMLInputElement} */ ($(id));
-  /** @param {string} id */
-  const liste = (id) => /** @type {HTMLSelectElement} */ ($(id));
-  /** @param {string} id */
-  const knopf = (id) => /** @type {HTMLButtonElement} */ ($(id));
+export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   let werkzeug = 'verschieben'; // oder 'hinzufuegen'
   /** @type {Vorlage} */
   let neu = { motiv: 'dreieck', farbe: 0, winkel: grad(0), groesse: null }; // Vorlage für „Hinzufügen“
   /** @type {number | null} */
-  let auswahl = null; // Index in der Basis
+  let gewaehlt = null; // Index des gewählten Motivs in der Basis
   let rasten = true;
   /** @type {Ansicht | null} */
   let ansicht = null; // Ansicht von Tafel A (zuletzt gezeichnet)
@@ -61,16 +55,16 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
   }
 
   /** Der Eintrag, den die Regler bearbeiten: die Auswahl oder die Vorlage für „Hinzufügen“. @returns {Basiseintrag | Vorlage} */
-  const ziel = () => (auswahl !== null && st().basis[auswahl] ? st().basis[auswahl] : neu);
+  const ziel = () => (gewaehlt !== null && st().basis[gewaehlt] ? st().basis[gewaehlt] : neu);
 
   function abgleichen() {
     const s = st();
-    if (auswahl !== null && !s.basis[auswahl]) auswahl = null;
+    if (gewaehlt !== null && !s.basis[gewaehlt]) gewaehlt = null;
     document.body.classList.toggle('modus-struktur', z.modus === 'struktur');
     $('tab-eg').setAttribute('aria-selected', String(z.modus === 'eg'));
     $('tab-struktur').setAttribute('aria-selected', String(z.modus === 'struktur'));
     if (z.modus !== 'struktur') return;
-    liste('s-vorgabe').value = wieVorgabe(s) ? s.vorgabe : '';
+    auswahl('s-vorgabe').value = wieVorgabe(s) ? s.vorgabe : '';
     eingabe('s-elemente').checked = s.elemente;
     eingabe('s-zelle').checked = s.zelle;
     eingabe('s-ae').checked = s.ae;
@@ -82,7 +76,7 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
     const e = ziel();
     const f = motivFarben(farben());
-    liste('s-motiv').value = e.motiv;
+    auswahl('s-motiv').value = e.motiv;
     $('s-farbe').querySelectorAll('button').forEach((b) => {
       b.setAttribute('aria-pressed', String(Number(b.dataset.farbe) === (e.farbe ?? 0)));
       /** @type {HTMLElement} */ (b.querySelector('.sw')).style.background = f[Number(b.dataset.farbe)];
@@ -93,11 +87,11 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
     eingabe('s-groesse').value = String(gr);
     $('s-groesse-out').textContent = dezimal(gr, 3);
-    knopf('s-entfernen').disabled = auswahl === null;
-    $('s-basis-titel').textContent = auswahl !== null ? `Gewähltes Motiv (Nr. ${auswahl + 1} von ${s.basis.length})` : 'Neues Motiv';
+    knopf('s-entfernen').disabled = gewaehlt === null;
+    $('s-basis-titel').textContent = gewaehlt !== null ? `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})` : 'Neues Motiv';
     $('s-basis-hint').textContent = werkzeug === 'hinzufuegen'
       ? (s.basis.length >= BASIS_GRENZE ? `Die Basis ist voll (${BASIS_GRENZE} Motive).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
-      : auswahl !== null ? 'Die Einstellungen gelten für das gewählte Motiv. Ziehen verschiebt es; ins Leere tippen hebt die Auswahl auf.'
+      : gewaehlt !== null ? 'Die Einstellungen gelten für das gewählte Motiv. Ziehen verschiebt es; ins Leere tippen hebt die Auswahl auf.'
         : 'Motiv in der Struktur antippen, um es zu wählen und zu ziehen. Mit dem Werkzeug „Hinzufügen“ kommen neue Motive dazu.';
     for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
       eingabe(`s-${k}`).min = String(STRUKTUR_BEREICH[k][0]); eingabe(`s-${k}`).max = String(STRUKTUR_BEREICH[k][1]);
@@ -134,13 +128,13 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
   function zeichnen({ nurA = false } = {}) {
     const f = farben();
     const s = st();
-    const a = strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, auswahl, fest);
+    const a = strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, gewaehlt, fest);
     ansicht = a.ansicht;
     const r = a.ergebnis;
     if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
-    $('bild-a').innerHTML = a.svg;
+    grafik('bild-a').innerHTML = a.svg;
     if (nurA) return;
-    $('bild-b').innerHTML = strukturTafelB(s, f, r, z.zoomB).svg;
+    grafik('bild-b').innerHTML = strukturTafelB(s, f, r, z.zoomB).svg;
     legende(f, r);
     $('info').innerHTML = strukturHTML(s, r, vorher, f);
   }
@@ -159,7 +153,7 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
    */
   function treffer(q) {
     const A = /** @type {Ansicht} */ (ansicht);
-    const w = $('bild-a').getBoundingClientRect().width || 520;
+    const w = grafik('bild-a').getBoundingClientRect().width || 520;
     /** @type {{ d: number, k: number, bild: Vec2 } | null} */
     let best = null;
     st().basis.forEach((e, k) => {
@@ -192,16 +186,16 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
       const e0 = { motiv: neu.motiv, farbe: neu.farbe, p: raste(p), winkel: neu.winkel };
       if (neu.groesse !== null) e0.groesse = neu.groesse;
       st().basis.push(e0);
-      auswahl = st().basis.length - 1;
-      zug = { k: auswahl, versatz: [0, 0] };
+      gewaehlt = st().basis.length - 1;
+      zug = { k: gewaehlt, versatz: [0, 0] };
     } else {
       const t = treffer(q);
-      if (!t) { auswahl = null; aktualisieren(); return; }
-      auswahl = t.k;
+      if (!t) { gewaehlt = null; aktualisieren(); return; }
+      gewaehlt = t.k;
       zug = { k: t.k, versatz: [t.bild[0] - p[0], t.bild[1] - p[1]] };
     }
     fest = ansicht;
-    $('bild-a').setPointerCapture(e.pointerId);
+    grafik('bild-a').setPointerCapture(e.pointerId);
     aktualisieren();
   }
   let rahmen = false;
@@ -229,16 +223,16 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     $('tab-eg').addEventListener('click', () => { z.modus = 'eg'; aktualisieren(); });
     $('tab-struktur').addEventListener('click', () => { z.modus = 'struktur'; aktualisieren(); });
     $('s-vorgabe').addEventListener('change', () => {
-      if (!liste('s-vorgabe').value) return;
+      if (!auswahl('s-vorgabe').value) return;
       const alt = st();
-      z.struktur = { ...strukturStart(liste('s-vorgabe').value), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
-      auswahl = null; letztes = undefined; vorher = null;
+      z.struktur = { ...strukturStart(auswahl('s-vorgabe').value), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
+      gewaehlt = null; letztes = undefined; vorher = null;
       aktualisieren();
     });
     $('s-zuruecksetzen').addEventListener('click', () => {
       const alt = st();
       z.struktur = { ...strukturStart(alt.vorgabe), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
-      auswahl = null; letztes = undefined; vorher = null;
+      gewaehlt = null; letztes = undefined; vorher = null;
       aktualisieren();
     });
     for (const [id, feld] of /** @type {[string, 'elemente' | 'zelle' | 'ae' | 'bindungen'][]} */ ([['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']])) {
@@ -250,12 +244,12 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-werkzeug-hinzufuegen').addEventListener('click', () => {
       werkzeug = werkzeug === 'hinzufuegen' ? 'verschieben' : 'hinzufuegen';
       // die Vorlage übernimmt das gewählte Motiv
-      if (werkzeug === 'hinzufuegen' && auswahl !== null) { const e = st().basis[auswahl]; neu = { motiv: e.motiv, farbe: e.farbe ?? 0, winkel: e.winkel ?? grad(0), groesse: e.groesse ?? null }; auswahl = null; }
+      if (werkzeug === 'hinzufuegen' && gewaehlt !== null) { const e = st().basis[gewaehlt]; neu = { motiv: e.motiv, farbe: e.farbe ?? 0, winkel: e.winkel ?? grad(0), groesse: e.groesse ?? null }; gewaehlt = null; }
       aktualisieren();
     });
     $('s-motiv').addEventListener('change', () => {
       const e = ziel();
-      e.motiv = liste('s-motiv').value;
+      e.motiv = auswahl('s-motiv').value;
       if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
       aktualisieren();
     });
@@ -273,9 +267,9 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     });
     $('s-groesse').addEventListener('input', () => { ziel().groesse = Number(eingabe('s-groesse').value); aktualisieren(); });
     $('s-entfernen').addEventListener('click', () => {
-      if (auswahl === null) return;
-      st().basis.splice(auswahl, 1);
-      auswahl = null;
+      if (gewaehlt === null) return;
+      st().basis.splice(gewaehlt, 1);
+      gewaehlt = null;
       aktualisieren();
     });
     for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
@@ -300,10 +294,10 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     z.modus = 'struktur';
     z.struktur = { ...strukturStart(id), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
     werkzeug = 'verschieben';
-    auswahl = k;
+    gewaehlt = k;
   }
   /** Werkzeug über der Struktur setzen. @param {'verschieben' | 'hinzufuegen'} w */
-  function werkzeugSetzen(w) { werkzeug = w; if (w === 'hinzufuegen') auswahl = null; }
+  function werkzeugSetzen(w) { werkzeug = w; if (w === 'hinzufuegen') gewaehlt = null; }
 
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). @param {Farben} f @param {string} tafel */
   function bild(f, tafel) {
