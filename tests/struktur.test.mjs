@@ -7,9 +7,21 @@ import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTa
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur } from '../js/zustand.js';
 import { metrik, kart } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
+import { grad } from '../js/zustand.js';
 
+/** @import { Vec2, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Bestimmung } from '../js/bestimmung.js' */
+/** @import { Basiseintrag, Struktur } from '../js/motive.js' */
+/** @import { Vorgabe } from '../js/vorgaben.js' */
+/** @import { StrukturZustand } from '../js/zustand.js' */
+
+/** Symmetrie einer Struktur; die Tests erwarten immer ein Ergebnis. @param {Struktur} s */
+const symmetrie = (s) => /** @type {Bestimmung} */ (strukturSymmetrie(s));
+
+/** @type {import('../js/zeichnung.js').Farben} */
 const FARBEN = { paper: '#fff', ink: '#000', muted: '#888', line: '#ccc', accent: '#a00', accent2: '#0a0', upper: '#00a', crystal: '#eef', dir: ['#a0a', '#0aa', '#aa0'], fc3: '#333', fc4: '#444' };
-const st = (id) => { const v = vorgabe(id); return { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis }; };
+/** @param {string} id */
+const st = (id) => { const v = /** @type {Vorgabe} */ (vorgabe(id)); return { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis }; };
 
 test('jede Vorgabe ergibt die erwartete Ebenengruppe', () => {
   assert.ok(VORGABEN.length >= 20);
@@ -18,14 +30,16 @@ test('jede Vorgabe ergibt die erwartete Ebenengruppe', () => {
 });
 
 test('Dreiecksbeispiel: pm → cm → p2mg', () => {
-  assert.deepEqual(['dreieck1', 'dreieck2', 'dreieck3'].map((id) => strukturSymmetrie(st(id)).symbol), ['pm', 'cm', 'p2mg']);
+  assert.deepEqual(['dreieck1', 'dreieck2', 'dreieck3'].map((id) => symmetrie(st(id)).symbol), ['pm', 'cm', 'p2mg']);
 });
 
 // Ordnung der Punktgruppe eines Motivs aus seinen Punkten: Drehungen um Vielfache von 30° bzw.
 // 45° und Spiegelungen an Geraden unter Vielfachen von 15° bzw. 22,5°, die die Punkte (mit Art)
 // auf sich abbilden.
+/** @param {string} motiv */
 function ordnung(motiv) {
-  const pts = motivKart({ motiv, winkel: 0 }).map((q) => ({ c: q.c, art: q.art }));
+  const pts = motivKart({ motiv, winkel: grad(0) }).map((q) => ({ c: q.c, art: q.art }));
+  /** @param {(c: Vec2) => number[]} f */
   const passt = (f) => pts.every((p) => { const c = f(p.c); return pts.some((q) => q.art === p.art && Math.hypot(q.c[0] - c[0], q.c[1] - c[1]) < 1e-9); });
   const winkel = [...new Set([...Array.from({ length: 12 }, (_, k) => 30 * k), ...Array.from({ length: 8 }, (_, k) => 45 * k)])];
   let n = 0;
@@ -38,6 +52,7 @@ function ordnung(motiv) {
   return n;
 }
 test('Motive haben genau die angegebene eigene Symmetrie', () => {
+  /** @type {Record<string, number>} */
   const ORDNUNG = { 1: 1, 2: 2, m: 2, '2mm': 4, 3: 3, '3m': 6, 4: 4, '4mm': 8, 6: 6, '6mm': 12 };
   for (const [k, d] of Object.entries(MOTIVE)) {
     if (k === 'atom') continue;
@@ -46,22 +61,25 @@ test('Motive haben genau die angegebene eigene Symmetrie', () => {
 });
 
 // Nachbarn je Atom im Abstand des kleinsten Atomabstands (Toleranz 1e-6) und der nächste Abstand
+/** @param {string} id */
 function nachbarn(id) {
   const s = st(id); const M = metrik(s);
+  /** @type {Vec2[]} */
   const pos = [];
   for (const e of s.basis) for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) pos.push(kart(M, [e.p[0] + i, e.p[1] + j]));
+  /** @type {number[]} */
   const zahlen = []; let dmin = Infinity; let zweit = Infinity;
   for (const e of s.basis) {
     const c = kart(M, e.p);
     const d = pos.map((q) => Math.hypot(q[0] - c[0], q[1] - c[1])).filter((x) => x > 1e-9).sort((a, b) => a - b);
     dmin = Math.min(dmin, d[0]);
     zahlen.push(d.filter((x) => Math.abs(x - d[0]) < 1e-6).length);
-    zweit = Math.min(zweit, d.find((x) => x > d[0] + 1e-6));
+    zweit = Math.min(zweit, /** @type {number} */ (d.find((x) => x > d[0] + 1e-6)));
   }
   return { zahlen, dmin, zweit };
 }
 test('Archimedische Parkettierungen: alle Kanten gleich lang, richtige Koordinationszahl', () => {
-  for (const [id, z] of [['a488', 3], ['a3464', 4], ['a33434', 5], ['a33336', 5]]) {
+  for (const [id, z] of /** @type {[string, number][]} */ ([['a488', 3], ['a3464', 4], ['a33434', 5], ['a33336', 5]])) {
     const n = nachbarn(id);
     assert.ok(n.zahlen.every((x) => x === z), `${id}: ${n.zahlen}`);
     assert.ok(n.zweit > n.dmin * 1.05, `${id}: nächster Abstand deutlich grösser`);
@@ -72,6 +90,7 @@ test('Archimedische Parkettierungen: alle Kanten gleich lang, richtige Koordinat
 });
 
 test('Wyckoff-Lagen der Basis', () => {
+  /** @param {string} id */
   const lagen = (id) => { const s = st(id); return basisLagen(s, strukturSymmetrie(s)).map((l) => `${l.zaehligkeit}${l.buchstabe} ${l.symbol}`); };
   assert.deepEqual(lagen('graphen'), ['2b 3m.', '2b 3m.']);
   assert.deepEqual(lagen('kagome'), ['3c 2mm', '3c 2mm', '3c 2mm']);
@@ -80,19 +99,23 @@ test('Wyckoff-Lagen der Basis', () => {
 });
 
 test('Ursprung nach ITA: bleibt, wenn erlaubt, sonst der nächste erlaubte Punkt', () => {
+  /** @param {readonly number[]} u @param {readonly number[]} v */
   const nah = (u, v) => u.every((x, i) => Math.abs(x - v[i]) < 1e-9);
   // h-BN, p3m1: Sechseckmitte und beide Atome sind 3m; der gegebene Ursprung (Sechseckmitte) bleibt
-  assert.ok(nah(strukturSymmetrie(st('hbn')).ursprung, [0, 0]));
-  assert.ok(nah(strukturSymmetrie(st('mos2')).ursprung, [0, 0]));
+  assert.ok(nah(symmetrie(st('hbn')).ursprung, [0, 0]));
+  assert.ok(nah(symmetrie(st('mos2')).ursprung, [0, 0]));
   // Molekül aus zwei Atomen: p2mm, Ursprung in der Molekülmitte (Skript Abb. 3.7)
-  const atom = (p) => ({ motiv: 'atom', farbe: 0, p, winkel: 0 });
-  const r = strukturSymmetrie({ ba: 1.35, gamma: 90, basis: [atom([0, 0]), atom([0.3, 0])] });
+  /** @param {Vec2} p @returns {Basiseintrag} */
+  const atom = (p) => ({ motiv: 'atom', farbe: 0, p, winkel: grad(0) });
+  const r = symmetrie({ ba: 1.35, gamma: grad(90), basis: [atom([0, 0]), atom([0.3, 0])] });
   assert.equal(r.symbol, 'p2mm');
   assert.ok(nah(r.ursprung, [0.15, 0]), String(r.ursprung));
   // p2mg (Dreiecksbeispiel): der gegebene Ursprung liegt auf keinem 2-zähligen Drehpunkt
-  assert.ok(nah(strukturSymmetrie(st('dreieck3')).ursprung, [0.25, 0.25]));
-  const e = (motiv, p, winkel = 0) => ({ motiv, farbe: 0, p, winkel });
-  const u = (ba, gamma, basis) => strukturSymmetrie({ ba, gamma, basis }).ursprung;
+  assert.ok(nah(symmetrie(st('dreieck3')).ursprung, [0.25, 0.25]));
+  /** @param {string} motiv @param {Vec2} p @param {number} [winkel] @returns {Basiseintrag} */
+  const e = (motiv, p, winkel = 0) => ({ motiv, farbe: 0, p, winkel: grad(winkel) });
+  /** @param {number} ba @param {number} gamma @param {Basiseintrag[]} basis */
+  const u = (ba, gamma, basis) => symmetrie({ ba, gamma: grad(gamma), basis }).ursprung;
   // Ursprung auf m: entlang der Linie bleibt er beim gegebenen, quer dazu die nächste Linie
   assert.ok(nah(u(1.35, 90, [e('dreieck', [0.3, 0.2], 90)]), [0.8, 0]));
   assert.ok(nah(u(1.35, 90, [e('dreieck', [0.3, 0.2], 0)]), [0, 0.2]));
@@ -105,31 +128,31 @@ test('Ursprung nach ITA: bleibt, wenn erlaubt, sonst der nächste erlaubte Punkt
   // knapp unter 1 (innerhalb der Toleranz der Erkennung) wird 0
   assert.ok(nah(u(1, 80, [e('w2', [0.1, 0.3]), e('w2', [0.89998, 0.7])]), [0, 0]));
   // gerundet nur, wenn die Operationen mit dem gerundeten Ursprung noch stimmen (Review PR #12)
-  const r2 = strukturSymmetrie({ ba: 1.35, gamma: 90, basis: [e('w2', [0.99992, 0])] });
+  const r2 = symmetrie({ ba: 1.35, gamma: grad(90), basis: [e('w2', [0.99992, 0])] });
   assert.equal(r2.symbol, 'p2');
   assert.ok(r2.ursprung[0] === 0 || Math.abs(r2.ursprung[0] - 0.99992) < 1e-9, String(r2.ursprung));
 });
 
 test('Ursprung nach ITA: nächster Ursprung auch in stark gescherter gegebener Zelle (Review PR #12)', () => {
   // a = (1, 0), b = (5,31; 0,1): nächstes Gitterbild von (0,4; 0,49) liegt bei Versatz (−3, 0)
-  const r = bestimme({ a: [1, 0], b: [5.31, 0.1], punkte: [{ p: [0.4, 0.49], art: 'x' }] });
+  const r = /** @type {Bestimmung} */ (bestimme({ a: /** @type {Kartesisch<Vec2>} */ ([1, 0]), b: /** @type {Kartesisch<Vec2>} */ ([5.31, 0.1]), punkte: [{ p: [0.4, 0.49], art: 'x' }] }));
   assert.equal(r.symbol, 'p2');
   assert.ok(Math.abs(r.ursprung[0] - 0.4) < 1e-9 && Math.abs(r.ursprung[1] - 0.49) < 1e-9, String(r.ursprung));
 });
 
 test('konventionelle Zelle: Umrechnung hin und zurück; zentrierte Eingabe in primitiver Zelle', () => {
-  const r = strukturSymmetrie(st('dreieck3'));
-  for (const p of [[0.1, 0.2], [0.7, 0.4]]) {
+  const r = symmetrie(st('dreieck3'));
+  for (const p of /** @type {Vec2[]} */ ([[0.1, 0.2], [0.7, 0.4]])) {
     const x = inKonventionell(r, p); const q = ausKonventionell(r, x);
     assert.ok([0, 1].every((i) => Math.abs(((q[i] - p[i]) % 1 + 1.5) % 1 - 0.5) < 1e-9));
   }
   // rechteckig zentriertes Gitter (A, B), gegeben in der primitiven Zelle (A, (A + B)/2): c2mm mit doppelter Zelle
-  const M = metrik({ ba: 1.35, gamma: 90 });
+  const M = metrik({ ba: 1.35, gamma: grad(90) });
   const b = [(M.a[0] + M.b[0]) / 2, (M.a[1] + M.b[1]) / 2];
   const L = Math.hypot(...b) / Math.hypot(...M.a); // b/a der primitiven Zelle
   const cos = (M.a[0] * b[0] + M.a[1] * b[1]) / (Math.hypot(...M.a) * Math.hypot(...b));
   const gamma = (Math.acos(cos) * 180) / Math.PI;
-  const r2 = strukturSymmetrie({ ba: L, gamma, basis: [{ motiv: 'atom', farbe: 0, p: [0, 0], winkel: 0 }] });
+  const r2 = symmetrie({ ba: L, gamma: grad(gamma), basis: [{ motiv: 'atom', farbe: 0, p: [0, 0], winkel: grad(0) }] });
   assert.equal(r2.symbol, 'c2mm');
   assert.equal(Math.abs(r2.zelle[0][0] * r2.zelle[1][1] - r2.zelle[0][1] * r2.zelle[1][0]), 2);
 });
@@ -144,7 +167,7 @@ test('Tafeln und Kenndaten entstehen für alle Vorgaben', () => {
     assert.ok(h.includes(`data-zu-eg="${v.erwartet}"`), v.id);
     assert.equal((h.match(/<tr>/g) ?? []).length, s.basis.length + 1, `${v.id}: eine Zeile je Motiv`);
   }
-  assert.match(strukturHTML(st('dreieck2'), strukturSymmetrie(st('dreieck2')), 'pm', FARBEN), /Geändert/);
+  assert.match(strukturHTML(st('dreieck2'), symmetrie(st('dreieck2')), 'pm', FARBEN), /Geändert/);
   assert.match(strukturHTML({ ...st('dreieck1'), basis: [] }, null, null, FARBEN), /Basis ist leer/);
 });
 
@@ -154,8 +177,8 @@ test('Link-Adresse: Vorgabe kurz, veränderte Struktur ausgeschrieben, hin und z
   z.struktur = strukturStart('kagome');
   assert.equal(hashVon(z), '#m=struktur&v=kagome');
   z.struktur.basis[1].p = [0.25, 0.5];
-  z.struktur.basis.push({ motiv: 'w3', farbe: 2, p: [0.3, 0.123456789], winkel: 15, groesse: 0.2 });
-  z.struktur.gamma = 110;
+  z.struktur.basis.push({ motiv: 'w3', farbe: 2, p: [0.3, 0.123456789], winkel: grad(15), groesse: 0.2 });
+  z.struktur.gamma = grad(110);
   z.struktur.ae = true;
   const h = hashVon(z);
   assert.match(h, /basis=atom,0,1\/2,0,0;atom,0,1\/4,1\/2,0;atom,0,1\/2,1\/2,0;w3,2,3\/10,0\.123457,15,0\.2/);
@@ -188,13 +211,13 @@ test('Basis als Text: ungültige Einträge fallen weg', () => {
   assert.equal(b.length, 3);
   assert.equal(b[1].groesse, undefined, 'Grösse ausserhalb des Bereichs: Standard');
   assert.equal(b[2].groesse, 0.1);
-  assert.equal(basisText([{ motiv: 'atom', farbe: 0, p: [1 / 3, 2 / 3], winkel: 0, groesse: 0.045 }]), 'atom,0,1/3,2/3,0');
+  assert.equal(basisText([{ motiv: 'atom', farbe: 0, p: [1 / 3, 2 / 3], winkel: grad(0), groesse: 0.045 }]), 'atom,0,1/3,2/3,0');
 });
 
 test('Struktur aus dem Speicher prüfen', () => {
   assert.equal(pruefeStruktur(null), null);
   assert.equal(pruefeStruktur({ ba: 5, gamma: 90, basis: [] }), null);
-  const s = pruefeStruktur({ vorgabe: 'x', ba: 1, gamma: 90, basis: [{ motiv: 'atom', p: [0.1, 0.2] }, { motiv: 'atom', p: [NaN, 0] }, { motiv: 'böse', p: [0, 0] }], ae: 'ja' });
+  const s = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'x', ba: 1, gamma: 90, basis: [{ motiv: 'atom', p: [0.1, 0.2] }, { motiv: 'atom', p: [NaN, 0] }, { motiv: 'böse', p: [0, 0] }], ae: 'ja' }));
   assert.equal(s.basis.length, 1);
   assert.equal(s.vorgabe, 'dreieck1');
   assert.deepEqual([s.elemente, s.zelle, s.ae, s.bindungen], [true, true, false, true]);
@@ -202,12 +225,12 @@ test('Struktur aus dem Speicher prüfen', () => {
 
 test('Bindungen: nächste Nachbarn je Zelle, auch bei kleiner Vergrösserung schnell', () => {
   // je Zelle: Quadrat 4/2, Hexagonal 6/2, Graphen 2 · 3/2, Kagome 3 · 4/2 Bindungen
-  for (const [id, n] of [['quadratisch', 2], ['hexagonal', 3], ['graphen', 3], ['kagome', 6]]) {
+  for (const [id, n] of /** @type {[string, number][]} */ ([['quadratisch', 2], ['hexagonal', 3], ['graphen', 3], ['kagome', 6]])) {
     const s = st(id);
     assert.equal(bindungenBasis(s, metrik(s)).length, n, id);
   }
   // spitzwinkliges, gestauchtes Gitter bei Vergrösserung 0,5: früher ein Paarvergleich aller Atome im Bild
-  const s = { ...st('a33336'), ba: 0.5, gamma: 150, bindungen: true };
+  const s = { ...st('a33336'), ba: 0.5, gamma: grad(150), bindungen: true };
   const t = performance.now();
   const { svg } = strukturTafelB(s, FARBEN, strukturSymmetrie(s), 0.5);
   assert.ok(performance.now() - t < 2000);

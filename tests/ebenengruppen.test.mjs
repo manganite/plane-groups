@@ -24,6 +24,7 @@ test('17 Gruppen, Nummern 1–17, Symbole wie in ITA', () => {
 });
 
 test('Kristallsysteme und Bravais-Gitter: 4 Systeme, 5 Gitter', () => {
+  /** @param {(d: import('../js/ebenengruppen.js').Ebenengruppe) => string} f */
   const zahl = (f) => Object.fromEntries([...new Set(EBENENGRUPPEN.map(f))].map((k) => [k, EBENENGRUPPEN.filter((d) => f(d) === k).length]));
   assert.deepEqual(zahl((d) => d.system), { schiefwinklig: 2, rechteckig: 7, quadratisch: 3, hexagonal: 5 });
   assert.deepEqual(zahl((d) => d.bravais), { mp: 2, op: 5, oc: 2, tp: 3, hp: 5 });
@@ -82,7 +83,7 @@ for (const id of ALLE) {
       assert.equal(w.koord.length * g.zentr.length, w.n, `${id} ${w.b}: Zahl der Koordinaten`);
       for (let versuch = 0; versuch < 5; versuch++) {
         const q = [0.05 + 0.4 * rnd(), 0.05 + 0.4 * rnd()]; // freie Parameter, nicht speziell
-        const punkte = w.koord.map((k) => { const o = liesOp(k); return [o.R[0][0] * q[0] + o.R[0][1] * q[1] + o.t[0], o.R[1][0] * q[0] + o.R[1][1] * q[1] + o.t[1]]; });
+        const punkte = w.koord.map((k) => { const o = liesOp(k); return /** @type {import('../lib/common/js/typen.js').Vec2} */ ([o.R[0][0] * q[0] + o.R[0][1] * q[1] + o.t[0], o.R[1][0] * q[0] + o.R[1][1] * q[1] + o.t[1]]); });
         const p = punkte[0];
         const stab = stabilisator(g, p);
         assert.equal(g.ordnung / stab.length, w.n, `${id} ${w.b}: Zähligkeit`);
@@ -103,6 +104,7 @@ for (const id of ALLE) {
     // Raster mit Schritt 1/24 trifft alle speziellen Lagen (Nenner 2, 3, 4, 6, 8, 12)
     const g = gruppe(id);
     for (let i = 0; i < 24; i++) for (let j = 0; j < 24; j++) {
+      /** @type {import('../lib/common/js/typen.js').Vec2} */
       const p = [i / 24, j / 24];
       const l = lage(g, p);
       assert.equal(l.zaehligkeit, l.wyckoff.n, `${id} (${p}): Zähligkeit`);
@@ -117,6 +119,7 @@ for (const id of ALLE) {
     for (let i = 0; i < e.length; i++) { const [a, b] = e[i]; const [c, d] = e[(i + 1) % e.length]; flaeche += a * d - b * c; }
     assert.ok(Math.abs(Math.abs(flaeche) / 2 - 1 / g.ordnung) < 1e-12, `${id}: Fläche ${Math.abs(flaeche) / 2}`);
     // Punkt im Polygon (konvex, Ecken der Reihe nach), mit Abstand zum Rand
+    /** @param {number[]} p @param {number} rand */
     const innen = (p, rand) => {
       let vz = 0;
       for (let i = 0; i < e.length; i++) {
@@ -204,6 +207,7 @@ test('Lage: nahe einer speziellen Lage wird eingerastet, Angaben passen zusammen
 test('punktAufLage: jede Lage von jedem Ausgangspunkt aus erreichbar (Review PR #2)', () => {
   for (const id of ALLE) {
     const g = gruppe(id);
+    /** @type {import('../lib/common/js/typen.js').Vec2[]} */
     const starts = [[0.12, 0.31], ...g.daten.wyckoff.map((w) => punktAufLage(g, w.b, [0.12, 0.31]))];
     for (const p of starts) for (const w of g.daten.wyckoff) {
       assert.equal(lage(g, punktAufLage(g, w.b, p)).buchstabe, w.b, `${id}: ${w.b} von (${p})`);
@@ -219,8 +223,10 @@ test('punktAufLage: jede Lage von jedem Ausgangspunkt aus erreichbar (Review PR 
 test('Symmetrieelemente: Zahl der Drehpunkte und Linien je Zelle (Rand eingeschlossen)', () => {
   // Abgezählt in den Diagrammen von ITA Part 6 (Elementarzelle mit Rand); Linien, die die Zelle
   // nur in einer Ecke berühren, zählen nicht
+  /** @param {string} id */
   const zahl = (id) => {
     const e = elemente(gruppe(id));
+    /** @type {Record<number, number>} */
     const dreh = {};
     for (const d of e.drehpunkte) dreh[d.n] = (dreh[d.n] ?? 0) + 1;
     return { dreh, spiegel: e.linien.filter((l) => l.art === 'spiegel').length, gleit: e.linien.filter((l) => l.art === 'gleit').length };
@@ -249,6 +255,7 @@ test('hexagonal: Spiegellinien wechseln mit parallelen Gleitspiegellinien ab (IT
     for (const r of richtungen) {
       const schar = linien.filter((l) => l.richtung.join(',') === r);
       const [d0, d1] = schar[0].richtung;
+      /** @param {import('../js/symmetrie.js').Linie} l */
       const lage = (l) => -d1 * l.punkt[0] + d0 * l.punkt[1];
       schar.sort((u, v) => lage(u) - lage(v));
       for (let i = 1; i < schar.length; i++) assert.notEqual(schar[i].art, schar[i - 1].art, `${id} [${r}]: abwechselnd`);
@@ -278,7 +285,7 @@ test('p4mm: diagonale Spiegellinie verknüpft mit der Translation a ergibt die G
   const m = liesOp('y,x');
   const op = verknuepfen(translation([1, 0]), m);
   assert.equal(beschreibe(op), 'g(1/2,1/2) x+1/2,x');
-  const a = art(op);
+  const a = /** @type {Extract<import('../js/symmetrie.js').Art, { gleit: unknown }>} */ (art(op));
   assert.deepEqual(a.gleit, [0.5, 0.5]);
 });
 

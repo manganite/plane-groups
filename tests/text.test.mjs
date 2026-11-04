@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 import { koordHTML, opHTML, bedingungHTML, zahlText, lageHTML, koordText, dezimal, richtungHTML } from '../js/text.js';
 
 // Querstrich als kombinierendes Zeichen, verglichen in Normalform NFC (ȳ ist auch vorkomponiert)
+/** @param {string} s */
 const ohneTags = (s) => s.replace(/<span class="ov"><i>([xy])<\/i><\/span>/g, '$1̄').replace(/<[^>]+>/g, '').normalize('NFC');
+/** @param {string} a @param {string} b */
 const gleich = (a, b) => assert.equal(a, b.normalize('NFC'));
 
 test('Koordinaten: führendes Minus als Querstrich, sonst Rechenzeichen', () => {
@@ -59,10 +61,11 @@ test('Verweis in die Stereo-App: Pedion mit Flächenmuster, Blick senkrecht auf 
     if (l.includes('m=form')) assert.match(l, /f=[0-9a-z]+:a1&blick=[123]&muster=1&kugel=0&ns=0&ebene=0&strahlen=0&normalen=0&pole=0&achsen=1$/, d.symbol);
     assert.ok(!/undefined/.test(stereoHinweis(d)), d.symbol);
   }
-  const l = (s) => stereoLink(EBENENGRUPPEN.find((d) => d.symbol === s));
+  /** @param {string} s */
+  const l = (s) => stereoLink(/** @type {import('../js/ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === s)));
   assert.equal(l('p31m'), 'https://manganite.github.io/stereography/index.html#m=form&sys=trigonal&f=31m:a1&blick=1&muster=1&kugel=0&ns=0&ebene=0&strahlen=0&normalen=0&pole=0&achsen=1');
   assert.match(l('p3m1'), /f=3m1:a1/);
   assert.equal(l('pm'), 'https://manganite.github.io/stereography/index.html#m=pg&g=mb&blick=3&kugel=0&ns=0&ebene=0&strahlen=0&achsen=1');
-  assert.match(stereoHinweis(EBENENGRUPPEN.find((d) => d.symbol === 'pm')), /um 90° gedreht/);
+  assert.match(stereoHinweis(/** @type {import('../js/ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === 'pm'))), /um 90° gedreht/);
   assert.equal(l('p1'), 'https://manganite.github.io/stereography/index.html#m=pg&g=1&blick=3&kugel=0&ns=0&ebene=0&strahlen=0&achsen=1');
 });
