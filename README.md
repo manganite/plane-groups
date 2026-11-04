@@ -189,7 +189,7 @@ npx tsc -p .
 npx eslint .
 ```
 
-Strikt geprüft werden alle Dateien in `js/`, `tools/` und `tests/`. Mit den installierten Paketen zeigt auch VS Code die Meldungen in geöffneten Dateien.
+Strikt geprüft werden alle Dateien in `js/`, `tools/` und `tests/`. Mit den installierten Paketen zeigt auch VS Code die Meldungen der Typprüfung in geöffneten Dateien (die von ESLint mit der Erweiterung „ESLint“).
 
 - Skript als PDF: `node tools/skript-pdf.mjs [Ausgabedatei]` (braucht Playwright mit Chromium)
 - Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml` (mit `--entwurf` auch die ungeprüften Fragen)
