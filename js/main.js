@@ -1,7 +1,7 @@
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
 import { initHelp } from '../lib/common/js/help.js';
-import { offline } from '../lib/common/js/seite.js';
+import { offline, $, eingabe, knopf, element, elemente, grafik } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
@@ -24,18 +24,8 @@ import { brechAnalyse, brechHTML } from './brechen.js';
 /** @import { Schalterfeld } from './zustand.js' */
 /** @import { Elementangabe } from './warum.js' */
 
-// Elemente der Seite (index.html). Die Typprüfung kennt die Seite nicht: Die Art des Elements wird hier
-// festgelegt, nicht geprüft.
-/** @param {string} id */
-const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
-/** @param {string} id */
-const eingabe = (id) => /** @type {HTMLInputElement} */ (document.getElementById(id));
-/** @param {string} id */
-const knopf = (id) => /** @type {HTMLButtonElement} */ (document.getElementById(id));
-/** Erstes Element zum Selektor (es ist immer da). @param {string} sel */
-const element = (sel) => /** @type {HTMLElement} */ (document.querySelector(sel));
-/** Alle Elemente zum Selektor. @param {string} sel */
-const elemente = (sel) => /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(sel));
+// Elemente der Seite (index.html) über die geprüften Helfer aus lib/common/js/seite.js
+// ($, eingabe, knopf, element, elemente, grafik)
 const REPO = 'https://github.com/manganite/plane-groups';
 const coarse = window.matchMedia('(pointer: coarse)');
 
@@ -316,7 +306,10 @@ function bedienungAbgleichen() {
   $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
   knopf('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
   // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
-  if (z.brechen) for (const id of ['opt-aufbau', 'aufbau-schritt', 'aufbau-vor', 'aufbau-zurueck', 'opt-schritt', 'schritt-regler', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'opt-ae', 'opt-fuell', 'werkzeug-warum']) /** @type {HTMLInputElement | HTMLButtonElement} */ ($(id)).disabled = true;
+  if (z.brechen) {
+    for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell']) eingabe(id).disabled = true;
+    for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'werkzeug-warum']) knopf(id).disabled = true;
+  }
 }
 
 // ------------------------------------------------------------------ Zeichnen
@@ -339,7 +332,7 @@ function tafelAJetzt(f) {
   lupeBox = a.lupeBox;
   return a;
 }
-const sUI = strukturUI({ z, $, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
+const sUI = strukturUI({ z, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
 /** @type {Erklaerung | null} */
 let erklaerung = null;
 let phase = 3;
@@ -350,8 +343,8 @@ function zeichnen() {
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
   if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
-  $('bild-a').innerHTML = a.svg;
-  $('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
+  grafik('bild-a').innerHTML = a.svg;
+  grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
   legende(f);
   kenndaten();
@@ -553,7 +546,7 @@ function setzePunkt(p, { rasten = z.einrasten && z.objekt, toleranzPx = coarse.m
 
 /** Bildpunkt (viewBox von Tafel A) unter dem Zeiger. @param {{ clientX: number, clientY: number }} e @returns {Vec2} */
 function svgPunkt(e) {
-  const svg = /** @type {SVGSVGElement} */ (document.querySelector('#bild-a'));
+  const svg = grafik('bild-a');
   const pt = svg.createSVGPoint();
   pt.x = e.clientX; pt.y = e.clientY;
   const q = pt.matrixTransform(/** @type {DOMMatrix} */ (svg.getScreenCTM()).inverse());
@@ -565,7 +558,7 @@ function naheObjekt(e) {
   const q = ansichtA.zuBild(ausgangsstelle(z.punkt, z.zellen));
   const t = /** @type {TouchEvent} */ (e).touches;
   const s = svgPunkt(t ? t[0] : /** @type {MouseEvent} */ (e));
-  const w = $('bild-a').getBoundingClientRect().width;
+  const w = grafik('bild-a').getBoundingClientRect().width;
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
   return Math.hypot(s[0] - q[0], s[1] - q[1]) < r;
 }
@@ -579,7 +572,7 @@ function elementWaehlen(e) {
   const s = svgPunkt(e);
   const g = gruppeVon(z.gruppe);
   const el = sichtbareElemente(g);
-  const w = $('bild-a').getBoundingClientRect().width || 520;
+  const w = grafik('bild-a').getBoundingClientRect().width || 520;
   const r = (coarse.matches ? 22 : 12) * (520 / w);
   /** @type {{ dist: number, el: SichtbarerDrehpunkt | SichtbareLinie } | null} */
   let best = null;
@@ -676,7 +669,7 @@ function zeichneA() {
     const a = tafelAJetzt(farben());
     ansichtA = a.ansicht;
     // Radierer als Kreis an der Stelle des Zeigers
-    $('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${farben().muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
+    grafik('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${farben().muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
   });
 }
 /** Radius des Radierers in Pixeln der Tafel (520 breit). */
@@ -698,7 +691,7 @@ function strichBeginnen(e) {
   merken();
   strich = [ansichtA.vonBild(svgPunkt(e))];
   z.striche.push(strich);
-  $('bild-a').setPointerCapture(e.pointerId);
+  grafik('bild-a').setPointerCapture(e.pointerId);
 }
 /** Nur während eines Strichs aufgerufen. @param {PointerEvent} e */
 function strichWeiter(e) {
@@ -719,7 +712,7 @@ function strichBeenden() {
   aktualisieren();
 }
 function zeigerEinrichten() {
-  const svg = $('bild-a');
+  const svg = grafik('bild-a');
   svg.addEventListener('touchstart', (e) => {
     if (z.modus === 'struktur') { sUI.touchstart(e); return; }
     if (z.zeichnen || z.radieren || naheObjekt(e)) e.preventDefault();
@@ -728,7 +721,7 @@ function zeigerEinrichten() {
     bewegt = false;
     if (z.modus === 'struktur') { sUI.down(e); return; }
     if (z.zeichnen) { strichBeginnen(e); return; }
-    if (z.radieren) { if (!ansichtA) return; merken(); $('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
+    if (z.radieren) { if (!ansichtA) return; merken(); grafik('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
     if (z.warum && z.elemente) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
