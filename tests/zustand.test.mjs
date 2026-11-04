@@ -111,7 +111,7 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
 test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {
   const s = startzustand();
   // absichtlich falsche Arten, wie sie im Speicher des Browsers stehen könnten
-  const z = gespeichertPruefen(/** @type {any} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 }));
+  const z = gespeichertPruefen(/** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 })));
   assert.equal(z.aufbau, s.aufbau);
   assert.equal(z.erkl, null);
   assert.equal(z.form, s.form);

@@ -7,16 +7,11 @@ import {
   metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder,
 } from '../js/zeichnung.js';
 import { startzustand, GITTER_START } from '../js/zustand.js';
+import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Farben } from '../js/zeichnung.js' */
 /** @import { Zustand } from '../js/zustand.js' */
-
-/**
- * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
- * @template T @param {T} x @returns {NonNullable<T>}
- */
-const da = (x) => /** @type {NonNullable<T>} */ (x);
 
 /** Farben ohne fc3, fc4 (die Tafeln brauchen sie nur in Erklärungen). @type {Farben} */
 const FARBEN = /** @type {Farben} */ ({

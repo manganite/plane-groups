@@ -9,7 +9,7 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
@@ -65,9 +65,11 @@ try {
     const imBereich = (v, [lo, hi]) => Number.isFinite(v) && v >= lo && v <= hi;
     if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = 1;
     if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = 1;
-    /** @type {any} aus dem Speicher, unbekannten Aufbaus */
-    const fr = z.frei ?? {};
-    z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: grad(Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90) };
+    /** @type {unknown} aus dem Speicher, unbekannten Aufbaus */
+    const fr = z.frei;
+    /** @param {unknown} v @param {[number, number]} bereich @param {number} sonst */
+    const begrenzt = (v, [lo, hi], sonst) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(Math.max(v, lo), hi) : sonst);
+    z.frei = istObjekt(fr) ? { ba: begrenzt(fr.ba, FREI_BEREICH.ba, 1), gamma: grad(begrenzt(fr.gamma, FREI_BEREICH.gamma, 90)) } : { ba: 1, gamma: grad(90) };
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
     if (!['eg', 'struktur'].includes(z.modus)) z.modus = 'eg';
     z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();

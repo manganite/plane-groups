@@ -18,8 +18,8 @@ import { metrik, kart, bruchVon } from './zeichnung.js';
 
 /** Winkel in Grad (Kennzeichnung für die Typprüfung). @param {number} w */
 const grad = (w) => /** @type {Grad} */ (w);
-/** @param {number} ba @param {number} gamma @returns {Gitter} */
-const gitter = (ba, gamma) => ({ ba, gamma: grad(gamma) });
+/** Gitter mit γ in Grad (auch für die Tests). @param {number} ba @param {number} gamma @returns {Gitter} */
+export const gitter = (ba, gamma) => ({ ba, gamma: grad(gamma) });
 
 const Q = gitter(1, 90);
 const H = gitter(1, 120);
