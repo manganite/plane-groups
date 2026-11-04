@@ -12,6 +12,11 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 - **`SECURITY.md`** und Vorlagen für Issues (Fehler, fachlicher Hinweis zu Skript oder Quiz, Vorschlag), wie in allen Repositories der Familie.
 - **`CITATION.cff`:** Kurzfassung und Stichwörter.
 - **`docs/screenshot.png`** (README) und **`docs/social-preview.png`** (Vorschaubild für geteilte Links).
+- **CodeQL** als Workflow (erweiterte Einrichtung nach `crystallography-common/vorlagen`): ohne Tests und die Kopie der gemeinsamen Dateien.
+
+### Behoben
+
+- **Gespeicherter Zustand:** Beim Laden aus dem Browserspeicher wurden `aufbau`, `erkl`, `form`, `zellen` und die Schalter nicht geprüft; ein manipulierter Speicher konnte über die Legende HTML in die Seite bringen. Sie werden jetzt wie die Link-Adresse geprüft (`gespeichertPruefen` in `js/zustand.js`, Test; Befund von CodeQL).
 
 ## [1.0.0] - 2026-11-03
 
