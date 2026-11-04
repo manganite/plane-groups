@@ -5,16 +5,30 @@ import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import { gebrochen, tafelA, tafelB } from '../js/zeichnung.js';
 import { brechAnalyse, brechHTML } from '../js/brechen.js';
-import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, grad } from '../js/zustand.js';
 
+/** @import { Gitter, Farben } from '../js/zeichnung.js' */
+/** @import { Zustand } from '../js/zustand.js' */
+
+/**
+ * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
+ * @template T @param {T} x @returns {NonNullable<T>}
+ */
+const da = (x) => /** @type {NonNullable<T>} */ (x);
+
+/** Gitter mit γ in Grad. @param {number} ba @param {number} gamma @returns {Gitter} */
+const gitter = (ba, gamma) => ({ ba, gamma: grad(gamma) });
+
+/** @type {Farben} */
 const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };
-const sym = (id, frei) => brechAnalyse(gruppe(id), frei).ergebnis.symbol;
+/** @param {string} id @param {{ ba: number, gamma: number }} frei */
+const sym = (id, frei) => da(brechAnalyse(gruppe(id), gitter(frei.ba, frei.gamma)).ergebnis).symbol;
 
 test('Ohne Bruch bleibt die Gruppe (Metrik des Systems), für alle 17 Gruppen', () => {
   for (const d of EBENENGRUPPEN) {
     const an = brechAnalyse(gruppe(d.symbol), GITTER_START[d.system]);
     assert.equal(an.weg.length, 0, d.symbol);
-    assert.equal(an.ergebnis.symbol, d.symbol, d.symbol);
+    assert.equal(da(an.ergebnis).symbol, d.symbol, d.symbol);
     assert.match(brechHTML(d, GITTER_START[d.system], an), /unverändert/);
   }
 });
@@ -25,13 +39,13 @@ test('Quadratisch: a ≠ b → rechteckig, γ ≠ 90° bei a = b → zentriert r
   assert.equal(sym('p4mm', { ba: 1.2, gamma: 100 }), 'p2');
   assert.equal(sym('p4gm', { ba: 1.2, gamma: 90 }), 'p2gg');
   assert.equal(sym('p4', { ba: 1.2, gamma: 90 }), 'p2');
-  const an = brechAnalyse(gruppe('p4mm'), { ba: 1.2, gamma: 90 });
+  const an = brechAnalyse(gruppe('p4mm'), gitter(1.2, 90));
   assert.deepEqual(an.drehWeg, [{ n: 4, neu: 2 }]);
   assert.ok(an.linienWeg.some((l) => l.art === 'spiegel' && l.richtung[0] === 1 && l.richtung[1] === 1), 'Spiegellinien entlang [11]');
-  const html = brechHTML(gruppe('p4mm').daten, { ba: 1.2, gamma: 90 }, an);
+  const html = brechHTML(gruppe('p4mm').daten, gitter(1.2, 90), an);
   assert.match(html, /<strong>4 von 8<\/strong>/);
   assert.match(html, /bleiben 2-zählig/);
-  const c = brechHTML(gruppe('p4mm').daten, { ba: 1, gamma: 100 }, brechAnalyse(gruppe('p4mm'), { ba: 1, gamma: 100 }));
+  const c = brechHTML(gruppe('p4mm').daten, gitter(1, 100), brechAnalyse(gruppe('p4mm'), gitter(1, 100)));
   assert.match(c, /konventionelle Zelle nach ITA: <i>a<\/i>′ = /, 'zentrierte Zelle auf den Diagonalen');
 });
 
@@ -47,14 +61,15 @@ test('Hexagonal und rechteckig', () => {
 });
 
 test('Tafeln und Link-Adresse', () => {
-  const z = { ...startzustand(), gruppe: 'p4mm', brechen: true, frei: { ba: 1.2, gamma: 90 } };
+  /** @type {Zustand} */
+  const z = { ...startzustand(), gruppe: 'p4mm', brechen: true, frei: gitter(1.2, 90) };
   const svg = tafelA('p4mm', z, F).svg;
   assert.doesNotMatch(svg, /opacity="0.3"/, 'keine blasse Vorlage: nur die Restsymmetrie');
   // die Bilder zerfallen in 2 Bahnen: zwei Farben für die Fähnchen
   const farben = new Set([...svg.matchAll(/class="objekte">(.*?)<\/g>/gs)].flatMap((m) => [...m[1].matchAll(/stroke="(#[0-9a-f]+)"/g)].map((x) => x[1])));
   assert.ok(farben.size >= 2, 'Fähnchen nach Bahnen gefärbt');
   assert.equal(brechAnalyse(gruppe('p4mm'), z.frei).bahnen, 2);
-  assert.equal(brechAnalyse(gruppe('p6mm'), { ba: 1, gamma: 110 }).bahnen, 3);
+  assert.equal(brechAnalyse(gruppe('p6mm'), gitter(1, 110)).bahnen, 3);
   assert.match(brechHTML(gruppe('p4mm').daten, z.frei, brechAnalyse(gruppe('p4mm'), z.frei)), /zerfallen in <strong>2 Bahnen<\/strong>/);
   assert.ok(!/NaN/.test(tafelB('p4mm', z, F).svg));
   assert.equal(gebrochen(gruppe('p4mm'), z.frei).bleibt.length, 4);

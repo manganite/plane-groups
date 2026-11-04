@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Quiz der Symmetrie in der Ebene: Fragen, Kapitel und Bilder. Ablauf, Rückmeldung und Fortschritt kommen aus
 // lib/common/js/quiz-seite.js (gemeinsam mit den anderen Apps der Familie).
 
@@ -16,7 +15,10 @@ const farben = () => {
   return farbenAus(Object.fromEntries(NAMEN.map((n) => [n, st.getPropertyValue(`--${n}`).trim()])));
 };
 
-/** Bild zu einer Bildangabe (Link-Adresse der App, „B#…“ für das Muster) als SVG; opt.klein für Antwortbilder. */
+/**
+ * Bild zu einer Bildangabe (Link-Adresse der App, „B#…“ für das Muster) als SVG; opt.klein für Antwortbilder.
+ * @param {string} angabe @param {string | undefined} alt @param {import('../lib/common/js/quiz-core.js').BildOptionen} [opt]
+ */
 function bild(angabe, alt, opt = {}) {
   return `<svg viewBox="0 0 520 520" role="img" aria-label="${alt || 'Abbildung'}">${bildInhalt(angabe, farben(), opt) ?? ''}</svg>`;
 }

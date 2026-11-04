@@ -1,24 +1,26 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Schreibweise der Kenndaten wie in ITA: Koordinaten mit Querstrich und Brüchen, Operationen,
 // Lagesymmetrie, Auslöschungsbedingungen. Ohne DOM (Tests in Node).
 
+/** @type {Record<string, string>} */
 const BRUECHE = { '1/2': '½', '1/3': '⅓', '2/3': '⅔', '1/4': '¼', '3/4': '¾', '1/6': '⅙', '5/6': '⅚' };
 
-/** Bruch als Zeichen („1/4“ → „¼“), sonst unverändert. */
+/** Bruch als Zeichen („1/4“ → „¼“), sonst unverändert. @param {string} s */
 export const bruchZeichen = (s) => BRUECHE[s] ?? s;
 
 /**
  * Koordinatenpaar in ITA-Schreibweise als HTML (Variablen kursiv): Ein Minus am Anfang einer
  * Koordinate wird zum Querstrich, sonst bleibt es ein Rechenzeichen. „-x+1/2,y“ → x̄+½, y;
  * „-x+y,x-y“ → x̄+y, x−y; „-2x,-x“ → 2x̄, x̄ (wie in ITA).
+ * @param {string} s
  */
 export function koordHTML(s) {
+  /** @param {string} t */
   const teil = (t) => {
     let out = '';
     const m = t.match(/^-(\d*)([xy])(.*)$/);
     let rest = t;
     if (m) { out = `${m[1]}<span class="ov"><i>${m[2]}</i></span>`; rest = m[3]; }
-    out += rest.replace(/(\d+\/\d+)|([xy])|(-)/g, (x, br, v, minus) => {
+    out += rest.replace(/(\d+\/\d+)|([xy])|(-)/g, (/** @type {string} */ x, /** @type {string | undefined} */ br, /** @type {string | undefined} */ v, /** @type {string | undefined} */ minus) => {
       if (br) return bruchZeichen(br);
       if (v) return `<i>${v}</i>`;
       return minus ? '−' : x;
@@ -28,7 +30,7 @@ export function koordHTML(s) {
   return `<span class="koord">${s.split(',').map(teil).join(', ')}</span>`;
 }
 
-/** Operation wie in ITA „Symmetry operations“ als HTML: „4+ 0,0“ → 4⁺ 0, 0; „m 1/4,y“ → m ¼, y. */
+/** Operation wie in ITA „Symmetry operations“ als HTML: „4+ 0,0“ → 4⁺ 0, 0; „m 1/4,y“ → m ¼, y. @param {string} s */
 export function opHTML(s) {
   if (s === '1') return '1';
   const m = s.match(/^(t|g)\(([^)]*)\)(?:\s+(.*))?$/);
@@ -37,7 +39,7 @@ export function opHTML(s) {
     return m[1] === 't' ? `<i>t</i>(${vek})` : `<i>g</i>(${vek}) ${koordHTML(m[3])}`;
   }
   const [sym, ort] = s.split(' ');
-  const symHTML = sym.replace(/^(\d)([+-])$/, (x, n, v) => `${n}<sup>${v === '+' ? '+' : '−'}</sup>`)
+  const symHTML = sym.replace(/^(\d)([+-])$/, (/** @type {string} */ x, /** @type {string} */ n, /** @type {string} */ v) => `${n}<sup>${v === '+' ? '+' : '−'}</sup>`)
     .replace(/^([mabg])$/, '<i>$1</i>');
   return `${symHTML} ${koordHTML(ort)}`;
 }
@@ -50,7 +52,7 @@ export const lageHTML = (s) => `<span class="koord">${s.replace(/m/g, '<i>m</i>'
 /** @param {string} s */
 export const symbolHTML = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
 
-/** Auslöschungsbedingung [Klasse, Bedingung] als HTML: „h0: h = 2n“. */
+/** Auslöschungsbedingung [Klasse, Bedingung] als HTML: „h0: h = 2n“. @param {readonly [string, string]} bedingung */
 export function bedingungHTML([klasse, bed]) {
   const kl = klasse.replace(/([hk])/g, '<i>$1</i>');
   const b = bed.replace(/=/, ' = ').replace(/\+/, ' + ').replace(/([hkn])/g, '<i>$1</i>');
@@ -69,7 +71,7 @@ export function dezimal(v, n = 2, { kuerzen = false } = {}) {
   return t.replace('.', ',').replace(/^-/, '−');
 }
 
-/** Zahl als Bruch mit kleinem Nenner, wenn sie einer ist, sonst als Dezimalzahl mit bis zu drei Stellen. */
+/** Zahl als Bruch mit kleinem Nenner, wenn sie einer ist, sonst als Dezimalzahl mit bis zu drei Stellen. @param {number} v */
 export function zahlText(v) {
   for (const n of [1, 2, 3, 4, 6, 8, 12]) {
     const z = Math.round(v * n);

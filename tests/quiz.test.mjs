@@ -19,13 +19,20 @@ import { VORGABEN } from '../js/vorgaben.js';
 import { strukturSymmetrie } from '../js/struktur.js';
 import { moodleXML } from '../tools/moodle-export.mjs';
 
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Frage, Generator, Kapitel, Stufe } from '../lib/common/js/quiz-core.js' */
+/** @import { Linie } from '../js/symmetrie.js' */
+/** @import { Bestimmung } from '../js/bestimmung.js' */
+/** @import { Vorgabe } from '../js/vorgaben.js' */
+
 const skript = readFileSync(new URL('../skript.html', import.meta.url), 'utf8');
 const K = '#336699';
 const F = farbenAus(new Proxy({}, { get: () => K }));
+/** @param {string} h */
 const text = (h) => h.replace(/<span class="ov">(?:<i>)?([^<]*)(?:<\/i>)?<\/span>/g, '‾$1').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ')
   .replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
 
-/** Abschnitt des Skripts zu einem Anker: Kapitel (Nummer) und ob er (oder ein umgebender) eine Vertiefung ist. */
+/** Abschnitt des Skripts zu einem Anker: Kapitel (Nummer) und ob er (oder ein umgebender) eine Vertiefung ist. @param {string} anker */
 function abschnitt(anker) {
   const i = skript.indexOf(`<section id="${anker}"`);
   if (i < 0) return null;
@@ -39,9 +46,9 @@ function abschnitt(anker) {
   return { kapitel, vertiefung };
 }
 
-/** Lernziele und Zusammenfassung eines Kapitels als Text; getrennt nach Grundstoff und Vertiefung. */
+/** Lernziele und Zusammenfassung eines Kapitels als Text; getrennt nach Grundstoff und Vertiefung. @param {number} nr */
 function ziele(nr) {
-  const k = KAPITEL.find((x) => x.nr === nr);
+  const k = /** @type {Kapitel} */ (KAPITEL.find((x) => x.nr === nr));
   const a = skript.indexOf(`<section id="${k.anker}"`);
   const next = KAPITEL.find((x) => x.nr === nr + 1);
   const b = next ? skript.indexOf(`<section id="${next.anker}"`) : skript.indexOf('</article>');
@@ -57,19 +64,22 @@ function ziele(nr) {
 const TYPEN = ['einfach', 'mehrfach', 'bild-text', 'text-bild', 'bild-bild'];
 const alleErzeugten = () => GENERATOREN.flatMap((g) => g.stufen.flatMap((s) => g.params(s).map((p) => ({ ...g.make(p, s), id: `${g.id}:${p}`, kapitel: g.kapitel, stufe: s }))));
 
-/** Gemeinsame Prüfungen für handgeschriebene und erzeugte Fragen. */
+/**
+ * Gemeinsame Prüfungen für handgeschriebene und erzeugte Fragen.
+ * @param {any} q Frage; die Prüfung liest auch Felder, die fehlen dürften (deshalb ohne festen Typ)
+ */
 function pruefeFrage(q) {
   assert.ok(TYPEN.includes(q.typ), q.id);
   for (const f of ['frage', 'lernziel', 'erklaerung', 'skript', 'quelle']) assert.ok(typeof q[f] === 'string' && q[f].length > 2, `${q.id}: ${f}`);
   assert.ok(q.antworten.length >= 3 && q.antworten.length <= 6, `${q.id}: ${q.antworten.length} Antworten`);
   assert.equal(q.typ.startsWith('bild-'), !!q.bild, `${q.id}: Bild genau bei „bild-text“ und „bild-bild“`);
-  assert.ok(q.richtig.length >= 1 && q.richtig.every((i) => Number.isInteger(i) && i >= 0 && i < q.antworten.length), q.id);
+  assert.ok(q.richtig.length >= 1 && q.richtig.every((/** @type {number} */ i) => Number.isInteger(i) && i >= 0 && i < q.antworten.length), q.id);
   if (q.typ === 'mehrfach') assert.ok(q.richtig.length < q.antworten.length, `${q.id}: nicht alle richtig`);
   else assert.equal(q.richtig.length, 1, `${q.id}: genau eine richtige Antwort`);
-  const keys = q.antworten.map((a) => (typeof a === 'string' ? text(a) : a.app));
+  const keys = q.antworten.map((/** @type {any} */ a) => (typeof a === 'string' ? text(a) : a.app));
   assert.equal(new Set(keys).size, keys.length, `${q.id}: doppelte Antwort`);
   assert.equal(q.hinweise.length, q.antworten.length, q.id);
-  q.hinweise.forEach((h, i) => {
+  q.hinweise.forEach((/** @type {string | null} */ h, /** @type {number} */ i) => {
     if (q.richtig.includes(i)) assert.equal(h, null, `${q.id}: Hinweis bei richtiger Antwort ${i}`);
     else assert.ok(typeof h === 'string' && h.length > 10, `${q.id}: Hinweis zu Antwort ${i} fehlt`);
   });
@@ -91,7 +101,7 @@ function pruefeFrage(q) {
     if (k !== null) assert.ok(h === q.bild && k >= 1 && k <= 3, `${q.id}: Symbolgrösse ${h}`);
   }
   if (q.app) assert.ok(q.app.startsWith('#m='), `${q.id}: „In der App öffnen“ braucht eine Link-Adresse`);
-  if (q.bild) assert.match(bildInhalt(q.bild, F), /<(polygon|line|circle|path)/, `${q.id}: ${q.bild}`);
+  if (q.bild) assert.match(/** @type {string} */ (bildInhalt(q.bild, F)), /<(polygon|line|circle|path)/, `${q.id}: ${q.bild}`);
 }
 
 test('Fragen: Pflichtfelder, eindeutige IDs, Antworten, Hinweise, Lernziel, Anker, Bilder', () => {
@@ -144,10 +154,10 @@ test('Erzeugte Fragen: richtige Antworten aus den Daten der App', () => {
   for (const p of LAGE.stufen.flatMap((s) => LAGE.params(s))) {
     const [symbol, b] = p.split(':');
     const q = LAGE.make(p);
-    assert.equal(q.pruefung.buchstabe, b, p);
-    const z = startzustand(); hashAnwenden(z, zerlege(q.bild).hash);
+    assert.equal(/** @type {any} */ (q.pruefung).buchstabe, b, p);
+    const z = startzustand(); hashAnwenden(z, zerlege(/** @type {string} */ (q.bild)).hash);
     const l = lage(gruppe(symbol), z.punkt);
-    const w = ebenengruppe(symbol).wyckoff.find((x) => x.b === b);
+    const w = /** @type {import('../js/ebenengruppen.js').Wyckoff} */ (ebenengruppe(symbol).wyckoff.find((x) => x.b === b));
     assert.equal(l.buchstabe, b, p);
     assert.equal(l.zaehligkeit, w.n, p);
     assert.match(text(q.antworten[0]), new RegExp(`^Zähligkeit ${w.n}, Lagesymmetrie ${w.sym.replace(/\./g, '') || '1'}$`), p);
@@ -158,22 +168,25 @@ test('Erzeugte Fragen: richtige Antworten aus den Daten der App', () => {
   // Struktur: Die App bestimmt für jede Vorgabe die erwartete Gruppe
   for (const gen of [STRUKTUR, VERBAND, PARKETT]) {
     for (const vid of gen.params(2)) {
-      const v = VORGABEN.find((x) => x.id === vid);
-      assert.equal(strukturSymmetrie({ ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis }).symbol, v.erwartet, vid);
-      assert.equal(text(gen.make(vid).antworten[0]), v.erwartet, vid);
+      const v = /** @type {Vorgabe} */ (VORGABEN.find((x) => x.id === vid));
+      assert.equal(/** @type {Bestimmung} */ (strukturSymmetrie({ ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis })).symbol, v.erwartet, vid);
+      assert.equal(text(/** @type {string} */ (gen.make(vid, gen.stufen[0]).antworten[0])), v.erwartet, vid);
     }
   }
 });
 
-/** Trifft die Beschreibung t (wie in MERKMALE) auf die Ebenengruppe symbol zu? Liefert die verletzten Aussagen. */
+/** Trifft die Beschreibung t (wie in MERKMALE) auf die Ebenengruppe symbol zu? Liefert die verletzten Aussagen. @param {string} t @param {string} symbol */
 function verletzt(t, symbol) {
   const e = elemente(gruppe(symbol));
+  /** @type {number[]} */
   const fehler = [];
   let k = 0;
+  /** @param {boolean} ok */
   const pr = (ok) => { k++; if (!ok) fehler.push(k); };
   const n = Math.max(1, ...e.drehpunkte.map((x) => x.n));
   const spiegel = e.linien.filter((l) => l.art === 'spiegel');
   const gleit = e.linien.filter((l) => l.art === 'gleit');
+  /** @param {Vec2} p */
   const auf = (p) => spiegel.some((l) => Math.abs((p[0] - l.punkt[0]) * l.richtung[1] - (p[1] - l.punkt[1]) * l.richtung[0]) < 1e-6);
   // Drehpunkte
   if (/keine Drehpunkte/.test(t)) pr(e.drehpunkte.length === 0);
@@ -189,6 +202,7 @@ function verletzt(t, symbol) {
   if (/auf keiner Spiegellinie/.test(t)) pr(hoechste.every((x) => !auf(x.punkt)));
   if (/alle auf Spiegellinien|auf Schnittpunkten von Spiegellinien|auf ihren Schnittpunkten/.test(t)) pr(hoechste.every((x) => auf(x.punkt)));
   // Richtungen der Spiegellinien
+  /** @param {Linie[]} ls */
   const richtungen = (ls) => new Set(ls.map((l) => { const [x, y] = l.richtung; const w = Math.round(((Math.atan2(y, x) * 180 / Math.PI) + 360) % 180); return w % 180; })).size;
   if (/parallele Spiegellinien|Spiegellinien in nur einer Richtung/.test(t)) pr(richtungen(spiegel) === 1);
   if (/Spiegellinien in zwei senkrechten Richtungen/.test(t)) pr(richtungen(spiegel) === 2);
@@ -211,8 +225,8 @@ test('Hinweise zu Ablenkern: die Merkmale des Ablenkers treffen auf die richtige
   for (const gen of [DIAGRAMM, STRUKTUR, VERBAND, PARKETT]) {
     for (const s of gen.stufen) for (const p of gen.params(s)) {
       const q = gen.make(p, s);
-      const g = text(q.antworten[0]);
-      for (const a of q.antworten.slice(1)) assert.notDeepEqual(verletzt(MERKMALE[text(a)], g), [], `${gen.id}:${p}: ${text(a)} passt auf ${g}`);
+      const g = text(/** @type {string} */ (q.antworten[0]));
+      for (const a of /** @type {string[]} */ (q.antworten.slice(1))) assert.notDeepEqual(verletzt(MERKMALE[text(a)], g), [], `${gen.id}:${p}: ${text(a)} passt auf ${g}`);
     }
   }
 });
@@ -228,7 +242,7 @@ test('Ablauf: Stufe, Kapitel, Anzahl und Höchstanteil der Generatoren', () => {
     assert.equal(new Set(z.map((k) => k.key)).size, 10, 'keine Frage doppelt');
     assert.ok(z.every((k) => k.stufe === 1));
     for (const g of GENERATOREN) assert.ok(z.filter((k) => k.gen === g).length <= Math.round(10 * GEN_ANTEIL), g.id);
-    for (const [kap, st, m] of [[null, 2, 10], [[5], 1, 10], [[6], 2, 20], [[7], 3, 10]]) {
+    for (const [kap, st, m] of /** @type {[number[] | null, Stufe, number][]} */ ([[null, 2, 10], [[5], 1, 10], [[6], 2, 20], [[7], 3, 10]])) {
       const zz = ziehen(kands, { stufe: st, kapitel: kap, n: m, rand: r });
       const g = zz.filter((k) => k.gen).length;
       assert.ok(g <= Math.floor(m * GEN_GESAMT) && g <= zz.length * GEN_GESAMT, `Kap. ${kap}, Stufe ${st}: ${g} von ${zz.length}`);
@@ -241,7 +255,7 @@ test('Ablauf: Stufe, Kapitel, Anzahl und Höchstanteil der Generatoren', () => {
 test('Ablauf: gemischte Antworten behalten die richtige Lösung; Auswertung', () => {
   const kands = kandidaten(BANK, GENERATOREN, { entwurf: true });
   for (const [s, k] of kands.entries()) {
-    const q0 = k.frage || k.gen.make(k.param, k.stufe);
+    const q0 = k.frage || /** @type {Generator} */ (k.gen).make(/** @type {string} */ (k.param), k.stufe);
     const q = stellen(k, rng(s + 1));
     const richtig0 = q0.richtig.map((i) => JSON.stringify(q0.antworten[i])).sort();
     assert.deepEqual(q.richtig.map((i) => JSON.stringify(q.antworten[i])).sort(), richtig0, k.key);
@@ -278,9 +292,9 @@ test('Skript: „Lernziele prüfen“ am Ende jedes Kapitels führt ins Quiz mit
     const ziel = [...ls[0].matchAll(/href="quiz\.html\?kap=(\d+)&amp;stufe=(\d)"/g)].map((m) => [Number(m[1]), Number(m[2])]);
     for (const [k, st] of ziel) {
       assert.equal(k, kap.nr);
-      assert.ok(n[kap.nr]?.[st] > 0, `Kap. ${kap.nr}, Stufe ${st}: keine Fragen`);
+      assert.ok(n[kap.nr]?.[/** @type {Stufe} */ (st)] > 0, `Kap. ${kap.nr}, Stufe ${st}: keine Fragen`);
     }
-    for (const st of [1, 2, 3]) if (n[kap.nr]?.[st]) assert.ok(ziel.some(([, s0]) => s0 === st), `Kap. ${kap.nr}: Link Stufe ${st} fehlt`);
+    for (const st of /** @type {Stufe[]} */ ([1, 2, 3])) if (n[kap.nr]?.[st]) assert.ok(ziel.some(([, s0]) => s0 === st), `Kap. ${kap.nr}: Link Stufe ${st} fehlt`);
     assert.ok(!/<a (?![^>]*target="_blank")/.test(ls[0]), `Kap. ${kap.nr}: neuer Tab`);
   });
 });
@@ -289,7 +303,7 @@ test('Kapitel des Quiz: Anker im Skript, kurze Namen, fester Speicher', () => {
   for (const k of KAPITEL) {
     assert.ok(skript.includes(`<section id="${k.anker}"`), k.anker);
     assert.ok(k.kurz.length > 3 && k.kurz.length <= 25, k.kurz);
-    const h2 = skript.slice(skript.indexOf(`<section id="${k.anker}"`)).match(/<h2><span class="nr">(\d+)<\/span>([^<]*)<\/h2>/);
+    const h2 = /** @type {RegExpMatchArray} */ (skript.slice(skript.indexOf(`<section id="${k.anker}"`)).match(/<h2><span class="nr">(\d+)<\/span>([^<]*)<\/h2>/));
     assert.equal(Number(h2[1]), k.nr);
     assert.equal(h2[2], k.titel);
   }
@@ -298,12 +312,13 @@ test('Kapitel des Quiz: Anker im Skript, kurze Namen, fester Speicher', () => {
 
 test('Fragen: Abbildungsverweise aufs Skript existieren und liegen im Kapitel der Frage', () => {
   const abb = new Set([...skript.matchAll(/<b>Abb\. (\d+\.\d+)([a-z]?)<\/b>/g)].flatMap((m) => [m[1], m[1] + m[2]]));
+  /** @type {string[]} */
   const fehler = [];
   for (const q of BANK) {
-    for (const t of [q.frage, q.erklaerung, q.quelle, ...q.hinweise].filter(Boolean)) {
+    for (const t of /** @type {string[]} */ ([q.frage, q.erklaerung, q.quelle, .../** @type {(string | null)[]} */ (q.hinweise)].filter(Boolean))) {
       if (/Hoffmann|Borchardt|ITA/.test(t) && !/Skript/.test(t)) continue;
       for (const m of t.matchAll(/(?:Skript[^;]*?)?Abb\. (\d+)\.(\d+)([a-z]?)/g)) {
-        const davor = t.slice(Math.max(0, m.index - 40), m.index);
+        const davor = t.slice(Math.max(0, /** @type {number} */ (m.index) - 40), m.index);
         if (/Hoffmann|Borchardt|ITA/.test(davor)) continue;
         const nr = `${m[1]}.${m[2]}${m[3]}`;
         if (!abb.has(nr) && !abb.has(`${m[1]}.${m[2]}`)) { fehler.push(`${q.id}: Abb. ${nr}`); continue; }
@@ -317,6 +332,7 @@ test('Fragen: Abbildungsverweise aufs Skript existieren und liegen im Kapitel de
 });
 
 // Preis einer Signatur nach Conway (Skript Abschn. 7.6)
+/** @param {string} sig */
 function preis(sig) {
   let p = 0, nachStern = false;
   for (const c of sig) {
@@ -327,22 +343,25 @@ function preis(sig) {
 }
 
 test('Fragen: nachgerechnete Antworten (Zähligkeit, Freiheitsgrade, Gruppe einer Struktur, Fläche, Abstand, Preis)', () => {
-  const richtigText = (q) => text(q.antworten[q.richtig[0]]);
+  /** @param {Frage} q */
+  const richtigText = (q) => text(/** @type {string} */ (q.antworten[q.richtig[0]]));
+  /** @param {string} s */
   const zahl = (s) => s.replace('.', ',');
   let n = 0;
   for (const q of BANK.filter((x) => x.pruefung)) {
+    /** @type {any} Angaben je Art der Prüfung, verschieden aufgebaut */
     const p = q.pruefung;
     n += 1;
     if (p.art === 'zaehligkeit' || p.art === 'freiheitsgrade') {
       const l = lage(gruppe(p.gruppe), p.punkt);
       assert.equal(richtigText(q), String(p.art === 'zaehligkeit' ? l.zaehligkeit : l.freiheitsgrade), q.id);
       // die falschen Zahlen sind andere
-      q.antworten.forEach((a, i) => { if (!q.richtig.includes(i)) assert.notEqual(text(a), richtigText(q), q.id); });
+      q.antworten.forEach((a, i) => { if (!q.richtig.includes(i)) assert.notEqual(text(/** @type {string} */ (a)), richtigText(q), q.id); });
     } else if (p.art === 'struktur') {
       const z = startzustand();
-      assert.ok(hashAnwenden(z, q.app), q.id);
-      const sym = strukturSymmetrie(z.struktur).symbol;
-      q.antworten.forEach((a, i) => assert.equal(text(a).split(/[ ,]/)[0] === sym, q.richtig.includes(i), `${q.id}: ${text(a)} (App: ${sym})`));
+      assert.ok(hashAnwenden(z, /** @type {string} */ (q.app)), q.id);
+      const sym = /** @type {Bestimmung} */ (strukturSymmetrie(z.struktur)).symbol;
+      q.antworten.forEach((a, i) => assert.equal(text(/** @type {string} */ (a)).split(/[ ,]/)[0] === sym, q.richtig.includes(i), `${q.id}: ${text(/** @type {string} */ (a))} (App: ${sym})`));
     } else if (p.art === 'flaeche') {
       const f = p.a * p.b * Math.sin((p.gamma * Math.PI) / 180);
       assert.equal(zahl(f.toFixed(1)), p.wert, q.id);
@@ -353,7 +372,7 @@ test('Fragen: nachgerechnete Antworten (Zähligkeit, Freiheitsgrade, Gruppe eine
       assert.equal(zahl(d.toFixed(2)), p.wert, q.id);
       assert.ok(richtigText(q).includes(p.wert), q.id);
     } else if (p.art === 'preis') {
-      q.antworten.forEach((a, i) => assert.equal(Math.abs(preis(text(a)) - 2) > 1e-9, q.richtig.includes(i), `${q.id}: ${text(a)}`));
+      q.antworten.forEach((a, i) => assert.equal(Math.abs(preis(text(/** @type {string} */ (a))) - 2) > 1e-9, q.richtig.includes(i), `${q.id}: ${text(/** @type {string} */ (a))}`));
     } else assert.fail(`${q.id}: unbekannte Prüfung ${p.art}`);
   }
   assert.ok(n >= 10);
@@ -373,9 +392,10 @@ test('Seite: Schalter „Auch ungeprüfte Fragen zeigen“, ?entwurf schaltet ei
   assert.ok(html.indexOf('id="entwurf-schalter"') > html.indexOf('</form>'));
   assert.match(js, /let entwurf = START\.has\('entwurf'\);/);
   // je eine geprüfte und eine ungeprüfte Frage dazu, damit der Test nicht vom Stand der Bank abhängt
+  /** @type {Frage[]} */
   const bank = [...BANK, { ...BANK[0], id: 'test-geprueft', status: 'geprüft' }, { ...BANK[0], id: 'test-entwurf', status: 'entwurf' }];
   const ohne = kandidaten(bank, GENERATOREN, {}), mit = kandidaten(bank, GENERATOREN, { entwurf: true });
-  assert.ok(ohne.every((k) => (k.frage ? k.frage.status : k.gen.status) === 'geprüft'));
+  assert.ok(ohne.every((k) => (k.frage ? k.frage.status : /** @type {Generator} */ (k.gen).status) === 'geprüft'));
   assert.ok(mit.length > ohne.length);
 });
 
@@ -384,7 +404,7 @@ test('Fragen: Die richtige Antwort verrät sich nicht durch ihre Länge', () => 
   // erkennt man sie ohne Wissen. Geprüft für Fragen mit einer richtigen Textantwort ab 30 Zeichen.
   const fehler = [];
   for (const q of BANK.filter((x) => x.richtig.length === 1 && !['text-bild', 'bild-bild'].includes(x.typ))) {
-    const L = q.antworten.map((a) => text(a).length);
+    const L = q.antworten.map((a) => text(/** @type {string} */ (a)).length);
     const r = L[q.richtig[0]];
     const f = L.filter((_, i) => i !== q.richtig[0]);
     const mittel = f.reduce((s, x) => s + x, 0) / f.length;
@@ -395,8 +415,9 @@ test('Fragen: Die richtige Antwort verrät sich nicht durch ihre Länge', () => 
 
 test('Fragentexte: keine Block-Elemente (sie dürfen nicht in einem Absatz stehen, Prüfliste und Moodle setzen <p>)', () => {
   const block = /<(table|tbody|tr|td|div|p|ul|ol|li|h\d|figure)[\s>]/i;
+  /** @param {Frage | import('../lib/common/js/quiz-core.js').Frageinhalt & { id: string }} q */
   const pruefe = (q) => {
-    for (const t of [q.frage, q.erklaerung, ...(q.hinweise || []), ...q.antworten.map((a) => (typeof a === 'string' ? a : ''))].filter(Boolean)) {
+    for (const t of /** @type {string[]} */ ([q.frage, q.erklaerung, ...(q.hinweise || []), ...q.antworten.map((a) => (typeof a === 'string' ? a : ''))].filter(Boolean))) {
       assert.ok(!block.test(t), `${q.id}: Block-Element in „${t.slice(0, 60)}…“`);
     }
   };

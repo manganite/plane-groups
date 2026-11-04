@@ -1,7 +1,9 @@
 // Link-Adressen: Format ist eine Schnittstelle (README), hin und zurück stabil.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, grad } from '../js/zustand.js';
+
+/** @import { Zustand } from '../js/zustand.js' */
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 
 test('Startzustand: nur Modus, Gruppe und Lage des Objekts in der Adresse', () => {
@@ -10,9 +12,10 @@ test('Startzustand: nur Modus, Gruppe und Lage des Objekts in der Adresse', () =
 
 test('hin und zurück: jede Gruppe, Schalter, Gitter', () => {
   for (const d of EBENENGRUPPEN) {
+    /** @type {Zustand} */
     const z = { ...startzustand(), gruppe: d.symbol, punkt: [0.1234, 0.5], ae: true, elemente: false, zellen: 2, form: 'komma', einrasten: false };
-    if (d.system === 'schiefwinklig') z.gitter.schiefwinklig = { ba: 1.4, gamma: 110 };
-    if (d.system === 'rechteckig') z.gitter.rechteckig = { ba: 0.8, gamma: 90 };
+    if (d.system === 'schiefwinklig') z.gitter.schiefwinklig = { ba: 1.4, gamma: grad(110) };
+    if (d.system === 'rechteckig') z.gitter.rechteckig = { ba: 0.8, gamma: grad(90) };
     const h = hashVon(z);
     const z2 = startzustand();
     assert.equal(hashAnwenden(z2, h), true);
@@ -24,7 +27,7 @@ test('hin und zurück: jede Gruppe, Schalter, Gitter', () => {
 
 test('Gitter: nur die freien Parameter des Systems stehen in der Adresse', () => {
   const z = { ...startzustand(), gruppe: 'p4mm' };
-  z.gitter.quadratisch = { ba: 1.3, gamma: 100 }; // nicht frei: wird nicht geschrieben
+  z.gitter.quadratisch = { ba: 1.3, gamma: grad(100) }; // nicht frei: wird nicht geschrieben
   assert.ok(!/ba=|gamma=/.test(hashVon(z)));
   const z2 = startzustand();
   hashAnwenden(z2, '#m=eg&g=p4mm&ba=1.3&gamma=100');
@@ -56,6 +59,7 @@ test('spezielle Lagen bleiben beim Neuladen speziell (Brüche exakt in der Adres
       assert.equal(lage(g, z2.punkt).buchstabe, w.b, `${d.symbol} ${w.b}: ${hashVon(z)}`);
     }
   }
+  /** @type {Zustand} */
   const z = { ...startzustand(), gruppe: 'p3', punkt: [1 / 3, 2 / 3] };
   assert.match(hashVon(z), /x=1\/3&y=2\/3/);
 });
@@ -106,7 +110,8 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
 
 test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {
   const s = startzustand();
-  const z = gespeichertPruefen({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 });
+  // absichtlich falsche Arten, wie sie im Speicher des Browsers stehen könnten
+  const z = gespeichertPruefen(/** @type {any} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 }));
   assert.equal(z.aufbau, s.aufbau);
   assert.equal(z.erkl, null);
   assert.equal(z.form, s.form);

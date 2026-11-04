@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Bilder des Quiz aus dem Code der App: eine Bildangabe ist eine Link-Adresse der App („#m=eg&g=p4mm“,
 // Tafel A) oder dieselbe mit „B“ davor („B#m=eg&g=p4mm“, Tafel B, das Muster). „@1.8“ am Ende setzt
 // die Grösse der Symbole fest („#m=eg&g=p4mm&obj=0@1.8“). Skizzen aus dem Skript, die es in der App
@@ -10,7 +9,10 @@ import { tafelA, tafelB } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB } from './struktur.js';
 import { dreieck3m, punktgruppe } from './skizzen.js';
 
-/** Skizzen aus dem Skript (viewBox 520 × 400): Zeichnung und Höhe ihrer Mitte; im Quizbild vergrössert und mittig. */
+/** @import { Farben } from './zeichnung.js' */
+/** @import { BildOptionen } from '../lib/common/js/quiz-core.js' */
+
+/** Skizzen aus dem Skript (viewBox 520 × 400): Zeichnung und Höhe ihrer Mitte; im Quizbild vergrössert und mittig. @type {Record<string, [(f: Farben) => string, number]>} */
 const SKIZZEN = {
   '3m': [dreieck3m, 190],
   '2mm': [(f) => punktgruppe('2mm', f), 200],
@@ -18,7 +20,7 @@ const SKIZZEN = {
   '6mm': [(f) => punktgruppe('6mm', f), 200],
 };
 
-/** Farben aus CSS-Variablen ({ paper: '#fff', …, dir1, dir2, dir3, fc0 … fc5 }) in der Form der Tafeln. */
+/** Farben aus CSS-Variablen ({ paper: '#fff', …, dir1, dir2, dir3, fc0 … fc5 }) in der Form der Tafeln. @param {Record<string, string>} v @returns {Farben & { fc: string[] }} */
 export const farbenAus = (v) => ({
   paper: v.paper, ink: v.ink, muted: v.muted, line: v.line, accent: v.accent, accent2: v.accent2,
   upper: v.upper, crystal: v.crystal, dir: [v.dir1, v.dir2, v.dir3], fc3: v.fc3, fc4: v.fc4,
@@ -31,7 +33,11 @@ export const K_ANTWORT = 2;
 export const K_MUSTER = 1.15;
 const K_SKIZZE = 1.25;
 
-/** Bildangabe → { tafel: 'a' | 'b', hash, k } oder { skizze } (k: Grösse der Symbole oder null). */
+/**
+ * Bildangabe → { tafel: 'a' | 'b', hash, k } oder { skizze } (k: Grösse der Symbole oder null).
+ * @param {string} angabe
+ * @returns {{ skizze: string, hash: string, tafel?: undefined, k?: undefined } | { tafel: 'a' | 'b', hash: string, k: number | null, skizze?: undefined }}
+ */
 export function zerlege(angabe) {
   if (angabe.startsWith('skizze:')) return { skizze: angabe.slice(7), hash: '' };
   const [rest, gross] = angabe.split('@');
@@ -39,15 +45,17 @@ export function zerlege(angabe) {
   return { tafel: b ? 'b' : 'a', hash: b ? rest.slice(1) : rest, k: gross ? Number(gross) : null };
 }
 
-/** Gibt es die Skizze? */
+/** Gibt es die Skizze? @param {string} name */
 export const istSkizze = (name) => Object.hasOwn(SKIZZEN, name);
 
-/** Link-Adresse der App zu einer Bildangabe (für „In der App öffnen“; leer bei Skizzen). */
+/** Link-Adresse der App zu einer Bildangabe (für „In der App öffnen“; leer bei Skizzen). @param {string} angabe */
 export const appAdresse = (angabe) => zerlege(angabe).hash;
 
 /**
  * Inhalt eines SVG (viewBox 0 0 520 520) zu einer Bildangabe. opt.klein: Antwortbild, Symbole grösser.
  * Gibt null zurück, wenn die Link-Adresse keinen Modus enthält.
+ * @param {string} angabe @param {Farben} f @param {BildOptionen} [opt]
+ * @returns {string | null}
  */
 export function bildInhalt(angabe, f, opt = {}) {
   const { tafel, hash, k: gross, skizze } = zerlege(angabe);

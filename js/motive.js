@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Motive für den Modus „Gitter und Basis“ (Konzept §3.2): je eine Form mit eigener Symmetrie.
 // Ein Motiv besteht aus Punkten (lokal, kartesisch, Radius etwa 1) mit Art; diese Punkte gehen in
 // die Symmetriebestimmung (bestimmung.js) ein, ihre Symmetrie ist die des Motivs. Gezeichnet wird
@@ -8,8 +7,6 @@
 
 import { metrik, bruchVon } from './zeichnung.js';
 
-// Die Datei ist noch ohne Typprüfung (@ts-nocheck); die Typen an den Funktionen, die die
-// Rechenkerne verwenden, gelten aber schon (crystallography-common#19).
 /** @import { Vec2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
 /**
  * Motiv (siehe MOTIVE).
@@ -22,11 +19,16 @@ import { metrik, bruchVon } from './zeichnung.js';
  */
 /** Struktur im Modus „Gitter und Basis“. @typedef {import('./zeichnung.js').Gitter & { basis: Basiseintrag[], bindungen?: boolean }} Struktur */
 
+/** Lokaler Punkt eines Motivs: x, y, Art. @typedef {[number, number, string]} Motivpunkt */
+
+/** @param {number} g */
 const rad = (g) => (g * Math.PI) / 180;
+/** @param {number} r @param {number} w @returns {[number, number]} */
 const polar = (r, w) => [r * Math.cos(rad(w)), r * Math.sin(rad(w))];
 
-/** Windrad mit n Flügeln: Symmetrie n (Drehungen), keine Spiegelung (Flügel schief). */
+/** Windrad mit n Flügeln: Symmetrie n (Drehungen), keine Spiegelung (Flügel schief). @param {number} n */
 function windrad(n) {
+  /** @type {Motivpunkt[]} */
   const pts = [];
   for (let k = 0; k < n; k++) {
     const w = (360 * k) / n;
@@ -34,7 +36,7 @@ function windrad(n) {
   }
   return pts;
 }
-/** Regelmässiges n-Eck: Symmetrie nmm (bzw. 3m). */
+/** Regelmässiges n-Eck: Symmetrie nmm (bzw. 3m). @param {number} n @param {number} [start] @returns {Motivpunkt[]} */
 const vieleck = (n, start = -90) => Array.from({ length: n }, (_, k) => [...polar(1, start + (360 * k) / n), 'e']);
 
 /**
@@ -62,12 +64,12 @@ export const MOTIVE = {
   ziegel: { name: 'Ziegel', symmetrie: '2mm', groesse: 0.12, deckkraft: 0.45, punkte: [[1, 0.9 / 1.9, 'e'], [-1, 0.9 / 1.9, 'e'], [-1, -0.9 / 1.9, 'e'], [1, -0.9 / 1.9, 'e']], form: 'polygon' },
 };
 
-/** Lokale Punkte eines Basiseintrags, gedreht und skaliert (kartesisch). @param {Basiseintrag} e @returns {{ c: Kartesisch<Vec2>, art: string }[]} */
+/** Lokale Punkte eines Basiseintrags, gedreht und skaliert (kartesisch). @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse'>} e @returns {{ c: Kartesisch<Vec2>, art: string }[]} */
 export function motivKart(e) {
   const d = MOTIVE[e.motiv];
   const s = e.groesse ?? d.groesse;
   const c = Math.cos(rad(e.winkel ?? 0)); const n = Math.sin(rad(e.winkel ?? 0));
-  return d.punkte.map(([u, v, art]) => ({ c: [s * (c * u - n * v), s * (n * u + c * v)], art }));
+  return d.punkte.map(([u, v, art]) => ({ c: /** @type {Kartesisch<Vec2>} */ ([s * (c * u - n * v), s * (n * u + c * v)]), art }));
 }
 
 /**
@@ -78,6 +80,7 @@ export function motivKart(e) {
  */
 export function strukturPunkte(st) {
   const M = metrik({ ba: st.ba, gamma: st.gamma });
+  /** @type {{ p: Vec2, art: string }[]} */
   const out = [];
   for (const e of st.basis) {
     for (const q of motivKart(e)) {

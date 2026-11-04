@@ -188,7 +188,7 @@ npm install --no-save typescript@7.0.2 @types/node@22.20.5 playwright@1.52.0
 npx tsc -p .
 ```
 
-Strikt geprüft werden bisher die Rechenkerne (`symmetrie.js`, `ebenengruppen.js`, `punktoperationen.js`, `herkunft.js`, `bestimmung.js`, `asymmetrie.js`, `struktur.js`, `brechen.js`); die übrigen Dateien tragen noch `// @ts-nocheck` (crystallography-common#19, Schritt 2). Mit den installierten Paketen zeigt auch VS Code die Meldungen in geöffneten Dateien.
+Strikt geprüft werden alle Dateien in `js/`, `tools/` und `tests/`. Mit den installierten Paketen zeigt auch VS Code die Meldungen in geöffneten Dateien.
 
 - Skript als PDF: `node tools/skript-pdf.mjs [Ausgabedatei]` (braucht Playwright mit Chromium)
 - Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml` (mit `--entwurf` auch die ungeprüften Fragen)

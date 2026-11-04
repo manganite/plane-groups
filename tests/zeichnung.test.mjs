@@ -8,14 +8,26 @@ import {
 } from '../js/zeichnung.js';
 import { startzustand, GITTER_START } from '../js/zustand.js';
 
-const FARBEN = {
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Farben } from '../js/zeichnung.js' */
+/** @import { Zustand } from '../js/zustand.js' */
+
+/**
+ * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
+ * @template T @param {T} x @returns {NonNullable<T>}
+ */
+const da = (x) => /** @type {NonNullable<T>} */ (x);
+
+/** Farben ohne fc3, fc4 (die Tafeln brauchen sie nur in Erklärungen). @type {Farben} */
+const FARBEN = /** @type {Farben} */ ({
   paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf',
   dir: ['#a0a', '#0a0', '#aa0'],
-};
+});
+/** @param {number} a @param {number} b @param {number} [tol] */
 const nahe = (a, b, tol = 1e-9) => Math.abs(a - b) < tol;
 
 test('Metrik: Länge von b ist b/a, Winkel zwischen a und b ist γ; b zeigt nach rechts', () => {
-  for (const g of [{ ba: 1, gamma: 90 }, { ba: 1.3, gamma: 90 }, { ba: 1, gamma: 120 }, { ba: 1.25, gamma: 105 }]) {
+  for (const g of /** @type {import('../js/zeichnung.js').Gitter[]} */ ([{ ba: 1, gamma: 90 }, { ba: 1.3, gamma: 90 }, { ba: 1, gamma: 120 }, { ba: 1.25, gamma: 105 }])) {
     const M = metrik(g);
     assert.ok(nahe(Math.hypot(...M.a), 1));
     assert.ok(nahe(Math.hypot(...M.b), g.ba));
@@ -27,9 +39,9 @@ test('Metrik: Länge von b ist b/a, Winkel zwischen a und b ist γ; b zeigt nach
 });
 
 test('Ansicht: Bruchkoordinaten ↔ Bildpunkte umkehrbar', () => {
-  const M = metrik({ ba: 1.25, gamma: 105 });
+  const M = metrik(/** @type {import('../js/zeichnung.js').Gitter} */ ({ ba: 1.25, gamma: 105 }));
   const A = ansicht(M, [-0.3, 0, 1.3, 1]);
-  for (const p of [[0, 0], [0.3, 0.7], [1, 1], [-0.2, 1.4]]) {
+  for (const p of /** @type {Vec2[]} */ ([[0, 0], [0.3, 0.7], [1, 1], [-0.2, 1.4]])) {
     const q = A.vonBild(A.zuBild(p));
     assert.ok(nahe(q[0], p[0]) && nahe(q[1], p[1]), String(p));
     const c = bruchVon(M, kart(M, p));
@@ -43,6 +55,7 @@ test('Operationen sind in der Metrik ihres Systems Isometrien (Objekte werden ni
     for (const op of gruppe(d.symbol).alle) {
       const C = kartMatrix(M, op.R);
       // CᵀC = I
+      /** @param {number} i @param {number} j */
       const s = (i, j) => C[0][i] * C[0][j] + C[1][i] * C[1][j];
       assert.ok(nahe(s(0, 0), 1, 1e-9) && nahe(s(1, 1), 1, 1e-9) && nahe(s(0, 1), 0, 1e-9), `${d.symbol}`);
     }
@@ -68,6 +81,7 @@ test('Blickrichtungen: Linien an jeder Stelle passen zum vollständigen Hermann-
 test('Tafeln: für alle Gruppen und Optionen gültiges SVG ohne NaN', () => {
   for (const d of EBENENGRUPPEN) {
     for (const opt of [{}, { zellen: 2, ae: true, form: 'komma', musterElemente: true, farben: false }]) {
+      /** @type {Zustand} */
       const z = { ...startzustand(), gruppe: d.symbol, ...opt };
       const a = tafelA(d.symbol, z, FARBEN).svg;
       const b = tafelB(d.symbol, z, FARBEN).svg;
@@ -96,10 +110,11 @@ test('Ausgangsobjekt: Ring folgt dem Objekt auch in der zweiten Zelle (Review PR
   assert.deepEqual(ausgangsstelle([1.3, 0.4], 2), [1.3, 0.4]);
   const r = ausgangsstelle([1.3, 0.4], 1);
   assert.ok(Math.abs(r[0] - 0.3) < 1e-12 && r[1] === 0.4);
+  /** @type {Zustand} */
   const z = { ...startzustand(), gruppe: 'p2', zellen: 2, punkt: [1.3, 0.4] };
   const { svg, ansicht: A } = tafelA('p2', z, FARBEN);
   const [x, y] = A.zuBild([1.3, 0.4]);
-  const m = svg.match(/class="ausgang" cx="([\d.]+)" cy="([\d.]+)"/);
+  const m = da(svg.match(/class="ausgang" cx="([\d.]+)" cy="([\d.]+)"/));
   assert.ok(Math.abs(Number(m[1]) - x) < 0.01 && Math.abs(Number(m[2]) - y) < 0.01);
 });
 
@@ -125,11 +140,12 @@ test('Asymmetrische Einheit: alle Bedingungen zusammen ergeben genau die Fläche
 test('Asymmetrische Einheit: gewählte Bedingungen in Tafel A und in der Link-Adresse', async () => {
   const { tafelA } = await import('../js/zeichnung.js');
   const { startzustand, hashVon, hashAnwenden } = await import('../js/zustand.js');
+  /** @type {Farben} */
   const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };
   const z = { ...startzustand(), gruppe: 'p4mm', aeTeile: [2] };
   const svg = tafelA('p4mm', z, F).svg;
   assert.match(svg, /class="ae-teile"><polygon/);
-  assert.equal((svg.match(/class="ae-teile-grenzen">.*?<\/g>/)[0].match(/<line/g) || []).length, 1, 'x ≤ y: eine Grenzlinie');
+  assert.equal((da(svg.match(/class="ae-teile-grenzen">.*?<\/g>/))[0].match(/<line/g) || []).length, 1, 'x ≤ y: eine Grenzlinie');
   assert.ok(svg.indexOf('ae-teile-grenzen') > svg.indexOf('class="elemente'), 'Grenzen über den Elementen');
   assert.match(hashVon(z), /aet=2/);
   const z2 = startzustand();
@@ -150,6 +166,7 @@ test('Bilder rund um die Zelle (wie ITA): Gruppen um Ecken vollständig, Ansicht
   for (const [x, y] of [[0.12, 0.31], [-0.12, 0.31], [0.12, -0.31], [-0.12, -0.31], [0.31, 0.12], [-0.31, 0.12], [0.31, -0.12], [-0.31, -0.12]]) {
     assert.ok(b.some((q) => Math.abs(q[0] - x) < 1e-9 && Math.abs(q[1] - y) < 1e-9), `(${x}, ${y})`);
   }
+  /** @param {string} svg */
   const zahl = (svg) => (svg.match(/class="objekte">.*?<\/g>/s)?.[0].match(/<circle|<path|<polygon/g) || []).length;
   const aus = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', form: 'komma' }, F);
   const an = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', form: 'komma', orbit: true }, F);
