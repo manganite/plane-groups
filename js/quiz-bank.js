@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Fragen des Quiz (handgeschrieben). Aufbau siehe lib/common/js/quiz-core.js.
 // Nur Fragen mit status 'geprüft' erscheinen; Entwürfe zeigt quiz.html?entwurf.
 // id wie im Stereo-Quiz: Kürzel des Kapitels, Stufe, laufende Nummer je Kürzel und Stufe (z. B. gl-2-03).

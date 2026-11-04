@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Zeichnungen der Ebenengruppen als SVG: Symmetriegerüst (Tafel A) und Muster (Tafel B).
 // Ohne DOM, damit sich alles in Node testen lässt; die Farben kommen als Objekt herein.
 //
@@ -11,20 +12,35 @@ import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICH
 import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp, vorbild } from './herkunft.js';
 import { bedingungen, bereich } from './asymmetrie.js';
 
+// Die Datei ist noch ohne Typprüfung (@ts-nocheck); die Typen an den Funktionen, die die
+// Rechenkerne verwenden, gelten aber schon (crystallography-common#19).
+/** @import { Vec2, Mat2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Gruppe, Op, Drehpunkt, Linie } from './symmetrie.js' */
+/** Gitter: b/a und Winkel γ zwischen a und b. @typedef {{ ba: number, gamma: Grad }} Gitter */
+/**
+ * Farben aus base.css (Werte der Variablen; dir: die drei Blickrichtungen).
+ * @typedef {{ paper: string, ink: string, muted: string, line: string, accent: string, accent2: string, upper: string, crystal: string, dir: string[], fc3: string, fc4: string }} Farben
+ */
+/** Gittervektoren in Bildschirmrichtungen (a = 1). @typedef {{ a: Kartesisch<Vec2>, b: Kartesisch<Vec2> }} Metrik */
+/**
+ * Ansicht: Massstab s, Bildgrösse; zuBild: Bruchkoordinaten → Bildpunkt, vonBild umgekehrt.
+ * @typedef {{ s: number, groesse: number, zuBild: (p: Vec2) => Vec2, vonBild: (q: Vec2) => Vec2 }} Ansicht
+ */
+
 // ---------------------------------------------------------------------------------------------
 // Metrik und Ansicht
 // ---------------------------------------------------------------------------------------------
 
-/** Gittervektoren in Bildschirmrichtungen (a = 1): a = (cos γ, sin γ), b = (b/a, 0). */
+/** Gittervektoren in Bildschirmrichtungen (a = 1): a = (cos γ, sin γ), b = (b/a, 0). @param {Gitter} gitter @returns {Metrik} */
 export function metrik({ ba, gamma }) {
   const g = (gamma * Math.PI) / 180;
   return { a: [Math.cos(g), Math.sin(g)], b: [ba, 0] };
 }
 
-/** Bruchkoordinaten → kartesisch (Bildschirmrichtungen, ohne Massstab). */
+/** Bruchkoordinaten → kartesisch (Bildschirmrichtungen, ohne Massstab). @type {(M: Metrik, p: Vec2) => Kartesisch<Vec2>} */
 export const kart = (M, p) => [p[0] * M.a[0] + p[1] * M.b[0], p[0] * M.a[1] + p[1] * M.b[1]];
 
-/** Kartesisch → Bruchkoordinaten. */
+/** Kartesisch → Bruchkoordinaten. @param {Metrik} M @param {Kartesisch<Vec2>} c @returns {Vec2} */
 export function bruchVon(M, c) {
   const d = M.a[0] * M.b[1] - M.b[0] * M.a[1];
   return [(c[0] * M.b[1] - M.b[0] * c[1]) / d, (M.a[0] * c[1] - c[0] * M.a[1]) / d];
@@ -44,6 +60,11 @@ export function kartMatrix(M, R) {
  * Ansicht: bildet das kartesische Rechteck [x0, y0, x1, y1] zentriert in ein quadratisches
  * Bild der Grösse groesse ab (Rand rand). zuBild(p) und vonBild(s) rechnen zwischen
  * Bruchkoordinaten und Bildpunkten.
+ * @param {Metrik} M
+ * @param {[number, number, number, number]} box
+ * @param {number} [groesse]
+ * @param {number} [rand]
+ * @returns {Ansicht}
  */
 export function ansicht(M, box, groesse = 520, rand = 46) {
   const [x0, y0, x1, y1] = box;
@@ -68,7 +89,9 @@ function zellBox(M, n, r = 0) {
 // Symmetrieelemente
 // ---------------------------------------------------------------------------------------------
 
+/** @param {number} v */
 export const f2 = (v) => (Math.round(v * 100) / 100).toString();
+/** @param {Vec2} q */
 export const pt = (q) => `${f2(q[0])},${f2(q[1])}`;
 
 /**
@@ -82,7 +105,7 @@ export function blickrichtung(system, normale) {
   return k + 2;
 }
 
-/** Symmetrieelemente der Zellen [0, n]², Doppelte an gemeinsamen Kanten entfernt. */
+/** Symmetrieelemente der Zellen [0, n]², Doppelte an gemeinsamen Kanten entfernt. @param {Gruppe} g @param {number} n @returns {{ drehpunkte: Drehpunkt[], linien: Linie[] }} */
 export function elementeImBereich(g, n) {
   const e = elemente(g);
   const dreh = []; const linien = [];
@@ -140,6 +163,13 @@ function linieSVG(p, q, art, farbe, breite = null, k = 1) {
  * sein: neu: true (im Aufbau gerade hinzugekommen); Drehpunkte mit ordnungen: [3, 2] zeigen
  * mehrere Symbole an derselben Stelle. gedimmt: alles blasser (bei einer Erklärung). k: Grösse
  * der Symbole und Linien (1 in der App; das Skript vergrössert sie in kleinen Abbildungen).
+ * @param {Gruppe} g
+ * @param {{ drehpunkte: Drehpunkt[], linien: Linie[] }} el
+ * @param {Ansicht} A
+ * @param {Farben} farben
+ * @param {boolean | undefined} mitFarben
+ * @param {{ gedimmt?: boolean, k?: number }} [optionen]
+ * @returns {string}
  */
 export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false, k = 1 } = {}) {
   const sys = g.daten.system;
@@ -340,6 +370,9 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
  * Die Operationen von g, die bei der freien Metrik frei = { ba, gamma } bleiben: genau die, deren
  * Matrix die Metrik erhält (die Lagen der Objekte ändern sich nicht, nur Abstände und Winkel).
  * Ergebnis: { M, H (Untergruppe wie gruppe(): alle, ordnung, zentr, daten), bleibt, weg }.
+ * @param {Gruppe} g
+ * @param {Gitter} frei
+ * @returns {{ M: Metrik, H: Gruppe, bleibt: Op[], weg: Op[], bahn: number[], bahnen: number }}
  */
 export function gebrochen(g, frei) {
   const M = metrik(frei);
@@ -367,7 +400,7 @@ export function gebrochen(g, frei) {
 /** Farben der Bahnen beim Brechen: die erste wie bisher, dann gut unterscheidbare. */
 export const bahnFarben = (farben) => [farben.upper, farben.accent2, farben.dir[0], farben.dir[1], farben.dir[2], farben.fc3];
 
-/** Motiv ohne eigene Symmetrie (drei Punkte verschiedener Art), vervielfältigt mit g. */
+/** Motiv ohne eigene Symmetrie (drei Punkte verschiedener Art), vervielfältigt mit g. @param {Gruppe} g @param {Vec2} [p] @returns {{ p: Vec2, art: string }[]} */
 export function motivBahn(g, p = [0.137, 0.291]) {
   const motiv = [{ d: [0, 0], art: 'A' }, { d: [0.031, 0.007], art: 'B' }, { d: [-0.004, 0.043], art: 'C' }];
   const out = [];

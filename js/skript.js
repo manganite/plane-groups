@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Skript der App „Symmetrie in der Ebene“: zeichnet die Abbildungen mit dem Code der App.
 // Eine Abbildung der App ist durch ihre Link-Adresse beschrieben (data-app="#m=…"); daraus entsteht mit
 // zustand.js und zeichnung.js bzw. struktur.js genau die Tafel, die die App für diese Adresse zeigt

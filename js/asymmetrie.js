@@ -2,17 +2,23 @@
 // jede Bedingung als Halbebenen, ihr Bereich in der Zelle und der Schnitt mehrerer Bedingungen.
 // Ohne DOM, damit es sich testen lässt.
 
-/** Lineare Ausdrücke in x und y lesen: „1/2 − x“, „(1 + y)/2“, „2y“, „x/2“ → [cx, cy, c0]. */
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** Linearer Ausdruck bzw. Halbebene [cx, cy, c0]: cx·x + cy·y + c0 (≥ 0). @typedef {[number, number, number]} Linear */
+
+/** Lineare Ausdrücke in x und y lesen: „1/2 − x“, „(1 + y)/2“, „2y“, „x/2“ → [cx, cy, c0]. @param {string} text @returns {Linear} */
 function linear(text) {
   const t = text.replace(/−/g, '-').replace(/\s+/g, '');
   let i = 0;
-  const plus = (a, b, k = 1) => a.map((v, j) => v + k * b[j]);
-  const mal = (a, k) => a.map((v) => v * k);
+  /** @type {(a: Linear, b: Linear, k?: number) => Linear} */
+  const plus = (a, b, k = 1) => [a[0] + k * b[0], a[1] + k * b[1], a[2] + k * b[2]];
+  /** @type {(a: Linear, k: number) => Linear} */
+  const mal = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
   const zahl = () => {
     const m = /^\d+(\.\d+)?/.exec(t.slice(i));
     if (!m) throw new Error(`Zahl erwartet in „${text}“`);
     i += m[0].length; return Number(m[0]);
   };
+  /** @returns {Linear} */
   const faktor = () => {
     if (t[i] === '(') { i++; const e = summe(); if (t[i++] !== ')') throw new Error(`„)“ fehlt in „${text}“`); return e; }
     if (t[i] === 'x') { i++; return [1, 0, 0]; }
@@ -26,6 +32,7 @@ function linear(text) {
     while (t[i] === '/') { i++; e = mal(e, 1 / zahl()); }
     return e;
   };
+  /** @returns {Linear} */
   function summe() {
     let vz = 1;
     if (t[i] === '-') { vz = -1; i++; } else if (t[i] === '+') i++;
@@ -38,7 +45,7 @@ function linear(text) {
   return e;
 }
 
-/** Seite einer Ungleichung: ein Ausdruck oder min(a, b) als Liste von Ausdrücken. */
+/** Seite einer Ungleichung: ein Ausdruck oder min(a, b) als Liste von Ausdrücken. @param {string} text */
 function seite(text) {
   const m = /^\s*min\((.*)\)\s*$/.exec(text);
   if (!m) return [linear(text)];
@@ -53,22 +60,27 @@ function seite(text) {
 /**
  * Bedingungen der asymmetrischen Einheit: je Teil zwischen „;“ der Text und die Halbebenen
  * [cx, cy, c0] mit cx·x + cy·y + c0 ≥ 0. „L ≤ M ≤ R“ ergibt zwei, „y ≤ min(a, b)“ zwei Halbebenen.
+ * @param {string} text
+ * @returns {{ text: string, halbebenen: Linear[] }[]}
  */
 export function bedingungen(text) {
   return text.split(';').map((s) => s.trim()).filter(Boolean).map((teil) => {
     const glieder = teil.split('≤');
+    /** @type {Linear[]} */
     const halbebenen = [];
     for (let j = 0; j + 1 < glieder.length; j++) {
       const [l] = seite(glieder[j]);
-      for (const r of seite(glieder[j + 1])) halbebenen.push(r.map((v, k) => v - l[k]));
+      for (const r of seite(glieder[j + 1])) halbebenen.push([r[0] - l[0], r[1] - l[1], r[2] - l[2]]);
     }
     return { text: teil, halbebenen };
   });
 }
 
-/** Polygon (Bruchkoordinaten) auf die Halbebene h beschneiden (Sutherland-Hodgman). */
+/** Polygon (Bruchkoordinaten) auf die Halbebene h beschneiden (Sutherland-Hodgman). @param {readonly Vec2[]} poly @param {Linear} h */
 function beschneiden(poly, h) {
+  /** @param {Vec2} p */
   const wert = (p) => h[0] * p[0] + h[1] * p[1] + h[2];
+  /** @type {Vec2[]} */
   const aus = [];
   for (let i = 0; i < poly.length; i++) {
     const p = poly[i]; const q = poly[(i + 1) % poly.length];
@@ -82,14 +94,19 @@ function beschneiden(poly, h) {
   return aus;
 }
 
-/** Bereich, in dem alle Halbebenen erfüllt sind, innerhalb des Rechtecks [x0, x1] × [y0, y1]. */
+/**
+ * Bereich, in dem alle Halbebenen erfüllt sind, innerhalb des Rechtecks [x0, x1] × [y0, y1].
+ * @param {readonly Linear[]} halbebenen
+ * @param {[number, number, number, number]} [rechteck] x0, y0, x1, y1
+ */
 export function bereich(halbebenen, [x0, y0, x1, y1] = [0, 0, 1, 1]) {
+  /** @type {Vec2[]} */
   let poly = [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
   for (const h of halbebenen) { poly = beschneiden(poly, h); if (!poly.length) break; }
   return poly;
 }
 
-/** Fläche eines Polygons in Bruchkoordinaten (Anteil an der Zellfläche). */
+/** Fläche eines Polygons in Bruchkoordinaten (Anteil an der Zellfläche). @param {readonly Vec2[]} poly */
 export function flaeche(poly) {
   let s = 0;
   for (let i = 0; i < poly.length; i++) {

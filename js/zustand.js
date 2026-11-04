@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Zustand der App und seine Link-Adresse (#m=eg&g=p4gm&x=0.12&y=0.31 …).
 // Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps): Format im README,
 // stabil, durch tests/zustand.test.mjs abgesichert. Geschrieben wird nur, was vom Startzustand

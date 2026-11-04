@@ -20,28 +20,54 @@
 import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { gruppe, mod1 } from './symmetrie.js';
 
+/** @import { Vec2, Mat2, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Ebenengruppe, System } from './ebenengruppen.js' */
+/** @import { Op } from './symmetrie.js' */
+/** Punkt der Struktur: Lage p in Bruchkoordinaten, art beliebiger Schlüssel. @typedef {{ p: Vec2, art: string }} Strukturpunkt */
+/** Struktur für bestimme(): Gittervektoren a, b kartesisch, Punkte. @typedef {{ a: Kartesisch<Vec2>, b: Kartesisch<Vec2>, punkte: readonly Strukturpunkt[] }} Strukturdaten */
+/** Punkte nach Art: [Art, Lagen in [0, 1)²]. @typedef {[string, Vec2[]][]} Arten */
+/**
+ * Ergebnis von bestimme() (siehe dort).
+ * @typedef {{ symbol: string, gruppe: Ebenengruppe, ordnung: number, system: System, a: Kartesisch<Vec2>, b: Kartesisch<Vec2>, zelle: Mat2, ursprung: Vec2, punkte: Strukturpunkt[], primitiv: number }} Bestimmung
+ */
+
 const TOL = 1e-4; // Lage in Bruchteilen der Zelle
 const TOL_METRIK = 1e-6; // relativ
 
+/** @type {(a: Mat2, b: Mat2) => Mat2} */
 const mat = (a, b) => [[a[0][0] * b[0][0] + a[0][1] * b[1][0], a[0][0] * b[0][1] + a[0][1] * b[1][1]], [a[1][0] * b[0][0] + a[1][1] * b[1][0], a[1][0] * b[0][1] + a[1][1] * b[1][1]]];
+/** @type {(m: Mat2, v: Vec2) => Vec2} */
 const vek = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1], m[1][0] * v[0] + m[1][1] * v[1]];
+/** @param {Mat2} m */
 const det = (m) => m[0][0] * m[1][1] - m[0][1] * m[1][0];
+/** @type {(m: Mat2) => Mat2} */
 const inv = (m) => { const d = det(m); return [[m[1][1] / d, -m[0][1] / d], [-m[1][0] / d, m[0][0] / d]]; };
+/** @type {(m: Mat2) => Mat2} */
 const trans = (m) => [[m[0][0], m[1][0]], [m[0][1], m[1][1]]];
+/** @type {(u: Vec2, v: Vec2) => Mat2} */
 const spalten = (u, v) => [[u[0], v[0]], [u[1], v[1]]];
+/** @param {number} x */
 const ganz = (x, tol = TOL) => Math.abs(x - Math.round(x)) < tol;
+/** @param {Vec2} u @param {Vec2} v */
 const gleichMod1 = (u, v, tol = TOL) => ganz(u[0] - v[0], tol) && ganz(u[1] - v[1], tol);
+/** @type {(x: number, y: number) => number} */
 const ggt = (x, y) => (y === 0 ? Math.abs(x) : ggt(y, x % y));
+/** @param {number} x */
 const r = (x) => Math.round(x);
 
-/** Punkte nach Art gruppiert; die Art mit den wenigsten Punkten zuerst. */
+/** Punkte nach Art gruppiert; die Art mit den wenigsten Punkten zuerst. @param {readonly Strukturpunkt[]} punkte @returns {Arten} */
 function nachArt(punkte) {
+  /** @type {Map<string, Vec2[]>} */
   const m = new Map();
-  for (const q of punkte) { if (!m.has(q.art)) m.set(q.art, []); m.get(q.art).push(q.p.map(mod1)); }
+  for (const q of punkte) {
+    let liste = m.get(q.art);
+    if (!liste) { liste = []; m.set(q.art, liste); }
+    liste.push(/** @type {Vec2} */ (q.p.map(mod1)));
+  }
   return [...m.entries()].sort((u, v) => u[1].length - v[1].length);
 }
 
-/** Bildet {R, t} die Punkte (nach Art) auf sich ab (modulo Gitter)? */
+/** Bildet {R, t} die Punkte (nach Art) auf sich ab (modulo Gitter)? @param {Arten} arten @param {Mat2} R @param {Vec2} t */
 function bildetAb(arten, R, t) {
   for (const [, ps] of arten) {
     for (const p of ps) {
@@ -52,13 +78,15 @@ function bildetAb(arten, R, t) {
   return true;
 }
 
-/** Alle Operationen mit Matrix R, die die Struktur auf sich abbilden (t modulo 1). */
+/** Alle Operationen mit Matrix R, die die Struktur auf sich abbilden (t modulo 1). @param {Arten} arten @param {Mat2} R */
 function translationenZu(arten, R) {
   const [, ref] = arten[0];
   const p0 = ref[0];
   const Rp = vek(R, p0);
+  /** @type {Vec2[]} */
   const out = [];
   for (const q of ref) {
+    /** @type {Vec2} */
     const t = [mod1(q[0] - Rp[0]), mod1(q[1] - Rp[1])];
     if (out.some((u) => gleichMod1(u, t))) continue;
     if (bildetAb(arten, R, t)) out.push(t);
@@ -69,11 +97,16 @@ function translationenZu(arten, R) {
 /**
  * Kleinste Zelle: die zwei kürzesten unabhängigen Gittervektoren (kartesische Metrik G der
  * gegebenen Zelle). Rückgabe: Matrix P (Spalten in Bruchkoordinaten der gegebenen Zelle).
+ * @param {readonly Vec2[]} T Translationen (aus translationenZu())
+ * @param {Mat2} G Metrik
  */
 function primitiveZelle(T, G) {
+  /** @param {Vec2} v */
   const lang = (v) => Math.sqrt(vek(G, v)[0] * v[0] + vek(G, v)[1] * v[1]);
+  /** @type {Vec2[]} */
   const kand = [];
   for (const t of T) for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
+    /** @type {Vec2} */
     const v = [t[0] + i, t[1] + j];
     if (Math.abs(v[0]) < TOL && Math.abs(v[1]) < TOL) continue;
     kand.push(v);
@@ -81,13 +114,18 @@ function primitiveZelle(T, G) {
   kand.sort((u, v) => lang(u) - lang(v));
   const v1 = kand[0];
   const flaeche = 1 / T.length;
-  const v2 = kand.find((v) => Math.abs(Math.abs(det(spalten(v1, v))) - flaeche) < TOL);
+  // Die Translationen bilden ein Gitter mit T.length Punkten je Zelle; v2 ergänzt v1 zu einer Basis
+  const v2 = /** @type {Vec2} */ (kand.find((v) => Math.abs(Math.abs(det(spalten(v1, v))) - flaeche) < TOL));
   return spalten(v1, v2);
 }
 
-/** Lagrange-Reduktion einer Basis (Spalten in Bruchkoordinaten) bezüglich der Metrik G. */
+/** Lagrange-Reduktion einer Basis (Spalten in Bruchkoordinaten) bezüglich der Metrik G. @param {Mat2} P @param {Mat2} G */
 function reduziere(P, G) {
-  let u = [P[0][0], P[1][0]]; let v = [P[0][1], P[1][1]];
+  /** @type {Vec2} */
+  let u = [P[0][0], P[1][0]];
+  /** @type {Vec2} */
+  let v = [P[0][1], P[1][1]];
+  /** @param {Vec2} x @param {Vec2} y */
   const sk = (x, y) => { const Gy = vek(G, y); return x[0] * Gy[0] + x[1] * Gy[1]; };
   for (let k = 0; k < 50; k++) {
     if (sk(u, u) > sk(v, v)) [u, v] = [v, u];
@@ -99,11 +137,13 @@ function reduziere(P, G) {
   return spalten(u, v);
 }
 
-/** Holoedrie: ganzzahlige Matrizen mit Einträgen −1, 0, 1, die die Metrik G erhalten. */
+/** Holoedrie: ganzzahlige Matrizen mit Einträgen −1, 0, 1, die die Metrik G erhalten. @param {Mat2} G */
 function holoedrie(G) {
+  /** @type {Mat2[]} */
   const out = [];
   const s = Math.max(Math.abs(G[0][0]), Math.abs(G[1][1]));
   for (let i = 0; i < 81; i++) {
+    /** @type {Mat2} */
     const R = [[(i % 3) - 1, (Math.floor(i / 3) % 3) - 1], [(Math.floor(i / 9) % 3) - 1, (Math.floor(i / 27) % 3) - 1]];
     if (Math.abs(Math.abs(det(R)) - 1) > 1e-9) continue;
     const H = mat(trans(R), mat(G, R));
@@ -112,9 +152,10 @@ function holoedrie(G) {
   return out;
 }
 
-/** Kristallsystem aus der Punktgruppe (Drehungen und Spiegelungen der Matrizen). */
+/** Kristallsystem aus der Punktgruppe (Drehungen und Spiegelungen der Matrizen). @param {readonly Mat2[]} mats @returns {System} */
 function system(mats) {
-  const ord = (R) => ({ 2: 1, '-2': 2, '-1': 3, 0: 4, 1: 6 }[r(R[0][0] + R[1][1])]);
+  /** @param {Mat2} R */
+  const ord = (R) => /** @type {Record<number, number>} */ ({ 2: 1, '-2': 2, '-1': 3, 0: 4, 1: 6 })[r(R[0][0] + R[1][1])];
   const n = Math.max(...mats.filter((R) => det(R) > 0).map(ord));
   const spiegel = mats.some((R) => det(R) < 0);
   if (n === 3 || n === 6) return 'hexagonal';
@@ -122,34 +163,44 @@ function system(mats) {
   return spiegel ? 'rechteckig' : 'schiefwinklig';
 }
 
-/** Kleinster ganzzahliger Vektor in Richtung v. */
+/** Kleinster ganzzahliger Vektor in Richtung v. @param {Vec2} v @returns {Vec2} */
 function primitivVektor(v) {
   const a = r(v[0]); const b = r(v[1]); const g = ggt(a, b) || 1;
   return [a / g, b / g];
 }
 
-/** Kandidaten für die konventionelle Zelle (Spalten in Koordinaten der primitiven Zelle). */
+/** Kandidaten für die konventionelle Zelle (Spalten in Koordinaten der primitiven Zelle). @param {System} sys @param {readonly Mat2[]} mats @param {Mat2} G */
 function zellKandidaten(sys, mats, G) {
+  /** @type {Mat2[]} */
   const basen = [];
   if (sys === 'rechteckig') {
     // Achsen entlang der Normalen und der Richtung einer Spiegel- oder Gleitspiegellinie
     for (const R of mats.filter((M) => det(M) < 0)) {
+      /** @type {Mat2} */
       const RmI = [[R[0][0] - 1, R[0][1]], [R[1][0], R[1][1] - 1]];
+      /** @type {Mat2} */
       const RpI = [[R[0][0] + 1, R[0][1]], [R[1][0], R[1][1] + 1]];
+      /** @type {(M: Mat2) => Vec2} */
       const sp = (M) => (Math.abs(M[0][0]) + Math.abs(M[1][0]) > 0 ? [M[0][0], M[1][0]] : [M[0][1], M[1][1]]);
       basen.push(spalten(primitivVektor(sp(RmI)), primitivVektor(sp(RpI))));
     }
   } else if (sys === 'hexagonal') {
+    /** @type {[Vec2, Vec2]} */
     const [u, v] = [[1, 0], [0, 1]];
+    /** @param {Vec2} x @param {Vec2} y */
     const sk = (x, y) => { const Gy = vek(G, y); return x[0] * Gy[0] + x[1] * Gy[1]; };
     basen.push(sk(u, v) > 0 ? spalten(u, [v[0] - u[0], v[1] - u[1]]) : spalten(u, v));
   } else {
     basen.push([[1, 0], [0, 1]]);
   }
   // alle Vorzeichen und Vertauschungen
+  /** @type {Mat2[]} */
   const out = [];
   for (const B of basen) {
-    const u = [B[0][0], B[1][0]]; const v = [B[0][1], B[1][1]];
+    /** @type {Vec2} */
+    const u = [B[0][0], B[1][0]];
+    /** @type {Vec2} */
+    const v = [B[0][1], B[1][1]];
     for (const [x, y] of [[u, v], [v, u]]) for (const s1 of [1, -1]) for (const s2 of [1, -1]) {
       const C = spalten([s1 * x[0], s1 * x[1]], [s2 * y[0], s2 * y[1]]);
       if (!out.some((D) => D.every((z, i) => z.every((w, j) => w === C[i][j])))) out.push(C);
@@ -158,18 +209,21 @@ function zellKandidaten(sys, mats, G) {
   return out;
 }
 
-/** Ursprung s mit (R − I)·s ≡ v (mod 1): Kandidaten für einen Vergleich mit der ITA-Liste. */
+/** Ursprung s mit (R − I)·s ≡ v (mod 1): Kandidaten für einen Vergleich mit der ITA-Liste. @param {Mat2} R @param {Vec2} v */
 function ursprungKandidaten(R, v) {
+  /** @type {Mat2} */
   const M = [[R[0][0] - 1, R[0][1]], [R[1][0], R[1][1] - 1]];
+  /** @type {Vec2[]} */
   const out = [];
   const d = det(M);
   for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
+    /** @type {Vec2} */
     const w = [v[0] + i, v[1] + j];
     if (Math.abs(d) > 1e-9) out.push(vek(inv(M), w));
     else {
       const n = M[0][0] ** 2 + M[0][1] ** 2 + M[1][0] ** 2 + M[1][1] ** 2;
       if (n < 1e-9) { out.push([0, 0]); continue; }
-      const s = vek(trans(M), w).map((x) => x / n); // kleinste Lösung (Pseudoinverse, Rang 1)
+      const s = /** @type {Vec2} */ (vek(trans(M), w).map((x) => x / n)); // kleinste Lösung (Pseudoinverse, Rang 1)
       const pr = vek(M, s);
       if (Math.abs(pr[0] - w[0]) < 1e-6 && Math.abs(pr[1] - w[1]) < 1e-6) out.push(s);
     }
@@ -177,7 +231,7 @@ function ursprungKandidaten(R, v) {
   return out;
 }
 
-/** Stimmen zwei Operationsmengen modulo Gitter überein? */
+/** Stimmen zwei Operationsmengen modulo Gitter überein? @param {readonly Op[]} a @param {readonly Op[]} b */
 function gleicheMengen(a, b) {
   if (a.length !== b.length) return false;
   return a.every((x) => b.some((y) => x.R.every((z, i) => z.every((w, j) => w === y.R[i][j])) && gleichMod1(x.t, y.t)));
@@ -192,6 +246,8 @@ function gleicheMengen(a, b) {
  *   punkte: die Punkte in Bruchkoordinaten der konventionellen Zelle (in [0, 1)),
  *   primitiv: Zahl der Gitterpunkte je gegebener Zelle
  * } oder null, wenn keine Ebenengruppe passt (sollte nicht vorkommen).
+ * @param {Strukturdaten} st
+ * @returns {Bestimmung | null}
  */
 export function bestimme(st) {
   const A0 = spalten(st.a, st.b); // kartesisch
@@ -200,6 +256,7 @@ export function bestimme(st) {
   // in der reduzierten Basis genügen die Nachbarn der nächsten Gitterpunkte, auch in schiefen Zellen
   const R0 = reduziere([[1, 0], [0, 1]], G0);
   const R0i = inv(R0);
+  /** @param {Vec2} u */
   const abstandZumGitter = (u) => {
     const w = vek(R0i, u);
     const f = w.map(Math.floor);
@@ -216,7 +273,9 @@ export function bestimme(st) {
   const T = translationenZu(arten0, [[1, 0], [0, 1]]);
   const P = reduziere(primitiveZelle(T, G0), G0);
   const Pi = inv(P);
-  const imPrim = (p) => vek(Pi, p).map(mod1);
+  /** @param {Vec2} p */
+  const imPrim = (p) => /** @type {Vec2} */ (vek(Pi, p).map(mod1));
+  /** @type {Strukturpunkt[]} */
   const punkteP = [];
   for (const q of st.punkte) {
     const x = imPrim(q.p);
@@ -225,30 +284,36 @@ export function bestimme(st) {
   const arten = nachArt(punkteP);
   const G = mat(trans(P), mat(G0, P));
   // 2. Punktsymmetrie
+  /** @type {Op[]} */
   const ops = [];
   for (const R of holoedrie(G)) for (const t of translationenZu(arten, R)) ops.push({ R, t });
+  /** @type {Mat2[]} */
   const mats = [];
   for (const o of ops) if (!mats.some((M) => M.every((z, i) => z.every((w, j) => w === o.R[i][j])))) mats.push(o.R);
   const sys = system(mats);
   // 3. Standardaufstellung
   // die der gegebenen Zelle nächsten Kandidaten zuerst, damit die konventionelle Zelle ohne Not
   // nicht vertauscht oder umgekehrt wird
+  /** @param {Mat2} C */
   const abstand = (C) => { const Z = mat(P, C); return Math.abs(Z[0][0] - 1) + Math.abs(Z[0][1]) + Math.abs(Z[1][0]) + Math.abs(Z[1][1] - 1); };
   for (const C of zellKandidaten(sys, mats, G).sort((u, v) => abstand(u) - abstand(v))) {
     const n = Math.round(Math.abs(det(C)));
     const Ci = inv(C);
     // Gitter der primitiven Zelle in der konventionellen: Zentrierungsvektoren
+    /** @type {Vec2[]} */
     const zentr = [[0, 0]];
-    for (const v of [[1, 0], [0, 1], [1, 1]]) {
-      const z = vek(Ci, v).map(mod1);
+    for (const v of /** @type {Vec2[]} */ ([[1, 0], [0, 1], [1, 1]])) {
+      const z = /** @type {Vec2} */ (vek(Ci, v).map(mod1));
       if (!zentr.some((u) => gleichMod1(u, z))) zentr.push(z);
     }
     if (zentr.length !== n) continue;
+    /** @type {Op[]} */
     const konv = [];
     for (const o of ops) {
-      const R = mat(Ci, mat(o.R, C)).map((z) => z.map(r));
+      const R = /** @type {Mat2} */ (mat(Ci, mat(o.R, C)).map((z) => z.map(r)));
       const t0 = vek(Ci, o.t);
       for (const z of zentr) {
+        /** @type {Vec2} */
         const t = [mod1(t0[0] + z[0]), mod1(t0[1] + z[1])];
         if (!konv.some((u) => u.R.every((zz, i) => zz.every((w, j) => w === R[i][j])) && gleichMod1(u.t, t))) konv.push({ R, t });
       }
@@ -259,29 +324,33 @@ export function bestimme(st) {
       if (g.ordnung !== konv.length || g.zentr.length !== n) continue;
       // Ursprung aus einer Drehung (legt ihn fest); ohne Drehung aus einer Spiegelung (entlang
       // der Linie ist der Ursprung dann frei, ITA: „auf m“ bzw. „auf g“); geprüft an allen
+      /** @param {Op} o */
       const drehung = (o) => det(o.R) > 0 && !(o.R[0][0] === 1 && o.R[1][1] === 1 && !o.R[0][1] && !o.R[1][0]);
       const probe = konv.find(drehung) ?? konv.find((o) => det(o.R) < 0) ?? konv[0];
       // Unter den erlaubten Ursprüngen (etwa den drei Punkten 3m in p3m1) den nächsten zum
       // gegebenen Ursprung, damit er ohne Not nicht wandert
       const zelle = mat(P, C);
-      const kart = (v) => vek(A0, v);
+      /** @param {Vec2} v */
+      const kart = (v) => /** @type {Kartesisch<Vec2>} */ (vek(A0, v)); // A0 hat die kartesischen a, b als Spalten
+      /** @type {{ ursprung: Vec2, dist: number } | null} */
       let best = null;
       for (const ziel of g.alle.filter((o) => o.R.every((z, i) => z.every((w, j) => w === probe.R[i][j])))) {
         for (const s of ursprungKandidaten(probe.R, [ziel.t[0] - probe.t[0], ziel.t[1] - probe.t[1]])) {
           // Operation im neuen Ursprung s: x'' = x' − s → {R | t + R·s − s}
-          const verschoben = konv.map((o) => { const Rs = vek(o.R, s); return { R: o.R, t: [o.t[0] + Rs[0] - s[0], o.t[1] + Rs[1] - s[1]] }; });
+          const verschoben = konv.map((o) => { const Rs = vek(o.R, s); return /** @type {Op} */ ({ R: o.R, t: [o.t[0] + Rs[0] - s[0], o.t[1] + Rs[1] - s[1]] }); });
           if (!gleicheMengen(verschoben, g.alle)) continue;
           // Werte knapp unter 1 (innerhalb der Toleranz der Erkennung) als 0, aber nur, wenn die
           // Operationen auch mit dem gerundeten Ursprung noch stimmen
-          const u0 = vek(zelle, s).map(mod1);
-          let u = u0.map((x) => (1 - x < TOL ? 0 : x));
+          const u0 = /** @type {Vec2} */ (vek(zelle, s).map(mod1));
+          let u = /** @type {Vec2} */ (u0.map((x) => (1 - x < TOL ? 0 : x)));
           if (u.some((x, i) => x !== u0[i])) {
             const sr = vek(inv(zelle), u);
-            const vr = konv.map((o) => { const Rs = vek(o.R, sr); return { R: o.R, t: [o.t[0] + Rs[0] - sr[0], o.t[1] + Rs[1] - sr[1]] }; });
+            const vr = konv.map((o) => { const Rs = vek(o.R, sr); return /** @type {Op} */ ({ R: o.R, t: [o.t[0] + Rs[0] - sr[0], o.t[1] + Rs[1] - sr[1]] }); });
             if (!gleicheMengen(vr, g.alle)) u = u0;
           }
           const dist = abstandZumGitter(u);
           // bei gleichem Abstand: kleinere Koordinaten zuerst, damit die Wahl eindeutig ist
+          /** @param {Vec2} x @param {Vec2} y */
           const vorn = (x, y) => (Math.abs(x[0] - y[0]) > 1e-9 ? x[0] < y[0] : x[1] < y[1] - 1e-9);
           if (!best || dist < best.dist - 1e-9 || (Math.abs(dist - best.dist) <= 1e-9 && vorn(u, best.ursprung))) best = { ursprung: u, dist };
         }
@@ -292,7 +361,7 @@ export function bestimme(st) {
         const Zi = inv(zelle);
         const punkte = st.punkte.map((q) => {
           const x = vek(Zi, [q.p[0] - ursprung[0], q.p[1] - ursprung[1]]);
-          return { p: x.map(mod1), art: q.art };
+          return { p: /** @type {Vec2} */ (x.map(mod1)), art: q.art };
         });
         return {
           symbol: d.symbol, gruppe: d, ordnung: g.ordnung, system: sys,

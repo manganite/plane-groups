@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Skizzen, die es in der App nicht gibt und die Skript und Quiz gemeinsam brauchen (ohne DOM, auch
 // für den Moodle-Export). Farben in der Form der Tafeln (farbenAus in quiz-bild.js).
 
