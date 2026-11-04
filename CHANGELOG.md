@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-04
+
+Prüfung des gespeicherten Zustands, gemeinsame Grundlage v0.2.0, ausführliches README und gemeinsamer GitHub-Auftritt der App-Familie. Für Nutzer ändert sich nichts Sichtbares.
+
 ### Hinzugefügt
 
 - **README** nach der gemeinsamen Gliederung der App-Familie: Bildschirmfoto, Nutzung (Browser, Homescreen, offline, lokal), Konventionen, Aufbau, Tests, Releases, Quellen, Entstehung (mit Hilfe von Claude Code, fachliche Freigabe durch den Autor), Rückmeldungen, Zitieren. Die Tabelle der Link-Adressen ist vollständig (`zoom`, `og`, `tap`, `lupe`, Ornamente bei `form`, Modus `struktur`).
@@ -50,5 +54,6 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/manganite/plane-groups/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/manganite/plane-groups/compare/v0.1.0...v1.0.0
