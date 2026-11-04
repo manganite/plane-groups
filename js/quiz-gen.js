@@ -20,12 +20,6 @@ import { OPERATIONEN, verknuepfe, istGruppe, nichtAbgeschlossen, teilmengen, unt
  * Element an gegebener Lage (Kap. 4): Spiegel- oder Gleitspiegellinie x = c bzw. y = c, Drehpunkt.
  * @typedef {{ art: 'm' | 'g', achse: 'x' | 'y', c: number } | { art: '2', punkt: Vec2 }} ElementLage
  */
-/**
- * Angaben für die Nachrechnung im Test, die keine Art nennen (Lage). Der Typ der gemeinsamen Fragen
- * verlangt eine Art; die Fragenliste zeigt dann „ja“ (fragenliste/extract.mjs).
- * @param {Record<string, unknown>} p
- */
-const pruefungOhneArt = (p) => /** @type {Frageinhalt['pruefung']} */ (/** @type {unknown} */ (p));
 
 const S = symbolHTML;
 const ALLE = EBENENGRUPPEN.map((d) => d.symbol);
@@ -258,7 +252,7 @@ export const LAGE = {
       skript: 'wyckoff', app: `#m=eg&g=${symbol}&x=${koordText(p[0])}&y=${koordText(p[1])}`,
       quelle: 'International Tables for Crystallography, Vol. A (2006), Part 6',
       // für den Test: die App bestimmt an diesem Punkt genau diese Lage
-      pruefung: pruefungOhneArt({ symbol, buchstabe: l.buchstabe }),
+      pruefung: { symbol, buchstabe: l.buchstabe }, // ohne art: die Fragenliste zeigt „ja“
     };
   },
 };
