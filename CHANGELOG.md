@@ -14,6 +14,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 - **`docs/screenshot.png`** (README) und **`docs/social-preview.png`** (Vorschaubild für geteilte Links).
 - **CodeQL** als Workflow (erweiterte Einrichtung nach `crystallography-common/vorlagen`): ohne Tests und die Kopie der gemeinsamen Dateien.
 
+### Geändert
+
+- **Gemeinsame Grundlage** auf crystallography-common v0.2.0: ⓘ-Erklärungen maskieren den Text der Bedienelemente, der Moodle-Export maskiert Anführungszeichen in Alternativtexten (beides Befunde von CodeQL; Anzeige und Moodle-Export sind unverändert, nachgeprüft).
+
 ### Behoben
 
 - **Gespeicherter Zustand:** Beim Laden aus dem Browserspeicher wurden `aufbau`, `erkl`, `form`, `zellen` und die Schalter nicht geprüft; ein manipulierter Speicher konnte über die Legende HTML in die Seite bringen. Sie werden jetzt wie die Link-Adresse geprüft (`gespeichertPruefen` in `js/zustand.js`, Test; Befund von CodeQL).
