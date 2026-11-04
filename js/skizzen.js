@@ -64,8 +64,8 @@ export function punktgruppe(pg, f) {
   const svg = [`<rect width="520" height="400" fill="${f.paper}"/>`, `<defs>${pfeilspitze(`pg-pf-${pg}`, f.accent2)}${pfeilspitze(`pg-ax-${pg}`, f.ink)}</defs>`];
   // Index: Buchstaben kursiv, Ziffern und Zeichen aufrecht; ⊥ hochgestellt am m
   /** @param {string} t */
-  const teil = (t) => t.replace(/[a-z]/g, (x) => `\u0000${x}\u0001`).split(/(\u0000.\u0001)/).filter(Boolean)
-    .map((x) => (x[0] === '\u0000' ? `<tspan font-style="italic">${x[1]}</tspan>` : `<tspan font-style="normal">${x}</tspan>`)).join('');
+  const teil = (t) => t.split(/([a-z])/).filter(Boolean)
+    .map((x) => (/^[a-z]$/.test(x) ? `<tspan font-style="italic">${x}</tspan>` : `<tspan font-style="normal">${x}</tspan>`)).join('');
   /** @param {Vec2} q @param {Punktoperation} o */
   const marke = (q, o) => `<text x="${f2(q[0])}" y="${f2(q[1] + 7)}" ${SERIF} font-size="30" fill="${f.accent}" text-anchor="middle">m`
     + `${o.zeichen ? `<tspan font-size="20" dy="-12" font-style="normal">${o.zeichen}</tspan><tspan font-size="20" dy="18" dx="-12">` : '<tspan font-size="20" dy="6">'}${teil(/** @type {string} */ (o.index))}</tspan></text>`;

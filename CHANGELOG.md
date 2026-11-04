@@ -6,17 +6,17 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
-### Geändert
-
-- **Gemeinsame Grundlage** auf crystallography-common v0.3.1: im Typ der Quizfragen ist `pruefung.art` freiwillig; dazu Leitfaden-Änderungen. In `js/quiz-gen.js` entfällt dadurch die Umwandlung `pruefungOhneArt`. Am Verhalten ändert sich nichts (Moodle-Export bytegleich).
-
 ### Hinzugefügt
 
+- **ESLint** als CI-Job `lint` mit den gemeinsamen Regeln (`eslint.config.mjs`, `tools/common/eslint-basis.mjs`; LEITFADEN Abschn. 9). Die Pakete installiert auch der Job `typen`.
 - **Erste Schritte für „Gitter und Basis“** (#56): vier Schritte am Dreiecksbeispiel (*pm* → *cm* → *p*2*mg*, mit Hinweis auf die Änderung in den Kenndaten) und zum Selbstbauen.
 - **Typprüfung mit TypeScript** über JSDoc-Typen (`tsconfig.json`, CI-Job `typen`; crystallography-common#19, Schritt 1). Strikt geprüft werden die Rechenkerne `symmetrie.js`, `ebenengruppen.js`, `punktoperationen.js`, `herkunft.js`, `bestimmung.js`, `asymmetrie.js`, `struktur.js` und `brechen.js`, mit `Vec2`/`Mat2` aus der gemeinsamen Grundlage. Gekennzeichnete Typen trennen kartesische Gittervektoren von Bruchkoordinaten (`Kartesisch<Vec2>`: `metrik()`, `kart()`, `bruchVon()`, `bestimme()`) und Winkel in Grad (`Grad`: γ, Winkel der Punktoperationen und Motive). Am Verhalten ändert sich nichts (Tests, Moodle-Export bytegleich, Ergebnisse der Kerne für alle 17 Gruppen und App, Skript und Quiz im Browser vorher und nachher gleich).
 
 ### Geändert
 
+- **Gemeinsame Grundlage** auf crystallography-common v0.4.0: Regeln für ESLint (`tools/common/eslint-basis.mjs`). Am Verhalten ändert sich nichts.
+- **Befunde von ESLint behoben**, ohne Änderung am Verhalten: ungenutzter Import in `main.js`; in `skizzen.js` setzt `teil()` Buchstaben kursiv ohne Steuerzeichen als Marken (gleiches Ergebnis).
+- **Gemeinsame Grundlage** auf crystallography-common v0.3.1: im Typ der Quizfragen ist `pruefung.art` freiwillig; dazu Leitfaden-Änderungen. In `js/quiz-gen.js` entfällt dadurch die Umwandlung `pruefungOhneArt`. Am Verhalten ändert sich nichts (Moodle-Export bytegleich).
 - **Erste Schritte je Modus:** Die Karte erscheint beim ersten Aufruf eines Modus, nicht für den Modus, in dem ein Link die App öffnet; Schliessen mit × oder „?“ gilt als gesehen. Wer die bisherigen geschlossen hat, sieht nur die neuen. „Alle Einstellungen zurücksetzen“ zeigt sie wieder. Am Telefon zeigt jeder Schritt die Tafel, in der er wirkt.
 - **Gemeinsame Grundlage** auf crystallography-common v0.3.0: Typen für die Typprüfung mit TypeScript (JSDoc; `lib/common/js/typen.js`, Typen des Quiz in `quiz-core.js`), neu in der Offline-Liste. Am Verhalten ändert sich nichts (Moodle-Export bytegleich, Quiz, Skript und Hilfen im Browser gleich, nachgeprüft).
 - **README:** Abschnitt „Links auf Ansichten“ heisst „Link-Adressen“, wie im Leitfaden der App-Familie; Typprüfung unter „Tests“.
