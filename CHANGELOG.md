@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Erste Schritte für „Gitter und Basis“** (#56): vier Schritte am Dreiecksbeispiel (*pm* → *cm* → *p*2*mg*, mit Hinweis auf die Änderung in den Kenndaten) und zum Selbstbauen. Die Erste Schritte erscheinen je Modus beim ersten Aufruf; wer die bisherigen geschlossen hat, sieht nur die neuen. „Alle Einstellungen zurücksetzen“ zeigt sie wieder.
 - **Typprüfung mit TypeScript** über JSDoc-Typen (`tsconfig.json`, CI-Job `typen`; crystallography-common#19, Schritt 1). Strikt geprüft werden die Rechenkerne `symmetrie.js`, `ebenengruppen.js`, `punktoperationen.js`, `herkunft.js`, `bestimmung.js`, `asymmetrie.js`, `struktur.js` und `brechen.js`, mit `Vec2`/`Mat2` aus der gemeinsamen Grundlage. Gekennzeichnete Typen trennen kartesische Gittervektoren von Bruchkoordinaten (`Kartesisch<Vec2>`: `metrik()`, `kart()`, `bruchVon()`, `bestimme()`) und Winkel in Grad (`Grad`: γ, Winkel der Punktoperationen und Motive). Die übrigen Dateien folgen in Schritt 2 (`// @ts-nocheck`). Am Verhalten ändert sich nichts (Tests, Moodle-Export bytegleich, Ergebnisse der Kerne für alle 17 Gruppen und App, Skript und Quiz im Browser vorher und nachher gleich).
 
 ### Geändert

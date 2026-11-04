@@ -697,9 +697,12 @@ function zeigerEinrichten() {
 
 // ------------------------------------------------------------------ Ablauf
 let geplant = false;
+/** Erste Schritte des aktiven Modus zeigen, wenn er neu ist (gesetzt in init). */
+let introAbgleichen = () => {};
 function aktualisieren() {
   bedienungAbgleichen();
   sUI.abgleichen();
+  introAbgleichen();
   if (geplant) return;
   geplant = true;
   requestAnimationFrame(() => {
@@ -847,20 +850,42 @@ function init() {
     document.body.dataset.fig = b.dataset.fig;
     document.querySelectorAll('.figswitch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.fig === b.dataset.fig)));
   }));
-  // Erste Schritte: beim ersten Besuch, wegklickbar, über „?“ wieder; nicht bei Aufruf über einen Link
+  // Erste Schritte je Modus: beim ersten Aufruf eines Modus, wegklickbar, über „?“ wieder; nicht für den
+  // Modus, in dem ein Link die App öffnet. Gespeichert: die gesehenen Modi, durch Komma getrennt
+  // (bis v1.0.1 nur „1“ für die damals einzigen Erste Schritte, im Modus „Ebenengruppen“).
   const INTRO = 'ebenen-intro';
-  let gesehen = false;
-  try { gesehen = localStorage.getItem(INTRO) === '1'; } catch { /* ohne Speicher weiter */ }
+  const gesehen = new Set();
+  try { for (const m of (localStorage.getItem(INTRO) ?? '').split(',')) if (m) gesehen.add(m === '1' ? 'eg' : m); } catch { /* ohne Speicher weiter */ }
   const intro = (an) => { $('intro').hidden = !an; $('help-open').setAttribute('aria-expanded', String(an)); };
-  intro(!gesehen && !location.hash);
-  $('intro-close').addEventListener('click', () => { intro(false); try { localStorage.setItem(INTRO, '1'); } catch { /* ohne Speicher weiter */ } });
+  let introModus = location.hash.length > 1 ? z.modus : null;
+  introAbgleichen = () => {
+    if (z.modus === introModus) return;
+    introModus = z.modus;
+    intro(!gesehen.has(z.modus));
+    document.querySelectorAll('.steps li.done').forEach((li) => li.classList.remove('done'));
+  };
+  $('intro-close').addEventListener('click', () => {
+    intro(false);
+    gesehen.add(z.modus);
+    try { localStorage.setItem(INTRO, [...gesehen].join(',')); } catch { /* ohne Speicher weiter */ }
+  });
   $('help-open').addEventListener('click', () => intro($('intro').hidden));
+  $('reset-alles').addEventListener('click', () => {
+    gesehen.clear(); introModus = null;
+    try { localStorage.removeItem(INTRO); } catch { /* ohne Speicher weiter */ }
+    introAbgleichen();
+  });
   const schritt = (n, f) => document.querySelector(`[data-step="${n}"]`).addEventListener('click', () => {
     f(); document.querySelector(`[data-step="${n}"]`).closest('li').classList.add('done'); aktualisieren();
   });
   schritt(1, () => { z.gruppe = 'p4gm'; z.objekt = true; });
   schritt(2, () => { z.objekt = true; const w = ebenengruppe(z.gruppe).wyckoff.find((x) => /m/.test(x.sym) && x.koord[0].includes('x')); if (w) wyckoffSetzen(w.b); });
   schritt(3, () => { z.ae = true; });
+  // Gitter und Basis: Dreiecksbeispiel pm → cm → p2mg (Konzept 3.2), das Dreieck im Zentrum gewählt
+  schritt('s1', () => { sUI.vorgabeZeigen('dreieck1'); Object.assign(z.struktur, { elemente: true, zelle: true }); });
+  schritt('s2', () => sUI.vorgabeZeigen('dreieck2', 1));
+  schritt('s3', () => sUI.vorgabeZeigen('dreieck3', 1));
+  schritt('s4', () => { z.modus = 'struktur'; sUI.werkzeugSetzen('hinzufuegen'); });
   $('copy-link').addEventListener('click', () => {
     const url = location.origin + location.pathname + location.search + hashVon(z);
     navigator.clipboard?.writeText(url);
