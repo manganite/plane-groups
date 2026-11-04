@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Export der Quizfragen als Moodle-XML; die Arbeit macht tools/common/moodle.mjs.
 //
 //   node tools/moodle-export.mjs [Ausgabedatei] [--entwurf]

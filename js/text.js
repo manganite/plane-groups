@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Schreibweise der Kenndaten wie in ITA: Koordinaten mit Querstrich und Brüchen, Operationen,
 // Lagesymmetrie, Auslöschungsbedingungen. Ohne DOM (Tests in Node).
 
@@ -42,9 +43,11 @@ export function opHTML(s) {
 }
 
 /** Orientierte Lagesymmetrie („.m.“, „2mm.“) als HTML mit kursivem m. */
+/** @param {string} s */
 export const lageHTML = (s) => `<span class="koord">${s.replace(/m/g, '<i>m</i>')}</span>`;
 
 /** Hermann-Mauguin-Symbol einer Ebenengruppe oder Punktgruppe, Buchstaben kursiv. */
+/** @param {string} s */
 export const symbolHTML = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
 
 /** Auslöschungsbedingung [Klasse, Bedingung] als HTML: „h0: h = 2n“. */
@@ -58,6 +61,7 @@ export function bedingungHTML([klasse, bed]) {
  * Dezimalzahl in deutscher Schreibweise: Komma, echtes Minuszeichen, n Nachkommastellen
  * (fest; mit kuerzen: true ohne Nullen am Ende). dezimal(-0.5, 2) → „−0,50“.
  */
+/** @param {number} v @param {number} [n] @param {{ kuerzen?: boolean }} [optionen] @returns {string} */
 export function dezimal(v, n = 2, { kuerzen = false } = {}) {
   let t = v.toFixed(n);
   if (kuerzen && t.includes('.')) t = t.replace(/0+$/, '').replace(/\.$/, '');
@@ -81,12 +85,14 @@ export function zahlText(v) {
  * Richtung [uv] als HTML, negative Indizes mit Querstrich wie in der Kristallographie üblich:
  * [-1, 1] → [1̄1] (Querstrich als .ov, nicht als Minuszeichen).
  */
+/** @param {readonly number[]} d */
 export const richtungHTML = (d) => `[${d.map((x) => (x < 0 ? `<span class="ov">${-x}</span>` : String(x))).join('')}]`;
 
 /**
  * Koordinaten als „(x, y)“. Enthält eine Koordinate ein Dezimalkomma, trennt ein Strichpunkt:
  * „(0,12; 0,31)“, sonst ein Komma wie in ITA: „(½, ¼)“.
  */
+/** @param {readonly number[]} werte @returns {string} */
 export function koordText(werte) {
   const t = werte.map(zahlText);
   return `(${t.join(t.some((x) => x.includes(',')) ? '; ' : ', ')})`;

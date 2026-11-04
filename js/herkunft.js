@@ -17,30 +17,51 @@ import {
   art, verknuepfen, translation, erzeugende, bruch, gitterperiode, mod1, clipLinie,
 } from './symmetrie.js';
 
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Op, Gruppe, Drehpunkt, Linie } from './symmetrie.js' */
+/** Drehpunkt als Element einer Operation. @typedef {{ typ: 'dreh', n: number, punkt: Vec2, sinn: '+' | '-' | '' }} DrehElement */
+/**
+ * Spiegel- oder Gleitspiegellinie als Element einer Operation: punkt kanonisch, gleit reduziert,
+ * gleitRoh die Gleitkomponente der Operation.
+ * @typedef {{ typ: 'spiegel' | 'gleit', punkt: Vec2, richtung: Vec2, normale: Vec2, gleit: Vec2, gleitRoh: Vec2 }} LinienElement
+ */
+/** Element einer Operation (elementVonOp()). @typedef {DrehElement | LinienElement} Element */
+/** Element aus elementVonOp() oder gezeichnet (elemente(), elementeImBereich()). @typedef {Element | Drehpunkt | Linie} Elementform */
+/** Knoten der Suche: Operation, Schritt, Erzeugende a und Schlüssel des Vorgängers b. @typedef {{ op: Op, tiefe: number, a: Op | null, b: string | null }} Knoten */
+/** Erste Herkunft eines Elements. @typedef {{ op: Op, tiefe: number, schluessel: string, element: Element, rest: number }} Herkunft */
+/** @typedef {{ knoten: Map<string, Knoten>, elemente: Map<string, Herkunft>, klassen: Map<string, number>, maxTiefe: number }} Herkunftsdaten */
+
 /** Bereich der Translationsanteile, in dem gesucht wird (deckt 2 × 2 Zellen mit Rand ab). */
 const SCHRANKE = [-4, 5];
 const EPS = 1e-9;
+/** @param {number} a @param {number} b */
 const nahe = (a, b) => Math.abs(a - b) < 1e-7;
+/** @param {number} v */
 const b0 = (v) => bruch(Math.abs(v) < EPS ? 0 : v);
 
 /**
  * Schlüssel einer Operation (exakt, ohne Reduktion modulo Gitter). Translationsanteile der
  * Ebenengruppen sind Vielfache von 1/2 (Erzeugende, Zentrierung), also ganzzahlig in 1/12.
  */
+/** @param {Op} op */
 const opSchluessel = (op) => `${op.R[0][0]},${op.R[0][1]},${op.R[1][0]},${op.R[1][1]},${Math.round(op.t[0] * 12)},${Math.round(op.t[1] * 12)}`;
 
-/** Kanonischer Punkt einer Linie: Schnitt mit y = 0, bei Linien ∥ a (d = [1, 0]) der mit x = 0. */
+/** Kanonischer Punkt einer Linie: Schnitt mit y = 0, bei Linien ∥ a (d = [1, 0]) der mit x = 0. @param {Vec2} punkt @param {Vec2} d @returns {Vec2} */
 function kanonisch(punkt, d) {
   if (d[1] !== 0) { const s = -punkt[1] / d[1]; return [punkt[0] + s * d[0] + 0, 0]; }
   return [0, punkt[1] + 0];
 }
 
+/** @param {Op} op */
 const istTranslation = (op) => op.R[0][0] === 1 && op.R[1][1] === 1 && op.R[0][1] === 0 && op.R[1][0] === 0;
 
 /**
  * Element einer Operation (null für Identität und Translation):
  *   { typ: 'dreh', n, punkt, sinn } oder
  *   { typ: 'spiegel'|'gleit', punkt (kanonisch), richtung, normale, gleit (reduziert), gleitRoh }
+ * @param {Gruppe} g
+ * @param {Op} op
+ * @returns {Element | null}
  */
 export function elementVonOp(g, op) {
   const a = art(op);
@@ -57,10 +78,22 @@ export function elementVonOp(g, op) {
   };
 }
 
-const istDreh = (el) => el.typ === 'dreh' || (el.n !== undefined && !el.richtung);
-const linienArt = (el) => (el.typ ?? el.art) === 'spiegel' ? 'm' : 'g';
+/**
+ * Drehpunkt (aus elementVonOp() mit typ, gezeichnet mit n und ohne richtung)?
+ * @param {Elementform} el
+ * @returns {el is DrehElement | Drehpunkt}
+ */
+const istDreh = (el) => {
+  const e = /** @type {{ typ?: string, n?: number, richtung?: Vec2 }} */ (el);
+  return e.typ === 'dreh' || (e.n !== undefined && !e.richtung);
+};
+/** @param {Elementform} el */
+const linienArt = (el) => {
+  const e = /** @type {{ typ?: string, art?: string }} */ (el);
+  return (e.typ ?? e.art) === 'spiegel' ? 'm' : 'g';
+};
 
-/** Schlüssel eines Elements, auch für die Link-Adresse: „4;1/2,1/2“ oder „m;1/4,0;0,1“. */
+/** Schlüssel eines Elements, auch für die Link-Adresse: „4;1/2,1/2“ oder „m;1/4,0;0,1“. @param {Elementform} el */
 export function elementSchluessel(el) {
   if (istDreh(el)) return `${el.n};${b0(el.punkt[0])},${b0(el.punkt[1])}`;
   const p = kanonisch(el.punkt, el.richtung);
@@ -70,6 +103,8 @@ export function elementSchluessel(el) {
 /**
  * Schlüssel der Klasse eines Elements modulo Gittertranslationen (mit Zentrierung):
  * Drehpunkte modulo Gitter, Linien über ihren Abstand e·p modulo der Periode der Schar.
+ * @param {Gruppe} g
+ * @param {Elementform} el
  */
 export function klassenSchluessel(g, el) {
   if (istDreh(el)) {
@@ -86,6 +121,7 @@ export function klassenSchluessel(g, el) {
   return `${linienArt(el)};${d[0]},${d[1]};${b0(Math.abs(r) < 1e-7 ? 0 : r * per)}`;
 }
 
+/** @type {Map<number, Herkunftsdaten>} */
 const cache = new Map();
 
 /**
@@ -96,11 +132,15 @@ const cache = new Map();
  *   klassen:  Map Klassenschlüssel → kleinste Tiefe,
  *   maxTiefe: grösste Tiefe einer Klasse
  * }
+ * @param {Gruppe} g
+ * @returns {Herkunftsdaten}
  */
 export function herkunft(g) {
-  if (cache.has(g.daten.nr)) return cache.get(g.daten.nr);
+  const da = cache.get(g.daten.nr);
+  if (da) return da;
   const punktErz = erzeugende(g).filter((op) => !istTranslation(op));
   // Gittertranslationen als eine Erzeugende je Vektor, kurze zuerst
+  /** @type {Op[]} */
   const transErz = [];
   const r = SCHRANKE[1] - SCHRANKE[0];
   for (const z of g.zentr) for (let i = -r; i <= r; i++) for (let j = -r; j <= r; j++) {
@@ -108,16 +148,19 @@ export function herkunft(g) {
     transErz.push(translation([i + z[0], j + z[1]]));
   }
   transErz.sort((u, v) => Math.hypot(...u.t) - Math.hypot(...v.t) || u.t[0] - v.t[0] || u.t[1] - v.t[1]);
+  /** @param {Op} op */
   const imBereich = (op) => op.t.every((v) => v >= SCHRANKE[0] - EPS && v <= SCHRANKE[1] + EPS);
 
   const id = translation([0, 0]);
+  /** @type {Map<string, Knoten>} */
   const knoten = new Map([[opSchluessel(id), { op: id, tiefe: 0, a: null, b: null }]]);
   let front = [opSchluessel(id)];
   for (let tiefe = 1; front.length; tiefe++) {
+    /** @type {string[]} */
     const neu = [];
     for (const erz of [transErz, punktErz]) {
       for (const k of front) {
-        const B = knoten.get(k).op;
+        const B = /** @type {Knoten} */ (knoten.get(k)).op; // front enthält nur Schlüssel aus knoten
         // Translation nach einer Translation bringt nichts Neues (eine Translation genügt)
         if (erz === transErz && istTranslation(B) && tiefe > 1) continue;
         for (const A of erz) {
@@ -135,13 +178,15 @@ export function herkunft(g) {
 
   // Elemente: je Element die Operation mit der kleinsten Tiefe; bei gleicher Tiefe die ohne
   // zusätzliche Translation entlang der Linie (kleinste Gleitkomponente)
+  /** @type {Map<string, Herkunft>} */
   const elemente = new Map();
+  /** @type {Map<string, number>} */
   const klassen = new Map();
   for (const [k, kn] of knoten) {
     const el = elementVonOp(g, kn.op);
     if (!el) continue;
     const s = elementSchluessel(el);
-    const rest = el.gleitRoh ? Math.hypot(el.gleitRoh[0] - el.gleit[0], el.gleitRoh[1] - el.gleit[1]) : 0;
+    const rest = 'gleitRoh' in el && el.gleitRoh ? Math.hypot(el.gleitRoh[0] - el.gleit[0], el.gleitRoh[1] - el.gleit[1]) : 0;
     const alt = elemente.get(s);
     if (!alt || kn.tiefe < alt.tiefe || (kn.tiefe === alt.tiefe && rest < alt.rest - EPS)) {
       elemente.set(s, { op: kn.op, tiefe: kn.tiefe, schluessel: k, element: el, rest });
@@ -157,27 +202,34 @@ export function herkunft(g) {
 /**
  * Herleitung einer Operation aus den Erzeugenden: Liste der Schritte { c, a, b }, beginnend mit
  * der gesuchten Operation c = a ∘ b, dann b = a' ∘ b' usw. bis zu einer Erzeugenden (b = 1).
+ * @param {Gruppe} g
+ * @param {string} opKey
+ * @returns {{ c: Op, a: Op, b: Op, aTranslation: boolean }[]}
  */
 export function herleitung(g, opKey) {
   const { knoten } = herkunft(g);
+  /** @type {{ c: Op, a: Op, b: Op, aTranslation: boolean }[]} */
   const out = [];
+  /** @type {string | null} */
   let k = opKey;
   while (k) {
     const kn = knoten.get(k);
     if (!kn || kn.tiefe === 0) break;
-    const b = knoten.get(kn.b);
-    out.push({ c: kn.op, a: kn.a, b: b.op, aTranslation: istTranslation(kn.a) });
+    // ab Tiefe 1 hat jeder Knoten eine Erzeugende a und einen Vorgänger b
+    const a = /** @type {Op} */ (kn.a);
+    const b = /** @type {Knoten} */ (knoten.get(/** @type {string} */ (kn.b)));
+    out.push({ c: kn.op, a, b: b.op, aTranslation: istTranslation(a) });
     k = b.tiefe === 0 ? null : kn.b;
   }
   return out;
 }
 
-/** Herkunft eines gezeichneten Elements (aus elemente() bzw. elementeImBereich()). */
+/** Herkunft eines gezeichneten Elements (aus elemente() bzw. elementeImBereich()). @param {Gruppe} g @param {Elementform} el */
 export function herkunftVon(g, el) {
   return herkunft(g).elemente.get(elementSchluessel(el));
 }
 
-/** Schritt eines gezeichneten Elements im Aufbau (Klasse modulo Gitter). */
+/** Schritt eines gezeichneten Elements im Aufbau (Klasse modulo Gitter). @param {Gruppe} g @param {Elementform} el */
 export function schrittVon(g, el) {
   return herkunft(g).klassen.get(klassenSchluessel(g, el));
 }
@@ -189,15 +241,20 @@ export function schrittVon(g, el) {
  * Abstand vom Ursprung. Dazu der Gittervektor t, um den das Element gegenüber dem
  * Vorbild verschoben ist. null, wenn das Element selbst das Vorbild ist.
  * Rückgabe { schluessel, element, op: Operation des Vorbilds, t }.
+ * @param {Gruppe} g
+ * @param {Elementform} el
+ * @returns {{ schluessel: string, element: Element, op: Op, t: Vec2 } | null}
  */
 export function vorbild(g, el) {
   const h = herkunft(g);
   const eigen = elementSchluessel(el);
   const klasse = klassenSchluessel(g, el);
+  /** @type {{ k: string, e: Herkunft, rang: number[] } | null} */
   let best = null;
   for (const [k, e] of h.elemente) {
     const v = e.element;
     if (klassenSchluessel(g, v) !== klasse) continue;
+    /** @type {number[]} */
     let rang;
     if (istDreh(v)) {
       if (v.punkt.some((x) => x < -EPS || x > 1 - EPS)) continue;
@@ -210,11 +267,13 @@ export function vorbild(g, el) {
       const c = (n[0] * v.punkt[0] + n[1] * v.punkt[1]) / Math.hypot(...n);
       rang = [Math.abs(c), -v.punkt[0], -v.punkt[1]];
     }
-    const i = best ? rang.findIndex((x, j) => Math.abs(x - best.rang[j]) > 1e-9) : -1;
-    if (!best || (i >= 0 && rang[i] < best.rang[i])) best = { k, e, rang };
+    const b = best;
+    const i = b ? rang.findIndex((x, j) => Math.abs(x - b.rang[j]) > 1e-9) : -1;
+    if (!b || (i >= 0 && rang[i] < b.rang[i])) best = { k, e, rang };
   }
   if (!best || best.k === eigen) return null;
   const v = best.e.element;
+  /** @type {Vec2} */
   let t;
   if (istDreh(el)) t = [el.punkt[0] - v.punkt[0], el.punkt[1] - v.punkt[1]];
   else {
@@ -222,14 +281,17 @@ export function vorbild(g, el) {
     // schiebt; bei gleicher Länge zuerst entlang a, dann b
     const d = el.richtung; const n = [-d[1], d[0]];
     const delta = n[0] * (el.punkt[0] - v.punkt[0]) + n[1] * (el.punkt[1] - v.punkt[1]);
+    /** @type {{ w: Vec2, r: number[] } | null} */
     let kurz = null;
     for (const z of g.zentr) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+      /** @type {Vec2} */
       const w = [i + z[0], j + z[1]];
       if (!nahe(n[0] * w[0] + n[1] * w[1], delta)) continue;
       // Rang: Länge, Zahl der Komponenten, negative Komponenten, entlang b statt a
-      const r = [w[0] * w[0] + w[1] * w[1], (w[0] !== 0) + (w[1] !== 0), (w[0] < 0) + (w[1] < 0), w[1] !== 0 ? 1 : 0];
-      const m = kurz ? r.findIndex((x, k) => Math.abs(x - kurz.r[k]) > EPS) : -1;
-      if (!kurz || (m >= 0 && r[m] < kurz.r[m])) kurz = { w, r };
+      const r = [w[0] * w[0] + w[1] * w[1], Number(w[0] !== 0) + Number(w[1] !== 0), Number(w[0] < 0) + Number(w[1] < 0), w[1] !== 0 ? 1 : 0];
+      const kz = kurz;
+      const m = kz ? r.findIndex((x, k) => Math.abs(x - kz.r[k]) > EPS) : -1;
+      if (!kz || (m >= 0 && r[m] < kz.r[m])) kurz = { w, r };
     }
     if (!kurz) return null;
     t = kurz.w;

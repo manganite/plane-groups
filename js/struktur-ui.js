@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Bedienung des Modus „Gitter und Basis“: Vorgaben, Motive setzen, ziehen, drehen; Gitter; Tafeln
 // und Kenndaten (struktur.js). Der Zustand steht in z.struktur (zustand.js); Werkzeug, Auswahl und
 // das gewählte Motiv gelten nur in dieser Sitzung.

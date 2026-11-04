@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // „Schritt für Schritt“: Text in den Kenndaten (ohne DOM, Tests in Node). Blickrichtung „Erzeugen“
 // (Konzept §1b, §3.1): Das Objekt wird mit jeder Operation der ITA-Liste abgebildet, dann mit den
 // Gittertranslationen. Auf einer speziellen Lage fallen Bilder zusammen; übrig bleibt die

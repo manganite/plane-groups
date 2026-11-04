@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Weitere Schreibweisen neben den Hermann-Mauguin-Symbolen der International Tables.
 //
 // Schoenflies: nur für die Punktgruppen. Die 10 Punktgruppen der Ebene entsprechen den 10 polaren
@@ -20,6 +21,7 @@ export const SCHOENFLIES = {
 };
 
 /** Schoenflies-Symbol als HTML, z. B. C<sub>2v</sub>. */
+/** @param {string} pg @returns {string} */
 export const schoenfliesHTML = (pg) => {
   const [b, i] = SCHOENFLIES[pg];
   return `<i>${b}</i><sub>${i}</sub>`;

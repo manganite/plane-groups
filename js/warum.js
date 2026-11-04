@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // „Warum ist das da?“: Texte zur Herkunft eines Symmetrieelements (ohne DOM, Tests in Node).
 // Begriffe und Regeln nach Borchardt-Ott & Sowa (2018), Abschn. 10.2, und Hoffmann (2016),
 // Kap. 4: Drehung + Translation, Spiegelung + Translation (senkrecht bzw. schräg), zwei
@@ -12,6 +13,7 @@ const nahe = (a, b, tol = 1e-7) => Math.abs(a - b) < tol;
 const istRef = (t) => t === 'spiegel' || t === 'gleit';
 
 /** Vektor in Bruchteilen als Ausdruck in a und b: [1,0] → a, [1/2,1/2] → (a + b)/2, [2,-1] → 2a − b. */
+/** @param {readonly number[]} v */
 export function vektorText(v) {
   const [x, y] = v;
   if (nahe(Math.abs(x), Math.abs(y)) && !nahe(x, 0) && nahe(Math.abs(x), 0.5)) {

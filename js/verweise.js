@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Verweise in andere Apps der Familie: die Punktgruppe einer Ebenengruppe in der Stereo-App
 // („Stereographische Projektion“, manganite/stereography, ab v1.12.0; Link-Schema in js/scene.js).
 //

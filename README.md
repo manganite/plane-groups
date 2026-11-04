@@ -160,6 +160,7 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `manifest.webmanifest`, `icons/` | Favicon und Homescreen-Icons |
 | `lib/common/`, `tools/common/` | Gemeinsame Grundlage aus [crystallography-common](https://github.com/manganite/crystallography-common) als Kopie mit fester Version (`lib/common/MANIFEST.json`): Stile, Schriften, Hilfen, Quiz, Skript-Bausteine, Formatierung, Werkzeuge. Nicht von Hand ändern. |
 | `tests/` | Automatische Tests (Node, ohne Abhängigkeiten) |
+| `tsconfig.json` | Typprüfung mit TypeScript (JSDoc-Typen, kein Build-Schritt) |
 | `docs/` | Konzept der App (`konzept-2d-app.md`), Bilder für README und GitHub |
 
 ### Gemeinsame Grundlage
@@ -178,7 +179,16 @@ node tools/common/sync.mjs ../crystallography-common
 node --test tests/*.test.mjs
 ```
 
-Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Symmetrie brechen“, „Selbst zeichnen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopie der gemeinsamen Dateien und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit der PDF-Fassung des Skripts.
+Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Symmetrie brechen“, „Selbst zeichnen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopie der gemeinsamen Dateien und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit der Typprüfung und der PDF-Fassung des Skripts.
+
+Typprüfung (die Typen stehen als JSDoc-Kommentare im Code; Versionen wie im Job `typen` in `.github/workflows/ci.yml`, alle Pakete in einem Befehl, sonst entfernt npm die zuvor installierten):
+
+```bash
+npm install --no-save typescript@7.0.2 @types/node@22.20.5 playwright@1.52.0
+npx tsc -p .
+```
+
+Strikt geprüft werden bisher die Rechenkerne (`symmetrie.js`, `ebenengruppen.js`, `punktoperationen.js`, `herkunft.js`, `bestimmung.js`, `asymmetrie.js`, `struktur.js`, `brechen.js`); die übrigen Dateien tragen noch `// @ts-nocheck` (crystallography-common#19, Schritt 2). Mit den installierten Paketen zeigt auch VS Code die Meldungen in geöffneten Dateien.
 
 - Skript als PDF: `node tools/skript-pdf.mjs [Ausgabedatei]` (braucht Playwright mit Chromium)
 - Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml` (mit `--entwurf` auch die ungeprüften Fragen)

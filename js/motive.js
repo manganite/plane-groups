@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Motive für den Modus „Gitter und Basis“ (Konzept §3.2): je eine Form mit eigener Symmetrie.
 // Ein Motiv besteht aus Punkten (lokal, kartesisch, Radius etwa 1) mit Art; diese Punkte gehen in
 // die Symmetriebestimmung (bestimmung.js) ein, ihre Symmetrie ist die des Motivs. Gezeichnet wird
@@ -6,6 +7,20 @@
 // Lokale Koordinaten: x nach rechts, y nach unten (wie das Bild); Drehung im Uhrzeigersinn.
 
 import { metrik, bruchVon } from './zeichnung.js';
+
+// Die Datei ist noch ohne Typprüfung (@ts-nocheck); die Typen an den Funktionen, die die
+// Rechenkerne verwenden, gelten aber schon (crystallography-common#19).
+/** @import { Vec2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
+/**
+ * Motiv (siehe MOTIVE).
+ * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'ellipse' | 'kreis' | 'fahne', deckkraft?: number }} Motiv
+ */
+/**
+ * Eintrag der Basis: Motiv an der Lage p (Bruchkoordinaten), gedreht um winkel (Grad), mit
+ * eigener Grösse und Farbe (Nummer).
+ * @typedef {{ motiv: string, p: Vec2, winkel?: Grad, groesse?: number, farbe?: number }} Basiseintrag
+ */
+/** Struktur im Modus „Gitter und Basis“. @typedef {import('./zeichnung.js').Gitter & { basis: Basiseintrag[], bindungen?: boolean }} Struktur */
 
 const rad = (g) => (g * Math.PI) / 180;
 const polar = (r, w) => [r * Math.cos(rad(w)), r * Math.sin(rad(w))];
@@ -25,6 +40,7 @@ const vieleck = (n, start = -90) => Array.from({ length: n }, (_, k) => [...pola
 /**
  * Motive: name, symmetrie (Punktgruppe der Ebene), groesse (Standard, kartesisch bei |a| = 1),
  * punkte (lokal, mit Art), form ('polygon' | 'ellipse' | 'kreis' | 'fahne'), deckkraft (Füllung, Standard 0,9).
+ * @type {Record<string, Motiv>}
  */
 export const MOTIVE = {
   atom: { name: 'Atom', symmetrie: '∞m', groesse: 0.045, punkte: [[0, 0, 'a']], form: 'kreis' },
@@ -46,7 +62,7 @@ export const MOTIVE = {
   ziegel: { name: 'Ziegel', symmetrie: '2mm', groesse: 0.12, deckkraft: 0.45, punkte: [[1, 0.9 / 1.9, 'e'], [-1, 0.9 / 1.9, 'e'], [-1, -0.9 / 1.9, 'e'], [1, -0.9 / 1.9, 'e']], form: 'polygon' },
 };
 
-/** Lokale Punkte eines Basiseintrags, gedreht und skaliert (kartesisch). */
+/** Lokale Punkte eines Basiseintrags, gedreht und skaliert (kartesisch). @param {Basiseintrag} e @returns {{ c: Kartesisch<Vec2>, art: string }[]} */
 export function motivKart(e) {
   const d = MOTIVE[e.motiv];
   const s = e.groesse ?? d.groesse;
@@ -57,6 +73,8 @@ export function motivKart(e) {
 /**
  * Punkte der Struktur für bestimme(): je Motiv seine Punkte in Bruchkoordinaten der Zelle, mit
  * Art aus Farbe, Motiv und Punktart (verschiedene Farben = verschiedene Atomsorten).
+ * @param {Struktur} st
+ * @returns {{ p: Vec2, art: string }[]}
  */
 export function strukturPunkte(st) {
   const M = metrik({ ba: st.ba, gamma: st.gamma });

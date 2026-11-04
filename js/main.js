@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
 import { initHelp } from '../lib/common/js/help.js';

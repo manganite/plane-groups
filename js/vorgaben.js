@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Vorgaben für den Modus „Gitter und Basis“: Bravais-Gitter, das
 // Dreiecksbeispiel (Konzept §3.2), 2D-Materialien in der Draufsicht, Archimedische Parkettierungen,
 // Mauerwerk und Pflaster (Kap. 7) und künstliches Spin-Eis. Jede Vorgabe nennt die Ebenengruppe,

@@ -1,3 +1,4 @@
+// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Bilder des Quiz aus dem Code der App: eine Bildangabe ist eine Link-Adresse der App („#m=eg&g=p4mm“,
 // Tafel A) oder dieselbe mit „B“ davor („B#m=eg&g=p4mm“, Tafel B, das Muster). „@1.8“ am Ende setzt
 // die Grösse der Symbole fest („#m=eg&g=p4mm&obj=0@1.8“). Skizzen aus dem Skript, die es in der App

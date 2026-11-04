@@ -14,7 +14,32 @@
 //   bedingungen Auslöschungsbedingungen: allgemein und je Wyckoff-Lage zusätzlich („Special“)
 //               als [Klasse, Bedingung]; Klasse 'hk' (alle), 'h0' (k = 0) oder '0k' (h = 0)
 
-/** Kristallsysteme der Ebene mit den Symmetrierichtungen (ITA Tab. 2.2.4.1, Ebene). */
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @typedef {'schiefwinklig' | 'rechteckig' | 'quadratisch' | 'hexagonal'} System */
+/** Auslöschungsbedingung [Klasse, Bedingung], z. B. ['h0', 'h=2n']. @typedef {['hk' | 'h0' | '0k', 'h=2n' | 'k=2n' | 'h+k=2n']} Bedingung */
+/** Wyckoff-Lage: Buchstabe, Zähligkeit, orientierte Lagesymmetrie, Koordinaten. @typedef {{ b: string, n: number, sym: string, koord: string[] }} Wyckoff */
+/**
+ * Eine Ebenengruppe, wie in ITA tabelliert (Felder oben erklärt).
+ * @typedef {object} Ebenengruppe
+ * @property {number} nr
+ * @property {string} symbol
+ * @property {string} lang
+ * @property {string} punktgruppe
+ * @property {System} system
+ * @property {string} bravais
+ * @property {number} seite
+ * @property {string} ursprung
+ * @property {{ text: string, ecken: Vec2[] }} ae
+ * @property {string[]} ops
+ * @property {string[]} opsText
+ * @property {string[]} [zentrText]
+ * @property {Vec2[]} [zentrierung]
+ * @property {number[]} erzeugende
+ * @property {Wyckoff[]} wyckoff
+ * @property {{ allgemein: Bedingung[], [buchstabe: string]: Bedingung[] }} bedingungen
+ */
+
+/** Kristallsysteme der Ebene mit den Symmetrierichtungen (ITA Tab. 2.2.4.1, Ebene). @type {Record<System, { name: string, ita: string }>} */
 export const SYSTEME = {
   schiefwinklig: { name: 'schiefwinklig', ita: 'oblique' },
   rechteckig: { name: 'rechteckig', ita: 'rectangular' },
@@ -22,8 +47,10 @@ export const SYSTEME = {
   hexagonal: { name: 'hexagonal', ita: 'hexagonal' },
 };
 
+/** @type {Vec2[]} */
 const ZENTRIERUNG_C = [[0, 0], [1 / 2, 1 / 2]];
 
+/** @type {Ebenengruppe[]} */
 export const EBENENGRUPPEN = [
   {
     nr: 1, symbol: 'p1', lang: 'p1', punktgruppe: '1', system: 'schiefwinklig', bravais: 'mp', seite: 92,
@@ -293,7 +320,7 @@ export const EBENENGRUPPEN = [
   },
 ];
 
-/** Ebenengruppe nach Symbol (z. B. 'p2mg') oder Nummer. */
+/** Ebenengruppe nach Symbol (z. B. 'p2mg') oder Nummer. @param {string | number} id */
 export function ebenengruppe(id) {
   const g = EBENENGRUPPEN.find((e) => e.symbol === id || e.nr === id);
   if (!g) throw new Error(`unbekannte Ebenengruppe: ${id}`);
