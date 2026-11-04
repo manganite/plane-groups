@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Verweise in andere Apps der Familie: die Punktgruppe einer Ebenengruppe in der Stereo-App
 // („Stereographische Projektion“, manganite/stereography, ab v1.12.0; Link-Schema in js/scene.js).
 //
@@ -12,6 +11,8 @@
 // (a nach links unten, b nach rechts). Abweichung bei m: Die Stereo-App hat nur die Spiegelebene
 // ⊥ b (bzw. ⊥ c), die Ebenengruppen pm, pg, cm nach ITA haben Spiegellinien ⊥ a (Tooltip).
 
+/** @import { Ebenengruppe } from './ebenengruppen.js' */
+
 export const STEREO = 'https://manganite.github.io/stereography/index.html';
 
 /** Aufgeräumte Ansicht: ohne Umkugel, Pole, Äquatorebene, Strahlen; mit Kristallachsen. */
@@ -19,7 +20,7 @@ const OHNE = 'kugel=0&ns=0&ebene=0&strahlen=0';
 /** Für das Pedion: Muster an (sonst zeigt die App eine andere Form), ohne Normalen und Pole. */
 const PEDION_ZUSATZ = `muster=1&${OHNE}&normalen=0&pole=0&achsen=1`;
 
-/** Punktgruppe der Ebene → Hash in der Stereo-App (ohne die festen Zusätze). */
+/** Punktgruppe der Ebene → Hash in der Stereo-App (ohne die festen Zusätze). @type {Record<string, string>} */
 export const STEREO_HASH = {
   1: 'm=pg&g=1&blick=3',
   2: 'm=form&sys=monoklin&f=2b:a1&blick=2',
@@ -34,20 +35,20 @@ export const STEREO_HASH = {
   '6mm': 'm=form&sys=hexagonal&f=6mm:a1&blick=1',
 };
 
-/** Schlüssel in STEREO_HASH: die Punktgruppe, bei 3m nach der Aufstellung der Ebenengruppe. */
+/** Schlüssel in STEREO_HASH: die Punktgruppe, bei 3m nach der Aufstellung der Ebenengruppe. @param {Ebenengruppe} daten */
 function schluessel(daten) {
   if (daten.punktgruppe === '3m') return daten.symbol === 'p31m' ? '31m' : '3m1';
   return String(daten.punktgruppe);
 }
 
-/** Link in die Stereo-App für die Punktgruppe einer Ebenengruppe. */
+/** Link in die Stereo-App für die Punktgruppe einer Ebenengruppe. @param {Ebenengruppe} daten */
 export function stereoLink(daten) {
   const h = STEREO_HASH[schluessel(daten)];
   const zusatz = h.startsWith('m=form') ? PEDION_ZUSATZ : `${OHNE}&achsen=1`;
   return `${STEREO}#${h}&${zusatz}`;
 }
 
-/** Hinweis zum Link (Tooltip). */
+/** Hinweis zum Link (Tooltip). @param {Ebenengruppe} daten */
 export function stereoHinweis(daten) {
   const app = 'in der App „Stereographische Projektion“ öffnen';
   const k = schluessel(daten);

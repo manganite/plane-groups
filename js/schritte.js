@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // „Schritt für Schritt“: Text in den Kenndaten (ohne DOM, Tests in Node). Blickrichtung „Erzeugen“
 // (Konzept §1b, §3.1): Das Objekt wird mit jeder Operation der ITA-Liste abgebildet, dann mit den
 // Gittertranslationen. Auf einer speziellen Lage fallen Bilder zusammen; übrig bleibt die
@@ -8,12 +7,18 @@ import { opName } from './warum.js';
 import { koordHTML, koordText } from './text.js';
 import { opNummer } from './zeichnung.js';
 
-/** Stelle wie in der Lage-Anzeige der Kenndaten: „(0.120, 0.310)“, Brüche exakt. */
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Ebenengruppe } from './ebenengruppen.js' */
+/** @import { Lage } from './symmetrie.js' */
+/** @import { schrittDaten } from './zeichnung.js' */
+
+/** Stelle wie in der Lage-Anzeige der Kenndaten: „(0.120, 0.310)“, Brüche exakt. @param {Vec2} p */
 const stelle = (p) => koordText(p);
 
 /**
  * HTML des Kastens. d: schrittDaten(); daten: Gruppe aus ebenengruppen.js; l: lage() des Objekts;
  * ordnung: Zahl der Operationen je Zelle. Knöpfe: data-schritt (Schritt setzen), data-schritt-zu.
+ * @param {Ebenengruppe} daten @param {ReturnType<typeof schrittDaten>} d @param {Lage} l @param {number} ordnung
  */
 export function schrittHTML(daten, d, l, ordnung) {
   const N = d.N;

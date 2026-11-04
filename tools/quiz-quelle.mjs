@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Quelle der Quizfragen dieser App für die gemeinsame Fragenliste der App-Familie
 // (crystallography-common, fragenliste/extract.mjs): Fragen, Generatoren, Kapitel und die Bilder,
 // gezeichnet mit demselben Code wie im Quiz und im Moodle-Export.
@@ -11,6 +10,7 @@ import { helleFarben } from './common/moodle.mjs';
 
 export function quizQuelle() {
   const col = farbenAus(helleFarben(fileURLToPath(new URL('../lib/common/css/base.css', import.meta.url))));
+  /** @param {string} angabe @param {import('../lib/common/js/quiz-core.js').BildOptionen} [opt] */
   const bild = (angabe, opt = {}) => {
     if (!angabe) return null;
     const inhalt = bildInhalt(angabe, col, opt);
@@ -19,6 +19,6 @@ export function quizQuelle() {
   return {
     app: 'plane-groups', titel: 'Symmetrie in der Ebene', kurz: 'Ebene',
     kapitel: KAPITEL, bank: BANK, generatoren: GENERATOREN,
-    bild, adresse: (angabe) => (angabe ? appAdresse(angabe) : null),
+    bild, adresse: (/** @type {string} */ angabe) => (angabe ? appAdresse(angabe) : null),
   };
 }

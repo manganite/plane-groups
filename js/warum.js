@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // „Warum ist das da?“: Texte zur Herkunft eines Symmetrieelements (ohne DOM, Tests in Node).
 // Begriffe und Regeln nach Borchardt-Ott & Sowa (2018), Abschn. 10.2, und Hoffmann (2016),
 // Kap. 4: Drehung + Translation, Spiegelung + Translation (senkrecht bzw. schräg), zwei
@@ -9,8 +8,19 @@ import { elementVonOp, elementSchluessel } from './herkunft.js';
 import { kart } from './zeichnung.js';
 import { opHTML, koordHTML, bruchZeichen } from './text.js';
 
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Op, Art, Gruppe } from './symmetrie.js' */
+/**
+ * Was elementName() und bestimmt() von einem Element brauchen (Element aus herkunft.js oder eine Angabe
+ * aus den gezeichneten Elementen).
+ * @typedef {{ typ: 'dreh', n: number, punkt: Vec2 } | { typ: 'spiegel' | 'gleit', punkt: Vec2, richtung: Vec2 }} Elementangabe
+ */
+/** @import { Metrik, Erklaerung } from './zeichnung.js' */
+
+/** @param {number} a @param {number} b @param {number} [tol] */
 const nahe = (a, b, tol = 1e-7) => Math.abs(a - b) < tol;
-const istRef = (t) => t === 'spiegel' || t === 'gleit';
+/** Spiegelung oder Gleitspiegelung? @param {Art} a @returns {a is Extract<Art, { richtung: Vec2 }>} */
+const istRef = (a) => a.art === 'spiegel' || a.art === 'gleit';
 
 /** Vektor in Bruchteilen als Ausdruck in a und b: [1,0] → a, [1/2,1/2] → (a + b)/2, [2,-1] → 2a − b. */
 /** @param {readonly number[]} v */
@@ -19,6 +29,7 @@ export function vektorText(v) {
   if (nahe(Math.abs(x), Math.abs(y)) && !nahe(x, 0) && nahe(Math.abs(x), 0.5)) {
     return `${x < 0 ? '−' : ''}(<i>a</i> ${x * y > 0 ? '+' : '−'} <i>b</i>)/2`;
   }
+  /** @param {number} c @param {string} s */
   const teil = (c, s) => {
     if (nahe(c, 0)) return '';
     const b = bruch(Math.abs(c));
@@ -32,6 +43,7 @@ export function vektorText(v) {
 /**
  * Name eines Elements: „4-zähliger Drehpunkt bei (½, ½)“, „Spiegellinie x, x“; mit
  * artikel: true „ein 4-zähliger Drehpunkt …“, „eine Spiegellinie …“.
+ * @param {Elementangabe} el @param {boolean} [artikel]
  */
 export function elementName(el, artikel = false) {
   if (el.typ === 'dreh') return `${artikel ? 'ein ' : ''}${el.n}-zähliger Drehpunkt bei (${el.punkt.map((v) => bruchZeichen(bruch(v))).join(', ')})`;
@@ -39,13 +51,13 @@ export function elementName(el, artikel = false) {
   return `${artikel ? 'eine ' : ''}${el.typ === 'spiegel' ? 'Spiegellinie' : 'Gleitspiegellinie'} ${ort}`;
 }
 
-/** Element mit bestimmtem Artikel: „der 4-zählige Drehpunkt bei (0, 0)“, „die Spiegellinie x, 0“. */
+/** Element mit bestimmtem Artikel: „der 4-zählige Drehpunkt bei (0, 0)“, „die Spiegellinie x, 0“. @param {Elementangabe} el */
 export function bestimmt(el) {
   if (el.typ === 'dreh') return `der ${el.n}-zählige Drehpunkt bei (${el.punkt.map((v) => bruchZeichen(bruch(v))).join(', ')})`;
   return `die ${elementName(el)}`;
 }
 
-/** Operation in Worten, mit der Schreibweise der ITA in Klammern. */
+/** Operation in Worten, mit der Schreibweise der ITA in Klammern. @param {Op} op */
 export function opName(op) {
   const a = art(op);
   const ita = `<span class="muted">(${opHTML(beschreibe(op))})</span>`;
@@ -60,14 +72,14 @@ export function opName(op) {
   return `Gleitspiegelung an der Linie ${ort} ${ita}`;
 }
 
-/** Winkel (Grad, 0 … 90) zwischen zwei Linien mit Richtungen in Bruchkoordinaten, in der Metrik M. */
+/** Winkel (Grad, 0 … 90) zwischen zwei Linien mit Richtungen in Bruchkoordinaten, in der Metrik M. @param {Metrik} M @param {Vec2} d1 @param {Vec2} d2 */
 function linienWinkel(M, d1, d2) {
   const u = kart(M, d1); const v = kart(M, d2);
   const c = Math.abs(u[0] * v[0] + u[1] * v[1]) / (Math.hypot(...u) * Math.hypot(...v));
   return Math.round((Math.acos(Math.min(1, c)) * 180) / Math.PI);
 }
 
-/** Regel, nach der C = A ∘ B entsteht (Text), oder null. */
+/** Regel, nach der C = A ∘ B entsteht (Text), oder null. @param {Op} A @param {Op} B @param {Op} C @param {Metrik} M */
 export function regel(A, B, C, M) {
   const a = art(A); const b = art(B); const c = art(C);
   if (a.art === 't' && b.art === 'dreh') {
@@ -75,7 +87,7 @@ export function regel(A, B, C, M) {
       ? 'Drehung um 180° + Translation = Drehung um 180° um einen anderen Punkt: Er liegt in der Mitte der Translation.'
       : 'Drehung + Translation = Drehung um denselben Winkel um einen verschobenen Punkt.';
   }
-  if (a.art === 't' && istRef(b.art)) {
+  if (a.art === 't' && istRef(b)) {
     // Anteile der Translation senkrecht und parallel zur Linie (kartesisch)
     const t = kart(M, a.t); const d = kart(M, b.richtung); const l = Math.hypot(...d);
     const par = (t[0] * d[0] + t[1] * d[1]) / l;
@@ -85,12 +97,12 @@ export function regel(A, B, C, M) {
     if (b.art === 'spiegel') return 'Spiegelung + Translation schräg zur Spiegellinie = Gleitspiegelung: Der Anteil der Translation senkrecht zur Linie verschiebt sie um die Hälfte, der Anteil parallel zur Linie wird zur Gleitkomponente.';
     return `Gleitspiegelung + Translation = ${c.art === 'spiegel' ? 'Spiegelung' : 'Gleitspiegelung'} an einer parallelen Linie: Der Anteil der Translation senkrecht zur Linie verschiebt sie um die Hälfte, der parallele Anteil verrechnet sich mit der Gleitkomponente.`;
   }
-  if (istRef(a.art) && istRef(b.art) && c.art === 'dreh') {
+  if (istRef(a) && istRef(b) && c.art === 'dreh') {
     const w = linienWinkel(M, a.richtung, b.richtung);
     const beide = a.art === 'spiegel' && b.art === 'spiegel';
     return `Zwei ${beide ? 'Spiegelungen' : '(Gleit-)Spiegelungen'} an Linien, die sich unter ${w}° schneiden, ergeben eine Drehung um 2 · ${w}° = ${2 * w}°${beide ? ' um ihren Schnittpunkt' : ''}.`;
   }
-  if ((a.art === 'dreh' && istRef(b.art)) || (istRef(a.art) && b.art === 'dreh')) {
+  if ((a.art === 'dreh' && istRef(b)) || (istRef(a) && b.art === 'dreh')) {
     return 'Drehung und Spiegelung ergeben wieder eine Spiegelung oder Gleitspiegelung, an einer um den halben Drehwinkel gedrehten Linie.';
   }
   if (a.art === 'dreh' && b.art === 'dreh') return 'Zwei Drehungen ergeben eine Drehung; die Drehwinkel addieren sich.';
@@ -102,7 +114,7 @@ export function regel(A, B, C, M) {
  * M: Metrik; phase: angezeigter Schritt (0 … 3). Knöpfe: data-phase, data-abspielen,
  * data-erkl-zu (schliessen), data-erkl (Element von B wählen).
  */
-/** Wie eine Operation das Fähnchen bewegt, passend zu ihrem Weg in Tafel A (zeichnung.js, weg). */
+/** Wie eine Operation das Fähnchen bewegt, passend zu ihrem Weg in Tafel A (zeichnung.js, weg). @param {Op} op */
 export function wegText(op) {
   const a = art(op);
   if (a.art === 'gleit') return 'spiegelt es an der Gleitspiegellinie (blasses Zwischenbild) und verschiebt es dann um die Gleitkomponente entlang der Linie. Beide Teile gehören zu der einen Operation';
@@ -111,17 +123,22 @@ export function wegText(op) {
   return 'verschiebt es';
 }
 
-/** Nummer der Operation unter den Erzeugenden der ITA („Generators selected“), sonst 0. */
+/** Nummer der Operation unter den Erzeugenden der ITA („Generators selected“), sonst 0. @param {Gruppe} g @param {Op} op */
 function erzeugendeNummer(g, op) {
+  /** @param {Op} o */
   const gleich = (o) => o.R.every((r, i) => r.every((v, j) => v === op.R[i][j])) && o.t.every((v, i) => nahe(v, op.t[i]));
   const i = g.ops.findIndex(gleich);
   return i >= 0 && g.daten.erzeugende.includes(i + 1) ? i + 1 : 0;
 }
 
+/** @param {Gruppe} g @param {Erklaerung} d @param {Metrik} M @param {number} phase */
 export function erklaerungHTML(g, d, M, phase) {
+  /** @param {string} k */
   const badge = (k) => `<span class="ab ${k.toLowerCase()}">${k}</span>`;
+  /** @param {number} i @param {string} [klasse] */
   const stelle = (i, klasse = `st${i}`) => `<span class="st ${klasse}" title="Stelle ${i}">${i}</span>`;
   const kopf = `<h3>Warum ist da ${elementName(d.element, true)}?</h3>`;
+  /** @param {[number, string][]} namen */
   const phasen = (namen) => `<div class="phasen">${namen.map(([p, t]) => `<button type="button" data-phase="${p}" aria-pressed="${phase === p}">${t}</button>`).join('')}<button type="button" data-abspielen>Abspielen</button><button class="linkbtn" type="button" data-erkl-zu>Schliessen</button></div>`;
   if (d.art === 'kopie') {
     const t = vektorText(d.t);
@@ -149,6 +166,7 @@ export function erklaerungHTML(g, d, M, phase) {
     : '';
   // A ist nach der Suche (herkunft.js) immer eine Erzeugende oder eine Gittertranslation; nur B
   // kann selbst hergeleitet sein. „Woher kommt …?“ nur, wo es etwas herzuleiten gibt.
+  /** @param {Op} op */
   const herkunftText = (op) => {
     if (art(op).art === 't') return ' – Gittertranslation';
     const nr = erzeugendeNummer(g, op);

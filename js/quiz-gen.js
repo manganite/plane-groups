@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Erzeugte Fragen: aus den Daten der App, die schon getestet sind, mit sicherer richtiger Antwort.
 // Ein Generator: { id, kapitel, stufen, status, params(stufe) → Parameter, make(param, stufe) → Frage }.
 // Die Frage hat denselben Aufbau wie in quiz-bank.js (ohne id, stufe, kapitel, status; die setzt quiz-core.js).
@@ -11,10 +10,27 @@ import { symbolHTML } from './text.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { OPERATIONEN, verknuepfe, istGruppe, nichtAbgeschlossen, teilmengen, untergruppen, symbolVon } from './punktoperationen.js';
 
+/** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
+/** @import { Generator, Frageinhalt, Stufe, Status } from '../lib/common/js/quiz-core.js' */
+/** @import { Op } from './symmetrie.js' */
+/** @import { System, Wyckoff } from './ebenengruppen.js' */
+/** @import { Vorgabe } from './vorgaben.js' */
+/** @import { PG } from './punktoperationen.js' */
+/**
+ * Element an gegebener Lage (Kap. 4): Spiegel- oder Gleitspiegellinie x = c bzw. y = c, Drehpunkt.
+ * @typedef {{ art: 'm' | 'g', achse: 'x' | 'y', c: number } | { art: '2', punkt: Vec2 }} ElementLage
+ */
+/**
+ * Angaben für die Nachrechnung im Test, die keine Art nennen (Lage). Der Typ der gemeinsamen Fragen
+ * verlangt eine Art; die Fragenliste zeigt dann „ja“ (fragenliste/extract.mjs).
+ * @param {Record<string, unknown>} p
+ */
+const pruefungOhneArt = (p) => /** @type {Frageinhalt['pruefung']} */ (/** @type {unknown} */ (p));
+
 const S = symbolHTML;
 const ALLE = EBENENGRUPPEN.map((d) => d.symbol);
 
-/** Was eine Ebenengruppe im Bild zeigt (für Hinweise zu Ablenkern). Geprüft gegen die Elemente der App (Test). */
+/** Was eine Ebenengruppe im Bild zeigt (für Hinweise zu Ablenkern). Geprüft gegen die Elemente der App (Test). @type {Record<string, string>} */
 export const MERKMALE = {
   p1: 'nur Translationen, keine Drehpunkte und keine Spiegel- oder Gleitspiegellinien',
   p2: 'nur 2-zählige Drehpunkte, keine Spiegel- oder Gleitspiegellinien',
@@ -36,16 +52,20 @@ export const MERKMALE = {
 };
 
 // Ablenker: zuerst die naheliegenden (VORZUG), dann gleiche Punktgruppe, gleiches System, Nachbarsysteme
+/** @type {Record<System, System[]>} */
 const NACHBARN = { schiefwinklig: ['rechteckig'], rechteckig: ['schiefwinklig', 'quadratisch'], quadratisch: ['rechteckig'], hexagonal: ['rechteckig'] };
+/** @type {Record<string, string[]>} */
 const VORZUG = {
   p6: ['p6mm', 'p3', 'p31m'], p6mm: ['p6', 'p3m1', 'p31m'], p3: ['p6', 'p3m1', 'p31m'],
   p4: ['p4mm', 'p4gm', 'p2'], p4mm: ['p4gm', 'p4', 'p2mm'], p4gm: ['p4mm', 'p4', 'p2gg'],
 };
-/** Drei andere Ebenengruppen als Ablenker für symbol (deterministisch), ohne die in ausser. */
+/** Drei andere Ebenengruppen als Ablenker für symbol (deterministisch), ohne die in ausser. @param {string} symbol @param {number} [n] @param {readonly string[]} [ausser] */
 export function gruppenAblenker(symbol, n = 3, ausser = []) {
   const d = ebenengruppe(symbol);
   const andere = EBENENGRUPPEN.filter((x) => x.symbol !== symbol && !ausser.includes(x.symbol));
+  /** @type {string[]} */
   const out = [];
+  /** @param {import('./ebenengruppen.js').Ebenengruppe[]} liste */
   const nimm = (liste) => { for (const x of liste) if (out.length < n && !out.includes(x.symbol)) out.push(x.symbol); };
   nimm(andere.filter((x) => (VORZUG[symbol] || []).includes(x.symbol)).sort((a, b) => VORZUG[symbol].indexOf(a.symbol) - VORZUG[symbol].indexOf(b.symbol)));
   nimm(andere.filter((x) => x.punktgruppe === d.punktgruppe));
@@ -54,12 +74,14 @@ export function gruppenAblenker(symbol, n = 3, ausser = []) {
   return out;
 }
 
+/** @param {string} falsch */
 const hinweisGruppe = (falsch) => `${S(falsch)} hätte ${MERKMALE[falsch]}.`;
 
 // ------------------------------------------------------------------ Symmetriegerüst → Ebenengruppe
 // Stufe 1: die gängigen Beispiele (auch pg, p2mg, p2gg); Stufe 2: Gruppen, die man erst mit den
 // Blickrichtungen sicher unterscheidet (p3m1/p31m) oder deren Gerüst unübersichtlich ist (p4gm)
 const STUFE2_DIAGRAMM = ['p3m1', 'p31m', 'p4gm'];
+/** @satisfies {Generator} */
 export const DIAGRAMM = {
   id: 'diagramm', kapitel: 5, stufen: [1, 2], status: 'geprüft',
   params: (s) => ALLE.filter((g) => (s === 2) === STUFE2_DIAGRAMM.includes(g)),
@@ -81,25 +103,29 @@ export const DIAGRAMM = {
 };
 
 // ------------------------------------------------------------------ Ebenengruppe → Punktgruppe, Kristallsystem
+/** @type {System[]} */
 const SYSTEME = ['schiefwinklig', 'rechteckig', 'quadratisch', 'hexagonal'];
+/** @param {string} p */
 const pgHTML = (p) => p.replace(/m/g, '<i>m</i>');
-/** Punktgruppe aus dem Symbol nach der Regel des Skripts (Abschn. 5.4): Zellbuchstabe weg, g → m, Einsen weg. */
+/** Punktgruppe aus dem Symbol nach der Regel des Skripts (Abschn. 5.4): Zellbuchstabe weg, g → m, Einsen weg. @param {string} symbol */
 export function punktgruppeAusSymbol(symbol) {
   const r = symbol.slice(1).replace(/g/g, 'm');
   return r === '1' ? '1' : r.replace(/1/g, '');
 }
-/** Kristallsystem aus der Punktgruppe: höchste Zähligkeit, sonst Spiegellinien. */
+/** Kristallsystem aus der Punktgruppe: höchste Zähligkeit, sonst Spiegellinien. @param {string} pg */
 export function systemAusPunktgruppe(pg) {
   if (/^[36]/.test(pg)) return 'hexagonal';
   if (pg.startsWith('4')) return 'quadratisch';
   return pg.includes('m') ? 'rechteckig' : 'schiefwinklig';
 }
+/** @type {Record<string, string>} */
 const SYSTEM_GRUND = {
   hexagonal: 'ein 3- oder 6-zähliger Drehpunkt verlangt <i>a</i> = <i>b</i> und γ = 120°',
   quadratisch: 'ein 4-zähliger Drehpunkt verlangt <i>a</i> = <i>b</i> und γ = 90°',
   rechteckig: 'Spiegel- oder Gleitspiegellinien ohne 3-, 4- oder 6-zählige Drehpunkte verlangen nur γ = 90°',
   schiefwinklig: 'ohne Spiegel- und Gleitspiegellinien und ohne 3-, 4- oder 6-zählige Drehpunkte gibt es keine Bedingung an die Metrik',
 };
+/** @type {Record<string, string>} */
 const PG_TEXT = {
   1: 'keine Symmetrie ausser der Identität', 2: 'nur einen 2-zähligen Drehpunkt', m: 'nur eine Spiegellinie',
   '2mm': 'einen 2-zähligen Drehpunkt mit zwei Spiegellinien', 4: 'einen 4-zähligen Drehpunkt ohne Spiegellinien',
@@ -108,12 +134,14 @@ const PG_TEXT = {
   '6mm': 'einen 6-zähligen Drehpunkt mit sechs Spiegellinien',
 };
 // Ablenker je Punktgruppe: zuerst dieselbe ohne Spiegellinien bzw. mit, dann Nachbarn
+/** @type {Record<string, string[]>} */
 const PG_ABLENKER = {
   1: ['2', 'm', '2mm'], 2: ['1', 'm', '2mm'], m: ['1', '2', '2mm'], '2mm': ['2', 'm', '4mm'], 4: ['2', '4mm', '6'],
   '4mm': ['4', '2mm', '6mm'], 3: ['6', '3m', '2'], '3m': ['3', '6mm', '2mm'], 6: ['3', '6mm', '4'], '6mm': ['6', '3m', '4mm'],
 };
+/** @param {string} p */
 const ohneSpiegel = (p) => p.replace(/m/g, '') || '1';
-/** Typischer Fehler hinter einer falschen Punktgruppe. */
+/** Typischer Fehler hinter einer falschen Punktgruppe. @param {string} symbol @param {string} richtig @param {string} falsch */
 function hinweisPunktgruppe(symbol, richtig, falsch) {
   if (falsch === ohneSpiegel(richtig)) {
     return symbol.includes('g')
@@ -122,6 +150,7 @@ function hinweisPunktgruppe(symbol, richtig, falsch) {
   }
   return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. ${symbol === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: 1.' : `Für ${S(symbol)} lässt man den Zellbuchstaben und die Einsen weg und liest <i>g</i> als <i>m</i>.`}`;
 }
+/** @satisfies {Generator} */
 export const PUNKTGRUPPE = {
   id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'geprüft',
   params: () => ALLE.flatMap((g) => [`${g}:pg`, `${g}:sys`]),
@@ -161,13 +190,14 @@ export const PUNKTGRUPPE = {
 // ------------------------------------------------------------------ Lage: Zähligkeit und Lagesymmetrie
 // Stufe 1: primitive symmorphe Gruppen, deren Lagen Skript Kap. 6 ausführlich zeigt; Stufe 2: die übrigen (zentriert, nichtsymmorph)
 const GRUND = ['p2mm', 'p4mm', 'p6mm'];
-/** Punkt auf der Wyckoff-Lage b (mit festen Werten für freie Parameter) und die Lage, wie die App sie bestimmt. */
+/** Punkt auf der Wyckoff-Lage b (mit festen Werten für freie Parameter) und die Lage, wie die App sie bestimmt. @param {string} symbol @param {string} b */
 export function lagePunkt(symbol, b) {
   const g = gruppe(symbol);
   const p = punktAufLage(g, b, [0.137, 0.291]);
   return { g, p, l: lage(g, p) };
 }
 /** Ordnung einer Lagesymmetrie aus dem orientierten Symbol: n-zähliger Drehpunkt mit Spiegellinien hat 2n, ohne n; m allein 2. */
+/** @param {string} sym */
 const ordnung = (sym) => {
   const s = sym.replace(/\./g, '');
   const n = Number(s.match(/^\d/)?.[0] ?? 1);
@@ -175,7 +205,9 @@ const ordnung = (sym) => {
   return m ? (n === 1 ? 2 : 2 * n) : n;
 };
 // Lagesymmetrie als Punktgruppe (ohne die Punkte des orientierten Symbols, Skript Abschn. 6.2)
+/** @param {string} sym */
 const symHTML = (sym) => (sym.replace(/\./g, '') || '1').replace(/m/g, '<i>m</i>');
+/** @satisfies {Generator} */
 export const LAGE = {
   id: 'lage', kapitel: 6, stufen: [1, 2], status: 'geprüft',
   params: (s) => EBENENGRUPPEN.filter((d) => (s === 1) === GRUND.includes(d.symbol))
@@ -193,10 +225,12 @@ export const LAGE = {
     const [symbol, b] = param.split(':');
     const d = ebenengruppe(symbol);
     const { p, l } = lagePunkt(symbol, b);
-    const w = d.wyckoff.find((x) => x.b === b);
+    const w = /** @type {Wyckoff} */ (d.wyckoff.find((x) => x.b === b)); // b stammt aus params()
     const N = d.wyckoff[0].n;
+    /** @param {number} n @param {string} sym */
     const text = (n, sym) => `Zähligkeit ${n}, Lagesymmetrie ${symHTML(sym)}`;
     const richtig = text(w.n, w.sym);
+    /** @type {[number, string, string][]} */
     const kand = [];
     // allgemeine Lage; Zähligkeit falsch (Lagesymmetrie richtig); andere spezielle Lagen derselben Gruppe
     kand.push([N, '1', `So wäre es in allgemeiner Lage. Das Fähnchen liegt aber auf ${/[2-6]/.test(w.sym) ? 'einem Drehpunkt' : 'einer Spiegellinie'}; dort fallen Kopien zusammen.`]);
@@ -206,6 +240,7 @@ export const LAGE = {
     // Reserve: Lagesymmetrie 1 bei richtiger Zähligkeit; richtige Lagesymmetrie bei Zähligkeit der allgemeinen Lage
     kand.push([w.n, '1', 'Lagesymmetrie 1 hat nur die allgemeine Lage. Hier geht ein Drehpunkt oder eine Spiegellinie durch den markierten Punkt.']);
     kand.push([N, w.sym, `Auf einer Lage mit der Lagesymmetrie ${symHTML(w.sym)} fallen Kopien zusammen; die Zähligkeit ist deshalb kleiner als die der allgemeinen Lage.`]);
+    /** @type {{ t: string, h: string }[]} */
     const ab = [];
     for (const [n, sym, h] of kand) {
       const t = text(n, sym);
@@ -223,19 +258,25 @@ export const LAGE = {
       skript: 'wyckoff', app: `#m=eg&g=${symbol}&x=${koordText(p[0])}&y=${koordText(p[1])}`,
       quelle: 'International Tables for Crystallography, Vol. A (2006), Part 6',
       // für den Test: die App bestimmt an diesem Punkt genau diese Lage
-      pruefung: { symbol, buchstabe: l.buchstabe },
+      pruefung: pruefungOhneArt({ symbol, buchstabe: l.buchstabe }),
     };
   },
 };
 
 // ------------------------------------------------------------------ Struktur (Vorgabe) → Ebenengruppe
+/**
+ * Generator: Vorgaben der genannten Gruppen (ohne die in ohne) → Ebenengruppe; Ablenker ohne die in ausser.
+ * @param {{ id: string, kapitel: number, gruppen: string[], ohne?: string[], ausser?: string[], frage: string, bindungen?: boolean,
+ *   zoom?: (vid: string) => number, lernziel: string, skript: string, stufen?: Stufe[], status?: Status }} optionen
+ * @returns {Generator}
+ */
 function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript, stufen = [2], status = 'geprüft' }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
     id, kapitel, stufen, status,
     params: () => vorgaben.map((v) => v.id),
     make(vid) {
-      const v = vorgaben.find((x) => x.id === vid);
+      const v = /** @type {Vorgabe} */ (vorgaben.find((x) => x.id === vid)); // vid stammt aus params()
       const g = v.erwartet;
       const ab = gruppenAblenker(g, 3, ausser);
       const zz = zoom(vid) === 1 ? '' : `&zoom=${zoom(vid)}`; // Vergrösserung des Musters (Tafel B), auch im App-Link
@@ -262,7 +303,7 @@ export const STRUKTUR = strukturGenerator({
   ausser: ['pg', 'p2mg', 'p2gg', 'p4gm', 'p31m'],
   frage: 'Welche Ebenengruppe hat das Muster? Hervorgehoben ist eine Elementarzelle; gleiche Farbe und Form heissen gleiches Motiv.',
   // Motive gross genug: Gitter etwas, Strukturen deutlich vergrössert; das dichte Kagome-Spin-Eis nicht
-  zoom: (vid) => (vorgabe(vid).gruppe === 'Bravais-Gitter' ? 1.25 : vid === 'asi-kagome' ? 1 : 1.6),
+  zoom: (vid) => (/** @type {Vorgabe} */ (vorgabe(vid)).gruppe === 'Bravais-Gitter' ? 1.25 : vid === 'asi-kagome' ? 1 : 1.6),
   lernziel: 'die Symmetrie eines Musters aus Gitter und Motiv bestimmen und begründen, warum das Motiv die Symmetrie des Gitters nur erniedrigen kann',
   skript: 'gitter-und-motiv',
 });
@@ -289,28 +330,40 @@ export const PARKETT = strukturGenerator({
 // Operationen und Verknüpfungen aus punktoperationen.js (Test: Gruppentafel 3m = Tafel im Skript).
 // Ohne 2mm und ohne die Untergruppen m: Jede Menge {1, X} mit X ∘ X = 1 ist eine Gruppe; die richtige
 // Antwort wäre dort die einzige zweielementige Menge mit der Identität.
+/** @type {PG[]} */
 const PG_REIHE = ['4', '3m', '4mm', '6', '6mm'];
+/** @type {Record<string, string>} */
 const BILD_PG = { '3m': 'skizze:3m', '4mm': 'skizze:4mm', '6mm': 'skizze:6mm' };
+/** @param {PG} pg @param {readonly number[]} s */
 export const mengeHTML = (pg, s) => `{${s.map((i) => OPERATIONEN[pg][i].html).join(', ')}}`;
+/** @param {PG} pg @param {readonly number[]} s */
 const zusammensetzung = (pg, s) => { const d = s.filter((i) => OPERATIONEN[pg][i].art === 'd').length; return [d, s.length - d]; };
+/** @param {readonly number[]} x @param {readonly number[]} y */
 const symDiff = (x, y) => x.filter((i) => !y.includes(i)).length + y.filter((i) => !x.includes(i)).length;
 
 /**
  * Drei Teilmengen, die keine Gruppen sind, möglichst ähnlich zur Untergruppe t und untereinander
  * verschieden. Die richtige Antwort soll sich nicht durch eine äussere Eigenschaft verraten: Für
  * Grösse, Zahl der Spiegelungen und „enthält die Identität“ hat möglichst ein Ablenker denselben Wert.
+ * @param {PG} pg @param {number[]} t @returns {number[][]}
  */
 export function untergruppenAblenker(pg, t) {
   const n = OPERATIONEN[pg].length;
   const [td, tm] = zusammensetzung(pg, t);
+  /** @param {number[]} s */
   const merkmale = (s) => [s.length, zusammensetzung(pg, s)[1], s.includes(0)];
   const mt = merkmale(t);
   const kand = teilmengen(n, 2, n - 1).filter((s) => !istGruppe(pg, s));
+  /** @type {number[][]} */
   const gewaehlt = [];
+  /** @param {number[]} x @param {number[]} y */
   const kleiner = (x, y) => { for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return x[i] < y[i]; return false; };
   while (gewaehlt.length < 3) {
     const offen = mt.map((v, i) => !gewaehlt.some((g) => merkmale(g)[i] === v));
-    let best = null; let bestKey = null;
+    /** @type {number[] | null} */
+    let best = null;
+    /** @type {number[] | null} */
+    let bestKey = null;
     for (const s of kand) {
       if (gewaehlt.includes(s)) continue;
       const [d, m] = zusammensetzung(pg, s);
@@ -319,28 +372,30 @@ export function untergruppenAblenker(pg, t) {
       const key = [-neu, Math.abs(s.length - t.length), s.includes(0) ? 0 : 1, Math.abs(d - td) + Math.abs(m - tm), -Math.min(vielfalt, 2), symDiff(s, t)];
       if (!bestKey || kleiner(key, bestKey)) { best = s; bestKey = key; }
     }
-    gewaehlt.push(best);
+    gewaehlt.push(/** @type {number[]} */ (best)); // es gibt genug Teilmengen, die keine Gruppe sind
   }
   return gewaehlt;
 }
 
-/** Warum die Menge keine Gruppe ist (Text mit HTML). */
+/** Warum die Menge keine Gruppe ist (Text mit HTML). @param {PG} pg @param {number[]} s */
 export function untergruppenHinweis(pg, s) {
   const o = OPERATIONEN[pg];
   if (!s.includes(0)) {
     for (const a of s) for (const b of s) if (verknuepfe(pg, a, b) === 0) return `Es fehlt die Identität: ${o[a].html} ∘ ${o[b].html} = 1 liegt nicht in der Menge.`;
     return 'Es fehlt die Identität 1; jede Gruppe enthält sie.';
   }
-  const [a, b] = nichtAbgeschlossen(pg, s);
+  const [a, b] = /** @type {[number, number]} */ (nichtAbgeschlossen(pg, s)); // enthält die Identität, ist aber keine Gruppe
   return `${o[a].html} ∘ ${o[b].html} = ${o[verknuepfe(pg, a, b)].html} liegt nicht in der Menge.`;
 }
 
+/** @satisfies {Generator} */
 export const UNTERGRUPPE = {
   id: 'untergruppe', kapitel: 4, stufen: [1], status: 'geprüft',
   // je Punktgruppe eine Frage je Art von Untergruppe (z. B. nur eine der beiden Untergruppen 2mm von 4mm)
   params: () => PG_REIHE.flatMap((pg) => {
     const gesehen = new Set();
     // in 4mm und 6mm ohne die Drehgruppen 2 und 3: dieselbe Frage wie in 4 und 6
+    /** @param {number[]} s */
     const nurDrehungen = (s) => zusammensetzung(pg, s)[1] === 0 && s.length < zusammensetzung(pg, OPERATIONEN[pg].map((_, i) => i))[0];
     return untergruppen(pg)
       .filter((s) => symbolVon(pg, s) !== 'm' && !(pg.endsWith('mm') && nurDrehungen(s)))
@@ -348,7 +403,8 @@ export const UNTERGRUPPE = {
       .map((s) => `${pg}:${s.join('.')}`);
   }),
   make(param) {
-    const [pg, liste] = param.split(':');
+    const [pgText, liste] = param.split(':');
+    const pg = /** @type {PG} */ (pgText); // aus params()
     const t = liste.split('.').map(Number);
     const ab = untergruppenAblenker(pg, t);
     const o = OPERATIONEN[pg];
@@ -379,14 +435,19 @@ export const UNTERGRUPPE = {
 // (Raster 1/40, gesucht mit bahn() aus symmetrie.js). Wo die Kopien trotzdem eng liegen, ist das
 // Fähnchen kleiner (MUSTER_GROESSE, Link „og“), damit sich die Fähnchen nicht überdecken.
 const NUR_DREHUNG = ['p1', 'p2', 'p3', 'p4', 'p6'];
+/** @type {Record<string, string[]>} */
 const DREH_ABLENKER = { p1: ['p2', 'p3', 'p4'], p2: ['p1', 'p4', 'p6'], p3: ['p6', 'p1', 'p2'], p4: ['p2', 'p6', 'p3'], p6: ['p3', 'p2', 'p4'] };
+/** @type {Record<string, number>} */
 const MUSTER_GROESSE = { p1: 1, p2: 1, pg: 1, p2gg: 1, p3: 1, p6mm: 0.5 };
+/** @type {Record<string, number>} */
 const MUSTER_ZOOM = { p6mm: 1.7 };
+/** @type {Record<string, Vec2>} */
 const MUSTER_PUNKT = {
   p1: [0.1, 0.1], p2: [0.2, 0.275], pm: [0.25, 0.1], pg: [0.25, 0.1], cm: [0.25, 0.1], p2mm: [0.25, 0.2], p2mg: [0.5, 0.2],
   p2gg: [0.25, 0.125], c2mm: [0.175, 0.125], p4: [0.2, 0.3], p4mm: [0.15, 0.35], p4gm: [0.25, 0.5],
   p3: [0.35, 0.35], p3m1: [0.325, 0.325], p31m: [0.2, 0.4], p6: [0.15, 0.425], p6mm: [0.125, 0.45],
 };
+/** @satisfies {Generator} */
 export const MUSTER = {
   id: 'muster', kapitel: 5, stufen: [2], status: 'geprüft',
   // ohne p1: Dort sind alle Fähnchen nur verschoben, die Antwort liegt ohne Überlegen auf der Hand
@@ -416,10 +477,17 @@ export const MUSTER = {
 // ------------------------------------------------------------------ Element an gegebener Lage → Koordinaten (Kap. 4)
 // Nach Borchardt-Ott, Aufg. 10.2 b, d, l: In einer rechteckigen Zelle liegt ein Symmetrieelement an
 // gegebener Stelle; gesucht sind die Koordinaten des Bildpunkts von (x, y) wie in den International Tables.
+/** @type {Record<number, string>} */
 const BR = { 0: '0', 0.125: '⅛', 0.25: '¼', 0.375: '⅜', 0.5: '½', 0.75: '¾', 1: '1' };
+/** @param {number} v */
 const br = (v) => BR[Math.round(v * 1000) / 1000] ?? String(v);
-const MX = [[-1, 0], [0, 1]]; const MY = [[1, 0], [0, -1]]; const ZWEI = [[-1, 0], [0, -1]];
-/** Elemente: Spiegellinie oder Gleitspiegellinie x = c bzw. y = c, Drehpunkt (p, q). */
+/** @type {Mat2} */
+const MX = [[-1, 0], [0, 1]];
+/** @type {Mat2} */
+const MY = [[1, 0], [0, -1]];
+/** @type {Mat2} */
+const ZWEI = [[-1, 0], [0, -1]];
+/** Elemente: Spiegellinie oder Gleitspiegellinie x = c bzw. y = c, Drehpunkt (p, q). @type {Record<string, ElementLage>} */
 export const ELEMENTE_LAGE = {
   'm-x14': { art: 'm', achse: 'x', c: 0.25 },
   'm-y14': { art: 'm', achse: 'y', c: 0.25 },
@@ -431,20 +499,21 @@ export const ELEMENTE_LAGE = {
   '2-140': { art: '2', punkt: [0.25, 0] },
   '2-014': { art: '2', punkt: [0, 0.25] },
 };
-/** Operation { R, t } zum Element. */
+/** Operation { R, t } zum Element. @param {ElementLage} e @returns {Op} */
 export function elementOp(e) {
   if (e.art === '2') return { R: ZWEI, t: [2 * e.punkt[0], 2 * e.punkt[1]] };
   const gl = e.art === 'g' ? 0.5 : 0;
   return e.achse === 'x' ? { R: MX, t: [2 * e.c, gl] } : { R: MY, t: [gl, 2 * e.c] };
 }
-/** Das Element in Worten, wie es in der Zelle liegt. */
+/** Das Element in Worten, wie es in der Zelle liegt. @param {ElementLage} e */
 export function elementText(e) {
   if (e.art === '2') return `ein 2-zähliger Drehpunkt bei (${br(e.punkt[0])},&nbsp;${br(e.punkt[1])})`;
   const linie = `<i>${e.achse}</i> = ${br(e.c)}`;
   return e.art === 'm' ? `eine Spiegellinie bei ${linie}` : `eine Gleitspiegellinie bei ${linie} mit der Gleitkomponente ${e.achse === 'x' ? '<i>b</i>' : '<i>a</i>'}/2`;
 }
-/** Koordinaten des Bildpunkts in der Schreibweise des Skripts, etwa x̄ + ½, y. */
+/** Koordinaten des Bildpunkts in der Schreibweise des Skripts, etwa x̄ + ½, y. @param {Op} op */
 export function koordHTML(op) {
+  /** @param {Vec2} r @param {number} t */
   const zeile = (r, t) => {
     const v = r[0] !== 0 ? 'x' : 'y'; const c = r[0] !== 0 ? r[0] : r[1];
     const kern = c < 0 ? ov(v) : `<i>${v}</i>`;
@@ -452,8 +521,9 @@ export function koordHTML(op) {
   };
   return `${zeile(op.R[0], op.t[0])}, ${zeile(op.R[1], op.t[1])}`;
 }
+/** @param {string} v */
 const ov = (v) => `<i><span class="ov">${v}</span></i>`;
-/** Das Element einer Operation in Worten (nur Spiegelung, Gleitspiegelung mit halber Translation und Drehung um 180°). */
+/** Das Element einer Operation in Worten (nur Spiegelung, Gleitspiegelung mit halber Translation und Drehung um 180°). @param {Op} op */
 export function elementWort(op) {
   const a = art(op);
   if (a.art === 'dreh' && a.n === 2) return `die Drehung um 180° um den Punkt (${br(a.punkt[0])},&nbsp;${br(a.punkt[1])})`;
@@ -464,22 +534,27 @@ export function elementWort(op) {
   if (Math.abs(Math.abs(w) - 0.5) > 1e-9) return null;
   return `die Gleitspiegelung an der Linie ${linie} mit der Gleitkomponente ${a.richtung[0] === 0 ? '<i>b</i>' : '<i>a</i>'}/2`;
 }
-/** Drei falsche Bildkoordinaten: Verschiebung nur einfach statt doppelt, Gleitanteil vertauscht, andere Operation. */
+/** Drei falsche Bildkoordinaten: Verschiebung nur einfach statt doppelt, Gleitanteil vertauscht, andere Operation. @param {ElementLage} e @returns {Op[]} */
 export function koordAblenker(e) {
   const op = elementOp(e);
+  /** @type {Op[]} */
   const kand = [];
   if (e.art === '2') {
     kand.push({ R: ZWEI, t: [op.t[0] / 2, op.t[1] / 2] });
     kand.push({ R: MX, t: [...op.t] }, { R: MY, t: [...op.t] });
   } else {
     const senk = e.achse === 'x' ? 0 : 1; const entlang = 1 - senk;
+    /** @type {Vec2} */
     const halb = [...op.t]; halb[senk] /= 2; kand.push({ R: op.R, t: halb });
+    /** @type {Vec2} */
     const tausch = [...op.t]; tausch[entlang] = e.art === 'g' ? 0 : 0.5; kand.push({ R: op.R, t: tausch });
     kand.push({ R: ZWEI, t: [...op.t] });
-    const andere = [...op.t].reverse(); kand.push({ R: e.achse === 'x' ? MY : MX, t: andere });
+    /** @type {Vec2} */
+    const andere = [op.t[0], op.t[1]]; andere.reverse(); kand.push({ R: e.achse === 'x' ? MY : MX, t: andere });
   }
   // Reserve: alle Spiegelungen, Gleitspiegelungen und Drehungen mit Verschiebungen 0, ¼, ½
   for (const R of [op.R, MX, MY, ZWEI]) for (const t0 of [0, 0.25, 0.5]) for (const t1 of [0, 0.25, 0.5]) kand.push({ R, t: [t0, t1] });
+  /** @type {Op[]} */
   const out = [];
   for (const d of kand) {
     if (out.length === 3) break;
@@ -488,6 +563,7 @@ export function koordAblenker(e) {
   }
   return out;
 }
+/** @satisfies {Generator} */
 export const KOORDINATEN = {
   id: 'koordinaten', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => Object.keys(ELEMENTE_LAGE),
@@ -518,10 +594,13 @@ export const KOORDINATEN = {
 
 // ------------------------------------------------------------------ Gleitspiegellinien, die das Symbol nicht nennt (Kap. 4)
 // Borchardt-Ott S. 206; Skript Abschn. 4.5. Aus den Symmetrieelementen der App.
+/** @param {string} g */
 const linienArten = (g) => { const l = elemente(gruppe(g)).linien; return { m: l.some((x) => x.art === 'spiegel'), g: l.some((x) => x.art === 'gleit') }; };
 export const MIT_GLEIT = ALLE.filter((g) => !g.includes('g') && linienArten(g).g);
 export const OHNE_GLEIT = ALLE.filter((g) => !linienArten(g).g);
+/** @type {Record<string, string[]>} */
 const NAEHE = { cm: ['pm', 'p2mm', 'p1'], c2mm: ['p2mm', 'pm', 'p2'], p4mm: ['p4', 'p2mm', 'pm'], p3m1: ['p3', 'p6', 'pm'], p31m: ['p3', 'p6', 'p2mm'], p6mm: ['p6', 'p3', 'p2mm'] };
+/** @satisfies {Generator} */
 export const GLEIT_UNGENANNT = {
   id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => MIT_GLEIT,
@@ -543,8 +622,9 @@ export const GLEIT_UNGENANNT = {
 
 // ------------------------------------------------------------------ Kommt es auf die Reihenfolge an? (Kap. 4)
 // Borchardt-Ott S. 264 ff. (abelsche Gruppen). Aus punktoperationen.js.
+/** @type {PG[]} */
 const PG_ALLE = ['2mm', '4', '6', '3m', '4mm', '6mm'];
-/** Erstes Paar (A, B) mit A ∘ B ≠ B ∘ A oder null. */
+/** Erstes Paar (A, B) mit A ∘ B ≠ B ∘ A oder null. @param {PG} pg @returns {[number, number] | null} */
 export function nichtVertauschbar(pg) {
   const n = OPERATIONEN[pg].length;
   for (let a = 1; a < n; a++) for (let b = a + 1; b < n; b++) if (verknuepfe(pg, a, b) !== verknuepfe(pg, b, a)) return [a, b];
@@ -552,16 +632,20 @@ export function nichtVertauschbar(pg) {
 }
 const ABELSCH = PG_ALLE.filter((pg) => !nichtVertauschbar(pg));
 const NICHT_ABELSCH = PG_ALLE.filter((pg) => nichtVertauschbar(pg));
+/** @param {PG} pg nicht abelsch */
 const gegenbeispiel = (pg) => {
-  const o = OPERATIONEN[pg]; const [a, b] = nichtVertauschbar(pg);
+  const o = OPERATIONEN[pg]; const [a, b] = /** @type {[number, number]} */ (nichtVertauschbar(pg));
   return `${o[b].html} ∘ ${o[a].html} = ${o[verknuepfe(pg, b, a)].html}, aber ${o[a].html} ∘ ${o[b].html} = ${o[verknuepfe(pg, a, b)].html}`;
 };
+/** @param {string} pg */
 const grundAbelsch = (pg) => (pg === '2mm' ? 'jede Operation ist zu sich selbst invers, zum Beispiel <i>m</i><sub><i>a</i></sub> ∘ <i>m</i><sub><i>b</i></sub> = <i>m</i><sub><i>b</i></sub> ∘ <i>m</i><sub><i>a</i></sub> = 2' : 'Drehungen um denselben Punkt sind vertauschbar');
+/** @satisfies {Generator} */
 export const REIHENFOLGE = {
   id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => [...NICHT_ABELSCH.map((pg) => `ja:${pg}`), ...ABELSCH.map((pg) => `nein:${pg}`)],
   make(param) {
-    const [ja, pg] = param.split(':');
+    const [ja, pgText] = param.split(':');
+    const pg = /** @type {PG} */ (pgText); // aus params()
     const kommt = ja === 'ja';
     const ab = kommt ? ABELSCH : NICHT_ABELSCH;
     return {
@@ -581,4 +665,5 @@ export const REIHENFOLGE = {
   },
 };
 
+/** @type {Generator[]} */
 export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, UNTERGRUPPE, MUSTER, KOORDINATEN, GLEIT_UNGENANNT, REIHENFOLGE];

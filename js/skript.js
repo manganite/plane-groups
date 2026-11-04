@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Skript der App „Symmetrie in der Ebene“: zeichnet die Abbildungen mit dem Code der App.
 // Eine Abbildung der App ist durch ihre Link-Adresse beschrieben (data-app="#m=…"); daraus entsteht mit
 // zustand.js und zeichnung.js bzw. struktur.js genau die Tafel, die die App für diese Adresse zeigt
@@ -9,20 +8,26 @@
 import { appLink, inhaltsverzeichnis, querstriche } from '../lib/common/js/skript-kern.js';
 import { versionEintragen, offline } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
-import { startzustand, hashAnwenden } from './zustand.js';
+import { startzustand, hashAnwenden, grad } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, drehSymbol } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
 import { MOTIVE } from './motive.js';
 import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe } from './skizzen.js';
 
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Ansicht, Farben, Box } from './zeichnung.js' */
+/** Farben der Tafeln mit den Formfarben --fc0 … --fc5. @typedef {Farben & { fc: string[] }} SkriptFarben */
+
+/** @param {string} name */
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
+/** @returns {SkriptFarben} */
 const farben = () => ({
   paper: css('paper'), ink: css('ink'), muted: css('muted'), line: css('line'), accent: css('accent'), accent2: css('accent2'),
   upper: css('upper'), crystal: css('crystal'), dir: [css('dir1'), css('dir2'), css('dir3')],
   fc3: css('fc3'), fc4: css('fc4'), fc: [0, 1, 2, 3, 4, 5].map((i) => css(`fc${i}`)),
 });
 
-/** Zustand der App zu einer Link-Adresse. */
+/** Zustand der App zu einer Link-Adresse. @param {string} hash */
 function zustandVon(hash) {
   const z = startzustand();
   hashAnwenden(z, hash);
@@ -35,6 +40,7 @@ function zustandVon(hash) {
  * neben der Zelle winzig. Deshalb wachsen sie mit der Spaltenzahl der Abbildungsreihe
  * (data-gross setzt den Wert für eine Abbildung fest). Muster (Tafel B) sind dichter, dort
  * etwas weniger.
+ * @param {HTMLElement} fig @param {boolean} tafelB
  */
 function symbolGroesse(fig, tafelB) {
   if (fig.dataset.gross) return Number(fig.dataset.gross);
@@ -43,9 +49,10 @@ function symbolGroesse(fig, tafelB) {
   return tafelB ? 1 + (k - 1) * 0.5 : k;
 }
 
-/** Tafel A oder B der App zu ihrer Link-Adresse. */
+/** Tafel A oder B der App zu ihrer Link-Adresse (data-app). @param {HTMLElement} fig @param {Farben} f */
 function appTafel(fig, f) {
-  const z = zustandVon(fig.dataset.app);
+  const app = /** @type {string} */ (fig.dataset.app);
+  const z = zustandVon(app);
   const b = fig.dataset.tafel === 'b';
   if (z.modus === 'struktur') {
     const st = z.struktur;
@@ -53,12 +60,12 @@ function appTafel(fig, f) {
     return b ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
   // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
-  const k = /[#&]og=/.test(fig.dataset.app) ? 1 : symbolGroesse(fig, b);
+  const k = /[#&]og=/.test(app) ? 1 : symbolGroesse(fig, b);
   return b ? tafelB(z.gruppe, z, f, { k }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
 
 // ------------------------------------------------------------------ Skizzen
-/** Gitterpunkte im Bereich [lo, hi]² als Kreise. */
+/** Gitterpunkte im Bereich [lo, hi]² als Kreise. @param {Ansicht} A @param {number} lo @param {number} hi @param {Farben} f @param {number} [r] */
 function punkte(A, lo, hi, f, r = 4.2) {
   const out = [];
   for (let u = lo; u <= hi; u++) for (let v = lo; v <= hi; v++) {
@@ -68,7 +75,7 @@ function punkte(A, lo, hi, f, r = 4.2) {
   return out.join('');
 }
 
-/** Beschriftung neben der Mitte einer Strecke, um d Pixel senkrecht dazu versetzt. */
+/** Beschriftung neben der Mitte einer Strecke, um d Pixel senkrecht dazu versetzt. @param {Vec2} p @param {Vec2} q @param {number} d @returns {Vec2} */
 function seitlich(p, q, d) {
   const m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]; const v = [q[0] - p[0], q[1] - p[1]]; const l = Math.hypot(...v) || 1;
   return [m[0] - (d * v[1]) / l, m[1] + (d * v[0]) / l];
@@ -77,11 +84,12 @@ function seitlich(p, q, d) {
 /**
  * Gitter mit Gittervektoren a, b, Winkel γ und einer Gittertranslation t = 2a + b
  * (data-metrik="b/a,γ").
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function gitterSkizze(fig, f) {
   const [ba, gamma] = (fig.dataset.metrik || '1.25,105').split(',').map(Number);
-  const M = metrik({ ba, gamma });
-  const ecken = [[-1.3, -1.3], [3.3, -1.3], [-1.3, 2.6], [3.3, 2.6]].map((p) => kart(M, p));
+  const M = metrik({ ba, gamma: grad(gamma) });
+  const ecken = /** @type {Vec2[]} */ ([[-1.3, -1.3], [3.3, -1.3], [-1.3, 2.6], [3.3, 2.6]]).map((p) => kart(M, p));
   const A = ansicht(M, [Math.min(...ecken.map((c) => c[0])), Math.min(...ecken.map((c) => c[1])), Math.max(...ecken.map((c) => c[0])), Math.max(...ecken.map((c) => c[1]))], 520, 10);
   const o = A.zuBild([0, 0]); const pa = A.zuBild([1, 0]); const pb = A.zuBild([0, 1]); const pt2 = A.zuBild([2, 1]);
   const svg = [`<defs>${pfeilspitze('pa', f.accent)}${pfeilspitze('pt', f.accent2)}</defs>`, `<rect width="520" height="520" fill="${f.paper}"/>`,
@@ -92,6 +100,7 @@ function gitterSkizze(fig, f) {
   ];
   // Winkel γ zwischen a und b
   const r = 34; const wa = Math.atan2(pa[1] - o[1], pa[0] - o[0]); const wb = Math.atan2(pb[1] - o[1], pb[0] - o[0]);
+  /** @param {number} w @returns {Vec2} */
   const bogen = (w) => [o[0] + r * Math.cos(w), o[1] + r * Math.sin(w)];
   const s = bogen(wa); const e = bogen(wb); const mw = (wa + wb) / 2;
   svg.push(`<path d="M${f2(s[0])} ${f2(s[1])} A${r} ${r} 0 0 ${wb > wa ? 1 : 0} ${f2(e[0])} ${f2(e[1])}" fill="none" stroke="${f.muted}" stroke-width="1.4"/>`);
@@ -105,10 +114,12 @@ function gitterSkizze(fig, f) {
 /**
  * Mögliche Elementarzellen in einem Gitter: drei primitive (I–III) gleicher Fläche und eine
  * nichtprimitive (IV) mit doppelter Fläche.
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function zellenSkizze(fig, f) {
-  const M = metrik({ ba: 1.25, gamma: 105 });
-  const A = ansicht(M, [kart(M, [0, 0]), kart(M, [5, 5]), kart(M, [0, 5]), kart(M, [5, 0])].reduce((b, c) => [Math.min(b[0], c[0]), Math.min(b[1], c[1]), Math.max(b[2], c[0]), Math.max(b[3], c[1])], [Infinity, Infinity, -Infinity, -Infinity]), 520, 30);
+  const M = metrik({ ba: 1.25, gamma: grad(105) });
+  const A = ansicht(M, [kart(M, [0, 0]), kart(M, [5, 5]), kart(M, [0, 5]), kart(M, [5, 0])].reduce((b, c) => [Math.min(b[0], c[0]), Math.min(b[1], c[1]), Math.max(b[2], c[0]), Math.max(b[3], c[1])], /** @type {Box} */ ([Infinity, Infinity, -Infinity, -Infinity])), 520, 30);
+  /** @type {{ name: string, o: Vec2, a: Vec2, b: Vec2, farbe: string }[]} */
   const zellen = [
     { name: 'I', o: [0.0, 0.0], a: [1, 0], b: [0, 1], farbe: f.accent },
     { name: 'II', o: [0, 2], a: [1, 0], b: [1, 1], farbe: f.fc[1] },
@@ -117,6 +128,7 @@ function zellenSkizze(fig, f) {
   ];
   const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
   for (const z of zellen) {
+    /** @type {Vec2[]} */
     const e = [z.o, [z.o[0] + z.a[0], z.o[1] + z.a[1]], [z.o[0] + z.a[0] + z.b[0], z.o[1] + z.a[1] + z.b[1]], [z.o[0] + z.b[0], z.o[1] + z.b[1]]];
     const q = e.map((p) => A.zuBild(p));
     svg.push(`<polygon points="${q.map(pt).join(' ')}" fill="${z.farbe}" fill-opacity="0.16" stroke="${z.farbe}" stroke-width="2.4" stroke-linejoin="round"/>`);
@@ -131,15 +143,16 @@ function zellenSkizze(fig, f) {
 /**
  * Bruchkoordinaten: derselbe Punkt P = x a + y b in einem Gitter (data-metrik="b/a,γ"),
  * mit den Anteilen x a und y b (data-punkt="x,y").
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function koordSkizze(fig, f) {
   const [ba, gamma] = (fig.dataset.metrik || '1,90').split(',').map(Number);
   const [x, y] = (fig.dataset.punkt || '0.75,0.3333333').split(',').map(Number);
-  const M = metrik({ ba, gamma });
-  const ecken = [[-0.12, -0.12], [1.12, 1.12], [-0.12, 1.12], [1.12, -0.12]].map((p) => kart(M, p));
+  const M = metrik({ ba, gamma: grad(gamma) });
+  const ecken = /** @type {Vec2[]} */ ([[-0.12, -0.12], [1.12, 1.12], [-0.12, 1.12], [1.12, -0.12]]).map((p) => kart(M, p));
   const A = ansicht(M, [Math.min(...ecken.map((c) => c[0])), Math.min(...ecken.map((c) => c[1])), Math.max(...ecken.map((c) => c[0])), Math.max(...ecken.map((c) => c[1]))], 520, 30);
   const o = A.zuBild([0, 0]); const P = A.zuBild([x, y]); const X = A.zuBild([x, 0]);
-  const zelle = [[0, 0], [1, 0], [1, 1], [0, 1]].map((p) => pt(A.zuBild(p))).join(' ');
+  const zelle = /** @type {Vec2[]} */ ([[0, 0], [1, 0], [1, 1], [0, 1]]).map((p) => pt(A.zuBild(p))).join(' ');
   const svg = [`<defs>${pfeilspitze(`ka${fig.dataset.nr}`, f.accent)}${pfeilspitze(`kx${fig.dataset.nr}`, f.fc[1])}</defs>`,
     `<rect width="520" height="520" fill="${f.paper}"/>`,
     `<polygon points="${zelle}" fill="${f.crystal}" fill-opacity="0.35" stroke="${f.line}" stroke-width="1.4"/>`];
@@ -165,17 +178,19 @@ function koordSkizze(fig, f) {
 /**
  * Ein 5-zähliger Drehpunkt erzeugt aus einem Punkt ein regelmässiges Fünfeck; die parallelen
  * Strecken II–V und III–IV haben das Längenverhältnis 1,618 (nach Borchardt-Ott & Sowa Abb. 6.8a).
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function fuenfSkizze(fig, f) {
+  /** @type {Vec2} */
   const m = [260, 270]; const r = 175;
-  const p = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return [m[0] + r * Math.cos(w), m[1] + r * Math.sin(w)]; });
+  const p = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return /** @type {Vec2} */ ([m[0] + r * Math.cos(w), m[1] + r * Math.sin(w)]); });
   const namen = ['I', 'II', 'III', 'IV', 'V'];
   const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
   svg.push(`<polygon points="${p.map(pt).join(' ')}" fill="none" stroke="${f.line}" stroke-width="1.2"/>`);
   svg.push(linie(p[1], p[4], `stroke="${f.accent}" stroke-width="3"`));
   svg.push(linie(p[2], p[3], `stroke="${f.fc[1]}" stroke-width="3"`));
   // Drehpunkt in der Mitte (Fünfeck, gefüllt) und Pfeil der Drehung um 72°
-  const fz = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return [m[0] + 11 * Math.cos(w), m[1] + 11 * Math.sin(w)]; });
+  const fz = Array.from({ length: 5 }, (_, k) => { const w = ((-90 + 72 * k) * Math.PI) / 180; return /** @type {Vec2} */ ([m[0] + 11 * Math.cos(w), m[1] + 11 * Math.sin(w)]); });
   svg.push(`<polygon points="${fz.map(pt).join(' ')}" fill="${f.ink}"/>`);
   p.forEach((q, k) => {
     svg.push(`<circle cx="${f2(q[0])}" cy="${f2(q[1])}" r="7" fill="${f.ink}"/>`);
@@ -190,17 +205,19 @@ function fuenfSkizze(fig, f) {
 /**
  * Die Motive der App mit ihrer eigenen Symmetrie (Punktgruppe der Ebene), geordnet wie die
  * 10 Punktgruppen: 1, 2, m, 2mm, 3, 3m, 4, 4mm, 6, 6mm.
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function motiveSkizze(fig, f) {
   const liste = ['fahne', 'w2', 'dreieck', 'insel', 'w3', 'dreieck3', 'w4', 'quadrat', 'w6', 'sechseck'];
-  const M = metrik({ ba: 1, gamma: 90 }); // a nach unten, b nach rechts: Zeilen entlang a
+  const M = metrik({ ba: 1, gamma: grad(90) }); // a nach unten, b nach rechts: Zeilen entlang a
   const A = ansicht(M, [0, 0, 5, 2], 520, 6);
   const farbe = motivFarben(f)[0];
   const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`];
   liste.forEach((id, k) => {
+    /** @type {Vec2} */
     const p = [Math.floor(k / 5) + 0.42, (k % 5) + 0.5];
     const groesse = id === 'insel' ? 0.34 : 0.27;
-    svg.push(motivSVG({ motiv: id, farbe: 0, p, winkel: 0, groesse }, p, A, M, farbe, f.paper));
+    svg.push(motivSVG({ motiv: id, farbe: 0, p, winkel: grad(0), groesse }, p, A, M, farbe, f.paper));
     const t = A.zuBild([p[0] + 0.43, p[1]]);
     const sym = MOTIVE[id].symmetrie.replace(/m/g, '<tspan font-style="italic">m</tspan>');
     svg.push(text(t, sym, `font-family="Source Serif 4, serif" font-size="22" fill="${f.ink}" text-anchor="middle"`));
@@ -212,9 +229,11 @@ function motiveSkizze(fig, f) {
  * Fussspuren (Kap. 4, nach Hoffmann Abb. 4.7–4.9): auf einem Bein hüpfen
  * (Translation), mit beiden Beinen springen (Spiegellinie entlang der Laufrichtung), gehen
  * (Gleitspiegellinie). Laufrichtung nach rechts; der rechte Fuss liegt unten.
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function spurenSkizze(fig, f) {
   // Fuss mit Zehen nach +x; rechts: grosser Zeh innen (nach −y), links gespiegelt
+  /** @param {number} x @param {number} y @param {boolean} rechts */
   const fuss = (x, y, rechts) => {
     const s = rechts ? 1 : -1;
     const sohle = `M-16 0 C-16 ${-5.5 * s} -10 ${-6.5 * s} -4 ${-5 * s} C2 ${-4 * s} 7 ${-8 * s} 12 ${-6 * s} C15 ${-4.5 * s} 15 ${4 * s} 12 ${7 * s} C8 ${10 * s} 0 ${8 * s} -5 ${6 * s} C-11 ${5 * s} -16 ${5 * s} -16 0 Z`;
@@ -223,6 +242,7 @@ function spurenSkizze(fig, f) {
     return `<g transform="translate(${x} ${y})" fill="${f.ink}" opacity="0.85"><path d="${sohle}"/>${zehen}</g>`;
   };
   const x0 = 120; const t = 96; const n = 4;
+  /** @type {{ y: number, name: string, sym: string, fuesse: (i: number) => string[] }[]} */
   const zeilen = [
     { y: 70, name: 'auf einem Bein hüpfen', sym: 't', fuesse: (i) => [fuss(x0 + i * t, 70, true)] },
     { y: 190, name: 'mit beiden Beinen springen', sym: 'm', fuesse: (i) => [fuss(x0 + i * t, 172, false), fuss(x0 + i * t, 208, true)] },
@@ -237,6 +257,7 @@ function spurenSkizze(fig, f) {
     svg.push(text([28, z.y + 7], z.sym, `${SERIF} font-size="24" fill="${f.accent}"`));
   }
   // Translation t in der ersten Zeile, Gleitkomponente t/2 in der dritten
+  /** @param {number} y @param {number} x1 @param {number} x2 @param {string} label */
   const pfeil = (y, x1, x2, label) => linie([x1, y], [x2, y], `stroke="${f.accent}" stroke-width="1.8" marker-end="url(#sp-pf)"`)
     + text([(x1 + x2) / 2, y - 7], label, `${SERIF} font-size="18" fill="${f.accent}" text-anchor="middle"`);
   svg.push(pfeil(100, x0 - 15, x0 + t - 15, 't'));
@@ -250,18 +271,21 @@ function spurenSkizze(fig, f) {
  * gleich verformt (Translation); „p1“: das Muster daraus; „p2“: jede Kante für sich
  * punktsymmetrisch zu ihrer Mitte, Nachbarn um 180° um die Kantenmitten gedreht.
  * Koordinaten in Kachel-Einheiten, x nach rechts, y nach unten (wie das Bild).
+ * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function kachelSkizze(fig, f) {
   const v = fig.dataset.variante || 'p1';
   const N = 48;
   const t = Array.from({ length: N + 1 }, (_, i) => i / N);
+  /** @param {number} k @param {number} x */
   const sin = (k, x) => Math.sin(2 * Math.PI * k * x);
   // Kante von S nach E mit seitlicher Auslenkung h(t) (positiv: links der Laufrichtung im Bild)
+  /** @param {Vec2} S @param {Vec2} E @param {(u: number) => number} h @returns {Vec2[]} */
   const kante = (S, E, h) => t.map((u) => {
     const d = [E[0] - S[0], E[1] - S[1]]; const n = [d[1], -d[0]];
-    return [S[0] + u * d[0] + h(u) * n[0], S[1] + u * d[1] + h(u) * n[1]];
+    return /** @type {Vec2} */ ([S[0] + u * d[0] + h(u) * n[0], S[1] + u * d[1] + h(u) * n[1]]);
   });
-  let oben; let links; let rechts; let unten;
+  /** @type {Vec2[]} */ let oben; /** @type {Vec2[]} */ let links; /** @type {Vec2[]} */ let rechts; /** @type {Vec2[]} */ let unten;
   if (v === 'p2') {
     // jede Kante punktsymmetrisch zu ihrer Mitte: nur Anteile sin(2πkt)
     oben = kante([0, 0], [1, 0], (u) => 0.13 * sin(1, u) + 0.05 * sin(2, u));
@@ -271,12 +295,14 @@ function kachelSkizze(fig, f) {
   } else {
     oben = kante([0, 0], [1, 0], (u) => 0.2 * Math.sin(Math.PI * u) * Math.cos(Math.PI * u * 1.6));
     links = kante([0, 1], [0, 0], (u) => 0.16 * sin(1, u) + 0.07 * Math.sin(Math.PI * u));
-    rechts = links.map(([x, y]) => [x + 1, y]).reverse();
-    unten = oben.map(([x, y]) => [x, y + 1]).reverse();
+    rechts = links.map(([x, y]) => /** @type {Vec2} */ ([x + 1, y])).reverse();
+    unten = oben.map(([x, y]) => /** @type {Vec2} */ ([x, y + 1])).reverse();
   }
   const umriss = [...oben, ...rechts.slice(1), ...unten.slice(1), ...links.slice(1, -1)];
+  /** @type {Vec2} */
   const auge = [0.36, 0.4];
   // Kopien: [Abbildung, dunkel?]
+  /** @type {[(q: Vec2) => Vec2, boolean, Vec2][]} */
   const kopien = [];
   if (v === 'p2') {
     for (let i = -3; i <= 4; i++) for (let j = -3; j <= 4; j++) {
@@ -286,15 +312,19 @@ function kachelSkizze(fig, f) {
   } else for (let i = -2; i <= 3; i++) for (let j = -2; j <= 3; j++) kopien.push([(q) => [q[0] + i, q[1] + j], true, [i, j]]);
   const bau = v === 'p1-bau';
   const s = bau ? 250 : 140; const o = bau ? [135, 135] : [190, 190];
+  /** @param {Vec2} q @returns {Vec2} */
   const B = (q) => [o[0] + s * q[0], o[1] + s * q[1]];
+  /** @param {Vec2[]} pts */
   const pfad = (pts) => pts.map((q) => pt(B(q))).join(' ');
   const svg = [`<rect width="520" height="520" fill="${f.paper}"/>`, `<defs>${pfeilspitze('ka-pf', f.ink)}<clipPath id="ka-clip-${v}"><rect x="6" y="6" width="508" height="508" rx="6"/></clipPath></defs>`];
   if (bau) {
     svg.push(`<rect x="${o[0]}" y="${o[1]}" width="${s}" height="${s}" fill="none" stroke="${f.muted}" stroke-width="1.4" stroke-dasharray="6 5"/>`);
     svg.push(`<polygon points="${pfad(umriss)}" fill="${f.upper}" fill-opacity="0.16" stroke="none"/>`);
+    /** @type {[Vec2[], Vec2[], string][]} */
     const paare = [[oben, unten, f.ink], [links, rechts, f.accent]]; // nicht orange (Spiegelbild) oder grün (Blickrichtung)
     for (const [k1, k2, c] of paare) for (const k of [k1, k2]) svg.push(`<polyline points="${pfad(k)}" fill="none" stroke="${c}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`);
     // Translationen: links → rechts um b, oben → unten um a
+    /** @param {Vec2} p @param {Vec2} q @param {string} label @param {Vec2} lp */
     const pf = (p, q, label, lp) => linie(B(p), B(q), `stroke="${f.ink}" stroke-width="1.8" marker-end="url(#ka-pf)"`) + text(B(lp), label, `${SERIF} font-weight="600" font-size="22" fill="${f.ink}" text-anchor="middle"`);
     svg.push(pf([0.12, 0.62], [0.9, 0.62], 'b', [0.5, 0.58]));
     svg.push(pf([0.62, 0.12], [0.62, 0.9], 'a', [0.69, 0.53]));
@@ -311,23 +341,25 @@ function kachelSkizze(fig, f) {
   }
   if (v === 'p2') {
     // 2-zählige Drehpunkte auf allen Kantenmitten (die Ecken sind keine)
-    for (let i = -2; i <= 3; i++) for (let j = -2; j <= 3; j++) for (const q of [[i + 0.5, j], [i, j + 0.5]]) g.push(drehSymbol(2, B(q), f.ink, f.paper, 1.6, 1.5));
+    for (let i = -2; i <= 3; i++) for (let j = -2; j <= 3; j++) for (const q of /** @type {Vec2[]} */ ([[i + 0.5, j], [i, j + 0.5]])) g.push(drehSymbol(2, B(q), f.ink, f.paper, 1.6, 1.5));
   }
   g.push('</g>');
   svg.push(...g);
   return svg.join('');
 }
 
-const SKIZZEN = { kachel: kachelSkizze, dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(fig.dataset.pg, f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
+/** @type {Record<string, (fig: HTMLElement, f: SkriptFarben) => string>} */
+const SKIZZEN = { kachel: kachelSkizze, dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(/** @type {'2mm' | '4mm' | '6mm'} */ (fig.dataset.pg), f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
 
 function abbildungen() {
   const f = farben();
-  for (const fig of document.querySelectorAll('figure[data-kind]')) {
+  for (const fig of /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('figure[data-kind]'))) {
     if (fig.dataset.app) appLink(fig, 'index.html');
-    const art = fig.querySelector('.fig-art');
-    const inhalt = fig.dataset.kind === 'app' ? appTafel(fig, f) : SKIZZEN[fig.dataset.kind](fig, f);
+    const art = /** @type {HTMLElement} */ (fig.querySelector('.fig-art'));
+    const kind = /** @type {string} */ (fig.dataset.kind);
+    const inhalt = kind === 'app' ? appTafel(fig, f) : SKIZZEN[kind](fig, f);
     art.innerHTML = `<svg viewBox="${fig.dataset.viewbox || '0 0 520 520'}" role="img" aria-label="${fig.dataset.alt || 'Abbildung'}">${inhalt}</svg>`;
-    if (fig.dataset.kind === 'app' && fig.dataset.tafel !== 'b' && !fig.dataset.viewbox) zuschneiden(art.firstElementChild);
+    if (kind === 'app' && fig.dataset.tafel !== 'b' && !fig.dataset.viewbox) zuschneiden(/** @type {SVGSVGElement} */ (art.firstElementChild));
   }
 }
 
@@ -335,12 +367,14 @@ function abbildungen() {
  * Tafel A ist ein Quadrat von 520 px; eine rechteckige oder schiefe Zelle lässt oben und unten
  * viel leeren Rand. Das Skript schneidet das Bild deshalb auf den Inhalt zu (ohne den
  * Hintergrund), mit etwas Rand; der Hintergrund wird mitgezogen.
+ * @param {SVGSVGElement} svg
  */
 function zuschneiden(svg) {
-  const kinder = [...svg.children].slice(1);
+  const kinder = /** @type {SVGGraphicsElement[]} */ ([...svg.children].slice(1));
   if (!kinder.length || !svg.getBBox) return;
   let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
   for (const el of kinder) {
+    /** @type {DOMRect} */
     let b;
     try { b = el.getBBox(); } catch { continue; }
     if (!b.width && !b.height) continue;
