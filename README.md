@@ -192,8 +192,11 @@ Die App folgt [Semantic Versioning](https://semver.org/lang/de/); Änderungen st
 2. Nach dem Merge den Tag auf den neuesten Stand von `main` setzen:
    ```bash
    git fetch && git log --oneline -1 origin/main     # ist das der Release-PR?
-   git tag -a vX.Y.Z -m "vX.Y.Z" origin/main && git push origin vX.Y.Z
+   git -c user.email=6277652+manganite@users.noreply.github.com tag -a vX.Y.Z -m "vX.Y.Z" origin/main
+   git push origin vX.Y.Z
    ```
+
+   Die Noreply-Adresse ist nötig, weil GitHub sonst einen Tag mit privater E-Mail-Adresse ablehnt (GH007).
 
 Der Tag startet zwei Workflows: `release.yml` legt das GitHub-Release mit den Notizen aus dem Changelog und dem Skript als PDF an, `deploy.yml` prüft und veröffentlicht den Stand auf GitHub Pages.
 
