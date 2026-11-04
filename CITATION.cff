@@ -11,3 +11,17 @@ date-released: 2026-11-03
 license: MIT
 repository-code: "https://github.com/manganite/plane-groups"
 url: "https://manganite.github.io/plane-groups/"
+abstract: >-
+  Interaktive Lern-App für eine Einführung in die Kristallographie: Symmetrie
+  periodischer Muster in der Ebene, von Gitter und Elementarzelle bis zu den 17
+  Ebenengruppen mit Wyckoff-Lagen und asymmetrischer Einheit, dazu der Modus
+  „Gitter und Basis“, der die Ebenengruppe einer Struktur bestimmt. Mit Skript und
+  Übungsquiz; läuft im Browser, als Web-App und offline. Entstanden aus der
+  Vorlesung Kristallographie an der ETH Zürich.
+keywords:
+  - Kristallographie
+  - crystallography
+  - Ebenengruppen
+  - plane groups
+  - wallpaper groups
+  - Symmetrie

@@ -11,6 +11,8 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
 
 ### [Zur App: manganite.github.io/plane-groups](https://manganite.github.io/plane-groups/)
 
+![Symmetriegerüst und Muster der Ebenengruppe p4gm mit Objekt in allgemeiner Lage, daneben die Auswahl der 17 Ebenengruppen](docs/screenshot.png)
+
 ## Funktionen
 
 - **Modus „Ebenengruppen“:** Auswahl der 17 Ebenengruppen nach Kristallsystem.
@@ -35,28 +37,69 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
 - **Kenndaten** mit Schoenflies-Symbol und Signatur nach Conway.
 - **Kopieren und Speichern** je Tafel: Bild in die Zwischenablage, als SVG oder PNG.
 
-- **[Skript](https://manganite.github.io/plane-groups/skript.html)** mit sieben Kapiteln: Gitter, Elementarzelle und Basis; Symmetrie des Gitters; Gitter und Motiv; Gleitspiegelung und Verknüpfung; die 17 Ebenengruppen; Punktlagen; Tapeten, Ornamente und Kunst. Die Abbildungen zeichnet der Code der App, jede mit Link in die App; Vertiefungen sind gekennzeichnet. Auch als PDF.
-- **[Quiz](https://manganite.github.io/plane-groups/quiz.html)** zu allen Kapiteln in drei Stufen: handgeschriebene Fragen und Fragengeneratoren, Bilder aus dem Code der App.
+- **[Skript](https://manganite.github.io/plane-groups/skript.html)** mit sieben Kapiteln: Gitter, Elementarzelle und Basis; Symmetrie des Gitters; Gitter und Motiv; Gleitspiegelung und Verknüpfung; die 17 Ebenengruppen; Punktlagen; Tapeten, Ornamente und Kunst. Die Abbildungen zeichnet der Code der App, jede mit Link in die App; Vertiefungen sind gekennzeichnet. Auch als [PDF](https://manganite.github.io/plane-groups/skript.pdf) und als Anhang jedes Releases.
+- **[Quiz](https://manganite.github.io/plane-groups/quiz.html)** zu allen Kapiteln in drei Stufen (1 Grundlagen, 2 Anwendung, 3 Vertiefung; Stufe 3 bedeutet mehr Stoff, nicht unbedingt schwierigere Fragen): handgeschriebene Fragen und Fragengeneratoren, Bilder aus dem Code der App, sofortige Rückmeldung mit Link ins Skript und in die passende Ansicht der App. Standardmässig erscheinen nur fachlich geprüfte Fragen; „Auch ungeprüfte Fragen zeigen“ (oder `quiz.html?entwurf`) nimmt die Entwürfe dazu. Der Stand bleibt nur im Browser.
+
+## Nutzung
+
+### Im Browser
+
+Die App läuft in aktuellen Versionen von Safari, Chrome, Edge und Firefox: **https://manganite.github.io/plane-groups/**. Eine Installation ist nicht nötig. Einstellungen bleiben im Browser gespeichert; „Link kopieren“ erzeugt einen Link auf genau die aktuelle Ansicht, etwa für Folien.
+
+### Als Web-App auf dem Homescreen
+
+Die App lässt sich wie eine installierte App mit eigenem Symbol und ohne Browserleiste starten:
+
+- **iPad und iPhone (Safari):** App öffnen, auf das Teilen-Symbol tippen (Quadrat mit Pfeil nach oben), dann **„Zum Home-Bildschirm“** und **„Hinzufügen“**.
+- **Android (Chrome):** App öffnen, Menü **⋮** antippen, dann **„Zum Startbildschirm hinzufügen“** bzw. **„App installieren“**.
+- **Laptop (Chrome oder Edge):** App öffnen, in der Adressleiste auf das Symbol **„App installieren“** klicken (Chrome) bzw. Menü **…** → **Apps** → **„Diese Website als App installieren“** (Edge).
+
+### Offline
+
+Nach dem ersten Aufruf hält ein Service Worker alle Dateien vor; die App funktioniert dann auch ohne Netz, im Browser wie auf dem Homescreen. Erscheint eine neue Version, lädt die App sie beim nächsten Öffnen mit Netz und startet einmal neu; Einstellungen bleiben erhalten.
+
+### Lokal ausführen
+
+Die App ist eine statische Webseite ohne Build-Schritt und ohne Abhängigkeiten.
+
+1. Dateien holen: auf der [Release-Seite](https://github.com/manganite/plane-groups/releases/latest) unter „Assets“ **Source code (zip)** herunterladen und entpacken, oder
+   ```bash
+   git clone https://github.com/manganite/plane-groups.git
+   ```
+2. Im Ordner einen lokalen Webserver starten, zum Beispiel mit Python 3:
+   ```bash
+   cd plane-groups
+   python3 -m http.server 8000
+   ```
+   (unter Windows `py -m http.server 8000`)
+3. Im Browser **http://localhost:8000** öffnen.
+
+Ein Doppelklick auf `index.html` genügt nicht: Browser laden die JavaScript-Module der App nicht von `file://`-Adressen.
+
 
 ## Links auf Ansichten
 
-Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Geschrieben wird nur, was vom Startzustand abweicht. Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps der Familie) und bleiben stabil (Test `tests/zustand.test.mjs`):
+Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Geschrieben wird nur, was vom Startzustand abweicht; Schalter mit `1` (ein) und `0` (aus). Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps der Familie) und bleiben stabil (Test `tests/zustand.test.mjs`):
 
 | Schlüssel | Bedeutung | Werte (Startwert fett) |
 |---|---|---|
-| `m` | Modus | **`eg`** (Ebenengruppen) |
+| `m` | Modus | **`eg`** (Ebenengruppen), `struktur` (Gitter und Basis, Schlüssel unten) |
 | `g` | Ebenengruppe | Symbol wie in ITA, z. B. `p4gm`, `p31m`; **`p2mg`** |
 | `x`, `y` | Lage des Objekts in Bruchkoordinaten | Zahl oder Bruch (z. B. `1/3`; spezielle Lagen werden als Bruch geschrieben), **`0.12`**, **`0.31`** |
 | `el` | Symmetrieelemente | `0`, **`1`** |
 | `obj` | Objekt in allgemeiner Lage | `0`, **`1`** |
 | `ae` | asymmetrische Einheit | **`0`**, `1` |
 | `zellen` | Zellen im Symmetriegerüst | **`1`**, `2` (2 × 2) |
-| `form` | Form des Objekts | **`fahne`**, `komma` |
+| `form` | Form des Objekts | **`fahne`**, `komma` (Kreis mit Komma wie ITA), Ornamente `blatt`, `tropfen`, `ranke` |
+| `og` | Grösse des Objekts (Faktor) | 0.5–3, **1** |
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
 | `orbit` | Bilder rund um die Zelle (wie ITA) | **`0`**, `1` |
 | `fuell` | asymmetrische Einheit gefüllt und vervielfältigt | **`0`**, `1` |
 | `farb` | nach Blickrichtung färben | `0`, **`1`** |
 | `mel` | Symmetrieelemente im Muster | **`0`**, `1` |
+| `tap` | Muster als Tapete (ohne Zelle und Elemente, einfarbig) | **`0`**, `1` |
+| `zoom` | Vergrösserung des Musters | 0.5–3, **1** |
+| `lupe` | Lupe: Symmetriegerüst um das Objekt vergrössert | **`0`**, `1` |
 | `schritt` | Schritt für Schritt | **`0`** (aus), Operation `1` … *N* der Liste, *N* + 1 Gittertranslationen |
 | `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
 | `warum` | Werkzeug „Warum ist das da?“ | **`0`**, `1` |
@@ -77,20 +120,107 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `szelle` | konventionelle Zelle | `0`, **`1`** |
 | `sae` | asymmetrische Einheit | **`0`**, `1` |
 | `sbind` | Bindungen zwischen nächsten Nachbarn | `0`, **`1`** |
+| `zoom` | Vergrösserung des Musters | 0.5–3, **1** |
 
-## Lokal ausführen
 
-Statische Webseite ohne Build-Schritt: im Ordner `python3 -m http.server 8000` starten und **http://localhost:8000** öffnen.
+## Konventionen
+
+- Diagramme wie in International Tables for Crystallography, Vol. A (2006), Abschn. 2.2.6.1 und 2.2.6.4: *a* zeigt nach unten, *b* nach rechts, Ursprung oben links.
+- Symbole der Symmetrieelemente, Koordinaten (Querstrich statt Minus, Brüche), Symmetrieoperationen, Wyckoff-Lagen und Auslöschungen nach ITA Part 6. Gezeichnet werden auch die Gleitspiegellinien, die das Symbol nicht nennt.
+- Ebenengruppen in der Standardaufstellung der ITA; bestimmte Gruppen (Modus „Gitter und Basis“, „Symmetrie brechen“) mit konventioneller Zelle *a*′, *b*′ und Ursprung.
+- Kristallsysteme der Ebene: schiefwinklig, rechteckig, quadratisch, hexagonal (Begriff „rechteckig“ wie bei Hoffmann).
+- Dezimalkomma in Oberfläche und Skript, Dezimalpunkt in der Link-Adresse.
+- Eigene Festlegungen der App: Bereiche der Gitterregler (*b*/*a* 0,6–1,6, γ 95–125°, so dass keine höhere Symmetrie entsteht; beim Brechen 0,5–2 und 60–150°); Bilder des Objekts blau bei gleicher Händigkeit, orange als Spiegelbild; Namen der Operationen in den Punktgruppen (Spiegelungen nach der Normalen der Linie, Skript Abschn. 4.4).
 
 ## Entwicklung
 
-- Tests: `node --test tests/*.test.mjs`
-- Gemeinsame Dateien übernehmen: `node tools/common/sync.mjs ../crystallography-common` (von einem Release-Tag)
-- Skript als PDF: `node tools/skript-pdf.mjs` (braucht Playwright mit Chromium)
-- Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml`
-- Prüfung und Rückmeldungen zum Quiz: in der gemeinsamen Fragenliste der App-Familie (crystallography-common, `fragenliste/`). Diese App liefert ihre Fragen und Bilder über `tools/quiz-quelle.mjs`. Eine Frage wird erst „geprüft“, wenn sie dort mit „In Ordnung“ beurteilt ist.
-- Releases: Version in `js/version.js`, `sw.js`, `CITATION.cff` und `CHANGELOG.md`, dann Tag `vX.Y.Z` auf `main`. Die Live-Seite ändert sich nur mit einem Release-Tag.
+### Aufbau
+
+| Datei | Inhalt |
+|---|---|
+| `index.html`, `js/main.js` | Oberfläche und Steuerung der App: Zustand, Bedienelemente, Tafeln, Kenndaten |
+| `js/zustand.js` | Zustand und Link-Adresse (Schnittstelle, siehe oben) |
+| `js/ebenengruppen.js` | Die 17 Ebenengruppen nach ITA Part 6 (nur Angaben, die sich nicht berechnen lassen) |
+| `js/symmetrie.js` | Rechenkern: Operationen, Verknüpfung, Symmetrieelemente, Lagen, Auslöschungen |
+| `js/asymmetrie.js` | Asymmetrische Einheit aus den Bedingungen der ITA-Seite |
+| `js/zeichnung.js` | SVG-Zeichnungen: Symmetriegerüst (Tafel A) und Muster (Tafel B), ohne DOM |
+| `js/text.js`, `js/symbole.js` | Schreibweise der Kenndaten wie in ITA; Schoenflies-Symbole und Signaturen nach Conway |
+| `js/schritte.js`, `js/herkunft.js`, `js/warum.js` | „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Warum ist das da?“ |
+| `js/brechen.js` | „Symmetrie brechen“: verbleibende Untergruppe |
+| `js/punktoperationen.js` | Operationen der Punktgruppen der Ebene mit Namen wie im Skript |
+| `js/struktur.js`, `js/struktur-ui.js`, `js/bestimmung.js`, `js/motive.js`, `js/vorgaben.js` | Modus „Gitter und Basis“: Tafeln und Kenndaten, Bedienung, Bestimmung der Ebenengruppe, Motive, Vorgaben |
+| `js/verweise.js` | Links in die App „Stereographische Projektion“ (Punktgruppe einer Ebenengruppe) |
+| `js/hilfetexte.js` | Texte der Tooltips und ⓘ-Erklärungen |
+| `skript.html`, `js/skript.js`, `js/skizzen.js` | Skript; Abbildungen aus Link-Adressen der App, Skizzen für Skript und Quiz |
+| `quiz.html`, `js/quiz.js`, `js/quiz-kapitel.js` | Quiz: Ablauf aus `lib/common/`, Kapitel und Speicher dieser App |
+| `js/quiz-bank.js`, `js/quiz-gen.js`, `js/quiz-bild.js` | Handgeschriebene Fragen (mit Quelle und Prüfstatus), Generatoren für erzeugte Fragen, Bilder aus der App |
+| `tools/moodle-export.mjs`, `tools/skript-pdf.mjs` | Moodle-Export und PDF des Skripts |
+| `tools/quiz-quelle.mjs` | Fragen und Bilder für die gemeinsame Fragenliste der App-Familie (crystallography-common, `fragenliste/`) |
+| `js/version.js`, `sw.js` | Versionsnummer, Service Worker für den Offline-Betrieb |
+| `manifest.webmanifest`, `icons/` | Favicon und Homescreen-Icons |
+| `lib/common/`, `tools/common/` | Gemeinsame Grundlage aus [crystallography-common](https://github.com/manganite/crystallography-common) als Kopie mit fester Version (`lib/common/MANIFEST.json`): Stile, Schriften, Hilfen, Quiz, Skript-Bausteine, Formatierung, Werkzeuge. Nicht von Hand ändern. |
+| `tests/` | Automatische Tests (Node, ohne Abhängigkeiten) |
+| `docs/` | Konzept der App (`konzept-2d-app.md`), Bilder für README und GitHub |
+
+### Gemeinsame Grundlage
+
+Die App gehört zu einer Familie von Lern-Apps mit gleichem Aussehen, gleicher Bedienung und gleich aufgebautem Skript und Quiz. Was sich teilen lässt, liegt in [crystallography-common](https://github.com/manganite/crystallography-common), dort steht auch der [Leitfaden](https://github.com/manganite/crystallography-common/blob/main/LEITFADEN.md). Eine neue Version übernimmt man von einem Release-Tag:
+
+```bash
+node tools/common/sync.mjs ../crystallography-common
+```
+
+`tests/common.test.mjs` prüft, dass die Kopie dem Manifest entspricht. Änderungen an gemeinsamen Dateien gehören nach crystallography-common, nicht in die Kopie.
+
+### Tests
+
+```bash
+node --test tests/*.test.mjs
+```
+
+Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Symmetrie brechen“, „Selbst zeichnen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopie der gemeinsamen Dateien und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit der PDF-Fassung des Skripts.
+
+- Skript als PDF: `node tools/skript-pdf.mjs [Ausgabedatei]` (braucht Playwright mit Chromium)
+- Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml` (mit `--entwurf` auch die ungeprüften Fragen)
+- Prüfung und Rückmeldungen zum Quiz: in der gemeinsamen Fragenliste der App-Familie (crystallography-common, `fragenliste/`). Eine Frage wird erst „geprüft“, wenn sie dort fachlich freigegeben ist.
+
+### Versionen und Releases
+
+Die App folgt [Semantic Versioning](https://semver.org/lang/de/); Änderungen stehen im [CHANGELOG](CHANGELOG.md). Jede Änderung geht über einen Branch und einen Pull Request nach `main` (`main` ist geschützt; die CI muss grün sein). Die Live-Seite ändert sich nur mit einem Release:
+
+1. Release-PR: Version in `js/version.js`, `sw.js` und `CITATION.cff` (mit `date-released`) erhöhen; in `CHANGELOG.md` die Einträge unter `## [Unreleased]` unter eine neue Überschrift `## [x.y.z] - JJJJ-MM-TT` verschieben und die Links am Ende ergänzen.
+2. Nach dem Merge den Tag auf den neuesten Stand von `main` setzen:
+   ```bash
+   git fetch && git log --oneline -1 origin/main     # ist das der Release-PR?
+   git -c user.email=6277652+manganite@users.noreply.github.com tag -a vX.Y.Z -m "vX.Y.Z" origin/main
+   git push origin vX.Y.Z
+   ```
+
+   Die Noreply-Adresse ist nötig, weil GitHub sonst einen Tag mit privater E-Mail-Adresse ablehnt (GH007).
+
+Der Tag startet zwei Workflows: `release.yml` legt das GitHub-Release mit den Notizen aus dem Changelog und dem Skript als PDF an, `deploy.yml` prüft und veröffentlicht den Stand auf GitHub Pages.
+
+## Grundlagen und Quellen
+
+- International Tables for Crystallography, Vol. A, 5. Aufl., hrsg. von Th. Hahn, Springer, Dordrecht 2006, Abschn. 2.2 und Part 6: Diagramme, Symbole, Symmetrieoperationen, Wyckoff-Lagen, asymmetrische Einheit, Auslöschungen; Grundlage der Daten und Tests.
+- W. Borchardt-Ott, H. Sowa: *Kristallographie. Eine Einführung für Studierende der Naturwissenschaften*, Springer, Berlin 2018, [doi:10.1007/978-3-662-56816-3](https://doi.org/10.1007/978-3-662-56816-3): Begriffe (Gitter, Basis, Elementarzelle, Ebenengruppen, Punktlagen).
+- F. Hoffmann: *Faszination Kristalle und Symmetrie. Einführung in die Kristallographie*, Springer Fachmedien, Wiesbaden 2016, [doi:10.1007/978-3-658-09581-9](https://doi.org/10.1007/978-3-658-09581-9): Muster in Alltag und Kunst, Mauerwerk, Parkettierungen, Netzebenen.
+- J. H. Conway, H. Burgiel, C. Goodman-Strauss: *The Symmetries of Things*: Signaturen (Orbifold-Notation), Farbsymmetrie.
+
+Die Quellen je Kapitel stehen im Skript.
+
+## Entstehung
+
+Fachautor ist Thomas Lottermoser (ETH Zürich). Code, Skript und Quiz sind mit Hilfe von [Claude Code](https://claude.com/claude-code), einem KI-Werkzeug von Anthropic, entstanden. Fachliche Aussagen stützen sich auf die genannten Quellen und sind, wo möglich, in Tests nachgerechnet. Skript und Quiz gibt der Autor fachlich frei; Quizfragen erscheinen erst nach dieser Freigabe.
+
+## Rückmeldungen
+
+Fehler, fachliche Hinweise zu Skript und Quiz und Vorschläge bitte als [Issue](https://github.com/manganite/plane-groups/issues/new/choose). Sicherheitslücken nicht öffentlich melden, sondern wie in [SECURITY.md](SECURITY.md) beschrieben.
+
+## Zitieren
+
+Wer die App in Lehre oder Publikationen nennt, findet die Angaben in [`CITATION.cff`](CITATION.cff) bzw. auf GitHub unter „Cite this repository“.
 
 ## Lizenz
 
-Code: [MIT](LICENSE). Schriften: SIL Open Font License 1.1 (siehe `lib/common/fonts/`).
+Die App steht unter der MIT-Lizenz ([`LICENSE`](LICENSE)). Die Schriften in `lib/common/fonts/` stehen unter der SIL Open Font License 1.1 (Lizenztexte liegen bei).
