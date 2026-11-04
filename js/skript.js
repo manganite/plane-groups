@@ -8,8 +8,8 @@
 import { appLink, inhaltsverzeichnis, querstriche } from '../lib/common/js/skript-kern.js';
 import { versionEintragen, offline } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
-import { startzustand, hashAnwenden, grad } from './zustand.js';
-import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, drehSymbol } from './zeichnung.js';
+import { startzustand, hashAnwenden } from './zustand.js';
+import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, drehSymbol, grad } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
 import { MOTIVE } from './motive.js';
 import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe } from './skizzen.js';

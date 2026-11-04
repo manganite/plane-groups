@@ -17,6 +17,10 @@ import { bedingungen, bereich } from './asymmetrie.js';
 /** @import { Element as OpElement } from './herkunft.js' */
 /** @import { Zustand } from './zustand.js' */
 /** Gitter: b/a und Winkel γ zwischen a und b. @typedef {{ ba: number, gamma: Grad }} Gitter */
+/** Winkel in Grad (Kennzeichnung für die Typprüfung, gibt w unverändert zurück). @param {number} w */
+export const grad = (w) => /** @type {Grad} */ (w);
+/** Gitter mit γ in Grad. @param {number} ba @param {number} gamma @returns {Gitter} */
+export const gitter = (ba, gamma) => ({ ba, gamma: grad(gamma) });
 /**
  * Farben aus base.css (Werte der Variablen; dir: die drei Blickrichtungen).
  * fc: die Formfarben --fc0 … --fc5 (nur wo gebraucht, z. B. im Skript).

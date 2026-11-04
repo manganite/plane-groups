@@ -3,10 +3,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
-import { gebrochen, tafelA, tafelB } from '../js/zeichnung.js';
+import { gebrochen, tafelA, tafelB, gitter } from '../js/zeichnung.js';
 import { brechAnalyse, brechHTML } from '../js/brechen.js';
 import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
-import { gitter } from '../js/vorgaben.js';
 import { da } from './hilfen.mjs';
 
 /** @import { Farben } from '../js/zeichnung.js' */

@@ -1,7 +1,8 @@
 // Link-Adressen: Format ist eine Schnittstelle (README), hin und zurück stabil.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, grad, introGesehen } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, introGesehen } from '../js/zustand.js';
+import { grad } from '../js/zeichnung.js';
 
 /** @import { Zustand } from '../js/zustand.js' */
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';

@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import { kopien, vereinfachen, tafelA, tafelB, radieren, metrik } from '../js/zeichnung.js';
-import { startzustand, hashVon, hashAnwenden, grad } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden } from '../js/zustand.js';
+import { grad } from '../js/zeichnung.js';
 import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */

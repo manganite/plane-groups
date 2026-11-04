@@ -6,8 +6,9 @@
 import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
+import { grad } from './zeichnung.js';
 
-/** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { System } from './ebenengruppen.js' */
@@ -51,8 +52,6 @@ import { MOTIVE } from './motive.js';
 /** Schalter des Zustands (Wahrheitswerte in der Adresse). @typedef {'elemente' | 'objekt' | 'ae' | 'farben' | 'einrasten' | 'musterElemente' | 'orbit' | 'aeFuell' | 'tapete' | 'lupe'} Schalterfeld */
 /** @typedef {'elemente' | 'zelle' | 'ae' | 'bindungen'} StrukturSchalterfeld */
 
-/** Winkel in Grad (Kennzeichnung für die Typprüfung, gibt w unverändert zurück). @param {number} w */
-export const grad = (w) => /** @type {Grad} */ (w);
 
 /** Formen des Objekts (wie FORMEN in zeichnung.js; tests/zustand.test.mjs prüft die Übereinstimmung). */
 export const FORMEN = ['fahne', 'komma', 'blatt', 'tropfen', 'ranke'];
@@ -240,9 +239,9 @@ export function liesBasis(text) {
 /** Objekt mit beliebigen Feldern (Eingabe von aussen, Felder noch ungeprüft). @param {unknown} x @returns {x is Record<string, unknown>} */
 export const istObjekt = (x) => typeof x === 'object' && x !== null;
 /** Endliche Zahl im Bereich. @param {unknown} v @param {[number, number]} bereich @returns {v is number} */
-const imBereich = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+export const imBereich = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
 /** Paar endlicher Zahlen. @param {unknown} p @returns {p is Vec2} */
-const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
+export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
 
 /**
  * Struktur aus dem Speicher des Browsers prüfen: gültige Kopie oder null. Anders als liesBasis()

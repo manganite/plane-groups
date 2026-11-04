@@ -15,7 +15,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 ### Geändert
 
 - **Gemeinsame Grundlage** auf crystallography-common v0.4.0: Regeln für ESLint (`tools/common/eslint-basis.mjs`). Am Verhalten ändert sich nichts.
-- **Typen bereinigt** (#62): Gespeicherte Daten aus dem Browser sind in `pruefeStruktur` (`zustand.js`) und beim Laden der freien Metrik (`main.js`) als `unknown` getypt, die Typprüfung verlangt damit jeden Prüfschritt. Am Verhalten ändert sich nichts, mit einer Ausnahme: Ein gespeichertes Motiv, das kein Text ist (z. B. die Liste `["atom"]`), wurde bisher als Name gelesen und wird jetzt verworfen (mit 200 000 zufälligen Eingaben gegen die alte Fassung verglichen, sonst gleich). In den Tests gemeinsamer Helfer `tests/hilfen.mjs` statt fünf Kopien von `da`, `gitter` aus `vorgaben.js` statt einer Kopie; Fragen und Nachrechnungen im Quiz-Test mit festen Typen statt `any`.
+- **Typen bereinigt** (#62): Gespeicherte Daten aus dem Browser sind in `pruefeStruktur` (`zustand.js`) und beim Laden der freien Metrik (`main.js`) als `unknown` getypt, die Typprüfung verlangt damit jeden Prüfschritt; die Prüfhilfen (`istObjekt`, `imBereich`, `zahlenpaar`) stehen einmal in `zustand.js`. `grad` und `gitter` stehen einmal in `zeichnung.js` statt doppelt in `zustand.js` und `vorgaben.js`. In den Tests gemeinsamer Helfer `tests/hilfen.mjs` statt fünf Kopien von `da`; Fragen und Nachrechnungen im Quiz-Test mit festen Typen statt `any`. Am Verhalten ändert sich sonst nichts (mit 200 000 zufälligen Eingaben gegen die alte Fassung verglichen); zu gespeicherten Motiven siehe „Behoben“.
 - **Befunde von ESLint behoben**, ohne Änderung am Verhalten: ungenutzter Import in `main.js`; in `skizzen.js` setzt `teil()` Buchstaben kursiv ohne Steuerzeichen als Marken (gleiches Ergebnis).
 - **Gemeinsame Grundlage** auf crystallography-common v0.3.1: im Typ der Quizfragen ist `pruefung.art` freiwillig; dazu Leitfaden-Änderungen. In `js/quiz-gen.js` entfällt dadurch die Umwandlung `pruefungOhneArt`. Am Verhalten ändert sich nichts (Moodle-Export bytegleich).
 - **Erste Schritte je Modus:** Die Karte erscheint beim ersten Aufruf eines Modus, nicht für den Modus, in dem ein Link die App öffnet; Schliessen mit × oder „?“ gilt als gesehen. Wer die bisherigen geschlossen hat, sieht nur die neuen. „Alle Einstellungen zurücksetzen“ zeigt sie wieder. Am Telefon zeigt jeder Schritt die Tafel, in der er wirkt.
@@ -23,6 +23,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 - **README:** Abschnitt „Links auf Ansichten“ heisst „Link-Adressen“, wie im Leitfaden der App-Familie; Typprüfung unter „Tests“.
 - **Typprüfung, Schritt 2:** auch Oberfläche, Skript, Quiz, Werkzeuge und Tests strikt typisiert; kein `// @ts-nocheck` mehr, `tests/` in der Typprüfung. Typen des Zustands (`Zustand` in `zustand.js`), der Erklärungen und gezeigten Elemente (`zeichnung.js`), der Fragen (`Frage`, `Generator` aus der gemeinsamen Grundlage). Am Verhalten ändert sich nichts: Tests, Moodle-Export bytegleich, Text des Skript-PDF gleich, App (98 Link-Adressen, Bedienung beider Modi, Telefon, dunkel), Skript und Quiz im Browser vorher und nachher gleich.
 - **`js/symmetrie.js`:** `elemente()` baut die Linien aus einem Zwischentyp, statt Felder nachträglich zu setzen und mit `delete` zu entfernen (Ergebnis gleich, auch die Reihenfolge der Felder).
+
+### Behoben
+
+- **Gespeicherter Zustand, Modus „Gitter und Basis“** (#62): Ein Motiv, das kein Text ist, wurde nicht sicher verworfen. Ein Objekt ohne Umwandlung in Text (z. B. `{"toString":1}`) liess die Prüfung abbrechen, und die gespeicherte Struktur blieb ungeprüft stehen; eine Liste wie `["atom"]` wurde als Name gelesen. Solche Einträge fallen jetzt weg.
 
 ## [1.0.1] - 2026-11-04
 

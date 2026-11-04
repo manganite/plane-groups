@@ -6,17 +6,16 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
+import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt, imBereich, zahlenpaar } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
 import { schoenfliesHTML, CONWAY } from './symbole.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
-import { grad } from './zustand.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter, Farben, Ansicht, Box, Erklaerung, SichtbarerDrehpunkt, SichtbareLinie } from './zeichnung.js' */
@@ -54,15 +53,11 @@ try {
     if (!Number.isInteger(z.schritt) || z.schritt < 0) z.schritt = 0;
     gespeichertPruefen(z);
     // gezeichnete Striche: nur Folgen von Zahlenpaaren, höchstens STRICH_GRENZE Punkte
-    /** @param {unknown} q */
-    const zahlenpaar = (q) => Array.isArray(q) && q.length === 2 && q.every(Number.isFinite);
     z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
     while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
     z.zeichnen = z.zeichnen === true;
     z.radieren = z.radieren === true && !z.zeichnen;
     z.brechen = z.brechen === true;
-    /** @param {number} v @param {[number, number]} bereich */
-    const imBereich = (v, [lo, hi]) => Number.isFinite(v) && v >= lo && v <= hi;
     if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = 1;
     if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = 1;
     /** @type {unknown} aus dem Speicher, unbekannten Aufbaus */

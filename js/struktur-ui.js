@@ -4,9 +4,9 @@
 
 import { VORGABEN } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
-import { metrik, drehSymbol, elementeImBereich } from './zeichnung.js';
+import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1 } from './symmetrie.js';
-import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, grad } from './zustand.js';
+import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { dezimal } from './text.js';
 

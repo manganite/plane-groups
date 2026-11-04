@@ -22,15 +22,16 @@ import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Frage, Generator, Kapitel, Stufe } from '../lib/common/js/quiz-core.js' */
-/**
- * Angaben für die Nachrechnung in js/quiz-bank.js, je Art verschieden aufgebaut (Frage.pruefung lässt den Aufbau offen).
- * @typedef {{ art: 'zaehligkeit' | 'freiheitsgrade', gruppe: string, punkt: [number, number] } | { art: 'struktur' | 'preis' }
- *   | { art: 'flaeche', a: number, b: number, gamma: number, wert: string }
- *   | { art: 'abstand', a: number, gamma: number, p1: [number, number], p2: [number, number], wert: string }} Nachrechnung
- */
 /** @import { Linie } from '../js/symmetrie.js' */
 /** @import { Bestimmung } from '../js/bestimmung.js' */
 /** @import { Vorgabe } from '../js/vorgaben.js' */
+/**
+ * Angaben für die Nachrechnung, wie sie in js/quiz-bank.js stehen (Frage.pruefung lässt den Aufbau offen; die
+ * Typangabe prüft tsc nicht, dass sie passt, das tut der Test selbst).
+ * @typedef {{ art: 'zaehligkeit' | 'freiheitsgrade', gruppe: string, punkt: Vec2 } | { art: 'struktur' | 'preis' }
+ *   | { art: 'flaeche', a: number, b: number, gamma: number, wert: string }
+ *   | { art: 'abstand', a: number, gamma: number, p1: Vec2, p2: Vec2, wert: string }} Nachrechnung
+ */
 
 const skript = readFileSync(new URL('../skript.html', import.meta.url), 'utf8');
 const K = '#336699';
