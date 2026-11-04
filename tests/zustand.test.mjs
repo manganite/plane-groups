@@ -1,7 +1,7 @@
 // Link-Adressen: Format ist eine Schnittstelle (README), hin und zurück stabil.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen } from '../js/zustand.js';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 
 test('Startzustand: nur Modus, Gruppe und Lage des Objekts in der Adresse', () => {
@@ -102,4 +102,18 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
   const st = startzustand(); hashAnwenden(st, '#m=struktur&v=graphen&zoom=1.6');
   assert.equal(st.modus, 'struktur'); assert.equal(st.zoomB, 1.6);
   assert.match(hashVon(st), /^#m=struktur&v=graphen&zoom=1\.6$/);
+});
+
+test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {
+  const s = startzustand();
+  const z = gespeichertPruefen({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 });
+  assert.equal(z.aufbau, s.aufbau);
+  assert.equal(z.erkl, null);
+  assert.equal(z.form, s.form);
+  assert.equal(z.zellen, 1);
+  assert.equal(z.elemente, s.elemente);
+  assert.equal(z.warum, false);
+  // gültige Werte bleiben
+  const g = gespeichertPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'ranke', zellen: 2, elemente: false });
+  assert.deepEqual([g.aufbau, g.erkl, g.form, g.zellen, g.elemente], [3, 'm;1/4,0;0,1', 'ranke', 2, false]);
 });

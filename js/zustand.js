@@ -120,6 +120,25 @@ export function koordText(v) {
 }
 const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
 
+/** Schlüssel eines erklärten Elements (herkunft.js), z. B. „4;1/2,1/2“ oder „m;1/4,0;0,1“. */
+export const ERKL_MUSTER = /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/;
+
+/**
+ * Felder eines im Browser gespeicherten Zustands so prüfen wie die Link-Adresse: Der Speicher ist
+ * Eingabe von aussen, und einige Felder gehen in HTML ein (z. B. aufbau in die Legende).
+ * Ungültiges fällt auf den Startwert zurück. Die übrigen Felder prüft main.js beim Laden.
+ */
+export function gespeichertPruefen(z) {
+  const s = startzustand();
+  for (const [, f] of SCHALTER) if (typeof z[f] !== 'boolean') z[f] = s[f];
+  if (typeof z.warum !== 'boolean') z.warum = s.warum;
+  if (!FORMEN.includes(z.form)) z.form = s.form;
+  if (z.zellen !== 2) z.zellen = s.zellen;
+  if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
+  if (!Number.isInteger(z.aufbau) || z.aufbau < 0 || z.aufbau > 20) z.aufbau = s.aufbau;
+  return z;
+}
+
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
 const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete'], ['lupe', 'lupe']];
 
@@ -256,7 +275,7 @@ export function hashAnwenden(z, hash) {
   if (FORMEN.includes(q.get('form'))) z.form = q.get('form');
   if (q.has('warum')) z.warum = an(q.get('warum'));
   const erkl = q.get('erkl');
-  if (erkl && /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/.test(erkl)) z.erkl = erkl;
+  if (erkl && ERKL_MUSTER.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
   if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
   const schritt = zahl(q.get('schritt'), 0, 25);
