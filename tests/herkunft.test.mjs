@@ -8,17 +8,12 @@ import { elementeImBereich, aufbauElemente, erklaerungsDaten, metrik, tafelA } f
 import { erklaerungHTML, regel, vektorText } from '../js/warum.js';
 import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
 import { liesOp, translation } from '../js/symmetrie.js';
+import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Op } from '../js/symmetrie.js' */
 /** @import { Ebenengruppe } from '../js/ebenengruppen.js' */
 /** @import { Farben } from '../js/zeichnung.js' */
-
-/**
- * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
- * @template T @param {T} x @returns {NonNullable<T>}
- */
-const da = (x) => /** @type {NonNullable<T>} */ (x);
 
 const ALLE = EBENENGRUPPEN.map((d) => d.symbol);
 /** @param {Op} a @param {Op} b */

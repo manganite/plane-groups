@@ -18,12 +18,20 @@ import { startzustand, hashAnwenden } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { strukturSymmetrie } from '../js/struktur.js';
 import { moodleXML } from '../tools/moodle-export.mjs';
+import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Frage, Generator, Kapitel, Stufe } from '../lib/common/js/quiz-core.js' */
 /** @import { Linie } from '../js/symmetrie.js' */
 /** @import { Bestimmung } from '../js/bestimmung.js' */
 /** @import { Vorgabe } from '../js/vorgaben.js' */
+/**
+ * Angaben für die Nachrechnung, wie sie in js/quiz-bank.js stehen (Frage.pruefung lässt den Aufbau offen; die
+ * Typangabe prüft tsc nicht, dass sie passt, das tut der Test selbst).
+ * @typedef {{ art: 'zaehligkeit' | 'freiheitsgrade', gruppe: string, punkt: Vec2 } | { art: 'struktur' | 'preis' }
+ *   | { art: 'flaeche', a: number, b: number, gamma: number, wert: string }
+ *   | { art: 'abstand', a: number, gamma: number, p1: Vec2, p2: Vec2, wert: string }} Nachrechnung
+ */
 
 const skript = readFileSync(new URL('../skript.html', import.meta.url), 'utf8');
 const K = '#336699';
@@ -66,35 +74,41 @@ const alleErzeugten = () => GENERATOREN.flatMap((g) => g.stufen.flatMap((s) => g
 
 /**
  * Gemeinsame Prüfungen für handgeschriebene und erzeugte Fragen.
- * @param {any} q Frage; die Prüfung liest auch Felder, die fehlen dürften (deshalb ohne festen Typ)
+ * @param {Omit<Frage, 'status'>} q Frage (erzeugte ohne Status); freiwillige Felder wie lernziel prüft der Test selbst
  */
 function pruefeFrage(q) {
   assert.ok(TYPEN.includes(q.typ), q.id);
-  for (const f of ['frage', 'lernziel', 'erklaerung', 'skript', 'quelle']) assert.ok(typeof q[f] === 'string' && q[f].length > 2, `${q.id}: ${f}`);
+  for (const f of /** @type {const} */ (['frage', 'lernziel', 'erklaerung', 'skript', 'quelle'])) {
+    const v = q[f];
+    assert.ok(typeof v === 'string' && v.length > 2, `${q.id}: ${f}`);
+  }
   assert.ok(q.antworten.length >= 3 && q.antworten.length <= 6, `${q.id}: ${q.antworten.length} Antworten`);
   assert.equal(q.typ.startsWith('bild-'), !!q.bild, `${q.id}: Bild genau bei „bild-text“ und „bild-bild“`);
   assert.ok(q.richtig.length >= 1 && q.richtig.every((/** @type {number} */ i) => Number.isInteger(i) && i >= 0 && i < q.antworten.length), q.id);
   if (q.typ === 'mehrfach') assert.ok(q.richtig.length < q.antworten.length, `${q.id}: nicht alle richtig`);
   else assert.equal(q.richtig.length, 1, `${q.id}: genau eine richtige Antwort`);
-  const keys = q.antworten.map((/** @type {any} */ a) => (typeof a === 'string' ? text(a) : a.app));
+  const keys = q.antworten.map((a) => (typeof a === 'string' ? text(a) : a.app));
   assert.equal(new Set(keys).size, keys.length, `${q.id}: doppelte Antwort`);
-  assert.equal(q.hinweise.length, q.antworten.length, q.id);
-  q.hinweise.forEach((/** @type {string | null} */ h, /** @type {number} */ i) => {
+  const hinweise = q.hinweise;
+  assert.ok(hinweise, `${q.id}: Hinweise fehlen`);
+  assert.equal(hinweise.length, q.antworten.length, q.id);
+  hinweise.forEach((h, i) => {
     if (q.richtig.includes(i)) assert.equal(h, null, `${q.id}: Hinweis bei richtiger Antwort ${i}`);
     else assert.ok(typeof h === 'string' && h.length > 10, `${q.id}: Hinweis zu Antwort ${i} fehlt`);
   });
   // Lernziel wörtlich im Kapitel; Stufe 3 genau bei Lernzielen der Vertiefung
   const z = ziele(q.kapitel);
-  const lz = text(q.lernziel);
+  const lz = text(da(q.lernziel)); // oben geprüft
   assert.ok(z.grund.includes(lz) || z.vert.includes(lz), `${q.id}: Lernziel „${lz}“ nicht in Kap. ${q.kapitel}`);
   assert.equal(z.vert.includes(lz), q.stufe === 3, `${q.id}: Stufe ${q.stufe} passt nicht zum Lernziel`);
   // Anker im Kapitel; Stufe 1 und 2 nicht auf einen Vertiefungsabschnitt
-  const a = abschnitt(q.skript);
+  const a = abschnitt(da(q.skript)); // oben geprüft
   assert.ok(a, `${q.id}: Anker #${q.skript} fehlt`);
   assert.equal(a.kapitel, q.kapitel, `${q.id}: #${q.skript} liegt in Kap. ${a.kapitel}`);
   if (q.stufe < 3) assert.ok(!a.vertiefung, `${q.id}: Stufe ${q.stufe} verweist auf eine Vertiefung`);
   // Bilder und App-Links: gültige Adressen, Bilder aus dem Code der App
-  for (const h of [q.bild, q.app].filter(Boolean)) {
+  for (const h of [q.bild, q.app]) {
+    if (!h) continue;
     const { hash, skizze, k } = zerlege(h);
     if (skizze !== undefined) { assert.ok(h === q.bild && istSkizze(skizze), `${q.id}: keine Skizze ${h}`); continue; }
     assert.ok(hashAnwenden(startzustand(), hash), `${q.id}: kein gültiger Link ${h}`);
@@ -154,7 +168,7 @@ test('Erzeugte Fragen: richtige Antworten aus den Daten der App', () => {
   for (const p of LAGE.stufen.flatMap((s) => LAGE.params(s))) {
     const [symbol, b] = p.split(':');
     const q = LAGE.make(p);
-    assert.equal(/** @type {any} */ (q.pruefung).buchstabe, b, p);
+    assert.equal(q.pruefung?.buchstabe, b, p);
     const z = startzustand(); hashAnwenden(z, zerlege(/** @type {string} */ (q.bild)).hash);
     const l = lage(gruppe(symbol), z.punkt);
     const w = /** @type {import('../js/ebenengruppen.js').Wyckoff} */ (ebenengruppe(symbol).wyckoff.find((x) => x.b === b));
@@ -349,8 +363,7 @@ test('Fragen: nachgerechnete Antworten (Zähligkeit, Freiheitsgrade, Gruppe eine
   const zahl = (s) => s.replace('.', ',');
   let n = 0;
   for (const q of BANK.filter((x) => x.pruefung)) {
-    /** @type {any} Angaben je Art der Prüfung, verschieden aufgebaut */
-    const p = q.pruefung;
+    const p = /** @type {Nachrechnung} */ (q.pruefung);
     n += 1;
     if (p.art === 'zaehligkeit' || p.art === 'freiheitsgrade') {
       const l = lage(gruppe(p.gruppe), p.punkt);
@@ -373,7 +386,7 @@ test('Fragen: nachgerechnete Antworten (Zähligkeit, Freiheitsgrade, Gruppe eine
       assert.ok(richtigText(q).includes(p.wert), q.id);
     } else if (p.art === 'preis') {
       q.antworten.forEach((a, i) => assert.equal(Math.abs(preis(text(/** @type {string} */ (a))) - 2) > 1e-9, q.richtig.includes(i), `${q.id}: ${text(/** @type {string} */ (a))}`));
-    } else assert.fail(`${q.id}: unbekannte Prüfung ${p.art}`);
+    } else assert.fail(`${q.id}: unbekannte Prüfung ${q.pruefung?.art}`);
   }
   assert.ok(n >= 10);
 });

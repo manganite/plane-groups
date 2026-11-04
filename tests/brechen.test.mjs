@@ -3,21 +3,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
-import { gebrochen, tafelA, tafelB } from '../js/zeichnung.js';
+import { gebrochen, tafelA, tafelB, gitter } from '../js/zeichnung.js';
 import { brechAnalyse, brechHTML } from '../js/brechen.js';
-import { startzustand, hashVon, hashAnwenden, GITTER_START, grad } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
+import { da } from './hilfen.mjs';
 
-/** @import { Gitter, Farben } from '../js/zeichnung.js' */
+/** @import { Farben } from '../js/zeichnung.js' */
 /** @import { Zustand } from '../js/zustand.js' */
-
-/**
- * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
- * @template T @param {T} x @returns {NonNullable<T>}
- */
-const da = (x) => /** @type {NonNullable<T>} */ (x);
-
-/** Gitter mit γ in Grad. @param {number} ba @param {number} gamma @returns {Gitter} */
-const gitter = (ba, gamma) => ({ ba, gamma: grad(gamma) });
 
 /** @type {Farben} */
 const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };

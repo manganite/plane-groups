@@ -1,7 +1,8 @@
 // Link-Adressen: Format ist eine Schnittstelle (README), hin und zurück stabil.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, grad, introGesehen } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, introGesehen } from '../js/zustand.js';
+import { grad } from '../js/zeichnung.js';
 
 /** @import { Zustand } from '../js/zustand.js' */
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
@@ -111,7 +112,7 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
 test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {
   const s = startzustand();
   // absichtlich falsche Arten, wie sie im Speicher des Browsers stehen könnten
-  const z = gespeichertPruefen(/** @type {any} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 }));
+  const z = gespeichertPruefen(/** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 })));
   assert.equal(z.aufbau, s.aufbau);
   assert.equal(z.erkl, null);
   assert.equal(z.form, s.form);

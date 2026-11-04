@@ -7,7 +7,7 @@ import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTa
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur } from '../js/zustand.js';
 import { metrik, kart } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
-import { grad } from '../js/zustand.js';
+import { grad } from '../js/zeichnung.js';
 
 /** @import { Vec2, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Bestimmung } from '../js/bestimmung.js' */

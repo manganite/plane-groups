@@ -6,8 +6,9 @@
 import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
+import { grad } from './zeichnung.js';
 
-/** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { System } from './ebenengruppen.js' */
@@ -51,8 +52,6 @@ import { MOTIVE } from './motive.js';
 /** Schalter des Zustands (Wahrheitswerte in der Adresse). @typedef {'elemente' | 'objekt' | 'ae' | 'farben' | 'einrasten' | 'musterElemente' | 'orbit' | 'aeFuell' | 'tapete' | 'lupe'} Schalterfeld */
 /** @typedef {'elemente' | 'zelle' | 'ae' | 'bindungen'} StrukturSchalterfeld */
 
-/** Winkel in Grad (Kennzeichnung für die Typprüfung, gibt w unverändert zurück). @param {number} w */
-export const grad = (w) => /** @type {Grad} */ (w);
 
 /** Formen des Objekts (wie FORMEN in zeichnung.js; tests/zustand.test.mjs prüft die Übereinstimmung). */
 export const FORMEN = ['fahne', 'komma', 'blatt', 'tropfen', 'ranke'];
@@ -237,23 +236,37 @@ export function liesBasis(text) {
   return out;
 }
 
+/** Objekt mit beliebigen Feldern (Eingabe von aussen, Felder noch ungeprüft). @param {unknown} x @returns {x is Record<string, unknown>} */
+export const istObjekt = (x) => typeof x === 'object' && x !== null;
+/** Endliche Zahl im Bereich. @param {unknown} v @param {[number, number]} bereich @returns {v is number} */
+export const imBereich = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+/** Paar endlicher Zahlen. @param {unknown} p @returns {p is Vec2} */
+export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
+
 /**
  * Struktur aus dem Speicher des Browsers prüfen: gültige Kopie oder null. Anders als liesBasis()
  * bleiben die Zahlen unverändert (keine Rundung).
- * @param {any} st Eingabe aus dem Speicher des Browsers, unbekannten Aufbaus
+ * @param {unknown} st Eingabe aus dem Speicher des Browsers, unbekannten Aufbaus
  * @returns {StrukturZustand | null}
  */
 export function pruefeStruktur(st) {
-  if (!st || typeof st !== 'object' || !Array.isArray(st.basis)) return null;
-  /** @param {unknown} v @param {[number, number]} bereich */
-  const im = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
-  if (!im(st.ba, STRUKTUR_BEREICH.ba) || !im(st.gamma, STRUKTUR_BEREICH.gamma)) return null;
-  const basis = st.basis.filter((/** @type {any} */ e) => e && Object.hasOwn(MOTIVE, e.motiv) && Array.isArray(e.p) && e.p.length === 2 && e.p.every(Number.isFinite)
-    && [0, 1, 2, 3].includes(e.farbe ?? 0) && Number.isFinite(e.winkel ?? 0) && (e.groesse === undefined || im(e.groesse, STRUKTUR_BEREICH.groesse)))
-    .slice(0, BASIS_GRENZE)
-    .map((/** @type {any} */ e) => ({ motiv: e.motiv, farbe: e.farbe ?? 0, p: [...e.p], winkel: e.winkel ?? 0, ...(e.groesse === undefined ? {} : { groesse: e.groesse }) }));
+  if (!istObjekt(st) || !Array.isArray(st.basis)) return null;
+  const { ba, gamma } = st;
+  if (!imBereich(ba, STRUKTUR_BEREICH.ba) || !imBereich(gamma, STRUKTUR_BEREICH.gamma)) return null;
+  /** @type {Basiseintrag[]} */
+  const basis = [];
+  for (const e of /** @type {unknown[]} */ (st.basis)) {
+    if (basis.length >= BASIS_GRENZE) break;
+    if (!istObjekt(e)) continue;
+    const { motiv, p, groesse } = e, farbe = e.farbe ?? 0, winkel = e.winkel ?? 0;
+    if (typeof motiv !== 'string' || !Object.hasOwn(MOTIVE, motiv) || !zahlenpaar(p)) continue;
+    if (typeof farbe !== 'number' || ![0, 1, 2, 3].includes(farbe) || typeof winkel !== 'number' || !Number.isFinite(winkel)) continue;
+    if (groesse !== undefined && !imBereich(groesse, STRUKTUR_BEREICH.groesse)) continue;
+    basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(winkel), ...(groesse === undefined ? {} : { groesse }) });
+  }
+  const { vorgabe } = st;
   return {
-    vorgabe: VORGABEN.some((v) => v.id === st.vorgabe) ? st.vorgabe : STRUKTUR_START, ba: st.ba, gamma: st.gamma, basis,
+    vorgabe: typeof vorgabe === 'string' && VORGABEN.some((v) => v.id === vorgabe) ? vorgabe : STRUKTUR_START, ba, gamma: grad(gamma), basis,
     elemente: st.elemente !== false, zelle: st.zelle !== false, ae: st.ae === true, bindungen: st.bindungen !== false,
   };
 }

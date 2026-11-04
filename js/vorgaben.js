@@ -6,9 +6,9 @@
 // Gitter wie im Modus „Ebenengruppen“: a nach unten, b nach rechts (metrik() in zeichnung.js).
 // Winkel der Motive im Bild, im Uhrzeigersinn ab der Richtung von b.
 
-import { metrik, kart, bruchVon } from './zeichnung.js';
+import { metrik, kart, bruchVon, grad, gitter } from './zeichnung.js';
 
-/** @import { Vec2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Vec2, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /**
@@ -16,10 +16,6 @@ import { metrik, kart, bruchVon } from './zeichnung.js';
  * @typedef {{ id: string, gruppe: string, name: string, gitter: Gitter, basis: Basiseintrag[], erwartet: string }} Vorgabe
  */
 
-/** Winkel in Grad (Kennzeichnung für die Typprüfung). @param {number} w */
-const grad = (w) => /** @type {Grad} */ (w);
-/** @param {number} ba @param {number} gamma @returns {Gitter} */
-const gitter = (ba, gamma) => ({ ba, gamma: grad(gamma) });
 
 const Q = gitter(1, 90);
 const H = gitter(1, 120);

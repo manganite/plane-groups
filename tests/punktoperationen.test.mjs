@@ -7,17 +7,12 @@ import { UNTERGRUPPE } from '../js/quiz-gen.js';
 import { startzustand } from '../js/zustand.js';
 import { metrik, kart } from '../js/zeichnung.js';
 import { gruppe, elemente } from '../js/symmetrie.js';
+import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { PG, Punktoperation } from '../js/punktoperationen.js' */
 /** @import { System } from '../js/ebenengruppen.js' */
 /** @import { Generator } from '../lib/common/js/quiz-core.js' */
-
-/**
- * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
- * @template T @param {T} x @returns {NonNullable<T>}
- */
-const da = (x) => /** @type {NonNullable<T>} */ (x);
 
 /** @param {number} x */
 const mod180 = (x) => ((x % 180) + 180) % 180;
