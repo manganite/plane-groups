@@ -6,6 +6,13 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Hinzugefügt
+
+- **README** nach der gemeinsamen Gliederung der App-Familie: Bildschirmfoto, Nutzung (Browser, Homescreen, offline, lokal), Konventionen, Aufbau, Tests, Releases, Quellen, Rückmeldungen, Zitieren. Die Tabelle der Link-Adressen ist vollständig (`zoom`, `og`, `tap`, `lupe`, Ornamente bei `form`, Modus `struktur`).
+- **`SECURITY.md`** und Vorlagen für Issues (Fehler, fachlicher Hinweis zu Skript oder Quiz, Vorschlag), wie in allen Repositories der Familie.
+- **`CITATION.cff`:** Kurzfassung und Stichwörter.
+- **`docs/screenshot.png`** (README) und **`docs/social-preview.png`** (Vorschaubild für geteilte Links).
+
 ## [1.0.0] - 2026-11-03
 
 Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“, Skript mit sieben Kapiteln und Übungsquiz, für die Vorlesung zu den Ebenengruppen.

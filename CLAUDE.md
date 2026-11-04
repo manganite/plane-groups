@@ -78,8 +78,6 @@ für diese App gilt.
 
 ## Fallstricke
 
-- **README-Tabelle der Link-Adressen unvollständig** (Issue #34): es fehlen `zoom`, `og`, `tap`, `lupe`; bei `form`
-  fehlen `blatt`, `tropfen`, `ranke`.
 - **Lokale Tests mit HTML-Fragmenten** laufen im Quirks-Modus; Fehler wie `<table>` in `<p>` zeigen sich
   erst im Standards-Modus.
 - **Ornamente** (z. B. „Blatt“) haben keine eigene Symmetrie (chiral; `ORNAMENTE` in `js/zeichnung.js`).
