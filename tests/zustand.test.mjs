@@ -1,7 +1,7 @@
 // Link-Adressen: Format ist eine Schnittstelle (README), hin und zurück stabil.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, introGesehen } from '../js/zustand.js';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 
 test('Startzustand: nur Modus, Gruppe und Lage des Objekts in der Adresse', () => {
@@ -116,4 +116,12 @@ test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie i
   // gültige Werte bleiben
   const g = gespeichertPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'ranke', zellen: 2, elemente: false });
   assert.deepEqual([g.aufbau, g.erkl, g.form, g.zellen, g.elemente], [3, 'm;1/4,0;0,1', 'ranke', 2, false]);
+});
+
+test('Erste Schritte: gespeicherte Modi lesen, alter Wert „1“ gilt als „eg“', () => {
+  assert.deepEqual([...introGesehen(null)], []);
+  assert.deepEqual([...introGesehen('')], []);
+  assert.deepEqual([...introGesehen('1')], ['eg']);
+  assert.deepEqual([...introGesehen('struktur')], ['struktur']);
+  assert.deepEqual([...introGesehen('struktur,eg')].sort(), ['eg', 'struktur']);
 });

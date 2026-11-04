@@ -62,6 +62,12 @@ export function wieVorgabe(st) {
   });
 }
 
+/**
+ * Gesehene Erste Schritte aus dem gespeicherten Wert von `ebenen-intro`: Modi, durch Komma getrennt.
+ * Bis v1.0.1 hiess „1“: die damals einzigen Erste Schritte (Modus „Ebenengruppen“) sind gesehen.
+ */
+export const introGesehen = (wert) => new Set(String(wert ?? '').split(',').filter(Boolean).map((m) => (m === '1' ? 'eg' : m)));
+
 /** Startzustand. */
 export function startzustand() {
   return {
