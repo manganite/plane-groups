@@ -290,6 +290,21 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     });
   }
 
+  /**
+   * Vorgabe laden wie über die Auswahl, Anzeigen behalten, ein Motiv wählen (Erste Schritte). Anders als
+   * die Auswahl bleibt das Symbol davor stehen, damit die Kenndaten die Änderung nennen.
+   * @param {string} id Vorgabe @param {number | null} [k] Index des gewählten Motivs
+   */
+  function vorgabeZeigen(id, k = null) {
+    const alt = st();
+    z.modus = 'struktur';
+    z.struktur = { ...strukturStart(id), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
+    werkzeug = 'verschieben';
+    auswahl = k;
+  }
+  /** Werkzeug über der Struktur setzen. @param {'verschieben' | 'hinzufuegen'} w */
+  function werkzeugSetzen(w) { werkzeug = w; if (w === 'hinzufuegen') auswahl = null; }
+
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). @param {Farben} f @param {string} tafel */
   function bild(f, tafel) {
     const s = st();
@@ -297,5 +312,5 @@ export function strukturUI({ z, $, farben, aktualisieren, svgPunkt, coarse }) {
     return strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, null, ansicht).svg;
   }
 
-  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up };
+  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up, vorgabeZeigen, werkzeugSetzen };
 }

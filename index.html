@@ -126,10 +126,16 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
   <aside class="side" aria-label="Bedienung">
     <section class="card intro" id="intro" aria-labelledby="intro-title" hidden>
       <div class="intro-head"><h2 id="intro-title">Erste Schritte</h2><button class="intro-x" id="intro-close" type="button" aria-label="Erste Schritte schliessen">×</button></div>
-      <ol class="steps">
+      <ol class="steps nur-eg">
         <li><b>Ebenengruppe wählen.</b> Links das Symmetriegerüst einer Elementarzelle, rechts das Muster. <button class="linkbtn" type="button" data-step="1">p4gm wählen</button></li>
         <li><b>Fähnchen ziehen.</b> Alle Bilder folgen. Auf einer Spiegellinie oder einem Drehpunkt rastet es ein: spezielle Lage. <button class="linkbtn" type="button" data-step="2">auf eine Spiegellinie setzen</button></li>
         <li><b>Asymmetrische Einheit zeigen.</b> Aus ihr erzeugen die Operationen das ganze Muster. <button class="linkbtn" type="button" data-step="3">einblenden</button></li>
+      </ol>
+      <ol class="steps nur-struktur">
+        <li><b>Struktur ansehen.</b> Links Gitter und Basis: zwei Dreiecke in einer rechteckigen Zelle, rechts das Muster. Die App bestimmt daraus die Ebenengruppe, hier <i>pm</i> (unten), und zeichnet konventionelle Zelle und Symmetrieelemente ein. <button class="linkbtn" type="button" data-step="s1">Dreiecksbeispiel laden</button></li>
+        <li><b>Basis ändern.</b> Das Dreieck im Zentrum bekommt die Farbe des Eckdreiecks (Dreieck wählen, dann Farbe unter „Basis“). Es ist jetzt eine verschobene Kopie: Die Zelle ist zentriert, <i>cm</i>. <button class="linkbtn" type="button" data-step="s2">Farbe angleichen</button></li>
+        <li><b>Motiv drehen.</b> Dreht man dieses Dreieck um 180°, entstehen Drehpunkte und Gleitspiegellinien quer zu den Spiegellinien, die man nicht hineingesteckt hat: <i>p</i>2<i>mg</i>. Der Ursprung der konventionellen Zelle wandert auf einen Drehpunkt. <button class="linkbtn" type="button" data-step="s3">um 180° drehen</button></li>
+        <li><b>Selbst bauen.</b> Mit „Hinzufügen“ über der Struktur neue Motive setzen, mit „Wählen und ziehen“ verschieben; unter „Gitter“ Achsenverhältnis und Winkel ändern. Die App bestimmt die Symmetrie jedes Mal neu. <button class="linkbtn" type="button" data-step="s4">„Hinzufügen“ wählen</button></li>
       </ol>
       <p class="intro-foot"><span class="only-fine">Tooltips erklären jedes Bedienelement.</span><span class="only-coarse">Das ⓘ neben den Überschriften erklärt die Bedienelemente.</span></p>
     </section>

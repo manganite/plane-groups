@@ -9,7 +9,7 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, itaOperationen, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
@@ -765,9 +765,12 @@ function zeigerEinrichten() {
 
 // ------------------------------------------------------------------ Ablauf
 let geplant = false;
+/** Erste Schritte des aktiven Modus zeigen, wenn er neu ist (gesetzt in init). */
+let introAbgleichen = () => {};
 function aktualisieren() {
   bedienungAbgleichen();
   sUI.abgleichen();
+  introAbgleichen();
   if (geplant) return;
   geplant = true;
   requestAnimationFrame(() => {
@@ -917,26 +920,56 @@ function init() {
   $('aufbau-vor').addEventListener('click', () => { z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, z.aufbau + 1); aktualisieren(); });
   zeigerEinrichten();
   // Telefon: eine Tafel oben, Umschalter
-  elemente('.figswitch button').forEach((b) => b.addEventListener('click', () => {
-    document.body.dataset.fig = b.dataset.fig;
-    elemente('.figswitch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.fig === b.dataset.fig)));
-  }));
-  // Erste Schritte: beim ersten Besuch, wegklickbar, über „?“ wieder; nicht bei Aufruf über einen Link
+  /** @param {string} fig */
+  const tafelZeigen = (fig) => {
+    document.body.dataset.fig = fig;
+    elemente('.figswitch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.fig === fig)));
+  };
+  elemente('.figswitch button').forEach((b) => b.addEventListener('click', () => tafelZeigen(b.dataset.fig ?? 'a')));
+  // Erste Schritte je Modus: beim ersten Aufruf eines Modus, wegklickbar (× oder „?“), über „?“ wieder; nicht
+  // für den Modus, in dem ein Link die App öffnet (für die Sitzung, nicht gespeichert). Gespeichert: die
+  // gesehenen Modi (introGesehen in zustand.js).
   const INTRO = 'ebenen-intro';
-  let gesehen = false;
-  try { gesehen = localStorage.getItem(INTRO) === '1'; } catch { /* ohne Speicher weiter */ }
+  /** @type {Set<string>} */
+  let gesehen = new Set();
+  try { gesehen = introGesehen(localStorage.getItem(INTRO)); } catch { /* ohne Speicher weiter */ }
+  /** @type {Set<string>} */
+  const ueberLink = new Set(location.hash.length > 1 ? [z.modus] : []);
   /** @param {boolean} an */
   const intro = (an) => { $('intro').hidden = !an; $('help-open').setAttribute('aria-expanded', String(an)); };
-  intro(!gesehen && !location.hash);
-  $('intro-close').addEventListener('click', () => { intro(false); try { localStorage.setItem(INTRO, '1'); } catch { /* ohne Speicher weiter */ } });
-  $('help-open').addEventListener('click', () => intro(Boolean($('intro').hidden)));
-  /** @param {number} n @param {() => void} f */
+  const introZu = () => {
+    intro(false);
+    gesehen.add(z.modus);
+    try { localStorage.setItem(INTRO, [...gesehen].join(',')); } catch { /* ohne Speicher weiter */ }
+  };
+  /** @type {string | null} */
+  let introModus = location.hash.length > 1 ? z.modus : null;
+  introAbgleichen = () => {
+    if (z.modus === introModus) return;
+    introModus = z.modus;
+    intro(!gesehen.has(z.modus) && !ueberLink.has(z.modus));
+    elemente('.steps li.done').forEach((li) => li.classList.remove('done'));
+  };
+  $('intro-close').addEventListener('click', introZu);
+  $('help-open').addEventListener('click', () => { if ($('intro').hidden) intro(true); else introZu(); });
+  $('reset-alles').addEventListener('click', () => {
+    gesehen.clear(); ueberLink.clear(); introModus = null;
+    try { localStorage.removeItem(INTRO); } catch { /* ohne Speicher weiter */ }
+    introAbgleichen();
+  });
+  // Jeder Schritt zeigt am Telefon die Tafel, in der er wirkt (Symmetriegerüst bzw. Struktur)
+  /** @param {number | string} n @param {() => void} f */
   const schritt = (n, f) => element(`[data-step="${n}"]`).addEventListener('click', () => {
-    f(); /** @type {HTMLElement} */ (element(`[data-step="${n}"]`).closest('li')).classList.add('done'); aktualisieren();
+    f(); tafelZeigen('a'); /** @type {HTMLElement} */ (element(`[data-step="${n}"]`).closest('li')).classList.add('done'); aktualisieren();
   });
   schritt(1, () => { z.gruppe = 'p4gm'; z.objekt = true; });
   schritt(2, () => { z.objekt = true; const w = ebenengruppe(z.gruppe).wyckoff.find((x) => /m/.test(x.sym) && x.koord[0].includes('x')); if (w) wyckoffSetzen(w.b); });
   schritt(3, () => { z.ae = true; });
+  // Gitter und Basis: Dreiecksbeispiel pm → cm → p2mg (Konzept 3.2), das Dreieck im Zentrum gewählt
+  schritt('s1', () => { sUI.vorgabeZeigen('dreieck1'); Object.assign(z.struktur, { elemente: true, zelle: true }); });
+  schritt('s2', () => sUI.vorgabeZeigen('dreieck2', 1));
+  schritt('s3', () => sUI.vorgabeZeigen('dreieck3', 1));
+  schritt('s4', () => sUI.werkzeugSetzen('hinzufuegen'));
   $('copy-link').addEventListener('click', () => {
     const url = location.origin + location.pathname + location.search + hashVon(z);
     navigator.clipboard?.writeText(url);
