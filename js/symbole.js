@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Weitere Schreibweisen neben den Hermann-Mauguin-Symbolen der International Tables.
 //
 // Schoenflies: nur für die Punktgruppen. Die 10 Punktgruppen der Ebene entsprechen den 10 polaren
@@ -14,7 +13,7 @@
 // den Hermann-Mauguin-Symbolen prüft tests/symbole.test.mjs aus den Wyckoff-Lagen und dem
 // „Magic Theorem“ (Gesamtpreis 2).
 
-/** Schoenflies-Symbol je Punktgruppe der Ebene, als [Buchstabe, Index]. */
+/** Schoenflies-Symbol je Punktgruppe der Ebene, als [Buchstabe, Index]. @type {Record<string, [string, string]>} */
 export const SCHOENFLIES = {
   1: ['C', '1'], 2: ['C', '2'], m: ['C', 's'], '2mm': ['C', '2v'],
   4: ['C', '4'], '4mm': ['C', '4v'], 3: ['C', '3'], '3m': ['C', '3v'], 6: ['C', '6'], '6mm': ['C', '6v'],
@@ -27,7 +26,7 @@ export const schoenfliesHTML = (pg) => {
   return `<i>${b}</i><sub>${i}</sub>`;
 };
 
-/** Signatur nach Conway je Ebenengruppe (Schreibweise wie Conway, Tab. 3.2). */
+/** Signatur nach Conway je Ebenengruppe (Schreibweise wie Conway, Tab. 3.2). @type {Record<string, string>} */
 export const CONWAY = {
   p1: 'o', p2: '2222', pm: '**', pg: '××', cm: '*×',
   p2mm: '*2222', p2mg: '22*', p2gg: '22×', c2mm: '2*22',
@@ -35,7 +34,7 @@ export const CONWAY = {
   p3: '333', p3m1: '*333', p31m: '3*3', p6: '632', p6mm: '*632',
 };
 
-/** Signatur in Bestandteile zerlegt: wonders, gyrations (vor dem ersten *), Kaleidoskope mit Ecken, miracles. */
+/** Signatur in Bestandteile zerlegt: wonders, gyrations (vor dem ersten *), Kaleidoskope mit Ecken, miracles. @param {string} sig */
 export function zerlege(sig) {
   const wonders = (sig.match(/o/g) || []).length;
   const miracles = (sig.match(/×/g) || []).length;
@@ -46,7 +45,7 @@ export function zerlege(sig) {
   return { wonders, gyrations, kaleidoskope, miracles };
 }
 
-/** Preis einer Signatur nach Conway, Tab. 3.1 (S. 29): o 2, * und × je 1, Drehpunkt n (n−1)/n, Ecke n (n−1)/(2n). */
+/** Preis einer Signatur nach Conway, Tab. 3.1 (S. 29): o 2, * und × je 1, Drehpunkt n (n−1)/n, Ecke n (n−1)/(2n). @param {string} sig */
 export function preis(sig) {
   const z = zerlege(sig);
   return 2 * z.wonders + z.miracles + z.kaleidoskope.length

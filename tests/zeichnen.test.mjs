@@ -4,11 +4,22 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import { kopien, vereinfachen, tafelA, tafelB, radieren, metrik } from '../js/zeichnung.js';
-import { startzustand, hashVon, hashAnwenden } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, grad } from '../js/zustand.js';
 
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Farben } from '../js/zeichnung.js' */
+/** @import { Zustand } from '../js/zustand.js' */
+
+/**
+ * Wert, den der Test sicher erwartet (null oder undefined wäre ein Fehler, den der Test meldet).
+ * @template T @param {T} x @returns {NonNullable<T>}
+ */
+const da = (x) => /** @type {NonNullable<T>} */ (x);
+
+/** @type {Farben} */
 const F = { paper: '#fff', ink: '#000', muted: '#666', line: '#ccc', accent: '#00f', accent2: '#f60', upper: '#036', crystal: '#9cf', dir: ['#a0a', '#0a0', '#aa0'], fc3: '#0aa', fc4: '#e80' };
 
-/** Punkt im Polygon (Strahlverfahren), Bruchkoordinaten. */
+/** Punkt im Polygon (Strahlverfahren), Bruchkoordinaten. @param {number[]} p @param {number[][]} poly */
 function innen(p, poly) {
   let ja = false;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -32,6 +43,7 @@ for (const d of EBENENGRUPPEN) {
 
   test(`${d.symbol}: ein kurzer Strich in der Zelle hat je Zelle so viele Kopien wie Operationen`, () => {
     const g = gruppe(d.symbol);
+    /** @type {Vec2[]} */
     const st = [[0.13, 0.29], [0.17, 0.33]];
     const inZelle = kopien(g, st, 0, 1).filter((k) => k.punkte[0].every((v) => v >= 0 && v < 1));
     assert.equal(inZelle.length, g.ordnung);
@@ -40,18 +52,21 @@ for (const d of EBENENGRUPPEN) {
 }
 
 test('Striche vereinfachen: Gerade wird zu zwei Punkten, Ecken bleiben', () => {
-  const gerade = Array.from({ length: 50 }, (_, i) => [i / 100, i / 200]);
+  const gerade = Array.from({ length: 50 }, (_, i) => /** @type {Vec2} */ ([i / 100, i / 200]));
   assert.equal(vereinfachen(gerade).length, 2);
+  /** @type {Vec2[]} */
   const ecke = [[0, 0], [0.1, 0], [0.2, 0], [0.2, 0.1], [0.2, 0.2]];
   assert.deepEqual(vereinfachen(ecke), [[0, 0], [0.2, 0], [0.2, 0.2]]);
 });
 
 test('Zeichnung in Tafel A und im Muster; Link: fuell, Striche bleiben beim Öffnen eines Links', () => {
+  /** @type {Zustand} */
   const z = { ...startzustand(), gruppe: 'p4mm', striche: [[[0.1, 0.2], [0.2, 0.3]]], aeFuell: true };
   assert.match(tafelA('p4mm', z, F).svg, /class="zeichnung"/);
   assert.match(tafelB('p4mm', z, F).svg, /class="zeichnung"/);
   assert.match(hashVon(z), /fuell=1/);
   assert.doesNotMatch(hashVon(z), /striche|0\.1,0\.2/);
+  /** @type {Zustand} */
   const z2 = { ...startzustand(), striche: [[[0, 0], [0.5, 0.5]]] };
   hashAnwenden(z2, '#m=eg&g=p2&fuell=1');
   assert.equal(z2.aeFuell, true);
@@ -59,7 +74,8 @@ test('Zeichnung in Tafel A und im Muster; Link: fuell, Striche bleiben beim Öff
 });
 
 test('Radieren: nur das überfahrene Stück, auch an einer Kopie, Strich zerfällt', () => {
-  const M = metrik({ ba: 1, gamma: 90 });
+  const M = metrik({ ba: 1, gamma: grad(90) });
+  /** @type {Vec2[][]} */
   const quer = [[[0.1, 0.5], [0.9, 0.5]]];
   // in der Mitte: zwei Stücke, die Lücke so breit wie der Kreis
   const r = radieren(quer, gruppe('p1'), M, [0.5, 0.5], 0.05);
@@ -69,11 +85,13 @@ test('Radieren: nur das überfahrene Stück, auch an einer Kopie, Strich zerfäl
   // an einer Gitterkopie (eine Zelle weiter) wirkt es ebenso
   assert.deepEqual(radieren(quer, gruppe('p1'), M, [1.5, 0.5], 0.05), r);
   // pm: an der Spiegelkopie bei −x radiert, fehlt das Stück am Original
+  /** @type {Vec2[][]} */
   const senk = [[[0.2, 0.1], [0.2, 0.9]]];
   assert.deepEqual(radieren(senk, gruppe('pm'), M, [-0.2, 0.5], 0.05), [[[0.2, 0.1], [0.2, 0.45]], [[0.2, 0.55], [0.2, 0.9]]]);
   // p4: an der um 90° gedrehten Kopie
   const g4 = gruppe('p4');
-  const kopie = kopien(g4, senk[0], 0, 1).find((k) => !k.urbild && Math.abs(k.punkte[0][1] - k.punkte[1][1]) > 0.5 === false);
+  const kopie = da(kopien(g4, senk[0], 0, 1).find((k) => !k.urbild && Math.abs(k.punkte[0][1] - k.punkte[1][1]) > 0.5 === false));
+  /** @type {Vec2} */
   const mitte = [(kopie.punkte[0][0] + kopie.punkte[1][0]) / 2, (kopie.punkte[0][1] + kopie.punkte[1][1]) / 2];
   assert.equal(radieren(senk, g4, M, mitte, 0.05).length, 2, 'p4: Kopie radiert → Original geteilt');
   // ganz überfahren: Strich weg

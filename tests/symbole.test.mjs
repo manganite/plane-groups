@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { SCHOENFLIES, CONWAY, zerlege, preis } from '../js/symbole.js';
 
+/** @param {number[]} a */
 const sortiert = (a) => [...a].sort((x, y) => y - x);
 
 test('jede Punktgruppe hat ein Schoenflies-Symbol', () => {

@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // PDF-Fassung des Skripts (A4) aus skript.html; die Arbeit macht tools/common/skript-pdf.mjs.
 //
 //   node tools/skript-pdf.mjs [Ausgabedatei] [--base https://…/]
@@ -15,7 +14,7 @@ const args = process.argv.slice(2);
 const bi = args.indexOf('--base');
 const BASE = bi >= 0 ? args.splice(bi, 2)[1] : 'https://manganite.github.io/plane-groups/';
 const OUT = args[0] || join(ROOT, 'skript.pdf');
-const VERSION = readFileSync(join(ROOT, 'js/version.js'), 'utf8').match(/VERSION = '([^']+)'/)[1];
+const VERSION = /** @type {RegExpMatchArray} */ (readFileSync(join(ROOT, 'js/version.js'), 'utf8').match(/VERSION = '([^']+)'/))[1];
 
 const { anzahl, fehler } = await skriptPDF({
   root: ROOT, out: OUT, base: BASE, titel: 'Symmetrie in der Ebene', version: VERSION,

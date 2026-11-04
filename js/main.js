@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
 import { initHelp } from '../lib/common/js/help.js';
@@ -17,8 +16,27 @@ import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
 import { schoenfliesHTML, CONWAY } from './symbole.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
+import { grad } from './zustand.js';
 
-const $ = (id) => document.getElementById(id);
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Gitter, Farben, Ansicht, Box, Erklaerung, SichtbarerDrehpunkt, SichtbareLinie } from './zeichnung.js' */
+/** @import { Gruppe } from './symmetrie.js' */
+/** @import { Ebenengruppe, System } from './ebenengruppen.js' */
+/** @import { Schalterfeld } from './zustand.js' */
+/** @import { Elementangabe } from './warum.js' */
+
+// Elemente der Seite (index.html). Die Typprüfung kennt die Seite nicht: Die Art des Elements wird hier
+// festgelegt, nicht geprüft.
+/** @param {string} id */
+const $ = (id) => /** @type {HTMLElement} */ (document.getElementById(id));
+/** @param {string} id */
+const eingabe = (id) => /** @type {HTMLInputElement} */ (document.getElementById(id));
+/** @param {string} id */
+const knopf = (id) => /** @type {HTMLButtonElement} */ (document.getElementById(id));
+/** Erstes Element zum Selektor (es ist immer da). @param {string} sel */
+const element = (sel) => /** @type {HTMLElement} */ (document.querySelector(sel));
+/** Alle Elemente zum Selektor. @param {string} sel */
+const elemente = (sel) => /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(sel));
 const REPO = 'https://github.com/manganite/plane-groups';
 const coarse = window.matchMedia('(pointer: coarse)');
 
@@ -36,17 +54,20 @@ try {
     if (!Number.isInteger(z.schritt) || z.schritt < 0) z.schritt = 0;
     gespeichertPruefen(z);
     // gezeichnete Striche: nur Folgen von Zahlenpaaren, höchstens STRICH_GRENZE Punkte
+    /** @param {unknown} q */
     const zahlenpaar = (q) => Array.isArray(q) && q.length === 2 && q.every(Number.isFinite);
     z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
     while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
     z.zeichnen = z.zeichnen === true;
     z.radieren = z.radieren === true && !z.zeichnen;
     z.brechen = z.brechen === true;
+    /** @param {number} v @param {[number, number]} bereich */
     const imBereich = (v, [lo, hi]) => Number.isFinite(v) && v >= lo && v <= hi;
     if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = 1;
     if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = 1;
+    /** @type {any} aus dem Speicher, unbekannten Aufbaus */
     const fr = z.frei ?? {};
-    z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90 };
+    z.frei = { ba: Number.isFinite(fr.ba) ? Math.min(Math.max(fr.ba, FREI_BEREICH.ba[0]), FREI_BEREICH.ba[1]) : 1, gamma: grad(Number.isFinite(fr.gamma) ? Math.min(Math.max(fr.gamma, FREI_BEREICH.gamma[0]), FREI_BEREICH.gamma[1]) : 90) };
     z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
     if (!['eg', 'struktur'].includes(z.modus)) z.modus = 'eg';
     z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
@@ -56,6 +77,7 @@ if (location.hash.length > 1) hashAnwenden(z, location.hash); // Link hat Vorran
 
 let letzterHash = '';
 let hashAktiv = location.hash.length > 1;
+/** @type {string | null} */
 let basisHash = null;
 function speichern() {
   try { localStorage.setItem(SPEICHER, JSON.stringify({ v: 1, z })); } catch { /* ignorieren */ }
@@ -70,7 +92,9 @@ function speichern() {
 window.addEventListener('hashchange', () => { if (location.hash !== letzterHash) location.reload(); });
 
 // ------------------------------------------------------------------ Farben
+/** @param {string} name */
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(`--${name}`).trim();
+/** @returns {Farben} */
 const farben = () => ({
   paper: css('paper'), ink: css('ink'), muted: css('muted'), line: css('line'), accent: css('accent'), accent2: css('accent2'),
   upper: css('upper'), crystal: css('crystal'), dir: [css('dir1'), css('dir2'), css('dir3')],
@@ -78,8 +102,9 @@ const farben = () => ({
 });
 
 // ------------------------------------------------------------------ Bildexport (immer hell)
+/** @type {HTMLSpanElement | null} */
 let hellEl = null;
-/** Farben des hellen Modus, auch wenn die Seite dunkel ist (Bildexport immer hell, wie in der Stereo-App). */
+/** Farben des hellen Modus, auch wenn die Seite dunkel ist (Bildexport immer hell, wie in der Stereo-App). @returns {Farben} */
 function hellFarben() {
   if (!hellEl || !hellEl.isConnected) {
     hellEl = document.createElement('span');
@@ -88,13 +113,14 @@ function hellFarben() {
     document.body.appendChild(hellEl);
   }
   const s = getComputedStyle(hellEl);
+  /** @param {string} name */
   const g = (name) => s.getPropertyValue(`--${name}`).trim();
   return {
     paper: g('paper'), ink: g('ink'), muted: g('muted'), line: g('line'), accent: g('accent'), accent2: g('accent2'),
     upper: g('upper'), crystal: g('crystal'), dir: [g('dir1'), g('dir2'), g('dir3')], fc3: g('fc3'), fc4: g('fc4'),
   };
 }
-/** Tafel A oder B als eigenständiges SVG in den hellen Farben. */
+/** Tafel A oder B als eigenständiges SVG in den hellen Farben. @param {string} tafel */
 function bildSVG(tafel) {
   const f = hellFarben();
   let inhalt;
@@ -102,14 +128,16 @@ function bildSVG(tafel) {
   else inhalt = tafel === 'a' ? tafelA(z.gruppe, z, f, { phase }).svg : tafelB(z.gruppe, z, f).svg;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520">${inhalt}</svg>`;
 }
-/** Dateiname ohne Endung, z. B. p4gm-symmetriegeruest oder struktur-graphen-muster. */
+/** Dateiname ohne Endung, z. B. p4gm-symmetriegeruest oder struktur-graphen-muster. @param {string} tafel */
 function bildName(tafel) {
   const was = z.modus === 'struktur' ? `struktur-${z.struktur.vorgabe && wieVorgabe(z.struktur) ? z.struktur.vorgabe : 'eigene'}` : z.gruppe;
   const teil = tafel === 'b' ? 'muster' : z.modus === 'struktur' ? 'struktur' : 'symmetriegeruest';
   return `${was}-${teil}`;
 }
 /** Schriften als data:-URLs, damit sie im gerasterten SVG wirken (ein Bild lädt keine fremden Dateien). */
+/** @type {Promise<string> | null} */
 let schriftCss = null;
+/** @returns {Promise<string>} */
 function eingebetteteSchriften() {
   if (!schriftCss) {
     const dateien = [['IBM Plex Sans', '400', 'normal', 'ibm-plex-sans-latin-400-normal'], ['IBM Plex Sans', '400', 'italic', 'ibm-plex-sans-latin-400-italic'],
@@ -128,7 +156,10 @@ function eingebetteteSchriften() {
   }
   return schriftCss;
 }
-/** SVG-Text als PNG (2048 px). Den Text vor dem ersten await erzeugen, damit das Bild die Ansicht beim Klick zeigt. */
+/**
+ * SVG-Text als PNG (2048 px). Den Text vor dem ersten await erzeugen, damit das Bild die Ansicht beim Klick zeigt.
+ * @param {string} svgText @returns {Promise<Blob>}
+ */
 async function bildPNG(svgText) {
   const px = 2048;
   const css = await eingebetteteSchriften();
@@ -137,14 +168,16 @@ async function bildPNG(svgText) {
   await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(text); });
   const cv = document.createElement('canvas');
   cv.width = cv.height = px;
-  cv.getContext('2d').drawImage(img, 0, 0, px, px);
+  /** @type {CanvasRenderingContext2D} */ (cv.getContext('2d')).drawImage(img, 0, 0, px, px);
   return new Promise((res, rej) => cv.toBlob((b) => (b ? res(b) : rej(new Error('PNG fehlgeschlagen'))), 'image/png'));
 }
 function exportKnoepfe() {
+  /** @param {HTMLElement} btn */
   const melden = (btn) => {
     const zurueck = btn.dataset.label || (btn.dataset.label = btn.textContent);
-    return (text) => { btn.textContent = text; setTimeout(() => { btn.textContent = zurueck; }, 1600); };
+    return (/** @type {string} */ text) => { btn.textContent = text; setTimeout(() => { btn.textContent = zurueck; }, 1600); };
   };
+  /** @param {Blob} blob @param {string} name */
   const laden = (blob, name) => {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -167,6 +200,7 @@ function exportKnoepfe() {
 }
 
 // ------------------------------------------------------------------ Gruppenwahl
+/** @type {Record<System, string>} */
 const SYSTEMNAMEN = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
 function baueAuswahl() {
   const systeme = [...new Set(EBENENGRUPPEN.map((g) => g.system))];
@@ -175,69 +209,69 @@ function baueAuswahl() {
   }</div></div>`).join('');
 }
 function auswahlAbgleichen() {
-  document.querySelectorAll('#picker .pgb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.g === z.gruppe)));
+  elemente('#picker .pgb').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.g === z.gruppe)));
 }
 
 // ------------------------------------------------------------------ Bedienelemente abgleichen
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
 function bedienungAbgleichen() {
-  $('opt-elemente').checked = z.elemente;
-  $('opt-objekt').checked = z.objekt;
-  $('opt-ae').checked = z.ae;
-  $('opt-zellen').checked = z.zellen === 2;
-  $('opt-einrasten').checked = z.einrasten;
-  $('opt-einrasten').disabled = !z.objekt;
-  document.querySelector('#row-einrasten .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
-  $('opt-orbit').checked = z.orbit;
-  $('opt-orbit').disabled = !z.objekt;
-  document.querySelector('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
-  document.querySelectorAll('#seg-form button, #seg-ornament button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
-  $('v-farben').checked = z.farben;
+  eingabe('opt-elemente').checked = z.elemente;
+  eingabe('opt-objekt').checked = z.objekt;
+  eingabe('opt-ae').checked = z.ae;
+  eingabe('opt-zellen').checked = z.zellen === 2;
+  eingabe('opt-einrasten').checked = z.einrasten;
+  eingabe('opt-einrasten').disabled = !z.objekt;
+  element('#row-einrasten .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  eingabe('opt-orbit').checked = z.orbit;
+  eingabe('opt-orbit').disabled = !z.objekt;
+  element('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  elemente('#seg-form button, #seg-ornament button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
+  eingabe('v-farben').checked = z.farben;
   // Aufbau aus Erzeugenden
   const h = herkunft(gruppeVon(z.gruppe));
   const maxS = h.maxTiefe;
   if (z.aufbau > maxS) z.aufbau = maxS;
   const aufbauMoeglich = z.elemente && maxS > 0;
-  $('opt-aufbau').checked = z.aufbau > 0;
-  $('opt-aufbau').disabled = !aufbauMoeglich;
-  document.querySelector('#row-aufbau .why').textContent = !z.elemente ? 'nur mit „Symmetrieelemente“' : maxS === 0 ? 'p1 hat ausser den Translationen keine Symmetrieelemente' : '';
-  $('aufbau-schritt').max = String(Math.max(1, maxS));
-  $('aufbau-schritt').value = String(Math.max(1, z.aufbau));
-  $('aufbau-schritt').disabled = z.aufbau === 0;
+  eingabe('opt-aufbau').checked = z.aufbau > 0;
+  eingabe('opt-aufbau').disabled = !aufbauMoeglich;
+  element('#row-aufbau .why').textContent = !z.elemente ? 'nur mit „Symmetrieelemente“' : maxS === 0 ? 'p1 hat ausser den Translationen keine Symmetrieelemente' : '';
+  eingabe('aufbau-schritt').max = String(Math.max(1, maxS));
+  eingabe('aufbau-schritt').value = String(Math.max(1, z.aufbau));
+  eingabe('aufbau-schritt').disabled = z.aufbau === 0;
   $('aufbau-schritt-out').textContent = z.aufbau > 0 ? `${z.aufbau} von ${maxS}` : '–';
-  $('aufbau-zurueck').disabled = z.aufbau <= 1;
-  $('aufbau-vor').disabled = z.aufbau === 0 || z.aufbau >= maxS;
+  knopf('aufbau-zurueck').disabled = z.aufbau <= 1;
+  knopf('aufbau-vor').disabled = z.aufbau === 0 || z.aufbau >= maxS;
   const erz = ebenengruppe(z.gruppe).erzeugende;
   // Schritt für Schritt: N Operationen der ITA-Liste, dann die Gittertranslationen
   const nSchritte = gruppeVon(z.gruppe).ordnung + 1;
   if (z.schritt > nSchritte) z.schritt = nSchritte;
-  $('opt-schritt').checked = z.schritt > 0;
-  $('opt-schritt').disabled = !z.objekt;
-  document.querySelector('#row-schritt .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
-  $('schritt-regler').max = String(nSchritte);
-  $('schritt-regler').value = String(Math.max(1, z.schritt));
-  $('schritt-regler').disabled = z.schritt === 0;
+  eingabe('opt-schritt').checked = z.schritt > 0;
+  eingabe('opt-schritt').disabled = !z.objekt;
+  element('#row-schritt .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  eingabe('schritt-regler').max = String(nSchritte);
+  eingabe('schritt-regler').value = String(Math.max(1, z.schritt));
+  eingabe('schritt-regler').disabled = z.schritt === 0;
   $('schritt-regler-out').textContent = z.schritt > 0 ? `${z.schritt} von ${nSchritte}` : '–';
-  $('schritt-zurueck').disabled = z.schritt <= 1;
-  $('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte;
-  $('schritt-abspielen').disabled = !z.objekt;
+  knopf('schritt-zurueck').disabled = z.schritt <= 1;
+  knopf('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte;
+  knopf('schritt-abspielen').disabled = !z.objekt;
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
   // Werkzeug „Warum ist das da?“
   $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
-  $('werkzeug-warum').disabled = !z.elemente;
+  knopf('werkzeug-warum').disabled = !z.elemente;
   document.body.classList.toggle('warum', z.warum && z.elemente);
   // Selbst zeichnen
   $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
   document.body.classList.toggle('zeichnen', z.zeichnen);
   $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
   $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
-  $('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
+  knopf('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
   document.body.classList.toggle('radieren', z.radieren);
-  $('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
-  $('zeichnen-loeschen').disabled = !z.striche.length;
-  $('opt-fuell').checked = z.aeFuell;
+  knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
+  knopf('zeichnen-loeschen').disabled = !z.striche.length;
+  eingabe('opt-fuell').checked = z.aeFuell;
   const punkteGezeichnet = z.striche.flat().length;
   $('zeichnen-hint').textContent = z.radieren
     ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
@@ -247,65 +281,69 @@ function bedienungAbgleichen() {
   $('fuell-hint').textContent = z.aeFuell
     ? `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`
     : '';
-  $('v-muster-el').checked = z.musterElemente;
-  $('v-tapete').checked = z.tapete;
-  $('v-muster-el').disabled = z.tapete;
+  eingabe('v-muster-el').checked = z.musterElemente;
+  eingabe('v-tapete').checked = z.tapete;
+  eingabe('v-muster-el').disabled = z.tapete;
   // Objekt
   const p = z.punkt.map(mod1);
-  for (const [k, i] of [['x', 0], ['y', 1]]) {
-    $(`obj-${k}`).value = String(p[i]);
-    $(`obj-${k}`).disabled = !z.objekt;
+  for (const [k, i] of /** @type {[string, number][]} */ ([['x', 0], ['y', 1]])) {
+    eingabe(`obj-${k}`).value = String(p[i]);
+    eingabe(`obj-${k}`).disabled = !z.objekt;
     $(`obj-${k}-out`).textContent = zahlText(p[i]);
   }
-  $('obj-groesse').value = String(z.objGroesse);
-  $('obj-groesse').disabled = !z.objekt;
+  eingabe('obj-groesse').value = String(z.objGroesse);
+  eingabe('obj-groesse').disabled = !z.objekt;
   $('obj-groesse-out').textContent = `${dezimal(z.objGroesse, 2)} ×`;
-  $('v-zoom').value = String(z.zoomB);
+  eingabe('v-zoom').value = String(z.zoomB);
   $('v-zoom-out').textContent = `${dezimal(z.zoomB, 2)} ×`;
   $('obj-why').textContent = z.objekt ? '' : 'Nur mit „Objekt in allgemeiner Lage“.';
-  $('reset-objekt').disabled = !z.objekt;
+  knopf('reset-objekt').disabled = !z.objekt;
   // Gitter
   const sys = systemJetzt();
   // ohne Bindung (Symmetrie brechen) dieselben Regler mit grösserem Bereich und der freien Metrik
   const gi = z.brechen ? z.frei : z.gitter[sys];
-  for (const k of ['ba', 'gamma']) {
+  for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
     const [lo, hi] = z.brechen ? FREI_BEREICH[k] : GITTER_BEREICH[k];
-    $(`lat-${k}`).min = String(lo); $(`lat-${k}`).max = String(hi);
-    $(`lat-${k}`).value = String(gi[k]);
-    $(`lat-${k}`).disabled = !z.brechen && !FREI[sys].includes(k);
+    eingabe(`lat-${k}`).min = String(lo); eingabe(`lat-${k}`).max = String(hi);
+    eingabe(`lat-${k}`).value = String(gi[k]);
+    eingabe(`lat-${k}`).disabled = !z.brechen && !FREI[sys].includes(k);
     $(`lat-${k}-out`).textContent = k === 'ba' ? dezimal(gi.ba, 2) : `${dezimal(gi.gamma, 1)}°`;
   }
-  $('opt-brechen').checked = z.brechen;
-  $('opt-brechen').disabled = sys === 'schiefwinklig' && !z.brechen;
-  document.querySelector('#row-brechen .why').textContent = sys === 'schiefwinklig' ? 'im schiefwinkligen System ist das Gitter schon frei' : '';
+  eingabe('opt-brechen').checked = z.brechen;
+  eingabe('opt-brechen').disabled = sys === 'schiefwinklig' && !z.brechen;
+  element('#row-brechen .why').textContent = sys === 'schiefwinklig' ? 'im schiefwinkligen System ist das Gitter schon frei' : '';
   const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
   $('lat-why').textContent = z.brechen
     ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. „Warum ist das da?“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
     : `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.`.trim();
   $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
-  $('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
+  knopf('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
   // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
-  if (z.brechen) for (const id of ['opt-aufbau', 'aufbau-schritt', 'aufbau-vor', 'aufbau-zurueck', 'opt-schritt', 'schritt-regler', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'opt-ae', 'opt-fuell', 'werkzeug-warum']) $(id).disabled = true;
+  if (z.brechen) for (const id of ['opt-aufbau', 'aufbau-schritt', 'aufbau-vor', 'aufbau-zurueck', 'opt-schritt', 'schritt-regler', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'opt-ae', 'opt-fuell', 'werkzeug-warum']) /** @type {HTMLInputElement | HTMLButtonElement} */ ($(id)).disabled = true;
 }
 
 // ------------------------------------------------------------------ Zeichnen
+/** @type {Ansicht | null} */
 let ansichtA = null;
 /**
  * Ausschnitt der Lupe: folgt dem Objekt, bleibt aber ganz stehen (Mitte und Grösse), solange
  * gezogen, gezeichnet oder radiert wird, damit der Zeiger und das Bild zusammenpassen.
  */
+/** @type {Box | null} */
 let lupeBox = null;
+/** @returns {{ lupeBox?: Box, lupeMitte?: Vec2 }} */
 function lupeOptionen() {
   if (!z.lupe) { lupeBox = null; return {}; }
   return lupeBox && (ziehen || strich || radierStelle) ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
 }
-/** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. */
+/** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. @param {Farben} f */
 function tafelAJetzt(f) {
   const a = tafelA(z.gruppe, z, f, { phase, ...lupeOptionen() });
   lupeBox = a.lupeBox;
   return a;
 }
 const sUI = strukturUI({ z, $, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
+/** @type {Erklaerung | null} */
 let erklaerung = null;
 let phase = 3;
 function zeichnen() {
@@ -319,25 +357,29 @@ function zeichnen() {
   $('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
   legende(f);
-  kenndaten(f);
+  kenndaten();
 }
 
+/** @type {Record<string, string[]>} */
 const RICHTUNG = {
   rechteckig: [[1, 0], [0, 1]].map(richtungHTML),
   quadratisch: [[[1, 0], [0, 1]], [[1, 1], [-1, 1]]].map((r) => r.map(richtungHTML).join(', ')),
   hexagonal: [[[1, 0], [0, 1], [1, 1]], [[-1, 1], [1, 2], [2, 1]]].map((r) => r.map(richtungHTML).join(', ')),
 };
+/** @param {Farben} f */
 function legende(f) {
   const g = gruppeVon(z.gruppe);
   const bruch = z.brechen ? brechAnalyse(g, z.frei) : null;
   const sys = g.daten.system;
   const items = [];
   const el = elementeImBereich(bruch ? gebrochen(g, z.frei).H : g, 1); // beim Brechen nur die Restsymmetrie
+  /** @param {number} pos */
   const farbe = (pos) => (z.farben ? f.dir[pos - 1] : f.ink);
   if (z.elemente) {
     const ordnungen = [...new Set(el.drehpunkte.map((d) => d.n))].sort();
     for (const n of ordnungen) items.push(`<span class="lg"><svg class="sym-icon" width="22" height="22" viewBox="0 0 22 22">${drehSymbol(n, [11, 11], farbe(1), f.paper)}</svg>${n}-zähliger Drehpunkt</span>`);
     const arten = new Set(el.linien.map((l) => l.art));
+    /** @param {boolean} dash */
     const linie = (dash) => `<svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.ink}" stroke-width="${dash ? 2 : 2.8}" ${dash ? 'stroke-dasharray="6 4"' : 'stroke-linecap="round"'}/></svg>`;
     if (arten.has('spiegel')) items.push(`<span class="lg">${linie(false)}Spiegellinie</span>`);
     if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
@@ -384,10 +426,13 @@ function legende(f) {
 const CONWAY_HINWEIS = 'Orbifold-Symbol nach Conway: * Spiegellinien (Kaleidoskop), Ziffern vor dem * Drehpunkte ohne Spiegellinie, Ziffern nach dem * Schnittpunkte von Spiegellinien, × eine spiegelbildliche Kopie ist erreichbar, ohne eine Spiegellinie zu überqueren, o nur Translationen';
 
 /** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
+/** @type {Record<string, string>} */
 const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
+/** @type {Record<string, string>} */
 const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
+/** @param {string} u */
 const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
-/** Bedingungen der asymmetrischen Einheit als Knöpfe: Tafel A zeigt, wo sie erfüllt sind. */
+/** Bedingungen der asymmetrischen Einheit als Knöpfe: Tafel A zeigt, wo sie erfüllt sind. @param {Ebenengruppe} d */
 function aeBedingungen(d) {
   const teile = d.ae.text.split(';').map((t) => t.trim());
   const wahl = z.aeTeile ?? [];
@@ -399,20 +444,22 @@ function aeBedingungen(d) {
       : `Schattiert: wo ${wahl.length === 1 ? 'diese Bedingung' : 'diese Bedingungen zusammen'} erfüllt ${wahl.length === 1 ? 'ist' : 'sind'}. Weitere antippen, bis alle gewählt sind.`;
   return `<span class="aeteile">${knoepfe}</span><span class="note aehinweis">${hinweis}${wahl.length ? ' <button type="button" class="linkbtn" data-aeteil-aus>keine</button>' : ''}</span>`;
 }
-const aeHTML = (t) => t.replace(/([xy])/g, '<i>$1</i>').replace(/(\d+)\/(\d+)/g, (m) => ({ '1/2': '½', '1/4': '¼', '1/3': '⅓', '2/3': '⅔' }[m] ?? m));
+/** @param {string} t */
+const aeHTML = (t) => t.replace(/([xy])/g, '<i>$1</i>').replace(/(\d+)\/(\d+)/g, (m) => /** @type {Record<string, string>} */ ({ '1/2': '½', '1/4': '¼', '1/3': '⅓', '2/3': '⅔' })[m] ?? m);
 
 /** Fokus in den Kenndaten merken (über die Daten-Attribute des Knopfs), damit er ein Neuzeichnen übersteht. */
 function fokusMerken() {
   const a = document.activeElement;
   if (!a || !$('info').contains(a)) return null;
   for (const attr of ['data-phase', 'data-abspielen', 'data-erkl-zu', 'data-erkl', 'data-wy']) {
-    if (a.hasAttribute(attr)) return `[${attr}${a.getAttribute(attr) ? `="${CSS.escape(a.getAttribute(attr))}"` : ''}]`;
+    if (a.hasAttribute(attr)) return `[${attr}${a.getAttribute(attr) ? `="${CSS.escape(/** @type {string} */ (a.getAttribute(attr)))}"` : ''}]`;
   }
   return null;
 }
+/** @param {string | null} sel */
 function fokusWiederherstellen(sel) {
   if (!sel) return;
-  const el = $('info').querySelector(sel);
+  const el = /** @type {HTMLElement | null} */ ($('info').querySelector(sel));
   if (el) el.focus({ preventScroll: true });
 }
 
@@ -437,10 +484,11 @@ function kenndaten() {
   const sd = schrittAn ? schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt) : null;
   const aktuell = sd && !sd.translationen ? sd.k - 1 : -1;
   const schrittbox = sd ? `<div class="warumbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
+  /** @param {string[]} texte @param {string[]} ops @param {string} [z0] @param {number} [versatz] */
   const opsZeilen = (texte, ops, z0, versatz = 0) => ops.map((op, i) => `<tr${i + versatz === aktuell ? ' class="aktiv"' : ''}><td class="num">(${i + 1})</td><td>${koordHTML(d.ops[i])}${z0 ? ` + (${z0})` : ''}</td><td>${opHTML(texte[i])}</td></tr>`).join('');
   const opsTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Nr.</th><th>Koordinaten</th><th>Symmetrieoperation</th></tr></thead><tbody>
     ${zentriert ? '<tr class="zent"><td colspan="3">für (0, 0)+</td></tr>' : ''}${opsZeilen(d.opsText, d.ops)}
-    ${zentriert ? `<tr class="zent"><td colspan="3">für (½, ½)+</td></tr>${opsZeilen(d.zentrText, d.ops, '½, ½', d.ops.length)}` : ''}</tbody></table></div>`;
+    ${zentriert ? `<tr class="zent"><td colspan="3">für (½, ½)+</td></tr>${opsZeilen(/** @type {string[]} */ (d.zentrText), d.ops, '½, ½', d.ops.length)}` : ''}</tbody></table></div>`;
   // Wyckoff-Lagen
   const wyZeilen = d.wyckoff.map((w) => {
     const extra = d.bedingungen[w.b];
@@ -490,6 +538,7 @@ function kenndaten() {
 }
 
 // ------------------------------------------------------------------ Objekt setzen und ziehen
+/** @param {Vec2} p @param {{ rasten?: boolean, toleranzPx?: number }} [optionen] */
 function setzePunkt(p, { rasten = z.einrasten && z.objekt, toleranzPx = coarse.matches ? 14 : 9 } = {}) {
   let q = p;
   if (rasten && ansichtA) {
@@ -501,29 +550,33 @@ function setzePunkt(p, { rasten = z.einrasten && z.objekt, toleranzPx = coarse.m
     q = [l.punkt[0] + Math.round(p[0] - l.punkt[0]), l.punkt[1] + Math.round(p[1] - l.punkt[1])];
   }
   const n = z.zellen;
-  z.punkt = q.map((v) => Math.min(Math.max(v, 0), n - 1e-9));
+  z.punkt = /** @type {Vec2} */ (q.map((v) => Math.min(Math.max(v, 0), n - 1e-9)));
   aktualisieren();
 }
 
+/** Bildpunkt (viewBox von Tafel A) unter dem Zeiger. @param {{ clientX: number, clientY: number }} e @returns {Vec2} */
 function svgPunkt(e) {
-  const svg = $('bild-a');
+  const svg = /** @type {SVGSVGElement} */ (document.querySelector('#bild-a'));
   const pt = svg.createSVGPoint();
   pt.x = e.clientX; pt.y = e.clientY;
-  const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+  const q = pt.matrixTransform(/** @type {DOMMatrix} */ (svg.getScreenCTM()).inverse());
   return [q.x, q.y];
 }
+/** @param {TouchEvent | MouseEvent} e */
 function naheObjekt(e) {
   if (!z.objekt || !ansichtA) return false;
   const q = ansichtA.zuBild(ausgangsstelle(z.punkt, z.zellen));
-  const s = svgPunkt(e.touches ? e.touches[0] : e);
+  const t = /** @type {TouchEvent} */ (e).touches;
+  const s = svgPunkt(t ? t[0] : /** @type {MouseEvent} */ (e));
   const w = $('bild-a').getBoundingClientRect().width;
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
   return Math.hypot(s[0] - q[0], s[1] - q[1]) < r;
 }
 /** Die in Tafel A sichtbaren Elemente (zeichnung.js), mit dem aktuellen Schritt im Aufbau. */
+/** @param {Gruppe} g @param {number} [n] */
 const sichtbareElemente = (g, n = z.zellen) => sichtbar(g, n, z.aufbau);
 
-/** Element unter dem Zeiger wählen (Drehpunkte vor Linien), sonst die Auswahl aufheben. */
+/** Element unter dem Zeiger wählen (Drehpunkte vor Linien), sonst die Auswahl aufheben. @param {PointerEvent} e */
 function elementWaehlen(e) {
   if (!ansichtA) return;
   const s = svgPunkt(e);
@@ -531,6 +584,7 @@ function elementWaehlen(e) {
   const el = sichtbareElemente(g);
   const w = $('bild-a').getBoundingClientRect().width || 520;
   const r = (coarse.matches ? 22 : 12) * (520 / w);
+  /** @type {{ dist: number, el: SichtbarerDrehpunkt | SichtbareLinie } | null} */
   let best = null;
   for (const d of el.drehpunkte) {
     const q = ansichtA.zuBild(d.punkt);
@@ -550,7 +604,7 @@ function elementWaehlen(e) {
   if (z.erkl) abspielen(); else aktualisieren();
 }
 
-/** Knöpfe für die sichtbaren Elemente der Zelle, eines je Klasse modulo Gitter (auch für die Tastatur). */
+/** Knöpfe für die sichtbaren Elemente der Zelle, eines je Klasse modulo Gitter (auch für die Tastatur). @param {Gruppe} g */
 function elementListe(g) {
   const el = sichtbareElemente(g, 1);
   const gesehen = new Set();
@@ -561,17 +615,20 @@ function elementListe(g) {
     const k = klassenSchluessel(g, e);
     if (gesehen.has(k)) continue;
     gesehen.add(k);
-    const d = e.richtung ? { typ: e.art, punkt: e.punkt, richtung: e.richtung } : { typ: 'dreh', n: e.n, punkt: e.punkt };
+    /** @type {Elementangabe} */
+    const d = 'richtung' in e ? { typ: e.art, punkt: e.punkt, richtung: e.richtung } : { typ: 'dreh', n: e.n, punkt: e.punkt };
     knoepfe.push(`<li><button class="linkbtn" type="button" data-erkl="${elementSchluessel(e)}">${elementName(d)}</button></li>`);
   }
   return `<ul class="elemliste">${knoepfe.join('')}</ul>`;
 }
 
 /** Schritte der Erklärung nacheinander zeigen (0 → 3). */
-let ablauf = null;
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let ablauf;
 /** Schritt für Schritt abspielen: alle Operationen nacheinander, zuletzt die Gittertranslationen. */
-let schrittAblauf = null;
-function stoppeSchritte() { clearTimeout(schrittAblauf); schrittAblauf = null; }
+/** @type {ReturnType<typeof setTimeout> | undefined} */
+let schrittAblauf;
+function stoppeSchritte() { clearTimeout(schrittAblauf); schrittAblauf = undefined; }
 function schritteAbspielen() {
   stoppeSchritte();
   z.schritt = 1;
@@ -599,13 +656,18 @@ function abspielen() {
   ablauf = setTimeout(weiter, 900);
 }
 
-let ziehen = false, bewegt = false, start = null;
+let ziehen = false, bewegt = false;
+/** @type {Vec2 | null} */
+let start = null;
 
 // ------------------------------------------------------------------ Selbst zeichnen
+/** @type {Vec2[] | null} */
 let strich = null; // Punkte des Strichs, der gerade gezeichnet wird (Bruchkoordinaten)
 // Verlauf für „Rückgängig“: Stand der Striche vor jedem Strich und jedem Radieren (nur im Speicher)
+/** @type {Vec2[][][]} */
 const verlauf = [];
-const merken = () => { verlauf.push(z.striche.map((st) => st.map((q) => [...q]))); if (verlauf.length > 50) verlauf.shift(); };
+const merken = () => { verlauf.push(z.striche.map((st) => st.map((q) => /** @type {Vec2} */ ([...q])))); if (verlauf.length > 50) verlauf.shift(); };
+/** @type {Vec2 | null} */
 let radierStelle = null; // Bildpunkt des Radierers, solange gedrückt
 let nurA = false;
 /** Während des Zeichnens nur Tafel A neu zeichnen (das Muster folgt am Ende des Strichs). */
@@ -622,15 +684,18 @@ function zeichneA() {
 }
 /** Radius des Radierers in Pixeln der Tafel (520 breit). */
 const RADIER_PX = 12;
+/** Nur mit gezeichneter Tafel A aufgerufen. @param {PointerEvent} e */
 function radierenAn(e) {
+  const A = /** @type {Ansicht} */ (ansichtA);
   const q = svgPunkt(e);
   radierStelle = q;
   const g = gruppeVon(z.gruppe);
   const M = z.brechen ? metrikVon(z.frei) : metrikVon(z.gitter[systemJetzt()]);
   const H = z.brechen ? gebrochen(g, z.frei).H : g;
-  z.striche = radieren(z.striche, H, M, ansichtA.vonBild(q), RADIER_PX / ansichtA.s);
+  z.striche = radieren(z.striche, H, M, A.vonBild(q), RADIER_PX / A.s);
   zeichneA();
 }
+/** @param {PointerEvent} e */
 function strichBeginnen(e) {
   if (!ansichtA || z.striche.flat().length >= STRICH_GRENZE) return;
   merken();
@@ -638,11 +703,13 @@ function strichBeginnen(e) {
   z.striche.push(strich);
   $('bild-a').setPointerCapture(e.pointerId);
 }
+/** Nur während eines Strichs aufgerufen. @param {PointerEvent} e */
 function strichWeiter(e) {
-  const p = ansichtA.vonBild(svgPunkt(e));
-  const q = strich[strich.length - 1];
+  const s = /** @type {Vec2[]} */ (strich);
+  const p = /** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e));
+  const q = s[s.length - 1];
   if (Math.hypot(p[0] - q[0], p[1] - q[1]) < 0.004 || z.striche.flat().length >= STRICH_GRENZE) return;
-  strich.push(p);
+  s.push(p);
   zeichneA();
 }
 function strichBeenden() {
@@ -671,7 +738,7 @@ function zeigerEinrichten() {
     if (e.pointerType === 'mouse' || naheObjekt(e)) {
       ziehen = true;
       svg.setPointerCapture(e.pointerId);
-      if (!naheObjekt(e)) setzePunkt(ansichtA.vonBild(svgPunkt(e)));
+      if (!naheObjekt(e)) setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e)));
     }
   });
   svg.addEventListener('pointermove', (e) => {
@@ -679,9 +746,10 @@ function zeigerEinrichten() {
     if (strich) { strichWeiter(e); return; }
     if (radierStelle) { radierenAn(e); return; }
     if (!ziehen) return;
-    if (!bewegt && Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 3) return;
+    const s0 = /** @type {Vec2} */ (start); // beim Ziehen gesetzt
+    if (!bewegt && Math.hypot(e.clientX - s0[0], e.clientY - s0[1]) < 3) return;
     bewegt = true;
-    setzePunkt(ansichtA.vonBild(svgPunkt(e)));
+    setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e)));
   });
   // nach dem Ziehen neu zeichnen, damit die Lupe dem losgelassenen Objekt folgt
   const loslassen = () => { const war = ziehen; ziehen = false; if (!sUI.up()) strichBeenden(); if (war && z.lupe) aktualisieren(); };
@@ -689,8 +757,8 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', loslassen);
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (z.modus === 'struktur' || (z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || e.pointerType === 'mouse' || bewegt || ziehen) return;
-    const p = ansichtA.vonBild(svgPunkt(e));
+    if (z.modus === 'struktur' || (z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
+    const p = /** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
 }
@@ -713,13 +781,15 @@ function aktualisieren() {
   });
 }
 
+/** @param {string} b */
 function wyckoffSetzen(b) {
   z.punkt = punktAufLage(gruppeVon(z.gruppe), b, z.punkt);
   aktualisieren();
 }
 
+/** @param {string} id @param {Schalterfeld} feld */
 function bindeSchalter(id, feld) {
-  $(id).addEventListener('change', () => { z[feld] = $(id).checked; aktualisieren(); });
+  $(id).addEventListener('change', () => { z[feld] = eingabe(id).checked; aktualisieren(); });
 }
 
 function init() {
@@ -727,10 +797,10 @@ function init() {
   sUI.init();
   exportKnoepfe();
   $('picker').addEventListener('click', (e) => {
-    const b = e.target.closest('.pgb');
+    const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (e.target).closest('.pgb'));
     if (!b) return;
     if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; if (z.schritt > 0) z.schritt = 1; }
-    z.gruppe = b.dataset.g;
+    z.gruppe = /** @type {string} */ (b.dataset.g); // jeder Knopf trägt data-g
     if (z.brechen) z.frei = { ...z.gitter[systemJetzt()] };
     aktualisieren();
   });
@@ -743,24 +813,25 @@ function init() {
   bindeSchalter('v-muster-el', 'musterElemente');
   bindeSchalter('v-tapete', 'tapete');
   $('opt-zellen').addEventListener('change', () => {
-    z.zellen = $('opt-zellen').checked ? 2 : 1;
-    if (z.zellen === 1) z.punkt = z.punkt.map(mod1);
+    z.zellen = eingabe('opt-zellen').checked ? 2 : 1;
+    if (z.zellen === 1) z.punkt = /** @type {Vec2} */ (z.punkt.map(mod1));
     aktualisieren();
   });
-  document.querySelectorAll('#seg-form button, #seg-ornament button').forEach((b) => b.addEventListener('click', () => { z.form = b.dataset.form; aktualisieren(); }));
-  for (const [k, i] of [['x', 0], ['y', 1]]) {
+  elemente('#seg-form button, #seg-ornament button').forEach((b) => b.addEventListener('click', () => { z.form = /** @type {string} */ (b.dataset.form); aktualisieren(); }));
+  for (const [k, i] of /** @type {[string, number][]} */ ([['x', 0], ['y', 1]])) {
     $(`obj-${k}`).addEventListener('input', () => {
-      const p = [...z.punkt]; p[i] = Number($(`obj-${k}`).value);
+      /** @type {Vec2} */
+      const p = [...z.punkt]; p[i] = Number(eingabe(`obj-${k}`).value);
       setzePunkt(p, { rasten: false });
     });
   }
   $('reset-objekt').addEventListener('click', () => { z.punkt = startzustand().punkt; z.objGroesse = 1; aktualisieren(); });
-  $('obj-groesse').addEventListener('input', () => { z.objGroesse = Number($('obj-groesse').value); aktualisieren(); });
-  $('v-zoom').addEventListener('input', () => { z.zoomB = Number($('v-zoom').value); aktualisieren(); });
-  for (const k of ['ba', 'gamma']) {
+  $('obj-groesse').addEventListener('input', () => { z.objGroesse = Number(eingabe('obj-groesse').value); aktualisieren(); });
+  $('v-zoom').addEventListener('input', () => { z.zoomB = Number(eingabe('v-zoom').value); aktualisieren(); });
+  for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
     $(`lat-${k}`).addEventListener('input', () => {
-      const v = Number($(`lat-${k}`).value);
-      if (z.brechen) z.frei = { ...z.frei, [k]: v }; else z.gitter[systemJetzt()][k] = v;
+      const v = Number(eingabe(`lat-${k}`).value);
+      if (z.brechen) z.frei = { ...z.frei, [k]: v }; else z.gitter[systemJetzt()][k] = grad(v); // grad() kennzeichnet nur
       aktualisieren();
     });
   }
@@ -773,43 +844,46 @@ function init() {
     aktualisieren();
   });
   $('info').addEventListener('click', (e) => {
+    const ziel = /** @type {Element} */ (e.target);
+    /** Knopf oder Link der Kenndaten, in dem der Klick lag. @param {string} sel */
+    const naechstes = (sel) => /** @type {HTMLElement | null} */ (ziel.closest(sel));
     // Kenndaten „Gitter und Basis“: die gefundene Gruppe im Modus „Ebenengruppen“ öffnen
-    const eg = e.target.closest('[data-zu-eg]');
+    const eg = naechstes('[data-zu-eg]');
     if (eg) {
-      z.modus = 'eg'; z.gruppe = eg.dataset.zuEg; z.brechen = false; z.erkl = null; z.aeTeile = []; z.schritt = 0;
+      z.modus = 'eg'; z.gruppe = /** @type {string} */ (eg.dataset.zuEg); z.brechen = false; z.erkl = null; z.aeTeile = []; z.schritt = 0;
       aktualisieren(); window.scrollTo({ top: 0 }); return;
     }
-    const b = e.target.closest('.setzen');
-    if (b) wyckoffSetzen(b.dataset.wy);
-    const at = e.target.closest('[data-aeteil]');
+    const b = naechstes('.setzen');
+    if (b) wyckoffSetzen(/** @type {string} */ (b.dataset.wy));
+    const at = naechstes('[data-aeteil]');
     if (at) {
       const i = Number(at.dataset.aeteil); const wahl = new Set(z.aeTeile ?? []);
       if (wahl.has(i)) wahl.delete(i); else wahl.add(i);
       z.aeTeile = [...wahl].sort((u, v) => u - v);
       aktualisieren();
     }
-    if (e.target.closest('[data-aeteil-aus]')) { z.aeTeile = []; aktualisieren(); }
-    const sch = e.target.closest('[data-schritt]');
+    if (naechstes('[data-aeteil-aus]')) { z.aeTeile = []; aktualisieren(); }
+    const sch = naechstes('[data-schritt]');
     if (sch) { stoppeSchritte(); z.schritt = Number(sch.dataset.schritt); aktualisieren(); }
-    if (e.target.closest('[data-schritt-abspielen]')) schritteAbspielen();
-    if (e.target.closest('[data-schritt-zu]')) { stoppeSchritte(); z.schritt = 0; aktualisieren(); }
-    const ph = e.target.closest('[data-phase]');
+    if (naechstes('[data-schritt-abspielen]')) schritteAbspielen();
+    if (naechstes('[data-schritt-zu]')) { stoppeSchritte(); z.schritt = 0; aktualisieren(); }
+    const ph = naechstes('[data-phase]');
     if (ph) { clearTimeout(ablauf); phase = Number(ph.dataset.phase); aktualisieren(); }
-    if (e.target.closest('[data-abspielen]')) abspielen();
-    if (e.target.closest('[data-erkl-zu]')) { clearTimeout(ablauf); z.erkl = null; phase = 3; aktualisieren(); }
-    const wahl = e.target.closest('[data-erkl]');
-    if (wahl) { z.erkl = wahl.dataset.erkl; abspielen(); }
+    if (naechstes('[data-abspielen]')) abspielen();
+    if (naechstes('[data-erkl-zu]')) { clearTimeout(ablauf); z.erkl = null; phase = 3; aktualisieren(); }
+    const wahl = naechstes('[data-erkl]');
+    if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); abspielen(); }
   });
   $('opt-brechen').addEventListener('change', () => {
     const s = systemJetzt();
-    z.brechen = $('opt-brechen').checked;
+    z.brechen = eingabe('opt-brechen').checked;
     if (z.brechen) {
       z.frei = { ...z.gitter[s] };
       z.warum = false; z.erkl = null; z.aufbau = 0; z.schritt = 0; z.aeTeile = []; stoppeSchritte(); clearTimeout(ablauf); phase = 3;
     } else {
       // Bindung wieder an: die nächste Metrik des Systems (freie Parameter behalten, im Bereich)
       const g0 = { ...GITTER_START[s] };
-      for (const k of FREI[s]) g0[k] = Math.min(Math.max(z.frei[k], GITTER_BEREICH[k][0]), GITTER_BEREICH[k][1]);
+      for (const k of FREI[s]) g0[k] = grad(Math.min(Math.max(z.frei[k], GITTER_BEREICH[k][0]), GITTER_BEREICH[k][1])); // grad() kennzeichnet nur
       z.gitter[s] = g0;
     }
     aktualisieren();
@@ -826,19 +900,19 @@ function init() {
     aktualisieren();
   });
   // Rückgängig: den Stand vor dem letzten Strich oder Radieren; ohne Verlauf (nach dem Neuladen) den letzten Strich
-  $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = verlauf.pop(); else z.striche.pop(); aktualisieren(); });
+  $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = /** @type {Vec2[][]} */ (verlauf.pop()); else z.striche.pop(); aktualisieren(); });
   $('zeichnen-loeschen').addEventListener('click', () => { merken(); z.striche = []; aktualisieren(); });
-  $('opt-fuell').addEventListener('change', () => { z.aeFuell = $('opt-fuell').checked; aktualisieren(); });
+  $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
   $('werkzeug-warum').addEventListener('click', () => {
     z.warum = !z.warum;
     if (z.warum) { z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });
-  $('opt-aufbau').addEventListener('change', () => { z.aufbau = $('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
-  $('aufbau-schritt').addEventListener('input', () => { z.aufbau = Number($('aufbau-schritt').value); aktualisieren(); });
-  $('opt-schritt').addEventListener('change', () => { stoppeSchritte(); z.schritt = $('opt-schritt').checked ? 1 : 0; aktualisieren(); });
-  $('schritt-regler').addEventListener('input', () => { stoppeSchritte(); z.schritt = Number($('schritt-regler').value); aktualisieren(); });
+  $('opt-aufbau').addEventListener('change', () => { z.aufbau = eingabe('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
+  $('aufbau-schritt').addEventListener('input', () => { z.aufbau = Number(eingabe('aufbau-schritt').value); aktualisieren(); });
+  $('opt-schritt').addEventListener('change', () => { stoppeSchritte(); z.schritt = eingabe('opt-schritt').checked ? 1 : 0; aktualisieren(); });
+  $('schritt-regler').addEventListener('input', () => { stoppeSchritte(); z.schritt = Number(eingabe('schritt-regler').value); aktualisieren(); });
   $('schritt-zurueck').addEventListener('click', () => { stoppeSchritte(); z.schritt = Math.max(1, z.schritt - 1); aktualisieren(); });
   $('schritt-vor').addEventListener('click', () => { stoppeSchritte(); z.schritt = Math.min(gruppeVon(z.gruppe).ordnung + 1, z.schritt + 1); aktualisieren(); });
   $('schritt-abspielen').addEventListener('click', schritteAbspielen);
@@ -846,30 +920,35 @@ function init() {
   $('aufbau-vor').addEventListener('click', () => { z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, z.aufbau + 1); aktualisieren(); });
   zeigerEinrichten();
   // Telefon: eine Tafel oben, Umschalter
+  /** @param {string} fig */
   const tafelZeigen = (fig) => {
     document.body.dataset.fig = fig;
-    document.querySelectorAll('.figswitch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.fig === fig)));
+    elemente('.figswitch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.fig === fig)));
   };
-  document.querySelectorAll('.figswitch button').forEach((b) => b.addEventListener('click', () => tafelZeigen(b.dataset.fig)));
+  elemente('.figswitch button').forEach((b) => b.addEventListener('click', () => tafelZeigen(b.dataset.fig ?? 'a')));
   // Erste Schritte je Modus: beim ersten Aufruf eines Modus, wegklickbar (× oder „?“), über „?“ wieder; nicht
   // für den Modus, in dem ein Link die App öffnet (für die Sitzung, nicht gespeichert). Gespeichert: die
   // gesehenen Modi (introGesehen in zustand.js).
   const INTRO = 'ebenen-intro';
+  /** @type {Set<string>} */
   let gesehen = new Set();
   try { gesehen = introGesehen(localStorage.getItem(INTRO)); } catch { /* ohne Speicher weiter */ }
+  /** @type {Set<string>} */
   const ueberLink = new Set(location.hash.length > 1 ? [z.modus] : []);
+  /** @param {boolean} an */
   const intro = (an) => { $('intro').hidden = !an; $('help-open').setAttribute('aria-expanded', String(an)); };
   const introZu = () => {
     intro(false);
     gesehen.add(z.modus);
     try { localStorage.setItem(INTRO, [...gesehen].join(',')); } catch { /* ohne Speicher weiter */ }
   };
+  /** @type {string | null} */
   let introModus = location.hash.length > 1 ? z.modus : null;
   introAbgleichen = () => {
     if (z.modus === introModus) return;
     introModus = z.modus;
     intro(!gesehen.has(z.modus) && !ueberLink.has(z.modus));
-    document.querySelectorAll('.steps li.done').forEach((li) => li.classList.remove('done'));
+    elemente('.steps li.done').forEach((li) => li.classList.remove('done'));
   };
   $('intro-close').addEventListener('click', introZu);
   $('help-open').addEventListener('click', () => { if ($('intro').hidden) intro(true); else introZu(); });
@@ -879,8 +958,9 @@ function init() {
     introAbgleichen();
   });
   // Jeder Schritt zeigt am Telefon die Tafel, in der er wirkt (Symmetriegerüst bzw. Struktur)
-  const schritt = (n, f) => document.querySelector(`[data-step="${n}"]`).addEventListener('click', () => {
-    f(); tafelZeigen('a'); document.querySelector(`[data-step="${n}"]`).closest('li').classList.add('done'); aktualisieren();
+  /** @param {number | string} n @param {() => void} f */
+  const schritt = (n, f) => element(`[data-step="${n}"]`).addEventListener('click', () => {
+    f(); tafelZeigen('a'); /** @type {HTMLElement} */ (element(`[data-step="${n}"]`).closest('li')).classList.add('done'); aktualisieren();
   });
   schritt(1, () => { z.gruppe = 'p4gm'; z.objekt = true; });
   schritt(2, () => { z.objekt = true; const w = ebenengruppe(z.gruppe).wyckoff.find((x) => /m/.test(x.sym) && x.koord[0].includes('x')); if (w) wyckoffSetzen(w.b); });

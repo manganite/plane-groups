@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Fragen des Quiz (handgeschrieben). Aufbau siehe lib/common/js/quiz-core.js.
 // Nur Fragen mit status 'geprüft' erscheinen; Entwürfe zeigt quiz.html?entwurf.
 // id wie im Stereo-Quiz: Kürzel des Kapitels, Stufe, laufende Nummer je Kürzel und Stufe (z. B. gl-2-03).
@@ -6,23 +5,31 @@
 // lernziel steht wörtlich in den Lernzielen oder der Zusammenfassung des Kapitels (Test).
 // Bildangaben: Link-Adresse der App (Tafel A) oder „B#…“ (Tafel B, das Muster); siehe quiz-bild.js.
 
+/** @import { Frage } from '../lib/common/js/quiz-core.js' */
+
+/** @param {string} s */
 const ov = (s) => `<i><span class="ov">${s}</span></i>`;
+/** @param {string} s */
 const sym = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
 /**
  * Matrix oder Spaltenvektor (Zeilen als Arrays) mit Klammern. Nur <span> mit Inline-Stilen (Tabellen-
  * Darstellung über CSS): Ein <table> darf nicht in einem Absatz stehen, und Fragen und Erklärungen
  * landen auf der Prüfliste und in Moodle in einem <p>. Die Klammern sind Ränder der ersten und letzten
  * Spalte, oben und unten mit kurzem Haken (abgerundet, wo die Darstellung border-radius erlaubt).
+ * @param {(string | number)[][]} zeilen
  */
 const mat = (zeilen) => {
   const n = zeilen.length;
+  /** @param {'l' | 'r'} seite @param {number} i */
   const klammer = (seite, i) => {
     const r = seite === 'l' ? 'left' : 'right';
     const oben = i === 0 ? `border-top:1.5px solid;border-top-${r}-radius:0.5em;` : '';
     const unten = i === n - 1 ? `border-bottom:1.5px solid;border-bottom-${r}-radius:0.5em;` : '';
     return `<span style="display:table-cell;width:0.3em;min-width:0.3em;padding:0;border-${r}:1.5px solid;${oben}${unten}"></span>`;
   };
+  /** @param {string | number} x */
   const zelle = (x) => `<span style="display:table-cell;padding:0.05em 0.35em;text-align:center;white-space:nowrap">${x}</span>`;
+  /** @param {(string | number)[]} z @param {number} i */
   const reihe = (z, i) => `<span style="display:table-row">${klammer('l', i)}${z.map(zelle).join('')}${klammer('r', i)}</span>`;
   return `<span style="display:inline-table;vertical-align:middle;border-collapse:separate;border-spacing:0;margin:0.1em 0.15em;line-height:1.25">${zeilen.map(reihe).join('')}</span>`;
 };
@@ -84,6 +91,7 @@ const LZ = {
   wallpaper: 'Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster sind periodische Muster mit denselben 17 Ebenengruppen; englisch heissen sie wallpaper groups.',
 };
 
+/** @type {Frage[]} */
 export const BANK = [
   // ================================================================== Kap. 1 Gitter, Elementarzelle und Basis
   {

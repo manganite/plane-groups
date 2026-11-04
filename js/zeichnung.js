@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Zeichnungen der Ebenengruppen als SVG: Symmetriegerüst (Tafel A) und Muster (Tafel B).
 // Ohne DOM, damit sich alles in Node testen lässt; die Farben kommen als Objekt herein.
 //
@@ -12,15 +11,34 @@ import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICH
 import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp, vorbild } from './herkunft.js';
 import { bedingungen, bereich } from './asymmetrie.js';
 
-// Die Datei ist noch ohne Typprüfung (@ts-nocheck); die Typen an den Funktionen, die die
-// Rechenkerne verwenden, gelten aber schon (crystallography-common#19).
 /** @import { Vec2, Mat2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Gruppe, Op, Drehpunkt, Linie } from './symmetrie.js' */
+/** @import { System } from './ebenengruppen.js' */
+/** @import { Element as OpElement } from './herkunft.js' */
+/** @import { Zustand } from './zustand.js' */
 /** Gitter: b/a und Winkel γ zwischen a und b. @typedef {{ ba: number, gamma: Grad }} Gitter */
 /**
  * Farben aus base.css (Werte der Variablen; dir: die drei Blickrichtungen).
- * @typedef {{ paper: string, ink: string, muted: string, line: string, accent: string, accent2: string, upper: string, crystal: string, dir: string[], fc3: string, fc4: string }} Farben
+ * fc: die Formfarben --fc0 … --fc5 (nur wo gebraucht, z. B. im Skript).
+ * @typedef {{ paper: string, ink: string, muted: string, line: string, accent: string, accent2: string, upper: string, crystal: string, dir: string[], fc3: string, fc4: string, fc?: string[] }} Farben
  */
+/** Rechteck x0, y0, x1, y1. @typedef {[number, number, number, number]} Box */
+/** Drehpunkt in Tafel A, im Aufbau mit den sichtbaren Zähligkeiten und neu (gerade hinzugekommen). @typedef {Drehpunkt & { ordnungen?: number[], neu?: boolean }} SichtbarerDrehpunkt */
+/** Linie in Tafel A, im Aufbau mit neu (gerade hinzugekommen). @typedef {Linie & { neu?: boolean }} SichtbareLinie */
+/** Gezeigte Symmetrieelemente. @typedef {{ drehpunkte: SichtbarerDrehpunkt[], linien: SichtbareLinie[] }} Elementauswahl */
+/** Bild des Objekts: Stelle, Matrix, eigentlich (Drehung/Translation), Index der Operation in g.alle. @typedef {{ punkt: Vec2, R: Mat2, eigentlich: boolean, index: number }} Bild */
+/** Weg des Fähnchens unter einer Operation (weg()). @typedef {{ teile: Vec2[][], zwischen: { p: Vec2, op: Op } | null }} Weg */
+/** Operation der ITA-Liste: nr (Nummer in der Liste), zentr (Zentrierungsvektor oder null). @typedef {{ op: Op, nr: number, zentr: Vec2 | null }} ItaOperation */
+/** Bild im Schritt für Schritt (schrittDaten()). @typedef {ItaOperation & { punkt: Vec2, index: number, gleich: number | null, gitter: boolean }} SchrittBild */
+/**
+ * Erklärung eines Elements als C = A ∘ B (erklaerungsDaten()).
+ * @typedef {{ art?: undefined, schluessel: string, element: OpElement, tiefe: number, C: Op, A: Op, B: Op, kette: { c: Op, a: Op, b: Op, aTranslation: boolean }[], start: Vec2, wege: Record<string, Weg>, erzeugende: boolean }} ErklaerungAB
+ */
+/**
+ * Erklärung einer Gitterkopie C = t ∘ V ∘ t⁻¹ (kopieDaten()).
+ * @typedef {{ art: 'kopie', schluessel: string, element: OpElement, tiefe: number, C: Op, V: Op, t: Vec2, T: Op, vorbild: { schluessel: string, element: OpElement }, kette: never[], start: Vec2, wege: Record<string, Weg>, erzeugende: false }} ErklaerungKopie
+ */
+/** @typedef {ErklaerungAB | ErklaerungKopie} Erklaerung */
 /** Gittervektoren in Bildschirmrichtungen (a = 1). @typedef {{ a: Kartesisch<Vec2>, b: Kartesisch<Vec2> }} Metrik */
 /**
  * Ansicht: Massstab s, Bildgrösse; zuBild: Bruchkoordinaten → Bildpunkt, vonBild umgekehrt.
@@ -34,11 +52,11 @@ import { bedingungen, bereich } from './asymmetrie.js';
 /** Gittervektoren in Bildschirmrichtungen (a = 1): a = (cos γ, sin γ), b = (b/a, 0). @param {Gitter} gitter @returns {Metrik} */
 export function metrik({ ba, gamma }) {
   const g = (gamma * Math.PI) / 180;
-  return { a: [Math.cos(g), Math.sin(g)], b: [ba, 0] };
+  return { a: /** @type {Kartesisch<Vec2>} */ ([Math.cos(g), Math.sin(g)]), b: /** @type {Kartesisch<Vec2>} */ ([ba, 0]) };
 }
 
 /** Bruchkoordinaten → kartesisch (Bildschirmrichtungen, ohne Massstab). @type {(M: Metrik, p: Vec2) => Kartesisch<Vec2>} */
-export const kart = (M, p) => [p[0] * M.a[0] + p[1] * M.b[0], p[0] * M.a[1] + p[1] * M.b[1]];
+export const kart = (M, p) => /** @type {Kartesisch<Vec2>} */ ([p[0] * M.a[0] + p[1] * M.b[0], p[0] * M.a[1] + p[1] * M.b[1]]);
 
 /** Kartesisch → Bruchkoordinaten. @param {Metrik} M @param {Kartesisch<Vec2>} c @returns {Vec2} */
 export function bruchVon(M, c) {
@@ -46,11 +64,14 @@ export function bruchVon(M, c) {
   return [(c[0] * M.b[1] - M.b[0] * c[1]) / d, (M.a[0] * c[1] - c[0] * M.a[1]) / d];
 }
 
-/** Matrix R (Bruchkoordinaten) als kartesische Matrix C·R·C⁻¹. */
+/** Matrix R (Bruchkoordinaten) als kartesische Matrix C·R·C⁻¹. @param {Metrik} M @param {Mat2} R @returns {Mat2} */
 export function kartMatrix(M, R) {
+  /** @type {Mat2} */
   const C = [[M.a[0], M.b[0]], [M.a[1], M.b[1]]];
   const d = C[0][0] * C[1][1] - C[0][1] * C[1][0];
+  /** @type {Mat2} */
   const Ci = [[C[1][1] / d, -C[0][1] / d], [-C[1][0] / d, C[0][0] / d]];
+  /** @type {(A: Mat2, B: Mat2) => Mat2} */
   const mul = (A, B) => [[A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]],
     [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]];
   return mul(mul(C, R), Ci);
@@ -74,13 +95,13 @@ export function ansicht(M, box, groesse = 520, rand = 46) {
   return {
     s, groesse,
     zuBild: (p) => { const c = kart(M, p); return [ox + s * c[0], oy + s * c[1]]; },
-    vonBild: (q) => bruchVon(M, [(q[0] - ox) / s, (q[1] - oy) / s]),
+    vonBild: (q) => bruchVon(M, /** @type {Kartesisch<Vec2>} */ ([(q[0] - ox) / s, (q[1] - oy) / s])),
   };
 }
 
-/** Kartesisches Rechteck um die Zellen [0, n]². */
+/** Kartesisches Rechteck um die Zellen [0, n]². @param {Metrik} M @param {number} n @param {number} [r] @returns {Box} */
 function zellBox(M, n, r = 0) {
-  const ecken = [[-r, -r], [n + r, -r], [-r, n + r], [n + r, n + r]].map((p) => kart(M, p));
+  const ecken = /** @type {Vec2[]} */ ([[-r, -r], [n + r, -r], [-r, n + r], [n + r, n + r]]).map((p) => kart(M, p));
   const xs = ecken.map((c) => c[0]); const ys = ecken.map((c) => c[1]);
   return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
 }
@@ -97,6 +118,8 @@ export const pt = (q) => `${f2(q[0])},${f2(q[1])}`;
 /**
  * Position im Hermann-Mauguin-Symbol (1: Drehpunkt, 2: zweite, 3: dritte Stelle) einer
  * (Gleit-)Spiegellinie mit der Normale n (ITA Tab. 2.2.4.1).
+ * @param {System} system
+ * @param {Vec2} normale
  */
 export function blickrichtung(system, normale) {
   const klassen = SYMMETRIERICHTUNGEN[system] ?? [];
@@ -108,16 +131,20 @@ export function blickrichtung(system, normale) {
 /** Symmetrieelemente der Zellen [0, n]², Doppelte an gemeinsamen Kanten entfernt. @param {Gruppe} g @param {number} n @returns {{ drehpunkte: Drehpunkt[], linien: Linie[] }} */
 export function elementeImBereich(g, n) {
   const e = elemente(g);
-  const dreh = []; const linien = [];
+  /** @type {Drehpunkt[]} */
+  const dreh = [];
+  /** @type {Linie[]} */
+  const linien = [];
   const schluessel = new Set();
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     for (const d of e.drehpunkte) {
+      /** @type {Vec2} */
       const p = [d.punkt[0] + i, d.punkt[1] + j];
       const k = `d${p.map((v) => v.toFixed(6))}`;
       if (!schluessel.has(k)) { schluessel.add(k); dreh.push({ ...d, punkt: p }); }
     }
     for (const l of e.linien) {
-      const s = l.strecke.map((q) => [q[0] + i, q[1] + j]);
+      const s = /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j]));
       const k = `l${[...s].sort((u, v) => u[0] - v[0] || u[1] - v[1]).flat().map((v) => v.toFixed(6))}`;
       if (!schluessel.has(k)) { schluessel.add(k); linien.push({ ...l, strecke: s, punkt: [l.punkt[0] + i, l.punkt[1] + j] }); }
     }
@@ -125,11 +152,15 @@ export function elementeImBereich(g, n) {
   return { drehpunkte: dreh, linien };
 }
 
-/** SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q, Grösse k (1 = normal), Randstärke s (1 = normal). */
+/**
+ * SVG eines Drehpunkt-Symbols (ITA) der Zähligkeit n an der Bildstelle q, Grösse k (1 = normal), Randstärke s (1 = normal).
+ * @param {number} n @param {Vec2} q @param {string} farbe @param {string} rand @param {number} [k] @param {number} [s]
+ */
 export function drehSymbol(n, q, farbe, rand, k = 1, s = 1) {
   const [x, y] = q;
   const stil = `fill="${farbe}" stroke="${rand}" stroke-width="${f2(1.2 * s)}"`;
   if (n === 2) return `<ellipse cx="${f2(x)}" cy="${f2(y)}" rx="${f2(4.6 * k)}" ry="${f2(8.2 * k)}" ${stil}/>`;
+  /** @param {number} r @param {number} m @param {number} phase */
   const poly = (r, m, phase) => Array.from({ length: m }, (_, i) => {
     const w = phase + (2 * Math.PI * i) / m;
     return `${f2(x + r * k * Math.cos(w))},${f2(y + r * k * Math.sin(w))}`;
@@ -143,6 +174,8 @@ export function drehSymbol(n, q, farbe, rand, k = 1, s = 1) {
  * Die in Tafel A sichtbaren Elemente der Zellen [0, n]²: ohne Aufbau alle, sonst die bis zum
  * Schritt aufbau; ein Drehpunkt trägt dann die grösste sichtbare Zähligkeit (Auswahl und
  * Erklärung gelten dieser, z. B. in p6 Schritt 1 der 3-zählige Punkt am Ursprung).
+ * @param {Gruppe} g @param {number} n @param {number} aufbau
+ * @returns {Elementauswahl}
  */
 export function sichtbar(g, n, aufbau) {
   if (!(aufbau > 0)) return elementeImBereich(g, n);
@@ -150,7 +183,10 @@ export function sichtbar(g, n, aufbau) {
   return { drehpunkte: a.drehpunkte.map((d) => ({ ...d, n: Math.max(...d.ordnungen) })), linien: a.linien };
 }
 
-/** SVG einer Linie (Spiegel- oder Gleitspiegellinie) zwischen zwei Bildpunkten; k vergrössert Strich und Strichelung. */
+/**
+ * SVG einer Linie (Spiegel- oder Gleitspiegellinie) zwischen zwei Bildpunkten; k vergrössert Strich und Strichelung.
+ * @param {Vec2} p @param {Vec2} q @param {string} art @param {string} farbe @param {number | null} [breite] @param {number} [k]
+ */
 function linieSVG(p, q, art, farbe, breite = null, k = 1) {
   const b = f2((breite ?? (art === 'spiegel' ? 2.8 : 2)) * k);
   return art === 'spiegel'
@@ -164,7 +200,7 @@ function linieSVG(p, q, art, farbe, breite = null, k = 1) {
  * mehrere Symbole an derselben Stelle. gedimmt: alles blasser (bei einer Erklärung). k: Grösse
  * der Symbole und Linien (1 in der App; das Skript vergrössert sie in kleinen Abbildungen).
  * @param {Gruppe} g
- * @param {{ drehpunkte: Drehpunkt[], linien: Linie[] }} el
+ * @param {Elementauswahl} el
  * @param {Ansicht} A
  * @param {Farben} farben
  * @param {boolean | undefined} mitFarben
@@ -173,6 +209,7 @@ function linieSVG(p, q, art, farbe, breite = null, k = 1) {
  */
 export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false, k = 1 } = {}) {
   const sys = g.daten.system;
+  /** @param {number} pos */
   const farbeVon = (pos) => (mitFarben ? farben.dir[pos - 1] : farben.ink);
   const linien = el.linien.map((l) => {
     const [p, q] = l.strecke.map(A.zuBild);
@@ -192,27 +229,30 @@ export function elementeSVG(g, el, A, farben, mitFarben, { gedimmt = false, k = 
   return `<g class="elemente"${gedimmt ? ' opacity="0.35"' : ''}>${linien.join('')}${dreh.join('')}</g>`;
 }
 
-/** Echte Teiler > 1 und die Zahl selbst (Zähligkeiten an einem Drehpunkt): 6 → [6, 3, 2]. */
+/** Echte Teiler > 1 und die Zahl selbst (Zähligkeiten an einem Drehpunkt): 6 → [6, 3, 2]. @param {number} n */
 const teiler = (n) => [6, 4, 3, 2].filter((k) => k <= n && n % k === 0);
 
 /**
  * Elemente der Zellen [0, n]² im Aufbau aus Erzeugenden bis zum Schritt schritt (herkunft.js).
  * An einem Drehpunkt erscheinen die Zähligkeiten, die bis dahin entstanden sind; eine, die
  * eine andere teilt, entfällt (2 und 3 → beide, 2 und 6 → 6). neu: genau in diesem Schritt.
+ * @param {Gruppe} g @param {number} n @param {number} schritt
+ * @returns {{ drehpunkte: (Drehpunkt & { ordnungen: number[], neu: boolean })[], linien: SichtbareLinie[] }}
  */
 export function aufbauElemente(g, n, schritt) {
   const e = elementeImBereich(g, n);
   const h = herkunft(g);
   const drehpunkte = [];
   for (const d of e.drehpunkte) {
-    const st = new Map(teiler(d.n).map((k) => [k, h.klassen.get(klassenSchluessel(g, { n: k, punkt: d.punkt }))]));
-    const da = [...st.keys()].filter((k) => st.get(k) <= schritt);
+    // jede Zähligkeit eines gezeichneten Drehpunkts hat eine Klasse in herkunft()
+    const st = new Map(teiler(d.n).map((k) => [k, /** @type {number} */ (h.klassen.get(klassenSchluessel(g, { n: k, punkt: d.punkt })))]));
+    const da = [...st.keys()].filter((k) => /** @type {number} */ (st.get(k)) <= schritt);
     const zeigen = da.filter((k) => !da.some((m) => m !== k && m % k === 0));
     if (zeigen.length) drehpunkte.push({ ...d, ordnungen: zeigen, neu: zeigen.some((k) => st.get(k) === schritt) });
   }
   const linien = [];
   for (const l of e.linien) {
-    const s = schrittVon(g, l);
+    const s = /** @type {number} */ (schrittVon(g, l)); // jede gezeichnete Linie hat einen Schritt
     if (s <= schritt) linien.push({ ...l, neu: s === schritt });
   }
   return { drehpunkte, linien };
@@ -223,6 +263,7 @@ export function aufbauElemente(g, n, schritt) {
 // ---------------------------------------------------------------------------------------------
 
 /** Fähnchen in Bildpunkten, Fuss im Ursprung: Stange nach oben, Fahne nach rechts. */
+/** @type {{ stange: Vec2[], fahne: Vec2[] }} */
 const FAHNE = { stange: [[0, 0], [0, -22]], fahne: [[0, -22], [11, -17], [0, -12]] };
 /** Grösste Ausdehnung eines Objekts (Fähnchen, Komma, Ornament) vom Fusspunkt, in Bildpunkten bei Massstab 1. */
 const REICHWEITE = 30;
@@ -236,12 +277,19 @@ const REICHWEITE = 30;
  */
 export const ORBIT_RAND = 1 / 3;
 
+/**
+ * Alle Bilder des Punktes p in den Zellen [lo, hi]² mit Rand.
+ * @param {Gruppe} g @param {Vec2} p @param {number} lo @param {number} hi @param {number} [rand]
+ * @returns {Bild[]}
+ */
 export function bilder(g, p, lo, hi, rand = 0.08) {
+  /** @type {Bild[]} */
   const out = [];
   for (const [index, op] of g.alle.entries()) {
     const q0 = anwenden(op, p).map(mod1);
     const d = op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0];
     for (let i = Math.floor(lo - 1); i <= Math.ceil(hi); i++) for (let j = Math.floor(lo - 1); j <= Math.ceil(hi); j++) {
+      /** @type {Vec2} */
       const q = [q0[0] + i, q0[1] + j];
       if (q[0] < lo - rand || q[0] > hi + rand || q[1] < lo - rand || q[1] > hi + rand) continue;
       out.push({ punkt: q, R: op.R, eigentlich: d > 0, index });
@@ -255,6 +303,7 @@ export function bilder(g, p, lo, hi, rand = 0.08) {
  * damit Spiegelbilder sichtbar bleiben. Pfade in Bildpunkten wie das Fähnchen, Fuss im Ursprung;
  * je Teil [Befehle, Art]: 'fill' gefüllt, 'stroke' Linie, 'loch' gefüllt in der Papierfarbe.
  * Befehle: [Buchstabe, ...Punkte] mit M, L, Q, C, Z.
+ * @type {Record<string, [[string, ...Vec2[]][], 'stroke' | 'fill' | 'ader' | 'loch'][]>}
  */
 const ORNAMENTE = {
   blatt: [
@@ -274,8 +323,12 @@ const ORNAMENTE = {
 /** Formen des Objekts: Fähnchen, Kreis mit Komma (ITA) und die Ornamente. */
 export const FORMEN = ['fahne', 'komma', ...Object.keys(ORNAMENTE)];
 
-/** SVG eines Objekts (Fähnchen, Kreis mit Komma oder Ornament) am Bildpunkt q, gedreht/gespiegelt mit Mc. */
+/**
+ * SVG eines Objekts (Fähnchen, Kreis mit Komma oder Ornament) am Bildpunkt q, gedreht/gespiegelt mit Mc.
+ * @param {string} form @param {Vec2} q @param {Mat2} Mc @param {boolean} eigentlich @param {string} farbe @param {string} papier @param {number} [massstab]
+ */
 export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) {
+  /** @param {Vec2} v @returns {Vec2} */
   const T = (v) => [q[0] + massstab * (Mc[0][0] * v[0] + Mc[0][1] * v[1]), q[1] + massstab * (Mc[1][0] * v[0] + Mc[1][1] * v[1])];
   if (ORNAMENTE[form]) {
     return ORNAMENTE[form].map(([befehle, art]) => {
@@ -303,6 +356,9 @@ export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) 
 /**
  * Bilder des Objekts als SVG. farbeVon(bild): eigene Farbe je Bild (z. B. nach Bahnen der
  * Restsymmetrie beim Brechen), sonst nach Händigkeit.
+ * @param {Gruppe} g @param {Metrik} M @param {Ansicht} A @param {Vec2} p @param {number} lo @param {number} hi
+ * @param {string} form @param {Farben} farben @param {number} massstab @param {number} [rand]
+ * @param {((b: Bild) => string) | null} [farbeVon] @param {boolean} [nurSichtbar]
  */
 function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined, farbeVon = null, nurSichtbar = false) {
   const out = [];
@@ -326,21 +382,24 @@ function objekteSVG(g, M, A, p, lo, hi, form, farben, massstab, rand = undefined
  * Stelle des Ausgangsobjekts in den Zellen [0, n]²: der Punkt selbst, wenn er dort liegt
  * (auch in einer anderen als der ersten Zelle), sonst sein Bild in der ersten Zelle.
  * Ring in Tafel A und Trefferprüfung beim Ziehen verwenden dieselbe Stelle.
+ * @param {Vec2} p @param {number} n @returns {Vec2}
  */
-export const ausgangsstelle = (p, n) => (p.every((v) => v >= 0 && v <= n) ? [...p] : p.map(mod1));
+export const ausgangsstelle = (p, n) => /** @type {Vec2} */ (p.every((v) => v >= 0 && v <= n) ? [...p] : p.map(mod1));
 
-/** Zellumriss [i, i+1] × [j, j+1] als Polygon. */
-const zellPoly = (A, i, j, n = 1) => [[i, j], [i, j + n], [i + n, j + n], [i + n, j]].map((p) => pt(A.zuBild(p))).join(' ');
+/** Zellumriss [i, i+1] × [j, j+1] als Polygon. @param {Ansicht} A @param {number} i @param {number} j @param {number} [n] */
+const zellPoly = (A, i, j, n = 1) => /** @type {Vec2[]} */ ([[i, j], [i, j + n], [i + n, j + n], [i + n, j]]).map((p) => pt(A.zuBild(p))).join(' ');
 
 /**
  * Gewählte Bedingungen der asymmetrischen Einheit (Nummern in g.daten.ae.text): der Bereich in
  * den Zellen, in dem alle erfüllt sind, schattiert (teil 'flaeche', unter den Elementen); die
  * Grenzlinien jeder Bedingung als Band (teil 'grenzen', über den Elementen).
+ * @param {Gruppe} g @param {number[]} auswahl @param {Ansicht} A @param {number} n @param {Farben} farben @param {'flaeche' | 'grenzen'} [teil]
  */
 export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
   const alle = bedingungen(g.daten.ae.text);
   const gewaehlt = auswahl.map((i) => alle[i]).filter(Boolean);
   if (!gewaehlt.length) return '';
+  /** @type {Box} */
   const box = [0, 0, n, n];
   const flaecheSVG = bereich(gewaehlt.flatMap((b) => b.halbebenen), box);
   const teile = [`<g class="ae-teile${teil === 'flaeche' ? '' : '-grenzen'}">`];
@@ -376,9 +435,11 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
  */
 export function gebrochen(g, frei) {
   const M = metrik(frei);
+  /** @type {Mat2} */
   const G = [[M.a[0] ** 2 + M.a[1] ** 2, M.a[0] * M.b[0] + M.a[1] * M.b[1]], [0, M.b[0] ** 2 + M.b[1] ** 2]];
   G[1][0] = G[0][1];
   const s = Math.max(G[0][0], G[1][1]);
+  /** @param {Mat2} R */
   const erhaelt = (R) => [0, 1].every((i) => [0, 1].every((j) => {
     let h = 0;
     for (let k = 0; k < 2; k++) for (let l = 0; l < 2; l++) h += R[k][i] * G[k][l] * R[l][j];
@@ -388,8 +449,12 @@ export function gebrochen(g, frei) {
   const weg = g.alle.filter((op) => !erhaelt(op.R));
   // Bahnen der Restgruppe H: Die Bilder unter o₁ und o₂ sind gleichwertig, wenn o₂ ∘ o₁⁻¹ in H
   // liegt (modulo Gitter). bahn[i]: Nummer der Bahn des Bildes unter g.alle[i].
+  /** @param {Op} op */
   const inH = (op) => bleibt.some((h) => h.R.every((z, i) => z.every((w, j) => w === op.R[i][j])) && [0, 1].every((i) => { const d = h.t[i] - op.t[i]; return Math.abs(d - Math.round(d)) < 1e-6; }));
-  const bahn = []; const vertreter = [];
+  /** @type {number[]} */
+  const bahn = [];
+  /** @type {Op[]} */
+  const vertreter = [];
   for (const [i, o] of g.alle.entries()) {
     const k = vertreter.findIndex((v) => inH(verknuepfen(o, invers(v))));
     if (k >= 0) bahn[i] = k; else { bahn[i] = vertreter.length; vertreter.push(o); }
@@ -397,7 +462,7 @@ export function gebrochen(g, frei) {
   return { M, H: { ...g, alle: bleibt, ordnung: bleibt.length }, bleibt, weg, bahn, bahnen: vertreter.length };
 }
 
-/** Farben der Bahnen beim Brechen: die erste wie bisher, dann gut unterscheidbare. */
+/** Farben der Bahnen beim Brechen: die erste wie bisher, dann gut unterscheidbare. @param {Farben} farben */
 export const bahnFarben = (farben) => [farben.upper, farben.accent2, farben.dir[0], farben.dir[1], farben.dir[2], farben.fc3];
 
 /** Motiv ohne eigene Symmetrie (drei Punkte verschiedener Art), vervielfältigt mit g. @param {Gruppe} g @param {Vec2} [p] @returns {{ p: Vec2, art: string }[]} */
@@ -418,32 +483,41 @@ export const STRICH_GRENZE = 1200;
 /**
  * Strich vereinfachen (Ramer-Douglas-Peucker, Toleranz in Bruchteilen der Zelle) und auf drei
  * Stellen runden, damit das Muster auch mit vielen Kopien schnell bleibt.
+ * @param {Vec2[]} punkte @param {number} [tol] @returns {Vec2[]}
  */
 export function vereinfachen(punkte, tol = 0.003) {
-  if (punkte.length <= 2) return punkte.map((p) => p.map((v) => Math.round(v * 1000) / 1000));
+  /** @param {Vec2} p @returns {Vec2} */
+  const runden = (p) => [Math.round(p[0] * 1000) / 1000, Math.round(p[1] * 1000) / 1000];
+  if (punkte.length <= 2) return punkte.map(runden);
+  /** @param {Vec2} p @param {Vec2} a @param {Vec2} b */
   const abstand = (p, a, b) => {
     const dx = b[0] - a[0]; const dy = b[1] - a[1]; const l = Math.hypot(dx, dy);
     if (l < 1e-12) return Math.hypot(p[0] - a[0], p[1] - a[1]);
     return Math.abs(dy * p[0] - dx * p[1] + b[0] * a[1] - b[1] * a[0]) / l;
   };
+  /** @type {boolean[]} */
   const behalten = new Array(punkte.length).fill(false);
   behalten[0] = true; behalten[punkte.length - 1] = true;
+  /** @type {[number, number][]} */
   const stapel = [[0, punkte.length - 1]];
   while (stapel.length) {
-    const [i, j] = stapel.pop();
+    const [i, j] = /** @type {[number, number]} */ (stapel.pop());
     let max = -1; let k = -1;
     for (let m = i + 1; m < j; m++) { const d = abstand(punkte[m], punkte[i], punkte[j]); if (d > max) { max = d; k = m; } }
     if (max > tol) { behalten[k] = true; stapel.push([i, k], [k, j]); }
   }
-  return punkte.filter((_, i) => behalten[i]).map((p) => p.map((v) => Math.round(v * 1000) / 1000));
+  return punkte.filter((_, i) => behalten[i]).map(runden);
 }
 
 /**
  * Kopien einer Punktfolge unter allen Operationen der Gruppe und den Gittertranslationen, soweit
  * sie den Bereich [lo − rand, hi + rand]² berühren. Je Kopie: punkte, eigentlich (Drehung oder
  * Translation, sonst Spiegelbild), urbild (die Identität ohne Verschiebung).
+ * @param {Gruppe} g @param {readonly Vec2[]} punkte @param {number} lo @param {number} hi @param {number} [rand]
+ * @returns {{ punkte: Vec2[], eigentlich: boolean, urbild: boolean }[]}
  */
 export function kopien(g, punkte, lo, hi, rand = 0.1) {
+  /** @type {{ punkte: Vec2[], eigentlich: boolean, urbild: boolean }[]} */
   const out = [];
   if (!punkte.length) return out;
   for (const op of g.alle) {
@@ -454,7 +528,7 @@ export function kopien(g, punkte, lo, hi, rand = 0.1) {
     const id = eigentlich && op.R[0][0] === 1 && op.R[1][1] === 1 && !op.t[0] && !op.t[1];
     for (let i = Math.ceil(lo - rand - x1); i <= Math.floor(hi + rand - x0); i++) {
       for (let j = Math.ceil(lo - rand - y1); j <= Math.floor(hi + rand - y0); j++) {
-        out.push({ punkte: bild.map((p) => [p[0] + i, p[1] + j]), eigentlich, urbild: id && !i && !j });
+        out.push({ punkte: bild.map((p) => /** @type {Vec2} */ ([p[0] + i, p[1] + j])), eigentlich, urbild: id && !i && !j });
       }
     }
   }
@@ -466,10 +540,14 @@ export function kopien(g, punkte, lo, hi, rand = 0.1) {
  * sichtbare Kopie ein Bild des Originals ist, wird an allen Urbildern von p unter den Operationen
  * der Gruppe (und Gittertranslationen) radiert. Ein Strich verliert genau die Stücke im Kreis und
  * zerfällt dabei, wo nötig, in mehrere Striche. Ergebnis: neue Liste der Striche.
+ * @param {Vec2[][]} striche @param {Gruppe} g @param {Metrik} M @param {Vec2} p @param {number} r
+ * @returns {Vec2[][]}
  */
 export function radieren(striche, g, M, p, r) {
+  /** @param {Vec2} q */
   const C = (q) => kart(M, q);
   // Urbilder von p: op⁻¹(p), um Gittervektoren verschoben, nahe bei den Strichen
+  /** @type {Vec2[]} */
   const urbilder = [];
   const alle = striche.flat();
   if (!alle.length) return striche;
@@ -481,8 +559,9 @@ export function radieren(striche, g, M, p, r) {
       for (let j = Math.floor(y0 - u[1]); j <= Math.ceil(y1 - u[1]); j++) urbilder.push(C([u[0] + i, u[1] + j]));
     }
   }
-  /** Teile der Strecke a–b (kartesisch) ausserhalb aller Kreise, als Parameterintervalle in [0, 1]. */
+  /** Teile der Strecke a–b (kartesisch) ausserhalb aller Kreise, als Parameterintervalle in [0, 1]. @param {Vec2} a @param {Vec2} b */
   const aussen = (a, b) => {
+    /** @type {[number, number][]} */
     let frei = [[0, 1]];
     const d = [b[0] - a[0], b[1] - a[1]]; const dd = d[0] * d[0] + d[1] * d[1];
     for (const m of urbilder) {
@@ -494,18 +573,21 @@ export function radieren(striche, g, M, p, r) {
       const w = Math.sqrt(disk);
       const t1 = (-B - w) / (2 * dd); const t2 = (-B + w) / (2 * dd);
       if (t2 <= 0 || t1 >= 1) continue;
-      frei = frei.flatMap(([u, v]) => [[u, Math.min(v, t1)], [Math.max(u, t2), v]].filter(([s0, s1]) => s1 - s0 > 1e-9));
+      frei = frei.flatMap(([u, v]) => /** @type {[number, number][]} */ ([[u, Math.min(v, t1)], [Math.max(u, t2), v]]).filter(([s0, s1]) => s1 - s0 > 1e-9));
       if (!frei.length) break;
     }
     return frei;
   };
+  /** @type {Vec2[][]} */
   const out = [];
   for (const st of striche) {
+    /** @type {Vec2[]} */
     let aktuell = [];
     const abschliessen = () => { if (aktuell.length >= 2) out.push(aktuell); aktuell = []; };
     for (let k = 0; k + 1 < st.length; k++) {
       const a = st[k]; const b = st[k + 1];
-      const punkt = (t) => [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])].map((v) => Math.round(v * 1000) / 1000);
+      /** @param {number} t */
+      const punkt = (t) => /** @type {Vec2} */ ([a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1])].map((v) => Math.round(v * 1000) / 1000));
       const teile = aussen(C(a), C(b));
       if (!teile.length) abschliessen();
       for (const [u, v] of teile) {
@@ -521,11 +603,17 @@ export function radieren(striche, g, M, p, r) {
   return out;
 }
 
-/** SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]². */
+/**
+ * SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]².
+ * @param {Gruppe} g @param {Ansicht} A @param {Zustand} z @param {number} lo @param {number} hi @param {Farben} farben
+ * @param {number} [massstab] @param {string | null} [einfarbig] @param {boolean} [nurSichtbar]
+ */
 function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null, nurSichtbar = false) {
   const teile = [];
+  /** @param {Vec2[]} pts */
   const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
   // nurSichtbar: Kopien, deren Umriss ganz ausserhalb des Bildes liegt, weglassen
+  /** @param {Vec2[]} pts */
   const sichtbar = (pts) => {
     if (!nurSichtbar) return true;
     let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
@@ -558,8 +646,10 @@ function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null, n
 /**
  * Operationen in der Reihenfolge der ITA-Seite, ohne Reduktion modulo Gitter: zuerst die Liste
  * für (0, 0)+, bei zentrierten Gruppen dann dieselbe Liste für (½, ½)+. nr: Nummer in der Liste.
+ * @param {Gruppe} g @returns {ItaOperation[]}
  */
 export function itaOperationen(g) {
+  /** @type {ItaOperation[]} */
   const out = [];
   g.zentr.forEach((z, zi) => g.ops.forEach((op, i) => out.push({ op: verknuepfen(translation(z), op), nr: i + 1, zentr: zi > 0 ? z : null })));
   return out;
@@ -571,13 +661,16 @@ export function itaOperationen(g) {
  * ausserhalb der Zelle). Schritt N + 1: die Gittertranslationen. Je Bild: gleich = Index eines
  * früheren Bildes an derselben Stelle (exakt) oder, mit gitter: true, an einer um einen
  * Gittervektor verschobenen Stelle. verschieden: Zahl der Stellen bis auf Gittertranslationen.
+ * @param {Gruppe} g @param {Vec2} p @param {number} k
  */
 export function schrittDaten(g, p, k) {
   const liste = itaOperationen(g);
   const N = liste.length;
+  /** @type {SchrittBild[]} */
   const bilder = [];
   liste.slice(0, Math.min(Math.max(k, 0), N)).forEach((e, i) => {
     const q = anwenden(e.op, p);
+    /** @param {SchrittBild} b */
     const diff = (b) => [q[0] - b.punkt[0], q[1] - b.punkt[1]];
     let gleich = bilder.findIndex((b) => diff(b).every((x) => Math.abs(x) < 1e-6));
     let gitter = false;
@@ -590,14 +683,19 @@ export function schrittDaten(g, p, k) {
   return { liste, bilder, N, k: Math.min(Math.max(k, 0), N + 1), verschieden: bilder.filter((b) => b.gleich === null).length, translationen: k > N };
 }
 
-/** Kurzname einer Operation der Liste: „3“ bzw. „3′“ für dieselbe Operation mit (½, ½)+. */
+/** Kurzname einer Operation der Liste: „3“ bzw. „3′“ für dieselbe Operation mit (½, ½)+. @param {{ nr: number, zentr: Vec2 | null }} e */
 export const opNummer = (e) => `${e.nr}${e.zentr ? '′' : ''}`;
 
-/** Überlagerung „Schritt für Schritt“ in Tafel A (statt der Bilder des Objekts). */
+/**
+ * Überlagerung „Schritt für Schritt“ in Tafel A (statt der Bilder des Objekts).
+ * @param {Gruppe} g @param {Metrik} M @param {Ansicht} A @param {Vec2} s @param {number} k @param {number} n @param {string} form @param {Farben} farben
+ */
 function schrittSVG(g, M, A, s, k, n, form, farben) {
   const d = schrittDaten(g, s, k);
   const teile = ['<g class="schritte">'];
+  /** @param {Vec2} p @param {Mat2} R @param {string} farbe @param {number} [mass] */
   const fahne = (p, R, farbe, mass = 1) => objektSVG(form, A.zuBild(p), kartMatrix(M, R), R[0][0] * R[1][1] - R[0][1] * R[1][0] > 0, farbe, farben.paper, mass);
+  /** @param {Vec2} p @param {string} text @param {string} farbe */
   const marke = (p, text, farbe) => {
     const q = A.zuBild(p);
     return `<text x="${f2(q[0] + 13)}" y="${f2(q[1] + 15)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="600" fill="${farbe}" stroke="${farben.paper}" stroke-width="3" paint-order="stroke">${text}</text>`;
@@ -605,7 +703,7 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
   if (d.translationen) {
     // Gittertranslationen: jedes Bild in die Zelle (Pfeil), dann alle Bilder in den Zellen
     for (const b of d.bilder) {
-      const z = b.punkt.map(mod1);
+      const z = /** @type {Vec2} */ (b.punkt.map(mod1));
       if (Math.hypot(z[0] - b.punkt[0], z[1] - b.punkt[1]) > 1e-6) {
         teile.push(`<g opacity="0.35">${fahne(b.punkt, b.op.R, farben.muted)}</g>`);
         teile.push(wegSVG([A.zuBild(b.punkt), A.zuBild(z)], farben.muted));
@@ -635,7 +733,11 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
   return teile.join('');
 }
 
-/** Farbe je Bild nach der Bahn der Restsymmetrie, nur wenn das Objekt in mehrere Bahnen zerfällt. */
+/**
+ * Farbe je Bild nach der Bahn der Restsymmetrie, nur wenn das Objekt in mehrere Bahnen zerfällt.
+ * @param {ReturnType<typeof gebrochen> | null} brechen @param {Farben} farben
+ * @returns {((b: Bild) => string) | null}
+ */
 function bahnFarbe(brechen, farben) {
   if (!brechen || brechen.bahnen < 2) return null;
   const f = bahnFarben(farben);
@@ -654,6 +756,9 @@ export const LUPE = 2;
  * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript); bei z.lupe lupeMitte
  * (Bruchkoordinaten der Bildmitte, sonst die Stelle des Objekts) oder lupeBox (fester Ausschnitt
  * aus einem früheren Ergebnis, während einer Geste). Das Ergebnis enthält lupeBox.
+ * @param {string} id @param {Zustand} z @param {Farben} farben
+ * @param {{ phase?: number, k?: number, lupeMitte?: Vec2 | null, lupeBox?: Box | null }} [optionen]
+ * @returns {{ svg: string, ansicht: Ansicht, erklaerung: Erklaerung | null, lupeBox: Box | null }}
  */
 export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupeBox = null } = {}) {
   const g = gruppeVon(id);
@@ -690,6 +795,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
     const w = (box[2] - box[0]) / LUPE; const h = (box[3] - box[1]) / LUPE;
     const s0 = Math.max(w, h);
     // Bildmitte so, dass der Ausschnitt in der ganzen Ansicht bleibt (ist er grösser, in deren Mitte)
+    /** @param {number} m @param {number} lo @param {number} hi */
     const lage = (m, lo, hi) => (s0 >= hi - lo ? (lo + hi) / 2 : Math.min(Math.max(m, lo + s0 / 2), hi - s0 / 2));
     const mx = lage(c[0], box[0], box[2]); const my = lage(c[1], box[1], box[3]);
     box = [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
@@ -710,6 +816,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Achsen: a und b am Ursprung beschriftet
   const o = A.zuBild([0, 0]);
   const pa = A.zuBild([n * 0.5, 0]); const pb = A.zuBild([0, n * 0.5]);
+  /** @param {Vec2} p @param {Vec2} d @returns {Vec2} */
   const aus = (p, d) => { const l = Math.hypot(d[0], d[1]); const r = 18 * Math.min(k, 1.4); return [p[0] + (r * d[0]) / l, p[1] + (r * d[1]) / l]; };
   const la = aus(pa, [-(M.a[1]), M.a[0]]); // links neben der a-Kante
   const lb = aus(pb, [M.b[1], -M.b[0]]); // über der b-Kante
@@ -738,7 +845,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
 // „Warum ist das da?“: ein Element als Verknüpfung C = A ∘ B
 // ---------------------------------------------------------------------------------------------
 
-/** Spiegelanteil {R, t − w} einer Gleitspiegelung (w = (t + R t)/2), sonst null. */
+/** Spiegelanteil {R, t − w} einer Gleitspiegelung (w = (t + R t)/2), sonst null. @param {Op} C @returns {Op | null} */
 function spiegelanteil(C) {
   if (C.R[0][0] * C.R[1][1] - C.R[0][1] * C.R[1][0] > 0) return null;
   const w = [0, 1].map((i) => (C.t[i] + C.R[i][0] * C.t[0] + C.R[i][1] * C.t[1]) / 2);
@@ -750,28 +857,35 @@ function spiegelanteil(C) {
  * Erklärung einer Gitterkopie: Das Element ist das Vorbild V, um den Gittervektor t verschoben,
  * C = t ∘ V ∘ t⁻¹. Fähnchen: V bringt 0 nach 1; t verschiebt beide nach 2 und 3; C bringt 2
  * nach 3. Wege: V, t (von 0 und von 1), C.
+ * @param {Gruppe} g @param {string} schluessel @param {{ element: OpElement, tiefe: number }} e
+ * @param {{ schluessel: string, element: OpElement, op: Op, t: Vec2 }} v @param {Vec2} p @param {number} n @param {Metrik} M
+ * @returns {ErklaerungKopie}
  */
 function kopieDaten(g, schluessel, e, v, p, n, M) {
   const T = translation(v.t);
   const V = v.op;
   const C = verknuepfen(T, verknuepfen(V, invers(T)));
+  /** @param {Vec2} s @returns {Record<string, Weg>} */
   const wegeVon = (s) => {
     const s1 = anwenden(V, s); const s2 = anwenden(T, s);
     return { V: weg(V, s, M), T0: weg(T, s, M), T1: weg(T, s1, M), C: weg(C, s2, M) };
   };
   const mitte = kart(M, [n / 2, n / 2]);
   const p0 = p.map(mod1);
+  /** @type {{ s: Vec2, kosten: number } | null} */
   let best = null;
   for (const z of g.zentr) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+    /** @type {Vec2} */
     const s = [p0[0] + i + z[0], p0[1] + j + z[1]];
     const punkte = [s];
     for (const w of Object.values(wegeVon(s))) for (const t of w.teile) punkte.push(t[t.length - 1], t[Math.floor(t.length / 2)]);
     const kosten = punkte.reduce((sum, q) => { const c = kart(M, q); return sum + (c[0] - mitte[0]) ** 2 + (c[1] - mitte[1]) ** 2; }, 0);
     if (!best || kosten < best.kosten - 1e-12) best = { s, kosten };
   }
+  const start = /** @type {{ s: Vec2 }} */ (best).s; // die Schleife läuft mindestens einmal
   return {
     art: 'kopie', schluessel, element: e.element, tiefe: e.tiefe, C, V, t: v.t, T,
-    vorbild: { schluessel: v.schluessel, element: v.element }, kette: [], start: best.s, wege: wegeVon(best.s), erzeugende: false,
+    vorbild: { schluessel: v.schluessel, element: v.element }, kette: [], start, wege: wegeVon(start), erzeugende: false,
   };
 }
 
@@ -780,6 +894,8 @@ function kopieDaten(g, schluessel, e, v, p, n, M) {
  * C = A ∘ B (zuerst B, dann A), die Herleitungskette und der Startpunkt des Fähnchens. Der
  * Startpunkt ist ein Gitterbild des Objekts p, bei dem Start, B(Start) und C(Start) möglichst
  * nahe an der Mitte der Zellen liegen. null, wenn das Element nicht bekannt ist.
+ * @param {Gruppe} g @param {string} schluessel @param {Vec2} p @param {number} n @param {Metrik} M
+ * @returns {Erklaerung | null}
  */
 export function erklaerungsDaten(g, schluessel, p, n, M) {
   const e = herkunft(g).elemente.get(schluessel);
@@ -790,14 +906,17 @@ export function erklaerungsDaten(g, schluessel, p, n, M) {
   const erst = kette[0];
   const C = e.op; const A = erst.a; const B = erst.b;
   const erzeugende = B.R[0][0] === 1 && B.R[1][1] === 1 && !B.R[0][1] && !B.R[1][0] && !B.t[0] && !B.t[1];
+  /** @param {Vec2} s @returns {Record<string, Weg>} */
   const wegeVon = (s) => {
     const sB = anwenden(B, s);
     return erzeugende ? { C: weg(C, s, M) } : { B: weg(B, s, M), A: weg(A, sB, M), C: weg(C, s, M) };
   };
   const mitte = kart(M, [n / 2, n / 2]);
   const p0 = p.map(mod1);
+  /** @type {{ s: Vec2, kosten: number } | null} */
   let best = null;
   for (const z of g.zentr) for (let i = -3; i <= 3; i++) for (let j = -3; j <= 3; j++) {
+    /** @type {Vec2} */
     const s = [p0[0] + i + z[0], p0[1] + j + z[1]];
     // Stellen, Zwischenbilder und die Mitten der Wege möglichst nahe an der Mitte der Zellen
     const punkte = [s];
@@ -809,10 +928,14 @@ export function erklaerungsDaten(g, schluessel, p, n, M) {
     }, 0);
     if (!best || kosten < best.kosten - 1e-12) best = { s, kosten };
   }
-  return { schluessel, element: e.element, tiefe: e.tiefe, C, A, B, kette, start: best.s, wege: wegeVon(best.s), erzeugende };
+  const start = /** @type {{ s: Vec2 }} */ (best).s; // die Schleife läuft mindestens einmal
+  return { schluessel, element: e.element, tiefe: e.tiefe, C, A, B, kette, start, wege: wegeVon(start), erzeugende };
 }
 
-/** Element einer Operation als SVG (Drehpunkt oder Linie über den sichtbaren Bereich). */
+/**
+ * Element einer Operation als SVG (Drehpunkt oder Linie über den sichtbaren Bereich).
+ * @param {Gruppe} g @param {Op} op @param {Ansicht} A @param {string} farbe @param {string} papier @param {number} n @param {boolean} [breit]
+ */
 function opElementSVG(g, op, A, farbe, papier, n, breit = false) {
   const el = elementVonOp(g, op);
   if (!el) return '';
@@ -826,7 +949,7 @@ function opElementSVG(g, op, A, farbe, papier, n, breit = false) {
   return `${linieSVG(p, q, 'spiegel', farbe, breit ? 11 : 8).replace('<line', '<line stroke-opacity="0.25"')}${linieSVG(p, q, el.typ, farbe, 3)}`;
 }
 
-/** Gestrichelter Weg durch Bildpunkte mit Pfeilspitze am Ende (Spitze etwas vor dem Ziel). */
+/** Gestrichelter Weg durch Bildpunkte mit Pfeilspitze am Ende (Spitze etwas vor dem Ziel). @param {Vec2[]} punkte @param {string} farbe */
 function wegSVG(punkte, farbe) {
   const z = punkte[punkte.length - 1];
   let i = punkte.length - 2;
@@ -835,7 +958,9 @@ function wegSVG(punkte, farbe) {
   if (l < 4) return '';
   const ux = v[0] / l; const uy = v[1] / l;
   const e = [z[0] - 8 * ux, z[1] - 8 * uy];
+  /** @type {Vec2[]} */
   const spitze = [[e[0], e[1]], [e[0] - 9 * ux + 4.5 * uy, e[1] - 9 * uy - 4.5 * ux], [e[0] - 9 * ux - 4.5 * uy, e[1] - 9 * uy + 4.5 * ux]];
+  /** @type {Vec2[]} */
   const linie = [...punkte.slice(0, i + 1), [e[0] - 6 * ux, e[1] - 6 * uy]];
   return `<polyline points="${linie.map(pt).join(' ')}" fill="none" stroke="${farbe}" stroke-width="2.2" stroke-dasharray="5 4"/>`
     + `<polygon points="${spitze.map(pt).join(' ')}" fill="${farbe}"/>`;
@@ -847,6 +972,7 @@ function wegSVG(punkte, farbe) {
  * Gleitspiegelung in zwei Teilen, zuerst gespiegelt (Zwischenbild), dann um die
  * Gleitkomponente parallel zur Linie verschoben. teile: Liste von Punktfolgen;
  * zwischen: { p, op } Zwischenbild der Gleitspiegelung oder null.
+ * @param {Op} op @param {Vec2} s @param {Metrik} M @returns {Weg}
  */
 export function weg(op, s, M) {
   const ziel = anwenden(op, s);
@@ -870,12 +996,12 @@ export function weg(op, s, M) {
   const bogen = Array.from({ length: N + 1 }, (_, k) => {
     if (k === N) return ziel;
     const w = (theta * k) / N; const x = cs[0] - cc[0]; const y = cs[1] - cc[1];
-    return bruchVon(M, [cc[0] + Math.cos(w) * x - Math.sin(w) * y, cc[1] + Math.sin(w) * x + Math.cos(w) * y]);
+    return bruchVon(M, /** @type {Kartesisch<Vec2>} */ ([cc[0] + Math.cos(w) * x - Math.sin(w) * y, cc[1] + Math.sin(w) * x + Math.cos(w) * y]));
   });
   return { teile: [bogen], zwischen: null };
 }
 
-/** Marke auf halber Länge eines Weges (Bildpunkte): Kreis mit Buchstabe der Operation. */
+/** Marke auf halber Länge eines Weges (Bildpunkte): Kreis mit Buchstabe der Operation. @param {Vec2[][]} teile @param {string} farbe @param {string} papier @param {string} text */
 function wegMarke(teile, farbe, papier, text) {
   const pkte = teile.flat();
   const seg = pkte.slice(1).map((q, i) => Math.hypot(q[0] - pkte[i][0], q[1] - pkte[i][1]));
@@ -893,6 +1019,7 @@ function wegMarke(teile, farbe, papier, text) {
  * 3: zusammen: C. Die Wege zeigen, wie die Operation wirkt (weg), beschriftet mit dem
  * Buchstaben der Operation; die Stellen des Fähnchens sind nummeriert: 0 Ausgangsobjekt,
  * 1 nach B, 2 nach A (bei einer Erzeugenden: 1 nach C).
+ * @param {Gruppe} g @param {Metrik} M @param {Ansicht} A @param {Erklaerung} d @param {number} phase @param {Farben} farben @param {string} form @param {number} n
  */
 function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
   if (d.art === 'kopie') return kopieSVG(g, M, A, d, phase, farben, form, n);
@@ -903,19 +1030,24 @@ function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
   if (phase >= 1 && !d.erzeugende) teile.push(opElementSVG(g, d.B, A, fB, farben.paper, n));
   if (phase >= 2 && !d.erzeugende) teile.push(opElementSVG(g, d.A, A, fA, farben.paper, n));
   const s = d.start; const sB = anwenden(d.B, s); const sC = anwenden(d.C, s);
+  /** @param {Vec2} p @param {Op} op @param {string} farbe */
   const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
+  /** @type {Op} */
   const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
   // Weg einer Operation: Zwischenbild blass, Teilwege mit Pfeil, Buchstabe auf halber Länge
+  /** @param {Weg} w @param {string} farbe @param {string} name */
   const wegSVGvon = (w, farbe, name) => {
     const bild = w.teile.map((t) => t.map(A.zuBild));
     return `<g class="weg weg-${name.toLowerCase()}">${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
   };
   // Nummer einer Stelle, links oberhalb des Fähnchens
+  /** @param {Vec2} p @param {string} text @param {string} farbe */
   const nummer = (p, text, farbe) => {
     const q = A.zuBild(p); const x = q[0] - 22; const y = q[1] - 20;
     return `<g class="stelle"><circle cx="${f2(x)}" cy="${f2(y)}" r="8.5" fill="${farbe}"/><text x="${f2(x)}" y="${f2(y + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="700" fill="${farben.paper}" text-anchor="middle" dominant-baseline="middle">${text}</text></g>`;
   };
   // in der Gesamtansicht treten die Wege von B und A hinter den Weg unter C zurück
+  /** @param {string} svg */
   const blass = (svg) => (phase >= 3 ? `<g opacity="0.35">${svg}</g>` : svg);
   if (phase >= 1 && !d.erzeugende) teile.push(blass(wegSVGvon(d.wege.B, fB, 'B')));
   if (phase >= 2 && !d.erzeugende) teile.push(blass(wegSVGvon(d.wege.A, fA, 'A')));
@@ -941,6 +1073,7 @@ function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
 /**
  * Überlagerung für eine Gitterkopie. phase 0: Ausgangsobjekt; 1: Vorbild V (0 → 1);
  * 2: um t verschoben (0 → 2, 1 → 3); 3: C bringt 2 nach 3.
+ * @param {Gruppe} g @param {Metrik} M @param {Ansicht} A @param {ErklaerungKopie} d @param {number} phase @param {Farben} farben @param {string} form @param {number} n
  */
 function kopieSVG(g, M, A, d, phase, farben, form, n) {
   const teile = ['<g class="erklaerung">'];
@@ -948,16 +1081,21 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
   teile.push(opElementSVG(g, d.C, A, fC, farben.paper, n, true));
   if (phase >= 1) teile.push(opElementSVG(g, d.V, A, fV, farben.paper, n));
   const s0 = d.start; const s1 = anwenden(d.V, s0); const s2 = anwenden(d.T, s0); const s3 = anwenden(d.T, s1);
+  /** @type {Op} */
   const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
+  /** @param {Vec2} p @param {Op} op @param {string} farbe */
   const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
+  /** @param {Weg} w @param {string} farbe @param {string} name @param {string} klasse */
   const wegSVGvon = (w, farbe, name, klasse) => {
     const bild = w.teile.map((t) => t.map(A.zuBild));
     return `<g class="weg weg-${klasse}">${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
   };
+  /** @param {Vec2} p @param {string} text @param {string} farbe */
   const nummer = (p, text, farbe) => {
     const q = A.zuBild(p); const x = q[0] - 22; const y = q[1] - 20;
     return `<g class="stelle"><circle cx="${f2(x)}" cy="${f2(y)}" r="8.5" fill="${farbe}"/><text x="${f2(x)}" y="${f2(y + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="700" fill="${farben.paper}" text-anchor="middle" dominant-baseline="middle">${text}</text></g>`;
   };
+  /** @param {string} svg */
   const blass = (svg) => (phase >= 3 ? `<g opacity="0.35">${svg}</g>` : svg);
   if (phase >= 1) teile.push(blass(wegSVGvon(d.wege.V, fV, 'V', 'v')));
   if (phase >= 2) { teile.push(blass(wegSVGvon(d.wege.T0, fT, 't', 't'))); teile.push(blass(wegSVGvon(d.wege.T1, fT, 't', 't'))); }
@@ -982,6 +1120,8 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
 /**
  * Tafel B: Muster. Ein quadratischer Ausschnitt des unendlichen Musters, die Elementarzelle
  * hervorgehoben, Symmetrieelemente wahlweise.
+ * @param {string} id @param {Zustand} z @param {Farben} farben @param {{ k?: number }} [optionen]
+ * @returns {{ svg: string, ansicht: Ansicht }}
  */
 export function tafelB(id, z, farben, { k = 1 } = {}) {
   const g = gruppeVon(id);
@@ -995,30 +1135,32 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   // Vergrösserung zoomB: kleinerer Ausschnitt, Objekte im selben Verhältnis grösser
   const zoom = z.zoomB ?? 1;
   const w = (4.4 * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
+  /** @type {Box} */
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
   const massObjekt = 0.8 * k * zoom * (z.objGroesse ?? 1);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt, erweitert um
   // die Grösse des Objekts (ein Objekt mit Fuss ausserhalb kann ins Bild ragen)
   const r = (REICHWEITE * massObjekt) / A.s;
-  const ext = [bruchVon(M, [r, 0]), bruchVon(M, [0, r])].reduce((m, v) => Math.max(m, Math.abs(v[0]), Math.abs(v[1])), 0) * 2;
-  const ecken = [[box[0], box[1]], [box[2], box[1]], [box[0], box[3]], [box[2], box[3]]].map((c) => bruchVon(M, c));
+  const ext = [bruchVon(M, /** @type {Kartesisch<Vec2>} */ ([r, 0])), bruchVon(M, /** @type {Kartesisch<Vec2>} */ ([0, r]))].reduce((m, v) => Math.max(m, Math.abs(v[0]), Math.abs(v[1])), 0) * 2;
+  const ecken = /** @type {Kartesisch<Vec2>[]} */ ([[box[0], box[1]], [box[2], box[1]], [box[0], box[3]], [box[2], box[3]]]).map((c) => bruchVon(M, c));
   const lo = Math.floor(Math.min(...ecken.flat()) - ext) - 1; const hi = Math.ceil(Math.max(...ecken.flat()) + ext) + 1;
   const teile = [`<defs><clipPath id="ausschnitt"><rect x="10" y="10" width="500" height="500" rx="6"/></clipPath></defs>`,
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
   if (!tapete) teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
   if (z.musterElemente && !tapete) {
     const e = elementeImBereich(brechen ? brechen.H : g, 1);
+    /** @type {Elementauswahl} */
     const alle = { drehpunkte: [], linien: [] };
     for (let i = lo; i < hi; i++) for (let j = lo; j < hi; j++) {
       for (const d of e.drehpunkte) alle.drehpunkte.push({ ...d, punkt: [d.punkt[0] + i, d.punkt[1] + j] });
-      for (const l of e.linien) alle.linien.push({ ...l, strecke: l.strecke.map((q) => [q[0] + i, q[1] + j]) });
+      for (const l of e.linien) alle.linien.push({ ...l, strecke: /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j])) });
     }
     teile.push(elementeSVG(g, alle, A, farben, z.farben, { k }));
   }
   const einfarbig = tapete ? farben.upper : null;
   teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig, true));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, massObjekt, undefined, tapete ? () => einfarbig : bahnFarbe(brechen, farben), true));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, massObjekt, undefined, tapete ? () => /** @type {string} */ (einfarbig) : bahnFarbe(brechen, farben), true));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

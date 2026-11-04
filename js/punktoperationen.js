@@ -45,7 +45,7 @@ export const OPERATIONEN = {
   '6mm': [E, ZWEI, ...DREH[3], ...DREH[6], M(150, 'a1', '⊥'), M(90, 'a2', '⊥'), M(30, 'a3', '⊥'), M(60, 'a1', '∥'), M(0, 'a2', '∥'), M(120, 'a3', '∥')],
 };
 
-/** @typedef {keyof typeof OPERATIONEN} PG */
+/** Punktgruppe mit Untergruppen, als Text („4“, „2mm“). @typedef {`${keyof typeof OPERATIONEN}`} PG */
 
 /**
  * Verknüpfung A ∘ B (zuerst B, dann A) als { art, w }.

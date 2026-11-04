@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Export der Quizfragen als Moodle-XML; die Arbeit macht tools/common/moodle.mjs.
 //
 //   node tools/moodle-export.mjs [Ausgabedatei] [--entwurf]
@@ -14,11 +13,15 @@ import { helleFarben, mitSchrift, moodleXML as moodleXMLCommon } from './common/
 const FONTS = fileURLToPath(new URL('../lib/common/fonts/', import.meta.url));
 const col = farbenAus(helleFarben(fileURLToPath(new URL('../lib/common/css/base.css', import.meta.url))));
 
-/** Eigenständige SVG-Datei zu einer Bildangabe (ohne Browser, Farben des hellen Modus); opt.klein für Antwortbilder. */
+/**
+ * Eigenständige SVG-Datei zu einer Bildangabe (ohne Browser, Farben des hellen Modus); opt.klein für Antwortbilder.
+ * @param {string} angabe @param {import('../lib/common/js/quiz-core.js').BildOptionen} [opt]
+ */
 function bildSVG(angabe, opt = {}) {
   return mitSchrift(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520">${bildInhalt(angabe, col, opt) ?? ''}</svg>`, FONTS);
 }
 
+/** @param {{ entwurf?: boolean }} [optionen] */
 export function moodleXML({ entwurf = false } = {}) {
   return moodleXMLCommon({ bank: BANK, generatoren: GENERATOREN, kapitel: KAPITEL, kurs: 'Symmetrie in der Ebene', bildSVG, entwurf });
 }

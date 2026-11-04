@@ -1,4 +1,3 @@
-// @ts-nocheck -- Typprüfung folgt in Schritt 2 (crystallography-common#19)
 // Zustand der App und seine Link-Adresse (#m=eg&g=p4gm&x=0.12&y=0.31 …).
 // Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps): Format im README,
 // stabil, durch tests/zustand.test.mjs abgesichert. Geschrieben wird nur, was vom Startzustand
@@ -8,27 +7,74 @@ import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
 
+/** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
+/** @import { Gitter } from './zeichnung.js' */
+/** @import { Basiseintrag } from './motive.js' */
+/** @import { System } from './ebenengruppen.js' */
+/**
+ * Struktur im Modus „Gitter und Basis“ mit den Schaltern ihrer Tafeln.
+ * @typedef {Gitter & { vorgabe: string, basis: Basiseintrag[], elemente: boolean, zelle: boolean, ae: boolean, bindungen: boolean }} StrukturZustand
+ */
+/**
+ * Zustand der App (Felder siehe startzustand()).
+ * @typedef {object} Zustand
+ * @property {'eg' | 'struktur'} modus
+ * @property {string} gruppe
+ * @property {Vec2} punkt
+ * @property {boolean} elemente
+ * @property {boolean} objekt
+ * @property {boolean} ae
+ * @property {number} zellen
+ * @property {string} form
+ * @property {boolean} tapete
+ * @property {number} zoomB
+ * @property {number} objGroesse
+ * @property {boolean} farben
+ * @property {boolean} einrasten
+ * @property {boolean} lupe
+ * @property {boolean} orbit
+ * @property {boolean} musterElemente
+ * @property {boolean} warum
+ * @property {string | null} erkl
+ * @property {number} aufbau
+ * @property {boolean} zeichnen
+ * @property {boolean} radieren
+ * @property {Vec2[][]} striche
+ * @property {boolean} aeFuell
+ * @property {boolean} brechen
+ * @property {Gitter} frei
+ * @property {number} schritt
+ * @property {number[]} aeTeile
+ * @property {Record<System, Gitter>} gitter
+ * @property {StrukturZustand} struktur
+ */
+/** Schalter des Zustands (Wahrheitswerte in der Adresse). @typedef {'elemente' | 'objekt' | 'ae' | 'farben' | 'einrasten' | 'musterElemente' | 'orbit' | 'aeFuell' | 'tapete' | 'lupe'} Schalterfeld */
+/** @typedef {'elemente' | 'zelle' | 'ae' | 'bindungen'} StrukturSchalterfeld */
+
+/** Winkel in Grad (Kennzeichnung für die Typprüfung, gibt w unverändert zurück). @param {number} w */
+export const grad = (w) => /** @type {Grad} */ (w);
+
 /** Formen des Objekts (wie FORMEN in zeichnung.js; tests/zustand.test.mjs prüft die Übereinstimmung). */
 export const FORMEN = ['fahne', 'komma', 'blatt', 'tropfen', 'ranke'];
 
-/** Gittermetrik je Kristallsystem: b/a und γ (Grad). Frei nur, wo das System es erlaubt. */
-export const GITTER_START = {
+/** Gittermetrik je Kristallsystem: b/a und γ (Grad). Frei nur, wo das System es erlaubt. @type {Record<System, Gitter>} */
+export const GITTER_START = /** @type {Record<System, Gitter>} */ ({
   schiefwinklig: { ba: 1.25, gamma: 105 },
   rechteckig: { ba: 1.35, gamma: 90 },
   quadratisch: { ba: 1, gamma: 90 },
   hexagonal: { ba: 1, gamma: 120 },
-};
-/** Bereiche der Regler (eigene Festlegung der App, so dass keine höhere Symmetrie entsteht). */
+});
+/** Bereiche der Regler (eigene Festlegung der App, so dass keine höhere Symmetrie entsteht). @type {Record<'ba' | 'gamma', [number, number]>} */
 export const GITTER_BEREICH = {
   ba: [0.6, 1.6],
   gamma: [95, 125],
 };
-/** Bereiche der Regler beim Brechen der Symmetrie (alle Metriken ausser fast entarteten). */
+/** Bereiche der Regler beim Brechen der Symmetrie (alle Metriken ausser fast entarteten). @type {Record<'ba' | 'gamma', [number, number]>} */
 export const FREI_BEREICH = {
   ba: [0.5, 2],
   gamma: [60, 150],
 };
-/** Freie Gitterparameter je System. */
+/** Freie Gitterparameter je System. @type {Record<System, ('ba' | 'gamma')[]>} */
 export const FREI = {
   schiefwinklig: ['ba', 'gamma'],
   rechteckig: ['ba'],
@@ -36,22 +82,24 @@ export const FREI = {
   hexagonal: [],
 };
 
-/** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). */
+/** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). @type {Record<'ba' | 'gamma' | 'groesse', [number, number]>} */
 export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 1] };
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
-/** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. */
+/** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. @type {[number, number]} */
 export const ZOOM_BEREICH = [0.5, 3];
+/** @type {[number, number]} */
 export const OBJ_BEREICH = [0.5, 3];
 export const STRUKTUR_START = 'dreieck1';
+/** @template T @param {T} x @returns {T} */
 const kopie = (x) => JSON.parse(JSON.stringify(x));
 
-/** Struktur im Modus „Gitter und Basis“ aus einer Vorgabe (vorgaben.js). */
+/** Struktur im Modus „Gitter und Basis“ aus einer Vorgabe (vorgaben.js). @param {string} [id] @returns {StrukturZustand} */
 export function strukturStart(id = STRUKTUR_START) {
-  const v = vorgabe(id) ?? vorgabe(STRUKTUR_START);
+  const v = /** @type {import('./vorgaben.js').Vorgabe} */ (vorgabe(id) ?? vorgabe(STRUKTUR_START)); // STRUKTUR_START gibt es
   return { vorgabe: v.id, ba: v.gitter.ba, gamma: v.gitter.gamma, basis: kopie(v.basis), elemente: true, zelle: true, ae: false, bindungen: true };
 }
-/** Gleicht die Struktur (Gitter und Basis) noch ihrer Vorgabe? */
+/** Gleicht die Struktur (Gitter und Basis) noch ihrer Vorgabe? @param {StrukturZustand} st */
 export function wieVorgabe(st) {
   const v = vorgabe(st.vorgabe);
   if (!v || Math.abs(v.gitter.ba - st.ba) > 1e-9 || Math.abs(v.gitter.gamma - st.gamma) > 1e-9 || v.basis.length !== st.basis.length) return false;
@@ -65,10 +113,12 @@ export function wieVorgabe(st) {
 /**
  * Gesehene Erste Schritte aus dem gespeicherten Wert von `ebenen-intro`: Modi, durch Komma getrennt.
  * Bis v1.0.1 hiess „1“: die damals einzigen Ersten Schritte (Modus „Ebenengruppen“) sind gesehen.
+ * @param {string | null | undefined} wert
+ * @returns {Set<string>}
  */
 export const introGesehen = (wert) => new Set(String(wert ?? '').split(',').filter(Boolean).map((m) => (m === '1' ? 'eg' : m)));
 
-/** Startzustand. */
+/** Startzustand. @returns {Zustand} */
 export function startzustand() {
   return {
     modus: 'eg',
@@ -95,7 +145,7 @@ export function startzustand() {
     striche: [], // gezeichnete Striche in Bruchkoordinaten (nur im Browser gespeichert, nicht im Link)
     aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
     brechen: false, // Symmetrie brechen: Gitter ohne die Bindung des Kristallsystems
-    frei: { ba: 1, gamma: 90 }, // freie Metrik beim Brechen
+    frei: { ba: 1, gamma: grad(90) }, // freie Metrik beim Brechen
     schritt: 0, // Schritt für Schritt: 0 aus, sonst Operation 1 … N der ITA-Liste, N + 1 Gittertranslationen
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
@@ -104,19 +154,27 @@ export function startzustand() {
 }
 
 const SYMBOLE = new Set(EBENENGRUPPEN.map((g) => g.symbol));
+/** @param {boolean} v */
 const B = (v) => (v ? '1' : '0');
+/** @param {string | null} s */
 const an = (s) => s === '1' || s === 'ja' || s === 'true';
-/** Zahl aus der Adresse („0.25“ oder Bruch „1/3“); fehlend, leer oder ausserhalb [lo, hi]: null. */
+/**
+ * Zahl aus der Adresse („0.25“ oder Bruch „1/3“); fehlend, leer oder ausserhalb [lo, hi]: null.
+ * @param {string | null | undefined} s @param {number} lo @param {number} hi
+ * @returns {number | null}
+ */
 function zahl(s, lo, hi) {
   if (s === null || s === undefined || String(s).trim() === '') return null;
   const m = String(s).trim().match(/^(-?\d+)\/(\d+)$/);
   const v = m ? Number(m[1]) / Number(m[2]) : Number(s);
   return Number.isFinite(v) && v >= lo && v <= hi ? v : null;
 }
+/** @param {number} v @param {number} [n] */
 const kurz = (v, n = 4) => String(Number(v.toFixed(n)));
 /**
  * Koordinate für die Adresse: exakt als Bruch, wenn sie einer mit kleinem Nenner ist (spezielle
  * Lagen wie 1/3 bleiben so beim Neuladen speziell), sonst mit sechs Stellen.
+ * @param {number} v
  */
 export function koordText(v) {
   for (let n = 1; n <= 12; n++) {
@@ -125,7 +183,8 @@ export function koordText(v) {
   }
   return kurz(v, 6);
 }
-const systemVon = (id) => EBENENGRUPPEN.find((g) => g.symbol === id).system;
+/** System einer Ebenengruppe (id ist eines der 17 Symbole). @param {string} id */
+const systemVon = (id) => /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((g) => g.symbol === id)).system;
 
 /** Schlüssel eines erklärten Elements (herkunft.js), z. B. „4;1/2,1/2“ oder „m;1/4,0;0,1“. */
 export const ERKL_MUSTER = /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/;
@@ -134,6 +193,7 @@ export const ERKL_MUSTER = /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?
  * Felder eines im Browser gespeicherten Zustands so prüfen wie die Link-Adresse: Der Speicher ist
  * Eingabe von aussen, und einige Felder gehen in HTML ein (z. B. aufbau in die Legende).
  * Ungültiges fällt auf den Startwert zurück. Die übrigen Felder prüft main.js beim Laden.
+ * @param {Zustand} z
  */
 export function gespeichertPruefen(z) {
   const s = startzustand();
@@ -147,9 +207,10 @@ export function gespeichertPruefen(z) {
 }
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
+/** @type {[string, Schalterfeld][]} */
 const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete'], ['lupe', 'lupe']];
 
-/** Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse]. */
+/** Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse]. @param {Basiseintrag[]} basis */
 export function basisText(basis) {
   return basis.map((e) => {
     const teile = [e.motiv, String(e.farbe ?? 0), koordText(e.p[0]), koordText(e.p[1]), kurz(e.winkel ?? 0, 3)];
@@ -157,8 +218,9 @@ export function basisText(basis) {
     return teile.join(',');
   }).join(';');
 }
-/** Umkehrung von basisText; ungültige Einträge fallen weg. */
+/** Umkehrung von basisText; ungültige Einträge fallen weg. @param {string} text */
 export function liesBasis(text) {
+  /** @type {Basiseintrag[]} */
   const out = [];
   for (const teil of String(text).split(';')) {
     const [motiv, farbe, x, y, winkel, groesse] = teil.split(',');
@@ -166,7 +228,8 @@ export function liesBasis(text) {
     const f = zahl(farbe, 0, 3); const px = zahl(x, -1e3, 1e3); const py = zahl(y, -1e3, 1e3);
     const w = zahl(winkel ?? '0', -720, 720) ?? 0; const gr = groesse === undefined ? null : zahl(groesse, ...STRUKTUR_BEREICH.groesse);
     if (f === null || !Number.isInteger(f) || px === null || py === null) continue;
-    const e = { motiv, farbe: f, p: [px, py], winkel: w };
+    /** @type {Basiseintrag} */
+    const e = { motiv, farbe: f, p: [px, py], winkel: grad(w) };
     if (gr !== null) e.groesse = gr;
     out.push(e);
     if (out.length >= BASIS_GRENZE) break;
@@ -177,24 +240,28 @@ export function liesBasis(text) {
 /**
  * Struktur aus dem Speicher des Browsers prüfen: gültige Kopie oder null. Anders als liesBasis()
  * bleiben die Zahlen unverändert (keine Rundung).
+ * @param {any} st Eingabe aus dem Speicher des Browsers, unbekannten Aufbaus
+ * @returns {StrukturZustand | null}
  */
 export function pruefeStruktur(st) {
   if (!st || typeof st !== 'object' || !Array.isArray(st.basis)) return null;
-  const im = (v, [lo, hi]) => Number.isFinite(v) && v >= lo && v <= hi;
+  /** @param {unknown} v @param {[number, number]} bereich */
+  const im = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
   if (!im(st.ba, STRUKTUR_BEREICH.ba) || !im(st.gamma, STRUKTUR_BEREICH.gamma)) return null;
-  const basis = st.basis.filter((e) => e && Object.hasOwn(MOTIVE, e.motiv) && Array.isArray(e.p) && e.p.length === 2 && e.p.every(Number.isFinite)
+  const basis = st.basis.filter((/** @type {any} */ e) => e && Object.hasOwn(MOTIVE, e.motiv) && Array.isArray(e.p) && e.p.length === 2 && e.p.every(Number.isFinite)
     && [0, 1, 2, 3].includes(e.farbe ?? 0) && Number.isFinite(e.winkel ?? 0) && (e.groesse === undefined || im(e.groesse, STRUKTUR_BEREICH.groesse)))
     .slice(0, BASIS_GRENZE)
-    .map((e) => ({ motiv: e.motiv, farbe: e.farbe ?? 0, p: [...e.p], winkel: e.winkel ?? 0, ...(e.groesse === undefined ? {} : { groesse: e.groesse }) }));
+    .map((/** @type {any} */ e) => ({ motiv: e.motiv, farbe: e.farbe ?? 0, p: [...e.p], winkel: e.winkel ?? 0, ...(e.groesse === undefined ? {} : { groesse: e.groesse }) }));
   return {
     vorgabe: VORGABEN.some((v) => v.id === st.vorgabe) ? st.vorgabe : STRUKTUR_START, ba: st.ba, gamma: st.gamma, basis,
     elemente: st.elemente !== false, zelle: st.zelle !== false, ae: st.ae === true, bindungen: st.bindungen !== false,
   };
 }
 
+/** @type {[string, StrukturSchalterfeld][]} */
 const STRUKTUR_SCHALTER = [['sel', 'elemente'], ['szelle', 'zelle'], ['sae', 'ae'], ['sbind', 'bindungen']];
 
-/** Link-Adresse im Modus „Gitter und Basis“: Vorgabe (v=…) oder Gitter und Basis ausgeschrieben. */
+/** Link-Adresse im Modus „Gitter und Basis“: Vorgabe (v=…) oder Gitter und Basis ausgeschrieben. @param {Zustand} z @param {URLSearchParams} q */
 function strukturHash(z, q) {
   const st = z.struktur; const s0 = strukturStart();
   if (wieVorgabe(st)) q.set('v', st.vorgabe);
@@ -207,7 +274,7 @@ function strukturHash(z, q) {
   if (z.zoomB !== startzustand().zoomB) q.set('zoom', kurz(z.zoomB, 3));
 }
 
-/** Link-Adresse (Hash) zum Zustand. */
+/** Link-Adresse (Hash) zum Zustand. @param {Zustand} z */
 export function hashVon(z) {
   const s = startzustand();
   const q = new URLSearchParams();
@@ -248,6 +315,8 @@ export function hashVon(z) {
 /**
  * Link-Adresse auf einen Zustand anwenden. Unbekannte oder ungültige Werte werden ignoriert
  * (der Startwert bleibt). Gibt false zurück, wenn der Hash keinen Modus enthält.
+ * @param {Zustand} z
+ * @param {string} hash
  */
 export function hashAnwenden(z, hash) {
   const q = new URLSearchParams(String(hash).replace(/^#/, ''));
@@ -260,18 +329,19 @@ export function hashAnwenden(z, hash) {
   if (q.get('m') === 'struktur') {
     // Modus „Gitter und Basis“: Vorgabe, darauf Gitter und Basis aus dem Link
     z.modus = 'struktur';
-    const st = strukturStart(VORGABEN.some((v) => v.id === q.get('v')) ? q.get('v') : STRUKTUR_START);
+    const st = strukturStart(VORGABEN.some((v) => v.id === q.get('v')) ? /** @type {string} */ (q.get('v')) : STRUKTUR_START);
     if (q.has('basis')) {
-      st.basis = liesBasis(q.get('basis'));
+      st.basis = liesBasis(/** @type {string} */ (q.get('basis')));
       st.ba = zahl(q.get('ba'), ...STRUKTUR_BEREICH.ba) ?? 1;
-      st.gamma = zahl(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? 90;
+      st.gamma = grad(zahl(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? 90);
     }
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
     z.struktur = st;
     z.zoomB = zahl(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
     return true;
   }
-  if (SYMBOLE.has(q.get('g'))) z.gruppe = q.get('g');
+  const g = q.get('g');
+  if (g !== null && SYMBOLE.has(g)) z.gruppe = g;
   // Koordinaten einzeln: eine fehlende behält ihren Startwert
   const x = zahl(q.get('x'), -1e6, 1e6); const y = zahl(q.get('y'), -1e6, 1e6);
   z.punkt = [x ?? s.punkt[0], y ?? s.punkt[1]];
@@ -279,7 +349,8 @@ export function hashAnwenden(z, hash) {
   if (q.get('zellen') === '2') z.zellen = 2;
   z.zoomB = zahl(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
   z.objGroesse = zahl(q.get('og'), ...OBJ_BEREICH) ?? s.objGroesse;
-  if (FORMEN.includes(q.get('form'))) z.form = q.get('form');
+  const form = q.get('form');
+  if (form !== null && FORMEN.includes(form)) z.form = form;
   if (q.has('warum')) z.warum = an(q.get('warum'));
   const erkl = q.get('erkl');
   if (erkl && ERKL_MUSTER.test(erkl)) z.erkl = erkl;
@@ -290,7 +361,7 @@ export function hashAnwenden(z, hash) {
   // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
   const aet = q.get('aet');
   if (aet && /^\d(,\d)*$/.test(aet)) {
-    const zahlTeile = EBENENGRUPPEN.find((d) => d.symbol === z.gruppe).ae.text.split(';').length;
+    const zahlTeile = /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === z.gruppe)).ae.text.split(';').length;
     z.aeTeile = [...new Set(aet.split(',').map(Number))].filter((i) => i < zahlTeile).sort((a, b) => a - b);
   }
   const sys = systemVon(z.gruppe);
@@ -299,12 +370,12 @@ export function hashAnwenden(z, hash) {
   if (an(q.get('brechen') ?? '') && sys !== 'schiefwinklig') {
     z.brechen = true;
     const s0 = GITTER_START[sys];
-    z.frei = { ba: zahl(q.get('ba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: zahl(q.get('gamma'), ...FREI_BEREICH.gamma) ?? s0.gamma };
+    z.frei = { ba: zahl(q.get('ba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: grad(zahl(q.get('gamma'), ...FREI_BEREICH.gamma) ?? s0.gamma) };
     return true;
   }
   for (const k of FREI[sys]) {
     const v = zahl(q.get(k), ...GITTER_BEREICH[k]);
-    if (v !== null) z.gitter[sys][k] = v;
+    if (v !== null) z.gitter[sys][k] = grad(v); // ba oder gamma; grad() kennzeichnet nur
   }
   return true;
 }
