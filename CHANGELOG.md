@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **README:** Abschnitt „Links auf Ansichten“ heisst „Link-Adressen“, wie im Leitfaden der App-Familie.
+
 ## [1.0.1] - 2026-11-04
 
 Prüfung des gespeicherten Zustands, gemeinsame Grundlage v0.2.0, ausführliches README und gemeinsamer GitHub-Auftritt der App-Familie. Für Nutzer ändert sich nichts Sichtbares.
