@@ -237,15 +237,19 @@ function bedienungAbgleichen() {
   const nSchritte = gruppeVon(z.gruppe).ordnung + 1;
   if (z.schritt > nSchritte) z.schritt = nSchritte;
   eingabe('opt-schritt').checked = z.schritt > 0;
-  eingabe('opt-schritt').disabled = !z.objekt;
-  element('#row-schritt .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  // Eine gezeigte Herkunft eines Elements überdeckt „Schritt für Schritt“ (zeichnung.js): Es ruht, gesperrt und
+  // gewählt, bis die Erklärung geschlossen ist (Leitfaden Abschn. 5.2)
+  const schrittRuht = !!z.erkl && !z.brechen;
+  eingabe('opt-schritt').disabled = !z.objekt || schrittRuht;
+  element('#row-schritt .why').textContent = !z.objekt ? 'nur mit „Objekt in allgemeiner Lage“'
+    : schrittRuht ? 'ruht, solange die Herkunft eines Elements gezeigt wird („Schliessen“ in der Erklärung)' : '';
   eingabe('schritt-regler').max = String(nSchritte);
   eingabe('schritt-regler').value = String(Math.max(1, z.schritt));
-  eingabe('schritt-regler').disabled = z.schritt === 0;
+  eingabe('schritt-regler').disabled = z.schritt === 0 || schrittRuht;
   $('schritt-regler-out').textContent = z.schritt > 0 ? `${z.schritt} von ${nSchritte}` : '–';
-  knopf('schritt-zurueck').disabled = z.schritt <= 1;
-  knopf('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte;
-  knopf('schritt-abspielen').disabled = !z.objekt;
+  knopf('schritt-zurueck').disabled = z.schritt <= 1 || schrittRuht;
+  knopf('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte || schrittRuht;
+  knopf('schritt-abspielen').disabled = !z.objekt || schrittRuht;
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.`;
@@ -614,7 +618,7 @@ function elementWaehlen(e) {
     }
   }
   z.erkl = best ? elementSchluessel(best.el) : null;
-  if (z.erkl) abspielen(); else aktualisieren();
+  if (z.erkl) { stoppeSchritte(); abspielen(); } else aktualisieren();
 }
 
 /** Knöpfe für die sichtbaren Elemente der Zelle, eines je Klasse modulo Gitter (auch für die Tastatur). @param {Gruppe} g */
@@ -887,7 +891,7 @@ function init() {
     if (naechstes('[data-abspielen]')) abspielen();
     if (naechstes('[data-erkl-zu]')) { clearTimeout(ablauf); z.erkl = null; phase = 3; aktualisieren(); }
     const wahl = naechstes('[data-erkl]');
-    if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); abspielen(); }
+    if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); stoppeSchritte(); abspielen(); }
   });
   $('opt-brechen').addEventListener('change', () => {
     const s = systemJetzt();

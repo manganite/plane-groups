@@ -72,7 +72,9 @@ für diese App gilt.
   Werkzeuge Zeichnen und Radieren abgewählt, die Schalter „Füllen“ und Lupe bleiben gewählt und wirken beim
   Verlassen wieder. Grund: Mit grossem Objekt, Zeichnung oder Lupe erkennt man die Elemente und Wege nicht
   mehr; die Lupe braucht man nur zum Zeichnen, Radieren und Setzen. Der Zustand gilt sofort beim Einschalten,
-  damit das Objekt nicht erst beim Wählen eines Elements kleiner wird.
+  damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. Eine gezeigte Herkunft eines Elements
+  überdeckt „Schritt für Schritt“; es ruht dann (Schalter, Leitfaden Abschn. 5.2). Der Aufbau lässt sich mit
+  der Herkunft kombinieren.
 - **„Herkunft der Elemente“** (5.11.2026, Thomas; früher „Warum ist das da?“): Schalter im Abschnitt „Aufbau
   aus Erzeugenden“, nicht Knopf über dem Gerüst. Grund: Über dem Gerüst stehen die Werkzeuge Zeichnen und
   Radieren und die Lupe; dieses erklärt die Symmetrieelemente wie der Aufbau, mit dem es sich kombinieren
