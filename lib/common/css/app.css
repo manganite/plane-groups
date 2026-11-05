@@ -203,7 +203,7 @@ select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-r
 .panel-head .t small { font-weight: 400; color: var(--muted); margin-left: 6px; }
 .tools { display: flex; gap: 6px; flex-wrap: wrap; }
 .tools button { border: 1px solid var(--line); background: var(--paper); border-radius: 6px; padding: 4px 9px; font-size: 0.8rem; cursor: pointer; }
-.tools button:hover:not(:disabled) { border-color: var(--muted); }
+.tools button:enabled:not([aria-pressed="true"]):hover { border-color: var(--muted); } /* nur freie, nicht gewählte Knöpfe */
 /* Werkzeuge und Knöpfe für die Ansicht in der Tafel: gewählt in der Akzentfarbe, gesperrt blass (Leitfaden Abschn. 5.2) */
 .tools button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--paper); }
 .tools button:disabled { opacity: 0.45; cursor: not-allowed; }

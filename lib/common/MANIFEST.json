@@ -1,10 +1,10 @@
 {
   "name": "crystallography-common",
-  "version": "0.8.0",
-  "tag": "v0.8.0",
-  "commit": "e04294535de028bf6e43e3fa9240fd43fa3cd10a",
+  "version": "0.8.1",
+  "tag": "v0.8.1",
+  "commit": "89c3cb87a95be5b48c08c8e1282df2f29191695e",
   "files": {
-    "lib/common/css/app.css": "f2b16ba9e0f39c9d1c9d75851c81687c7b0a4b3ee57ec7a406c200931a52b649",
+    "lib/common/css/app.css": "694f42e39f896e823e4f3d6154f0412830153ada8210eae6ee58beca42ee58f4",
     "lib/common/css/base.css": "48000b7d494db36a6456613482b79419f5eb034026eb51ae0a40347ecaa9da2b",
     "lib/common/css/quiz.css": "6c9a786bf2e057d56509d64b0385297af7a3704fae27c5cba6d28f69546f06ed",
     "lib/common/css/skript.css": "88cec16cb04974c37207a4bbd5ce8137fe9737700930ef8a0972534d0d2e9b26",
@@ -15,7 +15,7 @@
     "lib/common/js/seite.js": "44947bc94532c8aa2aa7743c2a68d4d74a9b313dc989ebf7fc80777c15cf666e",
     "lib/common/js/skript-kern.js": "1faf7b4a88615f163cde6359a7412db1e67fef05618f29d31f67be9f4c814988",
     "lib/common/js/typen.js": "3ad299729f1c44d92297ec62e3ff9d2ef582b1b3679b5de152d37f3776df34cd",
-    "lib/common/js/version.js": "0160e8e818d2b0e0180df2ce0a7628a381871402a35f328b192a73e7dc6ab084",
+    "lib/common/js/version.js": "3ea918b1b61020e111e04ebd0e68225cc19c96853b73252252d6acdb3eb0c5f3",
     "lib/common/fonts/LICENSE-ibm-plex-mono.txt": "23b0a9d0c6d3f140a0b77e483c5cfa6bba574325ef5cb189ed9f2fec4884533f",
     "lib/common/fonts/LICENSE-ibm-plex-sans.txt": "d0283623ef57e722fd0eb688a8041589670c608ab780cd3612d06ba6f153d3fd",
     "lib/common/fonts/LICENSE-source-serif-4.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
