@@ -74,9 +74,9 @@ für diese App gilt.
   mehr; die Lupe braucht man nur zum Zeichnen, Radieren und Setzen. Der Zustand gilt sofort beim Einschalten,
   damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. „Herkunft der Elemente“ überdeckt
   „Schritt für Schritt“, schon beim Einschalten, nicht erst mit gezeigtem Element (die Erklärung zeigt statt
-  der Bilder des Objekts ihre eigenen Fähnchen, Schritte wären unsichtbar); es ruht dann, bis „Herkunft der
-  Elemente“ ausgeschaltet ist (Schalter, Leitfaden Abschn. 5.2; Thomas, 5.11.2026). Der Aufbau lässt sich mit
-  der Herkunft kombinieren.
+  der Bilder des Objekts ihre eigenen Fähnchen, Schritte wären unsichtbar); es ruht dann, solange „Herkunft
+  der Elemente“ wirkt (eingeschaltet, mit Symmetrieelementen) (Schalter, Leitfaden Abschn. 5.2; Thomas,
+  5.11.2026). Der Aufbau lässt sich mit der Herkunft kombinieren.
 - **„Herkunft der Elemente“** (5.11.2026, Thomas; früher „Warum ist das da?“): Schalter im Abschnitt „Aufbau
   aus Erzeugenden“, nicht Knopf über dem Gerüst. Grund: Über dem Gerüst stehen die Werkzeuge Zeichnen und
   Radieren und die Lupe; dieses erklärt die Symmetrieelemente wie der Aufbau, mit dem es sich kombinieren

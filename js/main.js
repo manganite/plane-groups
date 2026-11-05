@@ -652,7 +652,8 @@ function schritteAbspielen() {
   aktualisieren();
   const ende = gruppeVon(z.gruppe).ordnung + 1;
   const weiter = () => {
-    if (z.schritt === 0 || z.schritt >= ende) return;
+    // ruht „Schritt für Schritt“ inzwischen (Herkunft, Elemente wieder an, Objekt aus, Brechen), nicht unsichtbar weiterzählen
+    if (z.schritt === 0 || z.schritt >= ende || !schrittWirkt(z)) { schrittAblauf = undefined; return; }
     z.schritt += 1;
     aktualisieren();
     schrittAblauf = setTimeout(weiter, z.schritt === ende - 1 ? 1500 : 1100);
@@ -924,8 +925,7 @@ function init() {
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
   $('opt-warum').addEventListener('change', () => {
     z.warum = eingabe('opt-warum').checked;
-    if (z.warum) stoppeSchritte();
-    if (z.warum) { z.zeichnen = false; z.radieren = false; }
+    if (z.warum) { stoppeSchritte(); z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });
