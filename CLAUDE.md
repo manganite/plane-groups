@@ -79,11 +79,11 @@ für diese App gilt.
   5.11.2026). Der Aufbau lässt sich mit der Herkunft kombinieren.
 - **„Herkunft der Elemente“** (5.11.2026, Thomas; früher „Warum ist das da?“): Schalter im Abschnitt „Aufbau
   aus Erzeugenden“, nicht Knopf über dem Gerüst. Grund: Über dem Gerüst stehen die Werkzeuge Zeichnen und
-  Radieren und die Lupe; dieses erklärt die Symmetrieelemente wie der Aufbau, mit dem es sich kombinieren
-  lässt. Der alte Name sagte nicht, worauf er sich bezieht. Zustand `warum`, Link `warum=1` und die Datei
-  `js/warum.js` behalten den alten Namen (Link-Adressen sind Schnittstelle; Umbenennen der Datei ohne Nutzen).
-  Ist es aus Speicher oder Link aktiv, klappt sein Abschnitt beim Start auf; ohne Elemente oder beim Brechen
-  ist es gesperrt, bleibt aber gewählt.
+  Radieren und der Schalter Lupe, die dem Gestalten dienen; dieses erklärt die Symmetrieelemente wie der
+  Aufbau, mit dem es sich kombinieren lässt. Der alte Name sagte nicht, worauf er sich bezieht. Zustand
+  `warum`, Link `warum=1` und die Datei `js/warum.js` behalten den alten Namen (Link-Adressen sind
+  Schnittstelle; Umbenennen der Datei ohne Nutzen). Ist es aus Speicher oder Link aktiv, klappt sein Abschnitt
+  beim Start auf; ohne Elemente oder beim Brechen ist es gesperrt, bleibt aber gewählt.
 
 ## Konventionen
 
