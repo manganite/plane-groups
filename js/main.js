@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt, imBereich, zahlenpaar } from './zustand.js';
@@ -237,15 +237,19 @@ function bedienungAbgleichen() {
   const nSchritte = gruppeVon(z.gruppe).ordnung + 1;
   if (z.schritt > nSchritte) z.schritt = nSchritte;
   eingabe('opt-schritt').checked = z.schritt > 0;
-  eingabe('opt-schritt').disabled = !z.objekt;
-  element('#row-schritt .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  // „Herkunft der Elemente“ (eingeschaltet oder mit gezeigtem Element) überdeckt „Schritt für Schritt“
+  // (schrittWirkt in zeichnung.js): Es ruht, gesperrt und gewählt, bis sie ausgeschaltet ist (Leitfaden 5.2)
+  const schrittRuht = !z.brechen && (herkunftAktiv() || !!z.erkl);
+  eingabe('opt-schritt').disabled = !z.objekt || schrittRuht;
+  element('#row-schritt .why').textContent = !z.objekt ? 'nur mit „Objekt in allgemeiner Lage“'
+    : schrittRuht ? (herkunftAktiv() ? 'ruht, solange „Herkunft der Elemente“ eingeschaltet ist' : 'ruht, solange die Herkunft eines Elements gezeigt wird („Schliessen“ in der Erklärung)') : '';
   eingabe('schritt-regler').max = String(nSchritte);
   eingabe('schritt-regler').value = String(Math.max(1, z.schritt));
-  eingabe('schritt-regler').disabled = z.schritt === 0;
+  eingabe('schritt-regler').disabled = z.schritt === 0 || schrittRuht;
   $('schritt-regler-out').textContent = z.schritt > 0 ? `${z.schritt} von ${nSchritte}` : '–';
-  knopf('schritt-zurueck').disabled = z.schritt <= 1;
-  knopf('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte;
-  knopf('schritt-abspielen').disabled = !z.objekt;
+  knopf('schritt-zurueck').disabled = z.schritt <= 1 || schrittRuht;
+  knopf('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte || schrittRuht;
+  knopf('schritt-abspielen').disabled = !z.objekt || schrittRuht;
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.`;
@@ -414,7 +418,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);
     if (gruppeVon(z.gruppe).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
   }
-  if (z.schritt > 0 && z.objekt && !erklaerung) items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>aktuelle Operation; (n): Nummer in der Liste der Symmetrieoperationen</span>`);
+  if (schrittWirkt({ ...z, erkl: erklaerung ? z.erkl : null })) items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>aktuelle Operation; (n): Nummer in der Liste der Symmetrieoperationen</span>`);
   if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
   if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
   if (erklaerung?.art === 'kopie') {
@@ -491,7 +495,7 @@ function kenndaten() {
       <p>Das Objekt liegt auf einem Symmetrieelement. ${g.ordnung / l.zaehligkeit} der ${g.ordnung} Operationen je Zelle halten es fest; deshalb fallen je ${g.ordnung / l.zaehligkeit} Bilder zusammen, und es bleiben ${g.ordnung}/${g.ordnung / l.zaehligkeit} = ${l.zaehligkeit} Stellen je Zelle. Freie Parameter: ${fg}. Ein Objekt, das hier sitzen soll, muss selbst mindestens die Symmetrie ${lageHTML(l.symbol)} haben; das Fähnchen hat keine, darum überlagert es sich mit seinen Bildern.</p></div>`;
   // Operationen
   // Schritt für Schritt: Kasten und die Zeile der aktuellen Operation
-  const schrittAn = z.schritt > 0 && z.objekt && !erklaerung;
+  const schrittAn = schrittWirkt({ ...z, erkl: erklaerung ? z.erkl : null });
   const sd = schrittAn ? schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt) : null;
   const aktuell = sd && !sd.translationen ? sd.k - 1 : -1;
   const schrittbox = sd ? `<div class="warumbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
@@ -614,7 +618,7 @@ function elementWaehlen(e) {
     }
   }
   z.erkl = best ? elementSchluessel(best.el) : null;
-  if (z.erkl) abspielen(); else aktualisieren();
+  if (z.erkl) { stoppeSchritte(); abspielen(); } else aktualisieren();
 }
 
 /** Knöpfe für die sichtbaren Elemente der Zelle, eines je Klasse modulo Gitter (auch für die Tastatur). @param {Gruppe} g */
@@ -648,7 +652,8 @@ function schritteAbspielen() {
   aktualisieren();
   const ende = gruppeVon(z.gruppe).ordnung + 1;
   const weiter = () => {
-    if (z.schritt === 0 || z.schritt >= ende) return;
+    // ruht „Schritt für Schritt“ inzwischen (Herkunft, Elemente wieder an, Objekt aus, Brechen), nicht unsichtbar weiterzählen
+    if (z.schritt === 0 || z.schritt >= ende || !schrittWirkt(z)) { schrittAblauf = undefined; return; }
     z.schritt += 1;
     aktualisieren();
     schrittAblauf = setTimeout(weiter, z.schritt === ende - 1 ? 1500 : 1100);
@@ -818,7 +823,7 @@ function init() {
   $('picker').addEventListener('click', (e) => {
     const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (e.target).closest('.pgb'));
     if (!b) return;
-    if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; if (z.schritt > 0) z.schritt = 1; }
+    if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; stoppeSchritte(); if (z.schritt > 0) z.schritt = 1; } // Abspielen rechnet mit der Zahl der Schritte der alten Gruppe
     z.gruppe = /** @type {string} */ (b.dataset.g); // jeder Knopf trägt data-g
     if (z.brechen) z.frei = { ...z.gitter[systemJetzt()] };
     aktualisieren();
@@ -887,7 +892,7 @@ function init() {
     if (naechstes('[data-abspielen]')) abspielen();
     if (naechstes('[data-erkl-zu]')) { clearTimeout(ablauf); z.erkl = null; phase = 3; aktualisieren(); }
     const wahl = naechstes('[data-erkl]');
-    if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); abspielen(); }
+    if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); stoppeSchritte(); abspielen(); }
   });
   $('opt-brechen').addEventListener('change', () => {
     const s = systemJetzt();
@@ -920,7 +925,7 @@ function init() {
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
   $('opt-warum').addEventListener('change', () => {
     z.warum = eingabe('opt-warum').checked;
-    if (z.warum) { z.zeichnen = false; z.radieren = false; }
+    if (z.warum) { stoppeSchritte(); z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });

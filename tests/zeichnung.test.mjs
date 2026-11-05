@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import {
-  metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder, objektMassstab, erklaerend,
+  metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder, objektMassstab, erklaerend, schrittWirkt,
 } from '../js/zeichnung.js';
 import { startzustand, GITTER_START } from '../js/zustand.js';
 import { da } from './hilfen.mjs';
@@ -264,4 +264,15 @@ test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Z
   // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
   const unbekannt = tafelA('p4', { ...basis, erkl: '4;1/3,0' }, FARBEN);
   assert.ok(unbekannt.erklaerung === null && unbekannt.lupeBox !== null && unbekannt.svg.includes('class="zeichnung"'));
+});
+
+test('Schritt für Schritt: wirkt nur ohne „Herkunft der Elemente“, mit Objekt und ohne Brechen', () => {
+  const z = { ...startzustand(), gruppe: 'p4mm', schritt: 2 };
+  assert.ok(schrittWirkt(z));
+  assert.ok(!schrittWirkt({ ...z, warum: true }) && schrittWirkt({ ...z, warum: true, elemente: false }));
+  assert.ok(!schrittWirkt({ ...z, erkl: '4;0,0' }) && !schrittWirkt({ ...z, objekt: false }) && !schrittWirkt({ ...z, brechen: true }) && !schrittWirkt({ ...z, schritt: 0 }));
+  // Tafel A: mit gültiger Erklärung keine Schritte, mit unbekanntem Element (alter Link) schon
+  assert.ok(tafelA('p4mm', z, FARBEN).svg.includes('class="schritte"'));
+  assert.ok(!tafelA('p4mm', { ...z, erkl: '4;0,0' }, FARBEN).svg.includes('class="schritte"'));
+  assert.ok(tafelA('p4mm', { ...z, erkl: '4;1/3,0' }, FARBEN).svg.includes('class="schritte"'));
 });
