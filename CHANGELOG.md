@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **Gleitspiegelung genauer** (#33, nach einem externen Review des Quiz): Skript Abschn. 4.1 und die Fragen gl-1-02 und gl-1-08 sagten, linker und rechter Fussabdruck seien „um eine halbe Schrittlänge“ versetzt; versetzt sind sie um einen Schritt, die halbe Periode der Spur; sie wiederholt sich nach einem Doppelschritt. Die Gleitkomponente heisst jetzt „halbe Gitterperiode entlang der Linie“, die Hälfte der kürzesten Gittertranslation in dieser Richtung (Skript Abschn. 4.1, 4.4, Zusammenfassung; gl-1-01, gl-2-08). Bei der Herleitung der 17 Gruppen werden „einige oder alle“ Spiegellinien durch Gleitspiegellinien ersetzt (Skript Abschn. 5.1, Kap. 7; eg-1-01). Alle fünf Fragen sind von Thomas freigegeben; gl-1-01 hat dabei eine klarere Erklärung bekommen.
 - **Gemeinsame Grundlage** auf crystallography-common v0.9.0: Im Quiz gelten die Grenzen für erzeugte Fragen (30 % je Generator, 50 % insgesamt) streng, solange die gewählte Länge erreichbar ist; sonst nie mehr erzeugte als handgeschriebene Fragen. Querstriche werden von Screenreadern als „−“ vorgelesen; die Legende bricht auf dem Telefon um statt unsichtbar zu scrollen; im Skript-PDF stehen Abb. 7.3 und 7.5 je auf einer Seite.
 
 ### Behoben

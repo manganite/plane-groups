@@ -757,13 +757,13 @@
       <section id="gleitung">
         <h3>Die Gleitspiegelung</h3>
         <p>Spuren im Sand zeigen, worum es geht (Abb. 4.1). Wer auf einem Bein hüpft, hinterlässt eine Reihe gleicher Fussabdrücke; die Spur hat nur Translationen. Wer mit beiden Beinen springt, setzt den linken und den rechten Fuss nebeneinander. Die beiden Abdrücke sind Spiegelbilder, und eine Spiegellinie entlang der Laufrichtung bringt die Spur mit sich zur Deckung.</p>
-        <p>Wer geht, setzt die Füsse abwechselnd. Linker und rechter Abdruck sind wieder Spiegelbilder, aber um eine halbe Schrittlänge gegeneinander versetzt. Jetzt hilft weder eine Spiegelung allein noch eine Verschiebung allein: Gespiegelt landet ein linker Fuss zwischen zwei rechten, verschoben auf der falschen Seite. Erst beides zusammen, spiegeln an der Mittellinie und um eine halbe Schrittlänge verschieben, bringt die Spur mit sich zur Deckung.</p>
+        <p>Wer geht, setzt die Füsse abwechselnd. Linker und rechter Abdruck sind wieder Spiegelbilder, aber gegeneinander versetzt: Jeder rechte Abdruck liegt mitten zwischen zwei linken. Die Spur wiederholt sich erst nach zwei Schritten, einem Doppelschritt; das ist ihre Translation <i>t</i>. Jetzt hilft weder eine Spiegelung allein noch eine Verschiebung allein: Gespiegelt landet ein linker Fuss zwischen zwei rechten, verschoben auf der falschen Seite. Erst beides zusammen, spiegeln an der Mittellinie und um einen Schritt, also <i>t</i>/2, verschieben, bringt die Spur mit sich zur Deckung.</p>
         <figure class="fig-card fig-mittel" data-kind="spuren" data-viewbox="0 0 520 380" data-alt="Drei Fussspuren: hüpfen, springen, gehen">
           <div class="fig-art"></div>
           <figcaption><b>Abb. 4.1</b> Fussspuren in Laufrichtung nach rechts. Hüpfen: nur die Translation <i>t</i>. Springen: eine Spiegellinie <i>m</i> entlang der Laufrichtung. Gehen: eine Gleitspiegellinie <i>g</i>, gestrichelt; die Gleitspiegelung spiegelt an ihr und verschiebt um <i>t</i>/2 (nach Hoffmann Abb. 4.7–4.9).</figcaption>
         </figure>
         <p>Diese Operation heisst <span class="term">Gleitspiegelung</span>: eine Spiegelung an einer Linie, gekoppelt mit einer Verschiebung parallel zu dieser Linie. Gekoppelt heisst, dass nur beide zusammen eine Symmetrieoperation sind, die Spiegelung allein und die Verschiebung allein nicht (Skript „Stereographische Projektion“, <a href="https://manganite.github.io/stereography/skript.html#drehinversion">Abschnitt 3.2</a>). Das Symmetrieelement ist die <span class="term">Gleitspiegellinie</span>; man zeichnet sie gestrichelt und schreibt <i>g</i>. Die Verschiebung heisst <span class="term">Gleitkomponente</span> (bei Borchardt-Ott Gleitvektor).</p>
-        <p>Führt man eine Gleitspiegelung zweimal aus, heben sich die beiden Spiegelungen auf, und es bleibt eine Verschiebung um die doppelte Gleitkomponente. Diese muss eine Translation des Gitters sein. Die Gleitkomponente ist deshalb immer die Hälfte einer Gittertranslation parallel zur Linie, beim Gehen eine halbe Schrittlänge. Weil eine Gleitspiegelung eine Spiegelung enthält, gibt es Gleitspiegellinien nur in Richtungen, in denen auch Spiegellinien möglich sind, also nicht im schiefwinkligen System.</p>
+        <p>Führt man eine Gleitspiegelung zweimal aus, heben sich die beiden Spiegelungen auf, und es bleibt eine Verschiebung um die doppelte Gleitkomponente. Diese muss eine Translation des Gitters sein. Die Gleitkomponente ist deshalb die <span class="term">halbe Gitterperiode</span> entlang der Linie, die Hälfte der kürzesten Gittertranslation in dieser Richtung, beim Gehen ein Schritt, ein halber Doppelschritt. Eine zusätzliche ganze Gittertranslation entlang der Linie ergibt dieselbe Gleitspiegellinie; die Hälfte einer doppelt so langen Translation wäre eine ganze und ergäbe nur eine Spiegelung, gefolgt von einer Translation. Weil eine Gleitspiegelung eine Spiegelung enthält, gibt es Gleitspiegellinien nur in Richtungen, in denen auch Spiegellinien möglich sind, also nicht im schiefwinkligen System.</p>
         <p>Abb. 4.2 zeigt ein ebenes Muster mit Gleitspiegellinien. Das Fähnchen aus der Zelle wird an der gestrichelten Linie gespiegelt und um <i>b</i>/2 verschoben. Die App zeichnet Spiegelbilder orange; Fähnchen, die nur durch Drehen und Verschieben aus dem ersten hervorgehen, bleiben blau. So sieht man auf einen Blick, welche Bilder durch eine Spiegelung entstanden sind. In den Strukturbildern von Kapitel 3 unterscheiden die Farben dagegen Atomsorten. Eine Spiegellinie hat dieses Muster nicht. Seine Ebenengruppe heisst <i>pg</i>: primitive Zelle, eine Gleitspiegellinie (Abschnitt 3.2).</p>
         <div class="fig-row">
           <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=eg&amp;g=pg" data-alt="Elementarzelle der Ebenengruppe pg mit Gleitspiegellinien und zwei Fähnchen">
@@ -778,7 +778,7 @@
         <p class="fig-note"><b>Abb. 4.2</b> Die Ebenengruppe <i>pg</i>. Die Gleitspiegellinien liegen bei <i>x</i> = 0 und <i>x</i> = ½, entlang <i>b</i>; die Gleitkomponente ist <i>b</i>/2.</p>
         <div class="box merke">
           <h4>Merke</h4>
-          <p>Eine Gleitspiegelung ist eine Spiegelung an einer Linie, gekoppelt mit einer Verschiebung um die Hälfte einer Gittertranslation entlang der Linie. Zweimal ausgeführt ergibt sie eine Gittertranslation. Gleitspiegellinien zeichnet man gestrichelt und schreibt <i>g</i>.</p>
+          <p>Eine Gleitspiegelung ist eine Spiegelung an einer Linie, gekoppelt mit einer Verschiebung um die halbe Gitterperiode entlang der Linie (die Hälfte der kürzesten Gittertranslation in dieser Richtung). Zweimal ausgeführt ergibt sie eine Gittertranslation. Gleitspiegellinien zeichnet man gestrichelt und schreibt <i>g</i>.</p>
         </div>
         <div class="box vertiefung">
           <h4>Vertiefung · <b>Friesgruppen</b></h4>
@@ -930,7 +930,7 @@
         <p>Regel 4 steht auch in der Gruppentafel: Die Linien von <i>m</i><sub>1</sub> und <i>m</i><sub>2</sub> schneiden sich unter 60°, und <i>m</i><sub>2</sub> ∘ <i>m</i><sub>1</sub> ist eine Drehung um 120°. Neu ist im periodischen Muster nur, dass die Translationen hinzukommen. Sie machen aus jedem Symmetrieelement unendlich viele, und nach den Regeln 1 bis 3 liegen diese nicht nur auf den Gitterpunkten, sondern auch dazwischen.</p>
         <div class="box merke">
           <h4>Merke</h4>
-          <p><i>A</i> ∘ <i>B</i>: zuerst <i>B</i>, dann <i>A</i>. Drehung + Translation = Drehung um einen anderen Punkt; Spiegelung + Translation senkrecht = parallele Spiegellinie, um die halbe Translation verschoben; Spiegelung + Translation schräg = Gleitspiegelung, wenn der Anteil entlang der Linie eine halbe Gittertranslation ist; zwei Spiegelungen im Winkel α = Drehung um 2α.</p>
+          <p><i>A</i> ∘ <i>B</i>: zuerst <i>B</i>, dann <i>A</i>. Drehung + Translation = Drehung um einen anderen Punkt; Spiegelung + Translation senkrecht = parallele Spiegellinie, um die halbe Translation verschoben; Spiegelung + Translation schräg = Gleitspiegelung, wenn der Anteil entlang der Linie die halbe Gitterperiode ist (bis auf ganze Gittertranslationen); zwei Spiegelungen im Winkel α = Drehung um 2α.</p>
         </div>
         <div class="box app">
           <h4>In der App</h4>
@@ -974,7 +974,7 @@
       <div class="box zusammen">
         <h4>Zusammenfassung</h4>
         <ul>
-          <li>Eine Gleitspiegelung koppelt eine Spiegelung mit einer Verschiebung um eine halbe Gittertranslation entlang der Linie. Gleitspiegellinien sind gestrichelt und heissen <i>g</i>, in den International Tables nach der Gleitrichtung <i>a</i>, <i>b</i> oder <i>g</i>(…).</li>
+          <li>Eine Gleitspiegelung koppelt eine Spiegelung mit einer Verschiebung um die halbe Gitterperiode entlang der Linie. Gleitspiegellinien sind gestrichelt und heissen <i>g</i>, in den International Tables nach der Gleitrichtung <i>a</i>, <i>b</i> oder <i>g</i>(…).</li>
           <li>Eine Symmetrieoperation schreibt man als Koordinaten des Bildpunkts, etwa <span class="ov"><i>x</i></span>&nbsp;+&nbsp;½, <i>y</i>. Der Ort des Elements sind die Punkte, die an ihrem Ort bleiben, bei einer Gleitspiegelung die Linie, die in sich verschoben wird.</li>
           <li><i>A</i> ∘ <i>B</i> heisst: zuerst <i>B</i>, dann <i>A</i>; die Reihenfolge kann das Ergebnis ändern. Die Gruppentafel listet alle Verknüpfungen einer Gruppe. Vier Regeln beschreiben, was aus Drehungen, Spiegelungen und Translationen entsteht.</li>
           <li>Deshalb hat ein Muster mehr Symmetrieelemente, als sein Symbol nennt, etwa die Gleitspiegellinien in <i>p</i>4<i>mm</i> und <i>c</i>2<i>mm</i> oder die Drehpunkte im Dreiecksbeispiel.</li>
@@ -1022,7 +1022,7 @@
         <h3>Wie man auf 17 kommt</h3>
         <p>Eine Ebenengruppe ist die vollständige Symmetrie eines periodischen Musters: alle Translationen, Drehungen, Spiegelungen und Gleitspiegelungen zusammen (Abschnitt 3.2). Die vorigen Kapitel liefern die Bausteine: 4 Kristallsysteme, 5 Bravais-Gitter und 10 Punktgruppen (Kapitel 2 und 3). Daraus entstehen die Ebenengruppen in zwei Schritten.</p>
         <p><b>Punktgruppe und Gitter kombinieren.</b> Zu jeder Punktgruppe gehören die Gitter ihres Kristallsystems. Die Punktgruppen <i>m</i> und 2<i>mm</i> des rechteckigen Systems passen zum primitiven und zum zentrierten Gitter; das ergibt <i>pm</i>, <i>cm</i>, <i>p</i>2<i>mm</i> und <i>c</i>2<i>mm</i>. Die Punktgruppe 3<i>m</i> passt auf zwei Arten in das hexagonale Gitter: mit den Spiegellinien senkrecht zu den Zellkanten oder entlang der Zellkanten; das ergibt <i>p</i>3<i>m</i>1 und <i>p</i>31<i>m</i>. Alle anderen Punktgruppen geben je eine Ebenengruppe. Zusammen sind das 13.</p>
-        <p><b>Spiegellinien durch Gleitspiegellinien ersetzen.</b> Wo es das Gitter erlaubt, kann an die Stelle einer Spiegellinie eine Gleitspiegellinie treten. So entstehen aus <i>pm</i>, <i>p</i>2<i>mm</i> und <i>p</i>4<i>mm</i> die Ebenengruppen <i>pg</i>, <i>p</i>2<i>mg</i>, <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>. In zentrierten Zellen und im hexagonalen System entsteht dabei nichts Neues: Dort gibt es in derselben Richtung neben den Spiegellinien schon Gleitspiegellinien (Abschnitt 4.5). Mit diesen vier sind es 17.</p>
+        <p><b>Einige oder alle Spiegellinien durch Gleitspiegellinien ersetzen.</b> Wo es das Gitter erlaubt, kann an die Stelle einer Spiegellinie eine Gleitspiegellinie treten. So entstehen aus <i>pm</i>, <i>p</i>2<i>mm</i> und <i>p</i>4<i>mm</i> die Ebenengruppen <i>pg</i>, <i>p</i>2<i>mg</i>, <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>. In <i>p</i>2<i>mg</i> und <i>p</i>4<i>gm</i> bleiben Spiegellinien, in <i>pg</i> und <i>p</i>2<i>gg</i> werden alle ersetzt. In zentrierten Zellen und im hexagonalen System entsteht dabei nichts Neues: Dort gibt es in derselben Richtung neben den Spiegellinien schon Gleitspiegellinien (Abschnitt 4.5). Mit diesen vier sind es 17.</p>
         <div class="tabwrap">
           <table class="tab">
             <thead><tr><th>Nr.</th><th>Symbol</th><th>Punktgruppe</th><th>Kristallsystem</th><th>Bravais-Gitter</th><th>symmorph</th></tr></thead>
@@ -1103,7 +1103,7 @@
         <p class="fig-note"><b>Abb. 5.1</b> Die Symmetriegerüste der 17 Ebenengruppen, je eine Elementarzelle, nach Kristallsystem geordnet. Drehpunkte violett; Spiegellinien durchgezogen, Gleitspiegellinien gestrichelt, grün oder ocker nach der Blickrichtung, auf die sich ihre Stelle im Symbol bezieht (Abschnitt 5.2).</p>
         <div class="box merke">
           <h4>Merke</h4>
-          <p>4 Kristallsysteme, 5 Bravais-Gitter, 10 Punktgruppen, 17 Ebenengruppen. 13 Ebenengruppen entstehen, indem man Punktgruppen und Gitter kombiniert; 4 weitere, indem man Spiegellinien durch Gleitspiegellinien ersetzt.</p>
+          <p>4 Kristallsysteme, 5 Bravais-Gitter, 10 Punktgruppen, 17 Ebenengruppen. 13 Ebenengruppen entstehen, indem man Punktgruppen und Gitter kombiniert; 4 weitere, indem man einige oder alle Spiegellinien durch Gleitspiegellinien ersetzt.</p>
         </div>
         <div class="box vertiefung">
           <h4>Vertiefung · <b>Symmorph und nichtsymmorph</b></h4>
@@ -1693,7 +1693,7 @@
             </tbody>
           </table>
         </div>
-        <p>Die Tabelle ist wie bei Conway angeordnet: oben die rein spiegelnden Gruppen, unten die ohne Spiegelung, dazwischen die gemischten. In jeder Spalte haben die Gruppen dieselbe höchste Drehzähligkeit; unten steht jeweils die Gruppe aus ihren Drehungen und Translationen ohne Spiegelungen. Kapitel 5 kam auf 17, indem es Punktgruppen und Gitter kombinierte und Spiegellinien durch Gleitspiegellinien ersetzte; Conway kommt auf dieselbe Zahl, indem er Preise addiert.</p>
+        <p>Die Tabelle ist wie bei Conway angeordnet: oben die rein spiegelnden Gruppen, unten die ohne Spiegelung, dazwischen die gemischten. In jeder Spalte haben die Gruppen dieselbe höchste Drehzähligkeit; unten steht jeweils die Gruppe aus ihren Drehungen und Translationen ohne Spiegelungen. Kapitel 5 kam auf 17, indem es Punktgruppen und Gitter kombinierte und einige oder alle Spiegellinien durch Gleitspiegellinien ersetzte; Conway kommt auf dieselbe Zahl, indem er Preise addiert.</p>
         <div class="box merke">
           <h4>Merke</h4>
           <p>Die Signatur nach Conway nennt Drehpunkte ohne Spiegellinie (vor dem *), Kaleidoskope mit ihren Ecken (* und Ziffern danach), Wunder (×) und Wanderungen (o). Eine Signatur gehört genau dann zu einer Ebenengruppe, wenn ihr Preis 2 beträgt; das ergibt die 17 Gruppen.</p>
