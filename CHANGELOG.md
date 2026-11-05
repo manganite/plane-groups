@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Behoben
+
+- **„Zurücksetzen“ nach einem Link** (#81): Im Modus „Gitter und Basis“ enthielt die Link-Adresse einer veränderten Struktur keine Vorgabe; nach dem Öffnen des Links oder dem Neuladen setzte „Zurücksetzen“ auf das Dreiecksbeispiel statt auf die eigentliche Vorgabe zurück. Die Adresse enthält jetzt immer `v=…`; alte Links ohne `v` verhalten sich wie bisher.
+
 ## [1.1.0] - 2026-11-05
 
 „Herkunft der Elemente“ (früher „Warum ist das da?“) als Schalter im Abschnitt „Aufbau aus Erzeugenden“; Erklärungen im Symmetriegerüst mit Objekt in fester Grösse; das Objekt hat im Gitter in beiden Tafeln dasselbe Verhältnis zur Zelle; Erste Schritte je Modus, neu für „Gitter und Basis“; „Alle Einstellungen zurücksetzen“ unten in der Seitenleiste; gewählte und gesperrte Knöpfe einheitlich; Typprüfung und ESLint; gemeinsame Grundlage v0.8.1.
