@@ -294,6 +294,14 @@ const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 export const erklaerend = (z) => !z.brechen && ((z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.warum && z.elemente) || !!z.erkl);
 
 /**
+ * „Schritt für Schritt“ wirkt: eingeschaltet, mit Objekt, ohne Brechen der Symmetrie und ohne gezeigte
+ * Herkunft eines Elements (sie überdeckt es; dann ruht es, main.js). Aufrufer übergeben in erkl nur ein
+ * gültiges Element, ein unbekanntes aus einem alten Link zählt nicht.
+ * @param {Pick<Zustand, 'schritt' | 'objekt' | 'erkl' | 'brechen'>} z
+ */
+export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !z.brechen;
+
+/**
  * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter
  * mit der Metrik M, mal k. In der App ist k = 1. In Tafel A gilt k nur für die Symbole (das Objekt
  * gehört zum Muster); Tafel B übergibt k, damit Muster in Quiz und Skript bleiben, wie sie waren.
@@ -811,7 +819,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   const ruhig = erklaerend({ ...z, erkl: erkl ? z.erkl : null }); const lupe = z.lupe && !ruhig; // nur ein gültiges erkl zählt
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
-  const schritt = z.schritt > 0 && z.objekt && !erkl && !brechen ? z.schritt : 0;
+  const schritt = schrittWirkt({ ...z, erkl: erkl ? z.erkl : null }) ? z.schritt : 0;
   const s0 = ausgangsstelle(z.punkt, n);
   if (schritt) {
     for (const e of itaOperationen(g)) {
