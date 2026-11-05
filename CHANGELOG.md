@@ -14,6 +14,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **„Alle Einstellungen zurücksetzen“** (crystallography-common#48): Der Knopf steht jetzt unten in der Seitenleiste ausserhalb der Abschnitte, wie in der Stereo-App, statt im Abschnitt „Darstellung“. Er löscht alle gespeicherten Einstellungen ausser dem Fortschritt im Quiz und lädt die App ohne Link-Adresse neu; damit sind auch aufgeklappte Abschnitte und die Tafel am Telefon wieder wie beim ersten Aufruf.
+- **Gemeinsame Grundlage** auf crystallography-common v0.7.0: `alleEinstellungenZuruecksetzen` (`lib/common/js/seite.js`), PDF des Skripts ohne geteilte Bildraster (Abb. 2.3 jetzt auf einer Seite).
 - **Gemeinsame Grundlage** auf crystallography-common v0.6.0: Die Anordnung der Tafeln kommt jetzt aus `lib/common/css/app.css`; die eigenen Regeln dafür entfallen. Am Verhalten ändert sich nichts (Lage und Stile aller Elemente vorher und nachher gleich, nachgeprüft).
 - **Gemeinsame Grundlage** auf crystallography-common v0.5.0: geprüfte Helfer für Elemente der Seite (`lib/common/js/seite.js`). Die App nutzt sie statt eigener Umwandlungen (`$`, `eingabe`, `knopf`, `element`, `elemente`; die Tafeln `#bild-a`/`#bild-b` sind SVG und laufen über `grafik`; in `struktur-ui.js` heisst die Auswahlliste wie überall `auswahl`). Fehlt ein Element oder hat es eine andere Art, meldet die Seite das beim ersten Zugriff mit der ID. Sonst ändert sich nichts (App in allen Modi, auch mit gebrochener Symmetrie, Skript und Quiz im Browser durchgeklickt, Desktop und Telefon).
 - **Gemeinsame Grundlage** auf crystallography-common v0.4.0: Regeln für ESLint (`tools/common/eslint-basis.mjs`). Am Verhalten ändert sich nichts.
