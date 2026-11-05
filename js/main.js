@@ -324,7 +324,7 @@ function bedienungAbgleichen() {
     : `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.`.trim();
   $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
   knopf('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
-  // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
+  // beim freien Gitter ruhen die Schalter, die sich auf die ursprüngliche Gruppe beziehen
   if (z.brechen) {
     for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell', 'opt-warum']) eingabe(id).disabled = true;
     for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen']) knopf(id).disabled = true;
@@ -992,7 +992,7 @@ function init() {
   initHelp({ tips: TIPS, sections: SECTIONS, labels: LABELS });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
-  // Ist eine Erklärung aus Speicher oder Link aktiv, seinen Abschnitt aufklappen: Es sperrt
+  // Ist eine Erklärung aus Speicher oder Link aktiv, ihren Abschnitt aufklappen: Sie sperrt
   // Zeichnen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
   if (z.modus === 'eg' && (z.warum || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
   if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;

@@ -127,7 +127,7 @@ test('Vektoren in a und b', () => {
   assert.equal(t([2, -1]), '2a − b');
 });
 
-test('Link-Adresse: Werkzeug, gewähltes Element und Aufbau hin und zurück', () => {
+test('Link-Adresse: Herkunft der Elemente, gewähltes Element und Aufbau hin und zurück', () => {
   const z = { ...startzustand(), gruppe: 'p4mm', warum: true, erkl: 'g;-1/2,0;1,1', aufbau: 2 };
   const h = hashVon(z);
   assert.match(h, /warum=1&erkl=g;-1\/2,0;1,1&aufbau=2/);
