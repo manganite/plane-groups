@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt, imBereich, zahlenpaar } from './zustand.js';
@@ -249,12 +249,18 @@ function bedienungAbgleichen() {
   $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
   knopf('werkzeug-warum').disabled = !z.elemente;
   document.body.classList.toggle('warum', z.warum && z.elemente);
+  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, „Warum ist das da?“): Zeichnen und Radieren aus,
+  // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
+  const ruhig = erklaerend(z);
+  if (ruhig) { z.zeichnen = false; z.radieren = false; }
+  knopf('werkzeug-zeichnen').disabled = ruhig;
+  knopf('werkzeug-lupe').disabled = ruhig;
   // Selbst zeichnen
   $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
   document.body.classList.toggle('zeichnen', z.zeichnen);
   $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
   $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
-  knopf('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
+  knopf('werkzeug-radieren').disabled = ruhig || (!z.striche.length && !z.radieren);
   document.body.classList.toggle('radieren', z.radieren);
   knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
   knopf('zeichnen-loeschen').disabled = !z.striche.length;
@@ -325,7 +331,7 @@ let massObjektA = 1;
 let lupeBox = null;
 /** @returns {{ lupeBox?: Box, lupeMitte?: Vec2 }} */
 function lupeOptionen() {
-  if (!z.lupe) { lupeBox = null; return {}; }
+  if (!z.lupe || erklaerend(z)) { lupeBox = null; return {}; }
   return lupeBox && (ziehen || strich || radierStelle) ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
 }
 /** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. @param {Farben} f */
@@ -408,6 +414,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
+  if (erklaerend(z) && (z.striche.length || z.lupe)) items.push(`<span class="lg hint">${z.striche.length ? 'Eigene Zeichnung' : 'Lupe'}${z.striche.length && z.lupe ? ' und Lupe ruhen' : ' ruht'} während der Erklärung</span>`);
   if (z.warum && z.elemente) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
