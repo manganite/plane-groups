@@ -1,4 +1,4 @@
-// Herkunft der Symmetrieelemente aus den Erzeugenden: „Aufbau“ und „Warum ist das da?“.
+// Herkunft der Symmetrieelemente aus den Erzeugenden: „Aufbau“ und „Herkunft der Elemente“.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';

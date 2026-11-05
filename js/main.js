@@ -201,8 +201,10 @@ function auswahlAbgleichen() {
 
 // ------------------------------------------------------------------ Bedienelemente abgleichen
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
+/** „Herkunft der Elemente“ wirkt: gewählt, mit Symmetrieelementen, nicht beim Brechen der Symmetrie (dort ruht es, bleibt aber gewählt). */
+const herkunftAktiv = () => z.warum && z.elemente && !z.brechen;
 /** Grund, wenn Zeichnen, Radieren, Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
-const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Warum ist das da?“ aktiv ist';
+const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
 function bedienungAbgleichen() {
   eingabe('opt-elemente').checked = z.elemente;
   eingabe('opt-objekt').checked = z.objekt;
@@ -246,12 +248,13 @@ function bedienungAbgleichen() {
   knopf('schritt-abspielen').disabled = !z.objekt;
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
-      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
-  // Werkzeug „Warum ist das da?“
-  $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
-  knopf('werkzeug-warum').disabled = !z.elemente;
-  document.body.classList.toggle('warum', z.warum && z.elemente);
-  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, „Warum ist das da?“): Zeichnen und Radieren aus,
+      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.`;
+  // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt (Zustand z.warum, Link warum=1)
+  eingabe('opt-warum').checked = z.warum;
+  eingabe('opt-warum').disabled = !z.elemente;
+  element('#row-warum .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
+  document.body.classList.toggle('warum', herkunftAktiv());
+  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, Herkunft der Elemente): Zeichnen und Radieren aus,
   // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
   const ruhig = erklaerend(z);
   if (ruhig) { z.zeichnen = false; z.radieren = false; }
@@ -313,15 +316,15 @@ function bedienungAbgleichen() {
   element('#row-brechen .why').textContent = sys === 'schiefwinklig' ? 'im schiefwinkligen System ist das Gitter schon frei' : '';
   const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
   $('lat-why').textContent = z.brechen
-    ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. „Warum ist das da?“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
+    ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. „Herkunft der Elemente“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
     : `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.`.trim();
   $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
   knopf('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
   // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
   if (z.brechen) {
-    for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell']) eingabe(id).disabled = true;
-    for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'werkzeug-warum']) knopf(id).disabled = true;
-    element('#row-fuell .why').textContent = 'ruht ohne Bindung an das Kristallsystem';
+    for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell', 'opt-warum']) eingabe(id).disabled = true;
+    for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen']) knopf(id).disabled = true;
+    for (const id of ['#row-warum', '#row-aufbau', '#row-schritt', '#row-fuell']) element(`${id} .why`).textContent = 'ruht ohne Bindung an das Kristallsystem';
   }
 }
 
@@ -424,7 +427,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
   if (erklaerend(z)) items.push(`<span class="lg hint">Zeichnen, Radieren und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
-  if (z.warum && z.elemente) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
+  if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
 }
@@ -516,7 +519,7 @@ function kenndaten() {
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
     ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
-    : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
+    : herkunftAktiv() ? `<div class="warumbox" id="warumbox"><h3>Herkunft der Elemente</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
     ${z.brechen ? `<div class="warumbox brechbox" id="brechbox">${brechHTML(d, z.frei, brechAnalyse(g, z.frei))}</div>` : ''}
     ${schrittbox}
     ${erklaerung ? '' : lagebox}
@@ -744,7 +747,7 @@ function zeigerEinrichten() {
     if (z.modus === 'struktur') { sUI.down(e); return; }
     if (z.zeichnen) { strichBeginnen(e); return; }
     if (z.radieren) { if (!ansichtA) return; merken(); grafik('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
-    if (z.warum && z.elemente) { elementWaehlen(e); return; }
+    if (herkunftAktiv()) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
     if (e.pointerType === 'mouse' || naheObjekt(e)) {
@@ -773,7 +776,7 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', loslassen);
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (z.modus === 'struktur' || (z.warum && z.elemente) || z.zeichnen || z.radieren || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
+    if (z.modus === 'struktur' || (herkunftAktiv()) || z.zeichnen || z.radieren || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
     const p = /** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -891,7 +894,7 @@ function init() {
     z.brechen = eingabe('opt-brechen').checked;
     if (z.brechen) {
       z.frei = { ...z.gitter[s] };
-      z.warum = false; z.erkl = null; z.aufbau = 0; z.schritt = 0; z.aeTeile = []; stoppeSchritte(); clearTimeout(ablauf); phase = 3;
+      z.erkl = null; z.aufbau = 0; z.schritt = 0; z.aeTeile = []; stoppeSchritte(); clearTimeout(ablauf); phase = 3;
     } else {
       // Bindung wieder an: die nächste Metrik des Systems (freie Parameter behalten, im Bereich)
       const g0 = { ...GITTER_START[s] };
@@ -902,21 +905,21 @@ function init() {
   });
   $('werkzeug-zeichnen').addEventListener('click', () => {
     z.zeichnen = !z.zeichnen;
-    if (z.zeichnen) { z.warum = false; z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
+    if (z.zeichnen) { z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
     aktualisieren();
   });
   $('werkzeug-lupe').addEventListener('click', () => { z.lupe = !z.lupe; lupeBox = null; aktualisieren(); });
   $('werkzeug-radieren').addEventListener('click', () => {
     z.radieren = !z.radieren;
-    if (z.radieren) { z.warum = false; z.zeichnen = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
+    if (z.radieren) { z.zeichnen = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
     aktualisieren();
   });
   // Rückgängig: den Stand vor dem letzten Strich oder Radieren; ohne Verlauf (nach dem Neuladen) den letzten Strich
   $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = /** @type {Vec2[][]} */ (verlauf.pop()); else z.striche.pop(); aktualisieren(); });
   $('zeichnen-loeschen').addEventListener('click', () => { merken(); z.striche = []; aktualisieren(); });
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
-  $('werkzeug-warum').addEventListener('click', () => {
-    z.warum = !z.warum;
+  $('opt-warum').addEventListener('change', () => {
+    z.warum = eingabe('opt-warum').checked;
     if (z.warum) { z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
@@ -984,6 +987,10 @@ function init() {
   initHelp({ tips: TIPS, sections: SECTIONS, labels: LABELS });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
+  // Ist ein erklärendes Werkzeug aus Speicher oder Link aktiv, seinen Abschnitt aufklappen: Es sperrt
+  // Zeichnen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
+  if (z.modus === 'eg' && (z.warum || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
+  if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;
   aktualisieren();
 }
 

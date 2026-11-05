@@ -27,7 +27,7 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
   - **Selbst zeichnen:** Mit dem Werkzeug „Zeichnen“ im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, im Symmetriegerüst und im Muster (blau gleiche Händigkeit, orange Spiegelbild). Das Werkzeug „Radieren“ entfernt überfahrene Stücke, am Original und an allen Kopien zugleich; „Rückgängig“ macht Striche und Radieren rückgängig. „Asymmetrische Einheit füllen“ zeigt, dass ihre Bilder die Ebene ohne Lücken und Überlappungen pflastern. Die Striche bleiben im Browser gespeichert, stehen aber nicht in der Link-Adresse.
   - **Schritt für Schritt:** Das Objekt wird mit jeder Symmetrieoperation einzeln abgebildet, in der Reihenfolge der Liste in ITA (bei zentrierten Gruppen mit (½, ½)+ als 1′, 2′, …), zuletzt mit den Gittertranslationen. Die Bilder liegen zuerst dort, wohin die Koordinaten der Liste zeigen, auch ausserhalb der Zelle; der Weg zeigt, wie die Operation wirkt. Ein Zähler nennt die verschiedenen Stellen: Auf einer speziellen Lage fallen Bilder zusammen, und am Ende bleibt die Zähligkeit der Wyckoff-Lage. In den Kenndaten ist die Zeile der aktuellen Operation markiert.
   - **Aufbau aus Erzeugenden:** Die Symmetrieelemente erscheinen Schritt für Schritt. Zuerst kommen die Erzeugenden nach ITA („Generators selected“), dann, was aus ihren Verknüpfungen mit den Gittertranslationen folgt. Neue Elemente sind hervorgehoben.
-  - **„Warum ist das da?“:** Ein Element antippen zeigt, aus welchen zwei Operationen es folgt (*C* = *A* ∘ *B*). Das Fähnchen läuft die Schritte ab, die passende Regel wird genannt (z. B. „Spiegelung + Translation schräg zur Linie = Gleitspiegelung“), dazu die Herleitung aus den Erzeugenden. Ist das Element nur eine Gitterkopie eines anderen (z. B. die Drehpunkte an den Ecken der Zelle), zeigt die Erklärung stattdessen das Vorbild und die Verschiebung.
+  - **„Herkunft der Elemente“** (Schalter im Abschnitt „Aufbau aus Erzeugenden“): Ein Element antippen zeigt, aus welchen zwei Operationen es folgt (*C* = *A* ∘ *B*). Das Fähnchen läuft die Schritte ab, die passende Regel wird genannt (z. B. „Spiegelung + Translation schräg zur Linie = Gleitspiegelung“), dazu die Herleitung aus den Erzeugenden. Ist das Element nur eine Gitterkopie eines anderen (z. B. die Drehpunkte an den Ecken der Zelle), zeigt die Erklärung stattdessen das Vorbild und die Verschiebung.
 
 - **Modus „Gitter und Basis“:** Eine Struktur aus Gitter (*b*/*a*, γ frei) und Basis aus Motiven mit eigener Symmetrie (Atom, Fähnchen 1, Windräder 2, 3, 4, 6, gleichschenkliges Dreieck m, längliche Insel 2mm, gleichseitiges Dreieck 3m, Quadrat 4mm, Sechseck 6mm), in vier Farben (Atomsorten). Motive lassen sich setzen, ziehen (mit Einrasten auf Zwölftel der Zelle), drehen, vergrössern und entfernen.
   - **Symmetrie bestimmen:** Die App bestimmt die Ebenengruppe in der Standardaufstellung der ITA mit konventioneller Zelle (*a*′, *b*′) und Ursprung und zeigt darüber Symmetrieelemente und asymmetrische Einheit. Die Kenndaten nennen je Motiv Lage, Wyckoff-Lage und Lagesymmetrie und, nach einer Änderung, wie sich die Gruppe geändert hat. Ein Knopf öffnet die Gruppe im Modus „Ebenengruppen“.
@@ -102,7 +102,7 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `lupe` | Lupe: Symmetriegerüst um das Objekt vergrössert | **`0`**, `1` |
 | `schritt` | Schritt für Schritt | **`0`** (aus), Operation `1` … *N* der Liste, *N* + 1 Gittertranslationen |
 | `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
-| `warum` | Werkzeug „Warum ist das da?“ | **`0`**, `1` |
+| `warum` | „Herkunft der Elemente“ (Name des Parameters aus der Zeit von „Warum ist das da?“) | **`0`**, `1` |
 | `aet` | angetippte Bedingungen der asymmetrischen Einheit | Nummern ab `0` in der Reihenfolge der ITA-Seite, z. B. `0,2`; **leer** |
 | `erkl` | erklärtes Element | z. B. `4;1/2,1/2` (4-zähliger Drehpunkt bei ½, ½), `m;1/4,0;0,1` (Spiegellinie durch ¼, 0 in Richtung [01]), `g;…` (Gleitspiegellinie) |
 | `brechen` | Gitter ohne Bindung an das Kristallsystem (Symmetrie brechen; nicht schiefwinklig) | **`0`**, `1`; dann `ba` 0.5–2 und `gamma` 60–150 frei |
@@ -145,7 +145,7 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `js/asymmetrie.js` | Asymmetrische Einheit aus den Bedingungen der ITA-Seite |
 | `js/zeichnung.js` | SVG-Zeichnungen: Symmetriegerüst (Tafel A) und Muster (Tafel B), ohne DOM |
 | `js/text.js`, `js/symbole.js` | Schreibweise der Kenndaten wie in ITA; Schoenflies-Symbole und Signaturen nach Conway |
-| `js/schritte.js`, `js/herkunft.js`, `js/warum.js` | „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Warum ist das da?“ |
+| `js/schritte.js`, `js/herkunft.js`, `js/warum.js` | „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Herkunft der Elemente“ |
 | `js/brechen.js` | „Symmetrie brechen“: verbleibende Untergruppe |
 | `js/punktoperationen.js` | Operationen der Punktgruppen der Ebene mit Namen wie im Skript |
 | `js/struktur.js`, `js/struktur-ui.js`, `js/bestimmung.js`, `js/motive.js`, `js/vorgaben.js` | Modus „Gitter und Basis“: Tafeln und Kenndaten, Bedienung, Bestimmung der Ebenengruppe, Motive, Vorgaben |

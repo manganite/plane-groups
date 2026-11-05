@@ -1,4 +1,4 @@
-// „Warum ist das da?“: Texte zur Herkunft eines Symmetrieelements (ohne DOM, Tests in Node).
+// „Herkunft der Elemente“: Texte zur Herkunft eines Symmetrieelements (ohne DOM, Tests in Node).
 // Begriffe und Regeln nach Borchardt-Ott & Sowa (2018), Abschn. 10.2, und Hoffmann (2016),
 // Kap. 4: Drehung + Translation, Spiegelung + Translation (senkrecht bzw. schräg), zwei
 // Spiegelungen im Winkel α = Drehung um 2α.
