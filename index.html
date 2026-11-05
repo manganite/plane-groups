@@ -15,32 +15,11 @@
 <link rel="stylesheet" href="lib/common/css/base.css">
 <link rel="stylesheet" href="lib/common/css/app.css">
 <style>
-/* Nur in dieser App: Anordnung der Tafeln (wie in der App „Stereographische Projektion“:
-   links die Seitenleiste, rechts zwei gleich grosse Tafeln, darunter die Kenndaten),
-   Tabellen der Kenndaten. Die gemeinsamen Bausteine stehen in lib/common/css/app.css. */
-.layout {
-  max-width: 1480px; margin-inline: auto; display: grid; gap: 16px;
-  grid-template-columns: 300px minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-areas: "side a b" "side info info";
-  align-items: start;
-}
-.figs { display: contents; }
-.p-a { grid-area: a; }
-.p-b { grid-area: b; }
-.info { grid-area: info; }
-@media (max-width: 999px) {
-  .layout { grid-template-columns: 270px minmax(0, 1fr); grid-template-areas: "side a" "side b" "side info"; }
-}
+/* Nur in dieser App: Grösse der Darstellung in den Tafeln, Tabellen der Kenndaten. Die gemeinsamen Bausteine,
+   auch die Anordnung der Tafeln, stehen in lib/common/css/app.css. */
 .bild { display: block; width: 100%; height: auto; aspect-ratio: 1; user-select: none; -webkit-user-select: none; }
 #bild-a { touch-action: manipulation; cursor: crosshair; }
 @media (max-width: 719px) {
-  .layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "figs" "side" "info"; gap: 12px; }
-  .figs {
-    display: block; grid-area: figs; position: sticky; top: 0; z-index: 5;
-    background: var(--bg); padding-top: 6px; margin-inline: -4px; padding-inline: 4px;
-    box-shadow: 0 8px 10px -10px rgb(0 0 0 / 0.35);
-  }
-  body[data-fig="a"] .p-b, body[data-fig="b"] .p-a { display: none; }
   .bild { width: min(100%, 38svh); margin-inline: auto; }
 }
 .tabs button:disabled { opacity: 0.5; cursor: not-allowed; }
