@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-05
+
+„Herkunft der Elemente“ (früher „Warum ist das da?“) als Schalter im Abschnitt „Aufbau aus Erzeugenden“; Erklärungen im Symmetriegerüst mit Objekt in fester Grösse; das Objekt hat im Gitter in beiden Tafeln dasselbe Verhältnis zur Zelle; Erste Schritte je Modus, neu für „Gitter und Basis“; „Alle Einstellungen zurücksetzen“ unten in der Seitenleiste; gewählte und gesperrte Knöpfe einheitlich; Typprüfung und ESLint; gemeinsame Grundlage v0.8.1.
+
 ### Hinzugefügt
 
 - **ESLint** als CI-Job `lint` mit den gemeinsamen Regeln (`eslint.config.mjs`, `tools/common/eslint-basis.mjs`; LEITFADEN Abschn. 9). Die Pakete installiert auch der Job `typen`.
@@ -87,6 +91,7 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/manganite/plane-groups/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/manganite/plane-groups/compare/v0.1.0...v1.0.0
