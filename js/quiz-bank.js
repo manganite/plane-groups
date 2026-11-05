@@ -758,7 +758,7 @@ export const BANK = [
     erklaerung: 'Eine Gleitspiegelung besteht aus zwei Teilen: Spiegeln an einer Linie und Verschieben entlang dieser Linie um die Gleitkomponente, die halbe Gitterperiode entlang der Linie (die Hälfte der kürzesten Gittertranslation in dieser Richtung). Weder die Spiegelung allein noch die Verschiebung allein bringt das Muster mit sich zur Deckung, nur beide zusammen. Verschiebt man zusätzlich um eine ganze Gittertranslation entlang der Linie, bleibt es dieselbe Gleitspiegellinie.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-1-02', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
