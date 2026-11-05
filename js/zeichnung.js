@@ -808,7 +808,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
   // erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht
-  const ruhig = erklaerend(z); const lupe = z.lupe && !ruhig;
+  const ruhig = erklaerend({ ...z, erkl: erkl ? z.erkl : null }); const lupe = z.lupe && !ruhig; // nur ein gültiges erkl zählt
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
   const schritt = z.schritt > 0 && z.objekt && !erkl && !brechen ? z.schritt : 0;
@@ -831,8 +831,8 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Rand für das Objekt (im Gitter festgelegt, objektMassstab): Ein Objekt mit dem Fuss auf dem Rand der
   // Zellen bleibt ganz sichtbar. Reicht der Rand in Bildpunkten nicht, wird der Ausschnitt um p
   // grösser: rand / s + p ≥ Reichweite mit s = (520 − 2 rand) / (D + 2 p). Unabhängig von der Lage des
-  // Objekts und vom Werkzeug (Schritt für Schritt, Erklärung), damit sich die Ansicht beim Ziehen und
-  // Umschalten nicht ändert. Grenzen: Bilder knapp ausserhalb der Zelle (Rand von bilder()) können
+  // Objekts, damit sich die Ansicht beim Ziehen nicht ändert; in den erklärenden Werkzeugen (Objekt in
+  // fester Grösse) kein Rand für das Objekt. Grenzen: Bilder knapp ausserhalb der Zelle (Rand von bilder()) können
   // angeschnitten werden, wie Zeichnungen; beim Brechen der Symmetrie verzerrte Bilder auch weiter.
   if (z.objekt && !ruhig) {
     const reichweite = REICHWEITE * OBJEKT_LAENGE * Math.max(Math.hypot(...M.a), Math.hypot(...M.b)) * (z.objGroesse ?? 1);

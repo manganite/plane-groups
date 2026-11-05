@@ -203,6 +203,8 @@ function auswahlAbgleichen() {
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
 /** „Herkunft der Elemente“ wirkt: gewählt, mit Symmetrieelementen, nicht beim Brechen der Symmetrie (dort ruht es, bleibt aber gewählt). */
 const herkunftAktiv = () => z.warum && z.elemente && !z.brechen;
+/** Grund, wenn Zeichnen, Radieren, Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
+const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
 function bedienungAbgleichen() {
   eingabe('opt-elemente').checked = z.elemente;
   eingabe('opt-objekt').checked = z.objekt;
@@ -268,11 +270,15 @@ function bedienungAbgleichen() {
   knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
   knopf('zeichnen-loeschen').disabled = !z.striche.length;
   eingabe('opt-fuell').checked = z.aeFuell;
+  eingabe('opt-fuell').disabled = ruhig;
+  element('#row-fuell .why').textContent = ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
   const punkteGezeichnet = z.striche.flat().length;
   $('zeichnen-hint').textContent = z.radieren
     ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
     : z.zeichnen
     ? `Im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen ${gruppeVon(z.gruppe).ordnung} Operationen je Zelle, auch im Muster. Blau: gleiche Händigkeit, orange: Spiegelbild.${punkteGezeichnet >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
+    : ruhig
+    ? `Zeichnen und Radieren ruhen, ${SOLANGE_ERKLAERT}; die Zeichnung ist im Symmetriegerüst ausgeblendet, im Muster bleibt sie.`
     : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
   $('fuell-hint').textContent = z.aeFuell
     ? `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`
@@ -318,7 +324,7 @@ function bedienungAbgleichen() {
   if (z.brechen) {
     for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell', 'opt-warum']) eingabe(id).disabled = true;
     for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen']) knopf(id).disabled = true;
-    for (const id of ['#row-warum', '#row-aufbau', '#row-schritt']) element(`${id} .why`).textContent = 'ruht ohne Bindung an das Kristallsystem';
+    for (const id of ['#row-warum', '#row-aufbau', '#row-schritt', '#row-fuell']) element(`${id} .why`).textContent = 'ruht ohne Bindung an das Kristallsystem';
   }
 }
 
@@ -354,7 +360,9 @@ function zeichnen() {
   const a = tafelAJetzt(f);
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
-  if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
+  // unbekanntes Element (z. B. aus einem alten Link): verwerfen und die Bedienung neu abgleichen, die es
+  // sonst noch als laufende Erklärung zählt (Sperren von Zeichnen und Lupe)
+  if (z.erkl && !erklaerung) { z.erkl = null; aktualisieren(); }
   grafik('bild-a').innerHTML = a.svg;
   grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
@@ -418,7 +426,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
-  if (erklaerend(z) && (z.striche.length || z.lupe)) items.push(`<span class="lg hint">${z.striche.length ? 'Eigene Zeichnung' : 'Lupe'}${z.striche.length && z.lupe ? ' und Lupe ruhen' : ' ruht'} während der Erklärung</span>`);
+  if (erklaerend(z)) items.push(`<span class="lg hint">Zeichnen, Radieren und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
   if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');

@@ -259,4 +259,9 @@ test('Erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, L
   // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht; beim Brechen ruhen die Werkzeuge selbst
   assert.ok(!erklaerend({ ...basis, warum: true, elemente: false }));
   assert.ok(!erklaerend({ ...basis, schritt: 2, brechen: true }));
+  // gefüllte asymmetrische Einheit ruht mit der Zeichnung
+  assert.ok(!tafelA('p4', { ...basis, striche: [], aeFuell: true, aufbau: 1 }, FARBEN).svg.includes('class="zeichnung"'));
+  // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
+  const unbekannt = tafelA('p4', { ...basis, erkl: '4;1/3,0' }, FARBEN);
+  assert.ok(unbekannt.erklaerung === null && unbekannt.lupeBox !== null && unbekannt.svg.includes('class="zeichnung"'));
 });

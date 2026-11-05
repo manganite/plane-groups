@@ -72,7 +72,7 @@ export const SECTIONS = [
   { heading: '#sec-zeichnen > summary', intro: 'Was tut eine Ebenengruppe? Zeichnen Sie etwas: Die Gruppe macht daraus ein Muster.', ids: ['werkzeug-zeichnen', 'werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen', 'opt-fuell'] },
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden, und aus welchen Operationen entsteht ein bestimmtes Element?', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor', 'opt-warum'] },
-  { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten.', ids: ['obj-x', 'obj-y', 'obj-groesse'] },
+  { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten. Zum genauen Setzen hilft die Lupe über dem Symmetriegerüst.', ids: ['obj-x', 'obj-y', 'obj-groesse', 'werkzeug-lupe'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten. Ohne Bindung an das System bricht sie.', ids: ['lat-ba', 'lat-gamma', 'opt-brechen'] },
   { heading: '#sec-view > summary', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'v-zoom'] },
 ];
