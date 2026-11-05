@@ -192,7 +192,8 @@ test('Link-Adresse: Vorgabe kurz, veränderte Struktur ausgeschrieben, hin und z
   // Herkunft bleibt erhalten: „Zurücksetzen“ (strukturStart(vorgabe)) führt zur Vorgabe, nicht zum Start
   assert.match(h, /^#m=struktur&v=kagome&ba=/);
   assert.equal(z2.struktur.vorgabe, 'kagome');
-  assert.deepEqual(strukturStart(z2.struktur.vorgabe), strukturStart('kagome'));
+  assert.equal(wieVorgabe(strukturStart(z2.struktur.vorgabe)), true);
+  assert.deepEqual(strukturStart(z2.struktur.vorgabe).basis, strukturStart('kagome').basis);
   // alte Links ohne v: Herkunft wie bisher der Start
   const alt = startzustand();
   hashAnwenden(alt, h.replace('v=kagome&', ''));

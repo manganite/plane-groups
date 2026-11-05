@@ -113,7 +113,7 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 
 | Schlüssel | Bedeutung | Werte (Startwert fett) |
 |---|---|---|
-| `v` | Vorgabe, von der die Struktur ausgeht (Ziel von „Zurücksetzen“); immer gesetzt | Kennung aus `js/vorgaben.js`, z. B. `graphen`, `a33434`, `asi-pinwheel`; **`dreieck1`** |
+| `v` | Vorgabe, von der die Struktur ausgeht (Ziel von „Zurücksetzen“); von der App immer geschrieben, fehlt es (ältere Links), gilt `dreieck1` | Kennung aus `js/vorgaben.js`, z. B. `graphen`, `a33434`, `asi-pinwheel`; **`dreieck1`** |
 | `ba`, `gamma` | Gitter, wenn Gitter oder Basis von der Vorgabe abweichen | 0.5–2 bzw. 60–150 |
 | `basis` | Basis, wenn verändert: Motive durch `;` getrennt, je `motiv,farbe,x,y,winkel[,grösse]` | z. B. `atom,0,1/3,2/3,0;atom,1,2/3,1/3,0` (h-BN); Motive wie in `js/motive.js`, Farbe `0`–`3`, Winkel in Grad |
 | `sel` | Symmetrieelemente | `0`, **`1`** |
