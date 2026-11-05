@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import {
-  metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder,
+  metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder, objektMassstab,
 } from '../js/zeichnung.js';
 import { startzustand, GITTER_START } from '../js/zustand.js';
 import { da } from './hilfen.mjs';
@@ -86,7 +86,9 @@ test('Tafeln: für alle Gruppen und Optionen gültiges SVG ohne NaN', () => {
       }
       // so viele Objekte wie Bilder in der Zelle (mit Rand)
       const n = bilder(gruppe(d.symbol), z.punkt, 0, z.zellen).length;
-      const objekte = z.form === 'komma' ? (a.match(/<circle [^>]*r="7"/g) || []).length : (a.match(/<polygon [^>]*fill-opacity="0.85"/g) || []).length;
+      // Komma: Kreise in Papierfarbe in der Gruppe der Objekte (Radius je nach Massstab, objektMassstab)
+      const gruppeObjekte = (a.match(/<g class="objekte">(.*?)<\/g>/) || ['', ''])[1];
+      const objekte = z.form === 'komma' ? (gruppeObjekte.match(new RegExp(`<circle [^>]*fill="${FARBEN.paper}"`, 'g')) || []).length : (a.match(/<polygon [^>]*fill-opacity="0.85"/g) || []).length;
       assert.equal(objekte, n, `${d.symbol}: Objekte in Tafel A`);
     }
   }
@@ -182,4 +184,46 @@ test('Muster als Tapete: gleicher Massstab und gleich grosse Objekte wie ohne Ta
   assert.equal(mit.ansicht.s, ohne.ansicht.s);
   const zoom = tafelB('p4gm', { ...z, zoomB: 2 }, FARBEN);
   assert.ok(Math.abs(zoom.ansicht.s / ohne.ansicht.s - 2) < 1e-9);
+});
+
+/** Länge der Stange des ersten Fähnchens im SVG (Bildpunkte); in Tafel A in der Gruppe der Objekte. @param {string} svg */
+function stange(svg) {
+  const m = /<line x1="([-\d.]+)" y1="([-\d.]+)" x2="([-\d.]+)" y2="([-\d.]+)"/.exec(svg);
+  assert.ok(m, 'Fähnchen gefunden');
+  return Math.hypot(Number(m[3]) - Number(m[1]), Number(m[4]) - Number(m[2]));
+}
+
+test('Objekt im Gitter: in Tafel A und B (Muster) im selben Verhältnis zur Zelle wie eine Zeichnung', () => {
+  for (const [g, opt] of /** @type {[string, Partial<Zustand>][]} */ ([
+    ['p4', {}], ['p2mm', {}], ['p1', {}], ['p6mm', {}], ['p31m', {}], ['p4', { zellen: 2 }], ['p4gm', { zoomB: 1.76, objGroesse: 1.6 }],
+    ['p2', { objGroesse: 3 }], ['p4mm', { lupe: true }], ['p2gg', { orbit: true }],
+  ])) {
+    const z = { ...startzustand(), gruppe: g, elemente: false, musterElemente: false, ...opt };
+    const a = tafelA(g, z, FARBEN); const b = tafelB(g, z, FARBEN);
+    const inA = stange((/<g class="objekte">(.*?)<\/g>/.exec(a.svg) || ['', ''])[1]) / a.ansicht.s;
+    const inB = stange(b.svg) / b.ansicht.s;
+    // Koordinaten auf 2 Stellen gerundet: Abweichung höchstens wenige Promille
+    assert.ok(Math.abs(inA / inB - 1) < 5e-3, `${g} ${JSON.stringify(opt)}: A ${inA}, B ${inB}`);
+  }
+});
+
+test('Objekt im Muster so gross wie bis v1.x (0,8 · k · Vergrösserung · Grösse Bildpunkte je Bildpunkt)', () => {
+  for (const g of ['p4', 'p2mm', 'p1', 'p6', 'p2gg']) for (const zoomB of [0.5, 1, 1.76]) for (const og of [0.5, 1, 2.65]) for (const k of [1, 1.15]) {
+    const z = { ...startzustand(), gruppe: g, zoomB, objGroesse: og };
+    const { ansicht: A } = tafelB(g, z, FARBEN, { k });
+    const M = metrik(z.gitter[gruppe(g).daten.system]);
+    assert.ok(nahe(objektMassstab(M, A, og, k), 0.8 * k * zoomB * og, 1e-9), `${g} zoom ${zoomB} og ${og} k ${k}`);
+  }
+});
+
+test('Objekt in Tafel A: Rand reicht für ein Objekt mit dem Fuss auf dem Zellrand (alle Gruppen, Grösse bis 3)', () => {
+  for (const d of EBENENGRUPPEN) for (const og of [0.5, 1, 2, 3]) for (const zellen of [1, 2]) {
+    const z = { ...startzustand(), gruppe: d.symbol, objGroesse: og, zellen };
+    const { ansicht: A } = tafelA(d.symbol, z, FARBEN);
+    const M = metrik(z.gitter[gruppe(d.symbol).daten.system]);
+    const ecken = /** @type {Vec2[]} */ ([[0, 0], [zellen, 0], [0, zellen], [zellen, zellen]]).map((p) => A.zuBild(p));
+    const xs = ecken.map((q) => q[0]); const ys = ecken.map((q) => q[1]);
+    const rand = Math.min(Math.min(...xs), 520 - Math.max(...xs), Math.min(...ys), 520 - Math.max(...ys));
+    assert.ok(rand >= 30 * objektMassstab(M, A, og) - 1e-6, `${d.symbol} og ${og} zellen ${zellen}: Rand ${rand}`);
+  }
 });

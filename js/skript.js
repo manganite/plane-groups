@@ -35,7 +35,7 @@ function zustandVon(hash) {
 }
 
 /**
- * Grösse der Symbole und Fähnchen im Skript. Die App zeichnet sie für eine Tafel von etwa 520 px;
+ * Grösse der Symbole im Skript (im Muster auch der Fähnchen; in Tafel A folgen sie dem Gitter). Die App zeichnet sie für eine Tafel von etwa 520 px;
  * im Skript ist eine Abbildung oft nur halb oder ein Drittel so breit, und die Symbole würden
  * neben der Zelle winzig. Deshalb wachsen sie mit der Spaltenzahl der Abbildungsreihe
  * (data-gross setzt den Wert für eine Abbildung fest). Muster (Tafel B) sind dichter, dort

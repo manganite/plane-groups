@@ -34,7 +34,7 @@ export const TIPS = {
   'opt-einrasten': 'Nahe einem Drehpunkt oder einer Spiegellinie springt das Objekt beim Ziehen auf das Symmetrieelement (spezielle Lage).',
   'obj-x': 'Koordinate x des Ausgangsobjekts in Bruchteilen von a.',
   'obj-y': 'Koordinate y des Ausgangsobjekts in Bruchteilen von b.',
-  'obj-groesse': 'Grösse des Objekts (Fähnchen, Komma oder Ornament) in beiden Tafeln, etwa für eine Tapete mit grossen Ornamenten.',
+  'obj-groesse': 'Grösse des Objekts (Fähnchen, Komma oder Ornament) im Verhältnis zur Zelle, in beiden Tafeln gleich wie eine Zeichnung; etwa für eine Tapete mit grossen Ornamenten.',
   'reset-objekt': 'Objekt zurück an die Ausgangslage und auf die normale Grösse.',
   'lat-ba': 'Verhältnis der Gitterkonstanten b/a. Frei im schiefwinkligen und im rechteckigen System.',
   'lat-gamma': 'Winkel γ zwischen a und b. Frei nur im schiefwinkligen System.',

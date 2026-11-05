@@ -54,8 +54,17 @@ für diese App gilt.
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
 - **Begriff „rechteckig“** (wie Hoffmann); „rechtwinklig“ nur als Bezeichnung bei Borchardt-Ott.
-- **Quizbilder:** Symbole, Linien, Fähnchen und Achsennamen einheitlich: `K_FRAGE` 1,8, `K_ANTWORT` 2,
-  `K_MUSTER` 1,15, `K_SKIZZE` 1,25 in `js/quiz-bild.js`. Atomgrösse in Strukturbildern bleibt vorerst.
+- **Quizbilder:** Symbole, Linien und Achsennamen einheitlich: `K_FRAGE` 1,8, `K_ANTWORT` 2,
+  `K_MUSTER` 1,15, `K_SKIZZE` 1,25 in `js/quiz-bild.js`; Fähnchen nur im Muster (Tafel B) mit `K_MUSTER`,
+  in Tafel A folgen sie dem Gitter (nächster Punkt). Atomgrösse in Strukturbildern bleibt vorerst.
+- **Grösse des Objekts im Gitter** (5.11.2026): Fähnchen, Komma und Ornament sind wie eine Zeichnung und
+  die Motive der Basis im Gitter festgelegt (`objektMassstab` in `js/zeichnung.js`), in beiden Tafeln, in
+  der Lupe und bei 2 × 2 Zellen im selben Verhältnis zur Zelle. Grund: In Bildpunkten war das Objekt im
+  Muster 2- bis 3-mal so gross wie im Gerüst; ein Muster liess sich nicht gezielt aufbauen, besonders mit
+  „Zeichnen“. Thomas wählte, dass das Muster bleibt (Skript-Abbildungen, Quizbilder, `og`); im Gerüst wird das
+  Objekt grösser, der Rand wächst, bis ein Objekt mit dem Fuss auf dem Zellrand ganz sichtbar ist (gleich für
+  jede Lage, damit sich die Ansicht beim Ziehen nicht ändert). Die Lupe vergrössert das Objekt mit (Thomas).
+  „Schritt für Schritt“ und „Warum ist das da?“ zeichnen ihre Fähnchen weiter in fester Grösse.
 
 ## Konventionen
 

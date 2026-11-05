@@ -91,7 +91,7 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `ae` | asymmetrische Einheit | **`0`**, `1` |
 | `zellen` | Zellen im Symmetriegerüst | **`1`**, `2` (2 × 2) |
 | `form` | Form des Objekts | **`fahne`**, `komma` (Kreis mit Komma wie ITA), Ornamente `blatt`, `tropfen`, `ranke` |
-| `og` | Grösse des Objekts (Faktor) | 0.5–3, **1** |
+| `og` | Grösse des Objekts (Faktor; im Gitter, in beiden Tafeln im selben Verhältnis zur Zelle) | 0.5–3, **1** |
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
 | `orbit` | Bilder rund um die Zelle (wie ITA) | **`0`**, `1` |
 | `fuell` | asymmetrische Einheit gefüllt und vervielfältigt | **`0`**, `1` |

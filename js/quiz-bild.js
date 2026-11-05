@@ -27,7 +27,7 @@ export const farbenAus = (v) => ({
   fc: [0, 1, 2, 3, 4, 5].map((i) => v[`fc${i}`]),
 });
 
-/** Grösse der Symbole und Fähnchen: Fragebild Tafel A, Antwortbild Tafel A, Muster (Tafel B), Skizzen. */
+/** Grösse der Symbole: Fragebild Tafel A, Antwortbild Tafel A, Muster (Tafel B, auch Fähnchen), Skizzen. In Tafel A folgt das Fähnchen dem Gitter (objektMassstab in zeichnung.js). */
 export const K_FRAGE = 1.8;
 export const K_ANTWORT = 2;
 export const K_MUSTER = 1.15;
@@ -71,8 +71,9 @@ export function bildInhalt(angabe, f, opt = {}) {
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false, k: gross ?? K_FRAGE }, f);
     return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
-  // Tafel A: Symbole und Fähnchen in allen Fragebildern gleich gross (K_FRAGE), in Antwortbildern grösser;
-  // Tafel B (Muster): eigene, kleinere Grösse, damit sich die Fähnchen nicht überdecken
+  // Tafel A: Symbole in allen Fragebildern gleich gross (K_FRAGE), in Antwortbildern grösser; das Fähnchen
+  // im selben Verhältnis zur Zelle wie in der App. Tafel B (Muster): eigene, kleinere Grösse für Symbole
+  // und Fähnchen, damit sich die Fähnchen nicht überdecken
   if (tafel === 'b') return tafelB(z.gruppe, z, f, { k: gross ?? K_MUSTER }).svg;
   return tafelA(z.gruppe, z, f, { k: gross ?? (opt.klein ? K_ANTWORT : K_FRAGE) }).svg;
 }
