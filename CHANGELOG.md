@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-05
+
+„Herkunft der Elemente“ (früher „Warum ist das da?“) als Schalter im Abschnitt „Aufbau aus Erzeugenden“; Erklärungen im Symmetriegerüst mit Objekt in fester Grösse; das Objekt hat im Gitter in beiden Tafeln dasselbe Verhältnis zur Zelle; Erste Schritte je Modus, neu für „Gitter und Basis“; „Alle Einstellungen zurücksetzen“ unten in der Seitenleiste; gewählte und gesperrte Knöpfe einheitlich; Typprüfung und ESLint; gemeinsame Grundlage v0.8.1.
+
 ### Hinzugefügt
 
 - **ESLint** als CI-Job `lint` mit den gemeinsamen Regeln (`eslint.config.mjs`, `tools/common/eslint-basis.mjs`; LEITFADEN Abschn. 9). Die Pakete installiert auch der Job `typen`.
@@ -36,7 +40,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 - **„Schritt für Schritt“ mit „Herkunft der Elemente“:** Mit gezeigter Herkunft eines Elements waren die Bedienelemente frei, wirkten aber nicht. Jetzt ruht „Schritt für Schritt“, sobald „Herkunft der Elemente“ eingeschaltet ist: gesperrt, bleibt gewählt, Grund darunter; nach dem Ausschalten wirkt es wieder. Gesperrte Knöpfe in Knopfgruppen (zurück, weiter, Abspielen u. a.) sind jetzt blass. Laufendes Abspielen der Schritte stoppt, sobald „Schritt für Schritt“ ruht, beim Wählen eines Elements und beim Wechsel der Gruppe (zuvor lief es mit der Schrittzahl der alten Gruppe weiter).
 - **PDF des Skripts** (crystallography-common#43): Abb. 2.3 steht jetzt auf einer Seite statt über einen Seitenumbruch verteilt.
-- **Quelle zu Conway** (#42): Ausgabe geklärt (A K Peters/CRC Press 2016, E-Book der Ausgabe von 2008) und alle Seitenangaben gegen das Buch geprüft. Frage tk-3-10 nannte S. 29–30; die Begründung steht auf S. 34–35 (jetzt „Tab. 3.1, S. 29; S. 34–35“, Frage wieder Entwurf zur Freigabe). Im Skript (Quellen zu Abschn. 7.6) das Wunder genauer: S. 24–25 statt 23–25. Jahr in `js/symbole.js` 2016 wie im Skript.
+- **Quelle zu Conway** (#42): Ausgabe geklärt (A K Peters/CRC Press 2016, E-Book der Ausgabe von 2008) und alle Seitenangaben gegen das Buch geprüft. Frage tk-3-10 nannte S. 29–30; die Begründung steht auf S. 34–35 (jetzt „Tab. 3.1, S. 29; S. 34–35“; Frage neu geprüft und freigegeben). Im Skript (Quellen zu Abschn. 7.6) das Wunder genauer: S. 24–25 statt 23–25. Jahr in `js/symbole.js` 2016 wie im Skript.
 - **Gespeicherter Zustand, Modus „Gitter und Basis“** (#62): Ein Motiv, das kein Text ist, wurde nicht sicher verworfen. Ein Objekt ohne Umwandlung in Text (z. B. `{"toString":1}`) liess die Prüfung abbrechen, und die gespeicherte Struktur blieb ungeprüft stehen; eine Liste wie `["atom"]` wurde als Name gelesen. Solche Einträge fallen jetzt weg.
 
 ## [1.0.1] - 2026-11-04
@@ -87,6 +91,7 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/manganite/plane-groups/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/manganite/plane-groups/compare/v0.1.0...v1.0.0
