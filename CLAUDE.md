@@ -101,8 +101,8 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
   2.7, 6.1.3–6.1.5; 8.2 Parkettierungen (Abb. 8.3).
 - **Conway, Burgiel, Goodman-Strauss, *The Symmetries of Things*:** Kap. 2 (Tab. 2.1, S. 27); Kap. 3
   (Magic Theorem S. 29–30; Signatur S. 30–31; die 17 Typen S. 33–40, Tab. 3.2; Übungsmuster S. 42–49);
-  Kap. 11–13 Farbsymmetrie, S. 135–169. **Achtung:** Konzept nennt A K Peters 2008, `skript.html`
-  A K Peters/CRC 2016; vor dem Zitieren klären (Issue #42).
+  Kap. 11–13 Farbsymmetrie, S. 135–169. Ausgabe: A K Peters/CRC Press 2016 (E-Book der Ausgabe von 2008,
+  ISBN 978-1-4398-6489-0; in Zotero, Seiten gegen das PDF geprüft 5.11.2026).
 - **Weitere:** Schattschneider, *M. C. Escher: Visions of Symmetry* (2. Aufl. 2004); Grünbaum, Notices
   AMS 53, 670–673 (2006) (Alhambra); ITA Vol. E (Friesgruppen); Lexikon der Geowissenschaften,
   „Antisymmetriegruppen“ (2000).

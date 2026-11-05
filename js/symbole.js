@@ -6,7 +6,7 @@
 // die International Tables (Part 6) und Borchardt-Ott (Tab. 10.1) kein Schoenflies-Symbol an.
 //
 // Conway: Signatur (Orbifold-Symbol) nach Conway, Burgiel & Goodman-Strauss, The Symmetries of
-// Things (2008), Kap. 2–3, Tab. 3.2, S. 40. Zeichen: * Kaleidoskop (Spiegellinien), Ziffern vor
+// Things (2016), Kap. 2–3, Tab. 3.2, S. 40. Zeichen: * Kaleidoskop (Spiegellinien), Ziffern vor
 // dem * Drehpunkte, die auf keiner Spiegellinie liegen (gyrations), Ziffern nach einem * Ecken
 // des Kaleidoskops (Schnittpunkte von Spiegellinien, Zahl der Spiegellinien), × miracle (Weg zu
 // einer spiegelbildlichen Kopie ohne Spiegellinie), o wonder (nur Translationen). Die Zuordnung zu
