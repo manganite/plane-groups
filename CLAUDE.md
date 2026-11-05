@@ -38,9 +38,11 @@ für diese App gilt.
     nur mit ⊥ wirkte im Bild widersprüchlich).
   - Ausnahme 3*m*: *m*₁–*m*₃ wie in der Vorlesung.
 - **Kein LaTeX** in App, Skript und Quiz; Formeln in HTML (kursiv, Unicode, `<sub>`/`<sup>`, `.ov`).
-  Formelsatz für Kap. 9 (Beugung) offen: Issue #35.
+  Formeln brauchte nur die Beugung, die in eine eigene App kommt (siehe „Modi und Umfang“); Formelsatz
+  dort: crystallography-common#73.
 - **Kap. 7:** „Fliesen und die Alhambra“, „Escher“, „Farbe“, „Conway“ sind Vertiefung (über die
-  Vorlesung hinaus); Fragen dazu Stufe 3, Generator `parkett` ebenfalls.
+  Vorlesung hinaus); Fragen dazu Stufe 3, Generator `parkett` ebenfalls. „Conway“ geht in ein eigenes
+  Vertiefungskapitel auf (#85).
 - **Alhambra:** Archimedische Parkettierungen und Alhambra nur über den Begriff Parkettierung verbinden.
   Dass Alhambra-Mosaiken auf archimedischen Parkettierungen beruhen, ist nicht belegt; nicht behaupten.
 - **Farbsymmetrie:** 17 gewöhnliche + 46 Schwarz-Weiss + 17 graue = 80 Gruppen. Paramagnet: graue
@@ -48,8 +50,15 @@ für diese App gilt.
   Ferromagneten. Vergleich Farbe ↔ Moment in der Ebene nur qualitativ (eine Spiegellinie kehrt ein
   Moment ⊥ Ebene um).
 - **Modi und Umfang:** kein eigener Trainingsmodus für den Aufgabentyp aus Konzept 1a; „Gitter und
-  Basis“ muss deren Schritte zeigen. Planung: Modus „Bestimmen“ und Kap. 8 Issue #38, Beugung (Kap. 9)
-  Issue #36.
+  Basis“ muss deren Schritte zeigen. **Umfang der App** (Thomas, 5.11.2026): Sie ist ein abgerundetes,
+  geschlossenes Paket mit schon vielen Funktionen. Daraus seine Einordnung der offenen Erweiterungen:
+  - **Beugung** nicht in dieser App, sondern in einer eigenen (crystallography-common#73): eigene Technik
+    (2D-FFT), eigene Darstellung, später ggf. 3D. Konzept Abschn. 3.3 ist ihr Ausgangspunkt.
+  - **Bestimmen** (zentrales Lernziel der Vorlesung): kein eigener Modus, sondern Skript Kap. 8 mit
+    Flussdiagramm nach Sanderson und eine geführte Bestimmung auf der Tapetenansicht (#38). Die Signatur
+    nach Conway nur im Skript, als Vertiefungskapitel (#85); in der App bleibt sie in den Kenndaten.
+  - **Escher:** kurzfristig Escher-artige Vorgaben (#86), der Kachel-Editor langfristig (#37, Idee).
+    **Oberflächen:** Skript und Vorgaben (#39). **Zweifarbige Muster:** Vertiefung im Skript genügt (#40, Idee).
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
@@ -136,10 +145,10 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
   AMS 53, 670–673 (2006) (Alhambra); ITA Vol. E (Friesgruppen); Lexikon der Geowissenschaften,
   „Antisymmetriegruppen“ (2000).
 - **Vorlesung HS 2026** nur zum Abgleich, nie zitiert.
-- **`oxrd.py`** (Laserbeugung, Tzschaschel, Lehmann 2018): Ideen für Konzept 3.3, nicht die Oberfläche.
+- **`oxrd.py`** (Laserbeugung, Tzschaschel, Lehmann 2018): Ideen für Konzept 3.3 (Beugungs-App), nicht die Oberfläche.
 
 ## Konzept
 
 `docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) mit Statuskopf. Es bleibt das Konzept für
-die offenen Teile (Beugung, „Bestimmen“, Erweiterungen); neue Entwurfsentscheidungen kommen dort hinzu,
+die offenen Teile („Bestimmen“, Erweiterungen; Abschn. 3.3 für die Beugungs-App); neue Entwurfsentscheidungen kommen dort hinzu,
 der Fortschritt steht in Issues und PRs.
