@@ -274,11 +274,15 @@ export function pruefeStruktur(st) {
 /** @type {[string, StrukturSchalterfeld][]} */
 const STRUKTUR_SCHALTER = [['sel', 'elemente'], ['szelle', 'zelle'], ['sae', 'ae'], ['sbind', 'bindungen']];
 
-/** Link-Adresse im Modus „Gitter und Basis“: Vorgabe (v=…) oder Gitter und Basis ausgeschrieben. @param {Zustand} z @param {URLSearchParams} q */
+/**
+ * Link-Adresse im Modus „Gitter und Basis“: immer die Vorgabe (v=…), damit „Zurücksetzen“ nach dem Öffnen des
+ * Links zur richtigen Vorgabe führt; weicht die Struktur ab, dazu Gitter und Basis ausgeschrieben.
+ * @param {Zustand} z @param {URLSearchParams} q
+ */
 function strukturHash(z, q) {
   const st = z.struktur; const s0 = strukturStart();
-  if (wieVorgabe(st)) q.set('v', st.vorgabe);
-  else {
+  q.set('v', st.vorgabe);
+  if (!wieVorgabe(st)) {
     q.set('ba', kurz(st.ba, 3));
     q.set('gamma', kurz(st.gamma, 2));
     q.set('basis', basisText(st.basis));
