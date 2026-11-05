@@ -271,6 +271,28 @@ export function aufbauElemente(g, n, schritt) {
 const FAHNE = { stange: [[0, 0], [0, -22]], fahne: [[0, -22], [11, -17], [0, -12]] };
 /** Grösste Ausdehnung eines Objekts (Fähnchen, Komma, Ornament) vom Fusspunkt, in Bildpunkten bei Massstab 1. */
 const REICHWEITE = 30;
+/** Umriss aller Formen des Objekts ungedreht, Fuss im Ursprung, in Bildpunkten bei Massstab 1: [x0, y0, x1, y1] (Treffer beim Ziehen). */
+export const OBJEKT_UMRISS = /** @type {const} */ ([-10, -27, 20, 4]);
+/** Breite des Ausschnitts in Tafel B (Muster) bei Vergrösserung 1, in Einheiten der längeren Zellkante. */
+const MUSTER_BREITE = 4.4;
+/**
+ * Grösse des Objekts im Gitter: Länge (in Einheiten der längeren Zellkante) je Bildpunkt der
+ * Zeichnung des Objekts bei Massstab 1. Das Objekt ist damit wie eine Zeichnung und die Motive der
+ * Basis im Gitter festgelegt und steht in beiden Tafeln, bei 2 × 2 Zellen und in der Lupe im selben
+ * Verhältnis zur Zelle (bis v1.0.1 in Bildpunkten, im Muster 2- bis 3-mal grösser als im Gerüst). Wert:
+ * Grösse im Muster wie bis dahin (0,8 Bildpunkte je Bildpunkt bei 500 Bildpunkten für MUSTER_BREITE).
+ */
+const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
+
+/**
+ * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter
+ * mit der Metrik M, mal k. In der App ist k = 1. In Tafel A gilt k nur für die Symbole (das Objekt
+ * gehört zum Muster); Tafel B übergibt k, damit Muster in Quiz und Skript bleiben, wie sie waren.
+ * @param {Metrik} M @param {Ansicht} A @param {number} [groesse] @param {number} [k]
+ */
+export function objektMassstab(M, A, groesse = 1, k = 1) {
+  return k * groesse * OBJEKT_LAENGE * Math.max(Math.hypot(...M.a), Math.hypot(...M.b)) * A.s;
+}
 
 /** Alle Bilder des Punktes p in den Zellen [lo, hi]² mit Rand, je { punkt, R, eigentlich }. */
 /**
@@ -762,7 +784,8 @@ export const LUPE = 2;
  * aus einem früheren Ergebnis, während einer Geste). Das Ergebnis enthält lupeBox.
  * @param {string} id @param {Zustand} z @param {Farben} farben
  * @param {{ phase?: number, k?: number, lupeMitte?: Vec2 | null, lupeBox?: Box | null }} [optionen]
- * @returns {{ svg: string, ansicht: Ansicht, erklaerung: Erklaerung | null, lupeBox: Box | null }}
+ * Ergebnis: auch massObjekt, der Massstab des Objekts (objektMassstab), für den Treffer beim Ziehen.
+ * @returns {{ svg: string, ansicht: Ansicht, erklaerung: Erklaerung | null, lupeBox: Box | null, massObjekt: number }}
  */
 export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupeBox = null } = {}) {
   const g = gruppeVon(id);
@@ -792,9 +815,26 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
       box = [Math.min(box[0], c[0] - r), Math.min(box[1], c[1] - r), Math.max(box[2], c[0] + r), Math.max(box[3], c[1] + r)];
     }
   }
-  // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb der ganzen Ansicht
+  // hexagonal: die Zelle ist eine flache Raute, die das Bild nur in der Breite füllt; schmalerer Rand
+  const randOhneLupe = sys === 'hexagonal' ? 24 : 46;
+  // Rand für das Objekt (im Gitter festgelegt, objektMassstab): Ein Objekt mit dem Fuss auf dem Rand der
+  // Zellen bleibt ganz sichtbar. Reicht der Rand in Bildpunkten nicht, wird der Ausschnitt um p
+  // grösser: rand / s + p ≥ Reichweite mit s = (520 − 2 rand) / (D + 2 p). Unabhängig von der Lage des
+  // Objekts und vom Werkzeug (Schritt für Schritt, Erklärung), damit sich die Ansicht beim Ziehen und
+  // Umschalten nicht ändert. Grenzen: Bilder knapp ausserhalb der Zelle (Rand von bilder()) können
+  // angeschnitten werden, wie Zeichnungen; beim Brechen der Symmetrie verzerrte Bilder auch weiter.
+  if (z.objekt) {
+    const reichweite = REICHWEITE * OBJEKT_LAENGE * Math.max(Math.hypot(...M.a), Math.hypot(...M.b)) * (z.objGroesse ?? 1);
+    const u = randOhneLupe / (520 - 2 * randOhneLupe); const D = Math.max(box[2] - box[0], box[3] - box[1]);
+    const p = Math.max(0, (reichweite - u * D) / (1 + 2 * u));
+    box = [box[0] - p, box[1] - p, box[2] + p, box[3] + p];
+  }
+  // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb dessen, was die Tafel ohne Lupe zeigt
+  // (Ausschnitt samt Rand in Bildpunkten); so vergrössert sie genau LUPE-fach
   if (z.lupe && lupeBox) box = lupeBox;
   else if (z.lupe) {
+    const e = (randOhneLupe * Math.max(box[2] - box[0], box[3] - box[1])) / (520 - 2 * randOhneLupe);
+    box = [box[0] - e, box[1] - e, box[2] + e, box[3] + e];
     const c = kart(M, lupeMitte ?? ausgangsstelle(z.punkt, n));
     const w = (box[2] - box[0]) / LUPE; const h = (box[3] - box[1]) / LUPE;
     const s0 = Math.max(w, h);
@@ -804,9 +844,8 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
     const mx = lage(c[0], box[0], box[2]); const my = lage(c[1], box[1], box[3]);
     box = [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
   }
-  // hexagonal: die Zelle ist eine flache Raute, die das Bild nur in der Breite füllt; schmalerer Rand
-  // Rand für das Objekt; ab Grösse 2 wächst er mit, damit grosse Objekte am Rand nicht abgeschnitten werden
-  const A = ansicht(M, box, 520, z.lupe ? 0 : (sys === 'hexagonal' ? 24 : 46) * Math.max(1, (z.objGroesse ?? 1) / 2));
+  const rand = z.lupe ? 0 : randOhneLupe;
+  const A = ansicht(M, box, 520, rand);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   if (z.ae && !brechen) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
@@ -836,13 +875,13 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   }
   if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
-  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, k * (z.objGroesse ?? 1), orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, objektMassstab(M, A, z.objGroesse ?? 1), orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
   if (z.objekt && !erkl) {
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
   }
   if (erkl) teile.push(erklaerungSVG(g, M, A, erkl, phase, farben, z.form, n));
-  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, lupeBox: z.lupe ? box : null };
+  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, lupeBox: z.lupe ? box : null, massObjekt: objektMassstab(M, A, z.objGroesse ?? 1) };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1138,10 +1177,12 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const tapete = !!z.tapete;
   // Vergrösserung zoomB: kleinerer Ausschnitt, Objekte im selben Verhältnis grösser
   const zoom = z.zoomB ?? 1;
-  const w = (4.4 * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
+  const w = (MUSTER_BREITE * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
   /** @type {Box} */
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
+  // = objektMassstab(M, A, og, k), hier in der Form bis v1.0.1, damit das Muster bytegleich bleibt (ohne
+  // Rundung über A.s; Test „Objekt im Muster so gross wie bis v1.0.1“)
   const massObjekt = 0.8 * k * zoom * (z.objGroesse ?? 1);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt, erweitert um
   // die Grösse des Objekts (ein Objekt mit Fuss ausserhalb kann ins Bild ragen)

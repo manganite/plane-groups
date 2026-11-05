@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt, imBereich, zahlenpaar } from './zustand.js';
@@ -315,6 +315,8 @@ function bedienungAbgleichen() {
 // ------------------------------------------------------------------ Zeichnen
 /** @type {Ansicht | null} */
 let ansichtA = null;
+/** Massstab des Objekts in Tafel A (tafelA, objektMassstab), für den Treffer beim Ziehen. */
+let massObjektA = 1;
 /**
  * Ausschnitt der Lupe: folgt dem Objekt, bleibt aber ganz stehen (Mitte und Grösse), solange
  * gezogen, gezeichnet oder radiert wird, damit der Zeiger und das Bild zusammenpassen.
@@ -329,7 +331,7 @@ function lupeOptionen() {
 /** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. @param {Farben} f */
 function tafelAJetzt(f) {
   const a = tafelA(z.gruppe, z, f, { phase, ...lupeOptionen() });
-  lupeBox = a.lupeBox;
+  lupeBox = a.lupeBox; massObjektA = a.massObjekt;
   return a;
 }
 const sUI = strukturUI({ z, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
@@ -560,7 +562,9 @@ function naheObjekt(e) {
   const s = svgPunkt(t ? t[0] : /** @type {MouseEvent} */ (e));
   const w = grafik('bild-a').getBoundingClientRect().width;
   const r = coarse.matches ? Math.max(24, 26 * (520 / (w || 520))) : 22;
-  return Math.hypot(s[0] - q[0], s[1] - q[1]) < r;
+  // nahe am Fuss oder auf dem Objekt (im Gitter festgelegt, oft viel grösser als der Kreis um den Fuss)
+  const [x0, y0, x1, y1] = OBJEKT_UMRISS; const dx = (s[0] - q[0]) / massObjektA; const dy = (s[1] - q[1]) / massObjektA;
+  return Math.hypot(s[0] - q[0], s[1] - q[1]) < r || (dx >= x0 && dx <= x1 && dy >= y0 && dy <= y1);
 }
 /** Die in Tafel A sichtbaren Elemente (zeichnung.js), mit dem aktuellen Schritt im Aufbau. */
 /** @param {Gruppe} g @param {number} [n] */
@@ -647,6 +651,8 @@ function abspielen() {
 }
 
 let ziehen = false, bewegt = false;
+/** Beim Ziehen: Fuss des Objekts minus Zeiger (Bildpunkte), damit das Objekt nicht zum Zeiger springt. @type {Vec2} */
+let versatz = [0, 0];
 /** @type {Vec2 | null} */
 let start = null;
 
@@ -728,7 +734,10 @@ function zeigerEinrichten() {
     if (e.pointerType === 'mouse' || naheObjekt(e)) {
       ziehen = true;
       svg.setPointerCapture(e.pointerId);
-      if (!naheObjekt(e)) setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e)));
+      const sp = svgPunkt(e); const fuss = /** @type {Ansicht} */ (ansichtA).zuBild(ausgangsstelle(z.punkt, z.zellen));
+      const nahe = naheObjekt(e);
+      versatz = nahe ? [fuss[0] - sp[0], fuss[1] - sp[1]] : [0, 0];
+      if (!nahe) setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild(sp));
     }
   });
   svg.addEventListener('pointermove', (e) => {
@@ -739,7 +748,8 @@ function zeigerEinrichten() {
     const s0 = /** @type {Vec2} */ (start); // beim Ziehen gesetzt
     if (!bewegt && Math.hypot(e.clientX - s0[0], e.clientY - s0[1]) < 3) return;
     bewegt = true;
-    setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e)));
+    const sp = svgPunkt(e);
+    setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild([sp[0] + versatz[0], sp[1] + versatz[1]]));
   });
   // nach dem Ziehen neu zeichnen, damit die Lupe dem losgelassenen Objekt folgt
   const loslassen = () => { const war = ziehen; ziehen = false; if (!sUI.up()) strichBeenden(); if (war && z.lupe) aktualisieren(); };
