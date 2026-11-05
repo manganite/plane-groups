@@ -755,7 +755,7 @@ export const BANK = [
       'Spiegelung und Verschiebung senkrecht zur Linie ergeben eine Spiegelung an einer parallelen Linie, keine Gleitspiegelung.',
       'Zweimal ausgeführt muss sie eine Gittertranslation ergeben; die Gleitkomponente ist deshalb die halbe Gitterperiode entlang der Linie.',
       'Eine ganze Gittertranslation entlang der Linie ergibt nur die Spiegelung, gefolgt von einer Translation; das Symmetrieelement bleibt eine Spiegellinie.'],
-    erklaerung: 'Die Gleitspiegelung spiegelt an einer Linie und verschiebt entlang dieser Linie um die Gleitkomponente, die halbe Gitterperiode entlang der Linie (die Hälfte der kürzesten Gittertranslation in dieser Richtung); eine zusätzliche ganze Gittertranslation entlang der Linie ergibt dieselbe Gleitspiegellinie. Nur beides zusammen ist eine Symmetrieoperation.',
+    erklaerung: 'Eine Gleitspiegelung besteht aus zwei Teilen: Spiegeln an einer Linie und Verschieben entlang dieser Linie um die Gleitkomponente, die halbe Gitterperiode entlang der Linie (die Hälfte der kürzesten Gittertranslation in dieser Richtung). Weder die Spiegelung allein noch die Verschiebung allein bringt das Muster mit sich zur Deckung, nur beide zusammen. Verschiebt man zusätzlich um eine ganze Gittertranslation entlang der Linie, bleibt es dieselbe Gleitspiegellinie.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1',
     status: 'entwurf',
@@ -776,7 +776,7 @@ export const BANK = [
     erklaerung: 'Erst Spiegeln an der Mittellinie und Verschieben um einen Schritt zusammen bringen die Spur mit sich zur Deckung: eine Gleitspiegellinie. Ein Schritt ist die halbe Periode der Spur; sie wiederholt sich nach einem Doppelschritt.',
     skript: 'gleitung', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 4.1, Abb. 4.1; Hoffmann (2016), Abb. 4.7–4.9',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-2-01', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
@@ -983,7 +983,7 @@ export const BANK = [
     erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> der Translation steht senkrecht zur Linie und verschiebt sie um die Hälfte, nach <i>y</i> = ½. Der Anteil <i>a</i> liegt parallel zur Linie und ist eine ganze Gittertranslation: Das Ergebnis ist die Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>; eine neue Gleitspiegellinie entsteht nicht.`,
     skript: 'verknuepfung', app: '#m=eg&g=p2mm&erkl=m;0,1/2;1,0',
     quelle: 'Skript, Abschn. 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-1-05', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
@@ -1047,7 +1047,7 @@ export const BANK = [
     erklaerung: 'Beim Springen stehen linker und rechter Fuss nebeneinander; die Mittellinie zwischen ihnen ist eine Spiegellinie. Beim Gehen sind die Abdrücke um einen Schritt versetzt, die halbe Periode der Spur: eine Gleitspiegellinie. Beim Hüpfen gibt es nur Translationen (Abb. 4.1).',
     skript: 'gleitung',
     quelle: 'Skript, Abschn. 4.1, Abb. 4.1; Hoffmann (2016), Abschn. 4.1.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 5 Die 17 Ebenengruppen
@@ -1067,7 +1067,7 @@ export const BANK = [
     erklaerung: 'Punktgruppe und Gitter kombinieren ergibt 13 (<i>m</i> und 2<i>mm</i> mit zwei Gittern, 3<i>m</i> auf zwei Arten). Einige oder alle Spiegellinien durch Gleitspiegellinien ersetzen ergibt <i>pg</i>, <i>p</i>2<i>mg</i>, <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>; <i>p</i>2<i>mg</i> und <i>p</i>4<i>gm</i> behalten Spiegellinien.',
     skript: 'siebzehn',
     quelle: 'Skript, Abschn. 5.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-1-02', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
