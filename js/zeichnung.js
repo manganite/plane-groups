@@ -286,7 +286,7 @@ const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 
 /**
  * Erklärende Werkzeuge im Symmetriegerüst aktiv: „Schritt für Schritt“, „Aufbau aus Erzeugenden“ oder
- * „Warum ist das da?“. Dann zeigt Tafel A das Objekt in fester Grösse (wie die Fähnchen der
+ * „Herkunft der Elemente“. Dann zeigt Tafel A das Objekt in fester Grösse (wie die Fähnchen der
  * Erklärungen), die eigene Zeichnung nicht, und die Lupe ruht; sie wird nur zum Zeichnen, Radieren und
  * Setzen des Objekts gebraucht. Beim Brechen der Symmetrie ruhen die Werkzeuge selbst.
  * @param {Pick<Zustand, 'brechen' | 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'warum' | 'erkl'>} z
@@ -898,7 +898,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
 }
 
 // ---------------------------------------------------------------------------------------------
-// „Warum ist das da?“: ein Element als Verknüpfung C = A ∘ B
+// „Herkunft der Elemente“: ein Element als Verknüpfung C = A ∘ B
 // ---------------------------------------------------------------------------------------------
 
 /** Spiegelanteil {R, t − w} einer Gleitspiegelung (w = (t + R t)/2), sonst null. @param {Op} C @returns {Op | null} */

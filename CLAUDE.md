@@ -65,14 +65,18 @@ für diese App gilt.
   Objekt grösser, der Rand wächst, bis ein Objekt mit dem Fuss auf dem Zellrand ganz sichtbar ist (gleich für
   jede Lage, damit sich die Ansicht beim Ziehen nicht ändert). Die Lupe vergrössert das Objekt mit (Thomas).
   Ausnahme: erklärende Werkzeuge (nächster Punkt).
-- **Erklärende Werkzeuge** (5.11.2026, Thomas): In „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Warum
-  ist das da?“ zeigt das Gerüst das Objekt in fester Grösse (kleiner als im Gitter), ohne eigene Zeichnung
+- **Erklärende Werkzeuge** (5.11.2026, Thomas): In „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und
+  „Herkunft der Elemente“ zeigt das Gerüst das Objekt in fester Grösse (kleiner als im Gitter), ohne eigene Zeichnung
   (im Muster bleibt sie), Zeichnen und Radieren gesperrt, die Lupe ruht (`erklaerend` in `js/zeichnung.js`).
-  Zeichnen und Radieren werden dabei abgewählt (die Werkzeuge schliessen sich aus, wie schon bei „Warum ist das
-  da?“); die Lupe bleibt gewählt und wirkt beim Verlassen wieder (Leitfaden Abschn. 5.2).
+  Zeichnen und Radieren werden dabei abgewählt (die Werkzeuge schliessen sich aus); die Lupe bleibt gewählt und wirkt beim Verlassen wieder (Leitfaden Abschn. 5.2).
   Grund: Mit grossem Objekt, Zeichnung oder Lupe erkennt man die Elemente und Wege nicht mehr; die Lupe
   braucht man nur zum Zeichnen, Radieren und Setzen. Der Zustand gilt sofort beim Einschalten, damit die
   Ansicht nicht erst beim Wählen eines Elements springt.
+- **„Herkunft der Elemente“** (5.11.2026, Thomas; früher „Warum ist das da?“): Schalter im Abschnitt „Aufbau
+  aus Erzeugenden“, nicht Knopf über dem Gerüst. Grund: Über dem Gerüst stehen Werkzeuge zum Gestalten
+  (Zeichnen, Radieren, Lupe); dieses erklärt die Symmetrieelemente wie der Aufbau, mit dem es sich kombinieren
+  lässt. Der alte Name sagte nicht, worauf er sich bezieht. Zustand `warum` und Link `warum=1` bleiben
+  (Link-Adressen sind Schnittstelle).
 
 ## Konventionen
 

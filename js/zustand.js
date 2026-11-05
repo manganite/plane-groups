@@ -136,7 +136,7 @@ export function startzustand() {
     lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
-    warum: false, // Werkzeug „Warum ist das da?“: Antippen wählt ein Element
+    warum: false, // „Herkunft der Elemente“ (früher „Warum ist das da?“): Antippen wählt ein Element
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
     zeichnen: false, // Werkzeug „Zeichnen“ in Tafel A (nicht in der Link-Adresse)

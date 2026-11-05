@@ -1,5 +1,5 @@
 // Herkunft der Symmetrieelemente: Welche Elemente folgen aus den Erzeugenden, und aus welchen
-// zwei Operationen entsteht jedes? Grundlage für „Aufbau aus Erzeugenden“ und „Warum ist das da?“.
+// zwei Operationen entsteht jedes? Grundlage für „Aufbau aus Erzeugenden“ und „Herkunft der Elemente“.
 //
 // Gesucht wird in Schritten (Breitensuche): Schritt 0 ist die Identität; in jedem Schritt wird
 // jede bisher gefundene Operation B mit einer Erzeugenden A verknüpft, C = A ∘ B (zuerst B, dann

@@ -244,12 +244,13 @@ function bedienungAbgleichen() {
   knopf('schritt-abspielen').disabled = !z.objekt;
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
-      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Warum ist das da?“ zeigt, aus welchen.`;
-  // Werkzeug „Warum ist das da?“
-  $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
-  knopf('werkzeug-warum').disabled = !z.elemente;
+      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.`;
+  // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt (Zustand z.warum, Link warum=1)
+  eingabe('opt-warum').checked = z.warum;
+  eingabe('opt-warum').disabled = !z.elemente;
+  element('#row-warum .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
   document.body.classList.toggle('warum', z.warum && z.elemente);
-  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, „Warum ist das da?“): Zeichnen und Radieren aus,
+  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, Herkunft der Elemente): Zeichnen und Radieren aus,
   // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
   const ruhig = erklaerend(z);
   if (ruhig) { z.zeichnen = false; z.radieren = false; }
@@ -307,14 +308,14 @@ function bedienungAbgleichen() {
   element('#row-brechen .why').textContent = sys === 'schiefwinklig' ? 'im schiefwinkligen System ist das Gitter schon frei' : '';
   const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
   $('lat-why').textContent = z.brechen
-    ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. „Warum ist das da?“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
+    ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. Herkunft der Elemente, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
     : `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.`.trim();
   $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
   knopf('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
   // beim freien Gitter ruhen die Werkzeuge, die sich auf die ursprüngliche Gruppe beziehen
   if (z.brechen) {
-    for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell']) eingabe(id).disabled = true;
-    for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'werkzeug-warum']) knopf(id).disabled = true;
+    for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell', 'opt-warum']) eingabe(id).disabled = true;
+    for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen']) knopf(id).disabled = true;
   }
 }
 
@@ -507,7 +508,7 @@ function kenndaten() {
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
     ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
-    : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Warum ist das da?</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
+    : z.warum && z.elemente ? `<div class="warumbox" id="warumbox"><h3>Herkunft der Elemente</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
     ${z.brechen ? `<div class="warumbox brechbox" id="brechbox">${brechHTML(d, z.frei, brechAnalyse(g, z.frei))}</div>` : ''}
     ${schrittbox}
     ${erklaerung ? '' : lagebox}
@@ -906,8 +907,8 @@ function init() {
   $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = /** @type {Vec2[][]} */ (verlauf.pop()); else z.striche.pop(); aktualisieren(); });
   $('zeichnen-loeschen').addEventListener('click', () => { merken(); z.striche = []; aktualisieren(); });
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
-  $('werkzeug-warum').addEventListener('click', () => {
-    z.warum = !z.warum;
+  $('opt-warum').addEventListener('change', () => {
+    z.warum = eingabe('opt-warum').checked;
     if (z.warum) { z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
