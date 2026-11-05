@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import {
-  metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder, objektMassstab,
+  metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder, objektMassstab, erklaerend,
 } from '../js/zeichnung.js';
 import { startzustand, GITTER_START } from '../js/zustand.js';
 import { da } from './hilfen.mjs';
@@ -236,3 +236,32 @@ test('Lupe: Tafel A genau doppelt so gross wie ohne Lupe, auch mit grossem Objek
   }
 });
 
+
+test('Erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht', () => {
+  /** @type {Vec2[][]} */
+  const striche = [[[0.2, 0.2], [0.4, 0.3]]];
+  const basis = { ...startzustand(), gruppe: 'p4', striche, lupe: true };
+  for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { warum: true }, { erkl: '4;1/2,1/2' }])) {
+    const z = { ...basis, ...opt };
+    assert.ok(erklaerend(z), JSON.stringify(opt));
+    const a = tafelA('p4', z, FARBEN, { k: 1.4 });
+    // Lupe ruht: Ausschnitt wie ohne Lupe, kein Ausschnitt der Lupe im Ergebnis
+    assert.equal(a.lupeBox, null, JSON.stringify(opt));
+    assert.ok(nahe(a.ansicht.s, tafelA('p4', { ...z, lupe: false }, FARBEN, { k: 1.4 }).ansicht.s), JSON.stringify(opt));
+    // Objekt in fester Grösse (k), eigene Zeichnung nicht im Gerüst, aber im Muster
+    assert.equal(a.massObjekt, 1.4, JSON.stringify(opt));
+    assert.ok(!a.svg.includes('class="zeichnung"'), `${JSON.stringify(opt)}: Zeichnung im Gerüst`);
+  }
+  assert.ok(tafelB('p4', { ...basis, schritt: 2 }, FARBEN).svg.includes('class="zeichnung"'), 'Zeichnung im Muster');
+  // ohne erklärendes Werkzeug: Zeichnung da, Lupe wirkt, Objekt im Gitter
+  const normal = tafelA('p4', basis, FARBEN);
+  assert.ok(!erklaerend(basis) && normal.lupeBox !== null && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
+  // „Warum ist das da?“ ohne Symmetrieelemente wirkt nicht; beim Brechen ruhen die Werkzeuge selbst
+  assert.ok(!erklaerend({ ...basis, warum: true, elemente: false }));
+  assert.ok(!erklaerend({ ...basis, schritt: 2, brechen: true }));
+  // gefüllte asymmetrische Einheit ruht mit der Zeichnung
+  assert.ok(!tafelA('p4', { ...basis, striche: [], aeFuell: true, aufbau: 1 }, FARBEN).svg.includes('class="zeichnung"'));
+  // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
+  const unbekannt = tafelA('p4', { ...basis, erkl: '4;1/3,0' }, FARBEN);
+  assert.ok(unbekannt.erklaerung === null && unbekannt.lupeBox !== null && unbekannt.svg.includes('class="zeichnung"'));
+});

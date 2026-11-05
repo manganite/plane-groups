@@ -23,6 +23,7 @@
   .bild { width: min(100%, 38svh); margin-inline: auto; }
 }
 .tabs button:disabled { opacity: 0.5; cursor: not-allowed; }
+.panel-head .tools button:disabled { opacity: 0.45; cursor: not-allowed; }
 .lg .sym-icon { flex: none; }
 .koord { font-family: var(--font-display); font-size: 1.02em; white-space: nowrap; }
 .koord i { font-style: italic; }
@@ -233,7 +234,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
             <button type="button" id="zeichnen-zurueck">Rückgängig</button>
             <button type="button" id="zeichnen-loeschen">Alles löschen</button>
           </div>
-          <label class="check"><input type="checkbox" id="opt-fuell">Asymmetrische Einheit füllen</label>
+          <label class="check" id="row-fuell"><input type="checkbox" id="opt-fuell"><span>Asymmetrische Einheit füllen<span class="why"></span></span></label>
           <p class="hintline" id="fuell-hint"></p>
         </div>
       </details>

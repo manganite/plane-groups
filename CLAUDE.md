@@ -64,7 +64,16 @@ für diese App gilt.
   „Zeichnen“. Thomas wählte, dass das Muster bleibt (Skript-Abbildungen, Quizbilder, `og`); im Gerüst wird das
   Objekt grösser, der Rand wächst, bis ein Objekt mit dem Fuss auf dem Zellrand ganz sichtbar ist (gleich für
   jede Lage, damit sich die Ansicht beim Ziehen nicht ändert). Die Lupe vergrössert das Objekt mit (Thomas).
-  „Schritt für Schritt“ und „Warum ist das da?“ zeichnen ihre Fähnchen weiter in fester Grösse (#70).
+  Ausnahme: erklärende Werkzeuge (nächster Punkt).
+- **Erklärende Werkzeuge** (5.11.2026, Thomas): In „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Warum
+  ist das da?“ zeigt das Gerüst das Objekt in fester Grösse (wie ihre Fähnchen; meist kleiner als im Gitter),
+  ohne eigene Zeichnung und gefüllte asymmetrische Einheit (im Muster bleiben sie); Zeichnen, Radieren, Füllen
+  und Lupe ruhen (`erklaerend` in `js/zeichnung.js`). Zeichnen und Radieren sind Werkzeuge, die sich wie eine
+  Auswahl ausschliessen; sie werden deshalb abgewählt, wie schon bei „Warum ist das da?“. Die Schalter
+  „Füllen“ und Lupe bleiben gewählt und wirken beim Verlassen wieder (Regel „gesperrt, nicht abgewählt“,
+  Leitfaden Abschn. 5.2). Grund: Mit grossem Objekt, Zeichnung oder Lupe erkennt man die Elemente und Wege
+  nicht mehr; die Lupe braucht man nur zum Zeichnen, Radieren und Setzen. Der Zustand gilt sofort beim
+  Einschalten, damit das Objekt nicht erst beim Wählen eines Elements kleiner wird.
 
 ## Konventionen
 

@@ -285,6 +285,15 @@ const MUSTER_BREITE = 4.4;
 const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 
 /**
+ * Erklärende Werkzeuge im Symmetriegerüst aktiv: „Schritt für Schritt“, „Aufbau aus Erzeugenden“ oder
+ * „Warum ist das da?“. Dann zeigt Tafel A das Objekt in fester Grösse (wie die Fähnchen der
+ * Erklärungen), die eigene Zeichnung nicht, und die Lupe ruht; sie wird nur zum Zeichnen, Radieren und
+ * Setzen des Objekts gebraucht. Beim Brechen der Symmetrie ruhen die Werkzeuge selbst.
+ * @param {Pick<Zustand, 'brechen' | 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'warum' | 'erkl'>} z
+ */
+export const erklaerend = (z) => !z.brechen && ((z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.warum && z.elemente) || !!z.erkl);
+
+/**
  * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter
  * mit der Metrik M, mal k. In der App ist k = 1. In Tafel A gilt k nur für die Symbole (das Objekt
  * gehört zum Muster); Tafel B übergibt k, damit Muster in Quiz und Skript bleiben, wie sie waren.
@@ -798,6 +807,8 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
+  // erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht
+  const ruhig = erklaerend({ ...z, erkl: erkl ? z.erkl : null }); const lupe = z.lupe && !ruhig; // nur ein gültiges erkl zählt
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
   const schritt = z.schritt > 0 && z.objekt && !erkl && !brechen ? z.schritt : 0;
@@ -820,10 +831,10 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Rand für das Objekt (im Gitter festgelegt, objektMassstab): Ein Objekt mit dem Fuss auf dem Rand der
   // Zellen bleibt ganz sichtbar. Reicht der Rand in Bildpunkten nicht, wird der Ausschnitt um p
   // grösser: rand / s + p ≥ Reichweite mit s = (520 − 2 rand) / (D + 2 p). Unabhängig von der Lage des
-  // Objekts und vom Werkzeug (Schritt für Schritt, Erklärung), damit sich die Ansicht beim Ziehen und
-  // Umschalten nicht ändert. Grenzen: Bilder knapp ausserhalb der Zelle (Rand von bilder()) können
+  // Objekts, damit sich die Ansicht beim Ziehen nicht ändert; in den erklärenden Werkzeugen (Objekt in
+  // fester Grösse) kein Rand für das Objekt. Grenzen: Bilder knapp ausserhalb der Zelle (Rand von bilder()) können
   // angeschnitten werden, wie Zeichnungen; beim Brechen der Symmetrie verzerrte Bilder auch weiter.
-  if (z.objekt) {
+  if (z.objekt && !ruhig) {
     const reichweite = REICHWEITE * OBJEKT_LAENGE * Math.max(Math.hypot(...M.a), Math.hypot(...M.b)) * (z.objGroesse ?? 1);
     const u = randOhneLupe / (520 - 2 * randOhneLupe); const D = Math.max(box[2] - box[0], box[3] - box[1]);
     const p = Math.max(0, (reichweite - u * D) / (1 + 2 * u));
@@ -831,8 +842,8 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   }
   // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb dessen, was die Tafel ohne Lupe zeigt
   // (Ausschnitt samt Rand in Bildpunkten); so vergrössert sie genau LUPE-fach
-  if (z.lupe && lupeBox) box = lupeBox;
-  else if (z.lupe) {
+  if (lupe && lupeBox) box = lupeBox;
+  else if (lupe) {
     const e = (randOhneLupe * Math.max(box[2] - box[0], box[3] - box[1])) / (520 - 2 * randOhneLupe);
     box = [box[0] - e, box[1] - e, box[2] + e, box[3] + e];
     const c = kart(M, lupeMitte ?? ausgangsstelle(z.punkt, n));
@@ -844,8 +855,10 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
     const mx = lage(c[0], box[0], box[2]); const my = lage(c[1], box[1], box[3]);
     box = [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
   }
-  const rand = z.lupe ? 0 : randOhneLupe;
+  const rand = lupe ? 0 : randOhneLupe;
   const A = ansicht(M, box, 520, rand);
+  // Objekt im Gitter (objektMassstab), in den erklärenden Werkzeugen fest wie bei „Schritt für Schritt“ (k: Skript, Quiz)
+  const massObjekt = ruhig ? k : objektMassstab(M, A, z.objGroesse ?? 1);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   if (z.ae && !brechen) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
@@ -855,7 +868,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     teile.push(`<polygon points="${zellPoly(A, i, j)}" fill="none" stroke="${farben.muted}" stroke-width="1.2"/>`);
   }
-  if (!erkl) teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, -1, n + 1, farben));
+  if (!ruhig) teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, -1, n + 1, farben));
   // Achsen: a und b am Ursprung beschriftet
   const o = A.zuBild([0, 0]);
   const pa = A.zuBild([n * 0.5, 0]); const pb = A.zuBild([0, n * 0.5]);
@@ -875,13 +888,13 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   }
   if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
-  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, objektMassstab(M, A, z.objGroesse ?? 1), orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, massObjekt, orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
   if (z.objekt && !erkl) {
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
   }
   if (erkl) teile.push(erklaerungSVG(g, M, A, erkl, phase, farben, z.form, n));
-  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, lupeBox: z.lupe ? box : null, massObjekt: objektMassstab(M, A, z.objGroesse ?? 1) };
+  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, lupeBox: lupe ? box : null, massObjekt };
 }
 
 // ---------------------------------------------------------------------------------------------

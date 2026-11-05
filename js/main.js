@@ -6,7 +6,7 @@ import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt, imBereich, zahlenpaar } from './zustand.js';
@@ -201,6 +201,8 @@ function auswahlAbgleichen() {
 
 // ------------------------------------------------------------------ Bedienelemente abgleichen
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
+/** Grund, wenn Zeichnen, Radieren, Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
+const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Warum ist das da?“ aktiv ist';
 function bedienungAbgleichen() {
   eingabe('opt-elemente').checked = z.elemente;
   eingabe('opt-objekt').checked = z.objekt;
@@ -249,21 +251,31 @@ function bedienungAbgleichen() {
   $('werkzeug-warum').setAttribute('aria-pressed', String(z.warum));
   knopf('werkzeug-warum').disabled = !z.elemente;
   document.body.classList.toggle('warum', z.warum && z.elemente);
+  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, „Warum ist das da?“): Zeichnen und Radieren aus,
+  // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
+  const ruhig = erklaerend(z);
+  if (ruhig) { z.zeichnen = false; z.radieren = false; }
+  knopf('werkzeug-zeichnen').disabled = ruhig;
+  knopf('werkzeug-lupe').disabled = ruhig;
   // Selbst zeichnen
   $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
   document.body.classList.toggle('zeichnen', z.zeichnen);
   $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
   $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
-  knopf('werkzeug-radieren').disabled = !z.striche.length && !z.radieren;
+  knopf('werkzeug-radieren').disabled = ruhig || (!z.striche.length && !z.radieren);
   document.body.classList.toggle('radieren', z.radieren);
   knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
   knopf('zeichnen-loeschen').disabled = !z.striche.length;
   eingabe('opt-fuell').checked = z.aeFuell;
+  eingabe('opt-fuell').disabled = ruhig;
+  element('#row-fuell .why').textContent = ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
   const punkteGezeichnet = z.striche.flat().length;
   $('zeichnen-hint').textContent = z.radieren
     ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
     : z.zeichnen
     ? `Im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen ${gruppeVon(z.gruppe).ordnung} Operationen je Zelle, auch im Muster. Blau: gleiche Händigkeit, orange: Spiegelbild.${punkteGezeichnet >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
+    : ruhig
+    ? `Zeichnen und Radieren ruhen, ${SOLANGE_ERKLAERT}; die Zeichnung ist im Symmetriegerüst ausgeblendet, im Muster bleibt sie.`
     : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
   $('fuell-hint').textContent = z.aeFuell
     ? `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`
@@ -309,6 +321,7 @@ function bedienungAbgleichen() {
   if (z.brechen) {
     for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell']) eingabe(id).disabled = true;
     for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen', 'werkzeug-warum']) knopf(id).disabled = true;
+    element('#row-fuell .why').textContent = 'ruht ohne Bindung an das Kristallsystem';
   }
 }
 
@@ -325,7 +338,7 @@ let massObjektA = 1;
 let lupeBox = null;
 /** @returns {{ lupeBox?: Box, lupeMitte?: Vec2 }} */
 function lupeOptionen() {
-  if (!z.lupe) { lupeBox = null; return {}; }
+  if (!z.lupe || erklaerend(z)) { lupeBox = null; return {}; }
   return lupeBox && (ziehen || strich || radierStelle) ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
 }
 /** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. @param {Farben} f */
@@ -344,7 +357,9 @@ function zeichnen() {
   const a = tafelAJetzt(f);
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
-  if (z.erkl && !erklaerung) z.erkl = null; // unbekanntes Element (z. B. aus einem alten Link)
+  // unbekanntes Element (z. B. aus einem alten Link): verwerfen und die Bedienung neu abgleichen, die es
+  // sonst noch als laufende Erklärung zählt (Sperren von Zeichnen und Lupe)
+  if (z.erkl && !erklaerung) { z.erkl = null; aktualisieren(); }
   grafik('bild-a').innerHTML = a.svg;
   grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
@@ -408,6 +423,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
+  if (erklaerend(z)) items.push(`<span class="lg hint">Zeichnen, Radieren und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
   if (z.warum && z.elemente) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
