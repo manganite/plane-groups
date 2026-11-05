@@ -60,7 +60,7 @@ export const TIPS = {
   'aufbau-schritt': 'Schritt im Aufbau. Ein Schritt verknüpft jede bisherige Operation mit einer Erzeugenden oder einer Gittertranslation.',
   'aufbau-zurueck': 'Einen Schritt zurück.',
   'aufbau-vor': 'Einen Schritt weiter: Die neu hinzukommenden Elemente sind hervorgehoben.',
-  'reset-alles': 'Alle Einstellungen auf den Startzustand zurücksetzen.',
+  'reset-alles': 'Alle Einstellungen und den gespeicherten Zustand löschen und die App neu starten (der Fortschritt im Quiz bleibt).',
 };
 
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */

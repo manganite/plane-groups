@@ -1,7 +1,7 @@
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
 import { initHelp } from '../lib/common/js/help.js';
-import { offline, $, eingabe, knopf, element, elemente, grafik } from '../lib/common/js/seite.js';
+import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, element, elemente, grafik } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
@@ -827,12 +827,8 @@ function init() {
   }
   // zurücksetzen: Startmetrik des Systems, mit Bindung
   $('reset-gitter').addEventListener('click', () => { const s = systemJetzt(); z.brechen = false; z.gitter[s] = { ...GITTER_START[s] }; aktualisieren(); });
-  $('reset-alles').addEventListener('click', () => {
-    Object.assign(z, startzustand());
-    hashAktiv = false; basisHash = null;
-    try { history.replaceState(null, '', location.pathname + location.search); } catch { /* ignorieren */ }
-    aktualisieren();
-  });
+  // Alle Einträge „ebenen-…“ im Speicher ausser denen des Quiz löschen, ohne Hash neu laden (Leitfaden Abschn. 5.2)
+  $('reset-alles').addEventListener('click', () => alleEinstellungenZuruecksetzen('ebenen'));
   $('info').addEventListener('click', (e) => {
     const ziel = /** @type {Element} */ (e.target);
     /** Knopf oder Link der Kenndaten, in dem der Klick lag. @param {string} sel */
@@ -942,11 +938,6 @@ function init() {
   };
   $('intro-close').addEventListener('click', introZu);
   $('help-open').addEventListener('click', () => { if ($('intro').hidden) intro(true); else introZu(); });
-  $('reset-alles').addEventListener('click', () => {
-    gesehen.clear(); ueberLink.clear(); introModus = null;
-    try { localStorage.removeItem(INTRO); } catch { /* ohne Speicher weiter */ }
-    introAbgleichen();
-  });
   // Jeder Schritt zeigt am Telefon die Tafel, in der er wirkt (Symmetriegerüst bzw. Struktur)
   /** @param {number | string} n @param {() => void} f */
   const schritt = (n, f) => element(`[data-step="${n}"]`).addEventListener('click', () => {
