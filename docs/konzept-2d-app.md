@@ -5,7 +5,7 @@
 > - Entscheidung 20 nennt 20 Vorgaben; heute sind es 25 (`js/vorgaben.js`).
 > - Grundlage „Leitfaden (claude/leitfaden-familie.md)“: heute `LEITFADEN.md` in crystallography-common.
 > - Die Statusabsätze am Ende sind ein Verlauf bis 3.11.2026; Fortschritt steht künftig in Issues und PRs, nicht hier.
-> - Offene Punkte als Issues: Formelsatz Kap. 9 #35, Beugung und zweites Release #36, Modus „Bestimmen“ und Kap. 8 #38 (nach dem zweiten Release, Abschn. 10), Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Tutorial #41, Ausgabe von Conway #42 (Skript zitiert A K Peters/CRC 2016), README-Link-Adressen #34, externe Gegenprüfung #33.
+> - Offene Punkte als Issues: Formelsatz Kap. 9 #35, Beugung und zweites Release #36, Modus „Bestimmen“ und Kap. 8 #38 (nach dem zweiten Release, Abschn. 10), Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Erste Schritte und Hilfeseite #56 (ersetzt das Tutorial), externe Gegenprüfung #33.
 > 
 > Dieses Konzept wird für die noch offenen Teile (Beugung, „Bestimmen“, Erweiterungen) weiter genutzt: Neue Entwurfsentscheidungen kommen hier hinzu, der Fortschritt nicht.
 >
@@ -20,7 +20,7 @@ Grundlage:
 - ITA Vol. A (2006), Abschn. 2.2.6.1 und Part 6 (die 17 Ebenengruppen, S. 92–109): Konventionen und Daten
 - Python-App `oxrd.py` aus dem Beugungsexperiment der Vorlesung (Tzschaschel, Lehmann, 2018): Punktmuster für die Laserbeugung, nur als Anregung für Abschnitt 3.3
 - Leitfaden der App-Familie (claude/leitfaden-familie.md)
-- Conway, Burgiel, Goodman-Strauss, *The Symmetries of Things* (A K Peters 2008; in Zotero), Kap. 1–3, 5 und 11: visueller Zugang über Ornamente, Orbifold-Signatur (Abschnitt 1c)
+- Conway, Burgiel, Goodman-Strauss, *The Symmetries of Things* (A K Peters/CRC Press 2016, E-Book der Ausgabe von 2008; in Zotero), Kap. 1–3, 5 und 11: visueller Zugang über Ornamente, Orbifold-Signatur (Abschnitt 1c)
 
 ## 1. Ziel und Rolle
 
