@@ -254,7 +254,7 @@ function bedienungAbgleichen() {
   eingabe('opt-warum').disabled = !z.elemente;
   element('#row-warum .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
   document.body.classList.toggle('warum', herkunftAktiv());
-  // Erklärende Werkzeuge (Schritt für Schritt, Aufbau, Herkunft der Elemente): Zeichnen und Radieren aus,
+  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): Werkzeuge Zeichnen und Radieren aus,
   // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
   const ruhig = erklaerend(z);
   if (ruhig) { z.zeichnen = false; z.radieren = false; }
@@ -987,7 +987,7 @@ function init() {
   initHelp({ tips: TIPS, sections: SECTIONS, labels: LABELS });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
-  // Ist ein erklärendes Werkzeug aus Speicher oder Link aktiv, seinen Abschnitt aufklappen: Es sperrt
+  // Ist eine Erklärung aus Speicher oder Link aktiv, seinen Abschnitt aufklappen: Es sperrt
   // Zeichnen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
   if (z.modus === 'eg' && (z.warum || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
   if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;

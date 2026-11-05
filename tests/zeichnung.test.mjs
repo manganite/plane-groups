@@ -237,7 +237,7 @@ test('Lupe: Tafel A genau doppelt so gross wie ohne Lupe, auch mit grossem Objek
 });
 
 
-test('Erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht', () => {
+test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht', () => {
   /** @type {Vec2[][]} */
   const striche = [[[0.2, 0.2], [0.4, 0.3]]];
   const basis = { ...startzustand(), gruppe: 'p4', striche, lupe: true };
@@ -253,7 +253,7 @@ test('Erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, L
     assert.ok(!a.svg.includes('class="zeichnung"'), `${JSON.stringify(opt)}: Zeichnung im Gerüst`);
   }
   assert.ok(tafelB('p4', { ...basis, schritt: 2 }, FARBEN).svg.includes('class="zeichnung"'), 'Zeichnung im Muster');
-  // ohne erklärendes Werkzeug: Zeichnung da, Lupe wirkt, Objekt im Gitter
+  // ohne Erklärung: Zeichnung da, Lupe wirkt, Objekt im Gitter
   const normal = tafelA('p4', basis, FARBEN);
   assert.ok(!erklaerend(basis) && normal.lupeBox !== null && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
   // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht; beim Brechen ruhen die Werkzeuge selbst
