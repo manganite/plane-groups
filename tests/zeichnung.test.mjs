@@ -207,7 +207,7 @@ test('Objekt im Gitter: in Tafel A und B (Muster) im selben Verhältnis zur Zell
   }
 });
 
-test('Objekt im Muster so gross wie bis v1.x (0,8 · k · Vergrösserung · Grösse Bildpunkte je Bildpunkt)', () => {
+test('Objekt im Muster so gross wie bis v1.0.1 (0,8 · k · Vergrösserung · Grösse Bildpunkte je Bildpunkt)', () => {
   for (const g of ['p4', 'p2mm', 'p1', 'p6', 'p2gg']) for (const zoomB of [0.5, 1, 1.76]) for (const og of [0.5, 1, 2.65]) for (const k of [1, 1.15]) {
     const z = { ...startzustand(), gruppe: g, zoomB, objGroesse: og };
     const { ansicht: A } = tafelB(g, z, FARBEN, { k });
@@ -227,3 +227,12 @@ test('Objekt in Tafel A: Rand reicht für ein Objekt mit dem Fuss auf dem Zellra
     assert.ok(rand >= 30 * objektMassstab(M, A, og) - 1e-6, `${d.symbol} og ${og} zellen ${zellen}: Rand ${rand}`);
   }
 });
+
+test('Lupe: Tafel A genau doppelt so gross wie ohne Lupe, auch mit grossem Objekt', () => {
+  for (const [g, og] of /** @type {[string, number][]} */ ([['p4', 1], ['p6', 1], ['p2mm', 3], ['p31m', 0.5]])) {
+    const z = { ...startzustand(), gruppe: g, objGroesse: og };
+    const ohne = tafelA(g, z, FARBEN).ansicht.s; const mit = tafelA(g, { ...z, lupe: true }, FARBEN).ansicht.s;
+    assert.ok(nahe(mit / ohne, 2, 1e-9), `${g} og ${og}: ${mit / ohne}`);
+  }
+});
+

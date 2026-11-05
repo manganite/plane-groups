@@ -64,7 +64,7 @@ für diese App gilt.
   „Zeichnen“. Thomas wählte, dass das Muster bleibt (Skript-Abbildungen, Quizbilder, `og`); im Gerüst wird das
   Objekt grösser, der Rand wächst, bis ein Objekt mit dem Fuss auf dem Zellrand ganz sichtbar ist (gleich für
   jede Lage, damit sich die Ansicht beim Ziehen nicht ändert). Die Lupe vergrössert das Objekt mit (Thomas).
-  „Schritt für Schritt“ und „Warum ist das da?“ zeichnen ihre Fähnchen weiter in fester Grösse.
+  „Schritt für Schritt“ und „Warum ist das da?“ zeichnen ihre Fähnchen weiter in fester Grösse (#70).
 
 ## Konventionen
 
