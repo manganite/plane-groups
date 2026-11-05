@@ -294,12 +294,13 @@ const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 export const erklaerend = (z) => !z.brechen && ((z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.warum && z.elemente) || !!z.erkl);
 
 /**
- * „Schritt für Schritt“ wirkt: eingeschaltet, mit Objekt, ohne Brechen der Symmetrie und ohne gezeigte
- * Herkunft eines Elements (sie überdeckt es; dann ruht es, main.js). Aufrufer übergeben in erkl nur ein
- * gültiges Element, ein unbekanntes aus einem alten Link zählt nicht.
- * @param {Pick<Zustand, 'schritt' | 'objekt' | 'erkl' | 'brechen'>} z
+ * „Schritt für Schritt“ wirkt: eingeschaltet, mit Objekt, ohne Brechen der Symmetrie, ohne eingeschaltete
+ * „Herkunft der Elemente“ und ohne gezeigte Herkunft eines Elements (sie überdecken es; dann ruht es,
+ * main.js). Aufrufer übergeben in erkl nur ein gültiges Element, ein unbekanntes aus einem alten Link
+ * zählt nicht.
+ * @param {Pick<Zustand, 'schritt' | 'objekt' | 'erkl' | 'brechen' | 'warum' | 'elemente'>} z
  */
-export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !z.brechen;
+export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !z.brechen && !(z.warum && z.elemente);
 
 /**
  * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter

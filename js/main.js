@@ -237,12 +237,12 @@ function bedienungAbgleichen() {
   const nSchritte = gruppeVon(z.gruppe).ordnung + 1;
   if (z.schritt > nSchritte) z.schritt = nSchritte;
   eingabe('opt-schritt').checked = z.schritt > 0;
-  // Eine gezeigte Herkunft eines Elements überdeckt „Schritt für Schritt“ (zeichnung.js): Es ruht, gesperrt und
-  // gewählt, bis die Erklärung geschlossen ist (Leitfaden Abschn. 5.2)
-  const schrittRuht = !!z.erkl && !z.brechen;
+  // „Herkunft der Elemente“ (eingeschaltet oder mit gezeigtem Element) überdeckt „Schritt für Schritt“
+  // (schrittWirkt in zeichnung.js): Es ruht, gesperrt und gewählt, bis sie ausgeschaltet ist (Leitfaden 5.2)
+  const schrittRuht = !z.brechen && (herkunftAktiv() || !!z.erkl);
   eingabe('opt-schritt').disabled = !z.objekt || schrittRuht;
   element('#row-schritt .why').textContent = !z.objekt ? 'nur mit „Objekt in allgemeiner Lage“'
-    : schrittRuht ? 'ruht, solange die Herkunft eines Elements gezeigt wird („Schliessen“ in der Erklärung)' : '';
+    : schrittRuht ? (herkunftAktiv() ? 'ruht, solange „Herkunft der Elemente“ eingeschaltet ist' : 'ruht, solange die Herkunft eines Elements gezeigt wird („Schliessen“ in der Erklärung)') : '';
   eingabe('schritt-regler').max = String(nSchritte);
   eingabe('schritt-regler').value = String(Math.max(1, z.schritt));
   eingabe('schritt-regler').disabled = z.schritt === 0 || schrittRuht;
@@ -924,6 +924,7 @@ function init() {
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
   $('opt-warum').addEventListener('change', () => {
     z.warum = eingabe('opt-warum').checked;
+    if (z.warum) stoppeSchritte();
     if (z.warum) { z.zeichnen = false; z.radieren = false; }
     if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
