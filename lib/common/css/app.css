@@ -251,7 +251,8 @@ footer a { color: inherit; }
   .figswitch { display: inline-flex; }
   .panel-head .t, .export { display: none; }
   .panel-head { padding: 6px; }
-  .legend { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding: 5px 10px 6px; font-size: 0.75rem; scrollbar-width: none; }
+  /* Legende umbrechen statt waagrecht scrollen: Die Scrollleiste war unsichtbar, der Rest nicht zu entdecken */
+  .legend { gap: 3px 10px; padding: 5px 10px 6px; font-size: 0.75rem; }
   .panel-foot { display: none; }
   .legend .lg.hint { display: none; }
   #copy-link { display: none; }

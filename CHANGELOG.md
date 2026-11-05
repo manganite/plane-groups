@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Gemeinsame Grundlage** auf crystallography-common v0.9.0: Im Quiz gelten die Grenzen für erzeugte Fragen (30 % je Generator, 50 % insgesamt) streng, solange die gewählte Länge erreichbar ist; sonst nie mehr erzeugte als handgeschriebene Fragen. Querstriche werden von Screenreadern als „−“ vorgelesen; die Legende bricht auf dem Telefon um statt unsichtbar zu scrollen; im Skript-PDF stehen Abb. 7.3 und 7.5 je auf einer Seite.
+
 ### Behoben
 
 - **„Zurücksetzen“ nach einem Link** (#81): Im Modus „Gitter und Basis“ enthielt die Link-Adresse einer veränderten Struktur keine Vorgabe; nach dem Öffnen des Links oder dem Neuladen setzte „Zurücksetzen“ auf das Dreiecksbeispiel statt auf die eigentliche Vorgabe zurück. Die Adresse enthält jetzt immer `v=…`; alte Links ohne `v` verhalten sich wie bisher.
