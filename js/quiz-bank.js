@@ -1749,6 +1749,6 @@ export const BANK = [
     erklaerung: 'Eine Ziffer <i>n</i> kostet (<i>n</i> − 1)/<i>n</i>, also weniger als 1; zwei Ziffern bleiben unter 2. Mit drei Ziffern geht es nur als 632, 442 oder 333, mit vier nur als 2222.',
     skript: 'conway', app: '#m=eg&g=p6',
     quelle: 'Skript, Abschn. 7.6; Conway, Burgiel & Goodman-Strauss (2016), Tab. 3.1, S. 29; S. 34–35',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 ];
