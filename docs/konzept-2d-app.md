@@ -4,7 +4,7 @@
 > - Abschn. 10: Das erste Release enthielt bereits Quiz-Stufe 3 (100 Fragen, 11 Generatoren), das Skript-PDF und den Moodle-Export; „Danach: Quiz Stufe 3, PDF, Moodle-Export“ ist damit erledigt.
 > - Entscheidung 20 nennt 20 Vorgaben; heute sind es 25 (`js/vorgaben.js`).
 > - Grundlage „Leitfaden (claude/leitfaden-familie.md)“: heute `LEITFADEN.md` in crystallography-common.
-> - „Warum ist das da?“ heisst seit #72 „Herkunft der Elemente“ und ist ein Schalter im Abschnitt „Aufbau aus Erzeugenden“, nicht mehr ein Werkzeug über dem Symmetriegerüst.
+> - „Warum ist das da?“ heisst seit #72 „Herkunft der Elemente“ und ist ein Schalter im Abschnitt „Aufbau aus Erzeugenden“, nicht mehr ein Knopf über dem Symmetriegerüst.
 > - Die Statusabsätze am Ende sind ein Verlauf bis 3.11.2026; Fortschritt steht künftig in Issues und PRs, nicht hier.
 > - Offene Punkte als Issues: Formelsatz Kap. 9 #35, Beugung und zweites Release #36, Modus „Bestimmen“ und Kap. 8 #38 (nach dem zweiten Release, Abschn. 10), Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Erste Schritte und Hilfeseite #56 (ersetzt das Tutorial), externe Gegenprüfung #33.
 > 
