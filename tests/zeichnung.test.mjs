@@ -256,7 +256,7 @@ test('Erklärende Werkzeuge: Objekt in fester Grösse, keine eigene Zeichnung, L
   // ohne erklärendes Werkzeug: Zeichnung da, Lupe wirkt, Objekt im Gitter
   const normal = tafelA('p4', basis, FARBEN);
   assert.ok(!erklaerend(basis) && normal.lupeBox !== null && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
-  // „Warum ist das da?“ ohne Symmetrieelemente wirkt nicht; beim Brechen ruhen die Werkzeuge selbst
+  // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht; beim Brechen ruhen die Werkzeuge selbst
   assert.ok(!erklaerend({ ...basis, warum: true, elemente: false }));
   assert.ok(!erklaerend({ ...basis, schritt: 2, brechen: true }));
 });
