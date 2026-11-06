@@ -44,9 +44,9 @@ für diese App gilt.
 - **Skript Kap. 8 „Ebenengruppen bestimmen“** (Gliederung Thomas, 6.11.2026; #38): Flussdiagramm nach Sanderson
   (Hoffmann Abb. 4.14, S. 139) als eigene Zeichnung aus `js/bestimmen.js` (Daten; gezeichnet in `skizzen.js`,
   `flussdiagramm`), Test gegen die Elemente aller 17 Gruppen (`tests/bestimmen.test.mjs`). Leitfrage 3 heisst
-  „Gleitspiegellinie, die nicht auf einer Spiegellinie liegt“: Echte Gleitspiegellinien liegen nie auf
-  Spiegellinien; Hoffmanns „sich nicht schon aus Translation und Spiegelung ergibt“ meint die Spiegelung mit
-  Gittertranslation entlang der Linie. Beispiele aus den Vorgaben; „Dreiergruppen“ (*p*31*m*) dafür angelegt,
+  „Gleitspiegellinie, die nicht auf einer Spiegellinie liegt“: Gleitspiegellinien liegen nie auf
+  Spiegellinien (Test aus den Operationen). Hoffmanns Zusatz „die sich nicht bereits aus der Kombination von
+  Translation und Spiegelung ergibt“ ist wörtlich falsch (cm, c2mm: Antwort Ja); das Skript sagt das. Beispiele aus den Vorgaben; „Dreiergruppen“ (*p*31*m*) dafür angelegt,
   Name ohne Gruppe. Kein Quiz-Link, solange es keine Fragen gibt (#102); Kap. 8 steht deshalb noch nicht in
   `quiz-kapitel.js`. Dieselben Daten nutzt später die geführte Bestimmung (#38, Teil App).
 - **Conway in eigenem Kapitel** (Thomas, 6.11.2026): Alles zur Signatur nach Conway steht in Kap. 9, einem
