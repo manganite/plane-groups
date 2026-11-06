@@ -58,16 +58,23 @@ function abschnitt(anker) {
 function ziele(nr) {
   const k = /** @type {Kapitel} */ (KAPITEL.find((x) => x.nr === nr));
   const a = skript.indexOf(`<section id="${k.anker}"`);
-  const next = KAPITEL.find((x) => x.nr === nr + 1);
-  const b = next ? skript.indexOf(`<section id="${next.anker}"`) : skript.indexOf('</article>');
-  const grund = []; const vert = [];
+  // bis zum nächsten Kapitel im Skript (nicht nur im Quiz: Kap. 8 hat noch keine Fragen)
+  const h2 = skript.indexOf('<h2><span class="nr">', skript.indexOf('<h2>', a) + 4);
+  const b = h2 > 0 ? h2 : skript.indexOf('</article>');
+  // ganzes Kapitel als Vertiefung (data-level am Kapitel): alle Lernziele gehören zur Vertiefung
+  const ganz = istVertiefungskapitel(k);
+  /** @type {string[]} */
+  const grund = []; /** @type {string[]} */
+  const vert = [];
   for (const m of skript.slice(a, b).matchAll(/<div class="box (?:ziele|zusammen)">([\s\S]*?)<\/div>/g)) {
     const [g, v = ''] = m[1].split('<h5>Zur Vertiefung</h5>');
-    grund.push(...[...g.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((x) => text(x[1])));
+    (ganz ? vert : grund).push(...[...g.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((x) => text(x[1])));
     vert.push(...[...v.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((x) => text(x[1])));
   }
   return { grund, vert };
 }
+/** Kapitel, das als Ganzes eine Vertiefung ist (Kap. 9). @param {Kapitel} k */
+const istVertiefungskapitel = (k) => skript.slice(skript.indexOf(`<section id="${k.anker}"`), skript.indexOf(`<section id="${k.anker}"`) + 120).includes('data-level="vertiefung"');
 
 const TYPEN = ['einfach', 'mehrfach', 'bild-text', 'text-bild', 'bild-bild'];
 const alleErzeugten = () => GENERATOREN.flatMap((g) => g.stufen.flatMap((s) => g.params(s).map((p) => ({ ...g.make(p, s), id: `${g.id}:${p}`, kapitel: g.kapitel, stufe: s }))));
@@ -140,7 +147,7 @@ test('Fragen: Pflichtfelder, eindeutige IDs, Antworten, Hinweise, Lernziel, Anke
   }
   assert.equal(new Set(kuerzel.values()).size, kuerzel.size, 'ein Kürzel je Kapitel');
   // jedes Kapitel hat handgeschriebene Fragen der Stufen 1 und 2
-  for (const k of KAPITEL) for (const s of [1, 2]) assert.ok(BANK.some((q) => q.kapitel === k.nr && q.stufe === s), `Kap. ${k.nr}, Stufe ${s}`);
+  for (const k of KAPITEL.filter((x) => !istVertiefungskapitel(x))) for (const s of [1, 2]) assert.ok(BANK.some((q) => q.kapitel === k.nr && q.stufe === s), `Kap. ${k.nr}, Stufe ${s}`);
 });
 
 test('Erzeugte Fragen: alle Parameter ergeben gültige Fragen', () => {
@@ -248,7 +255,8 @@ test('Hinweise zu Ablenkern: die Merkmale des Ablenkers treffen auf die richtige
 test('Ablauf: Stufe, Kapitel, Anzahl und Höchstanteil der Generatoren', () => {
   const kands = kandidaten(BANK, GENERATOREN, { entwurf: true });
   const n = zaehlen(kands);
-  for (const k of KAPITEL) assert.ok(n[k.nr][1] >= 4, `Kap. ${k.nr}: ${n[k.nr][1]} Fragen der Stufe 1`);
+  // Vertiefungskapitel haben nur Fragen der Stufe 3
+  for (const k of KAPITEL.filter((x) => !istVertiefungskapitel(x))) assert.ok(n[k.nr][1] >= 4, `Kap. ${k.nr}: ${n[k.nr][1]} Fragen der Stufe 1`);
   for (let seed = 1; seed <= 20; seed++) {
     const r = rng(seed);
     const z = ziehen(kands, { stufe: 1, n: 10, rand: r });
@@ -345,7 +353,7 @@ test('Fragen: Abbildungsverweise aufs Skript existieren und liegen im Kapitel de
   assert.deepEqual(fehler, []);
 });
 
-// Preis einer Signatur nach Conway (Skript Abschn. 7.6)
+// Preis einer Signatur nach Conway (Skript Abschn. 9.2)
 /** @param {string} sig */
 function preis(sig) {
   let p = 0, nachStern = false;

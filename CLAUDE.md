@@ -19,7 +19,7 @@ für diese App gilt.
 - Richtige Antwort nicht an Länge oder Ausführlichkeit erkennbar (Test).
 - Fragen lehren allgemeine Konventionen, nicht „was die App tut“.
 - Bildfragen mit neutralem Bildtext (keine eigene Screenreader-Variante).
-- **IDs:** Kapitelkürzel – Stufe – Nummer (`gl-2-03`), Kürzel gb, gs, gm, gl, eg, pl, tk. Lücken
+- **IDs:** Kapitelkürzel – Stufe – Nummer (`gl-2-03`), Kürzel gb, gs, gm, gl, eg, pl, tk, sc (Kap. 9). Lücken
   erlaubt, damit IDs stabil bleiben; wechselt eine Frage die Stufe, bekommt sie die nächste freie Nummer
   der neuen Stufe. Umbenennen heisst auch `befunde` migrieren.
 - Tests in `tests/quiz.test.mjs`: Lernziel wörtlich in Lernzielen oder Zusammenfassung des Kapitels;
@@ -39,8 +39,14 @@ für diese App gilt.
   - Ausnahme 3*m*: *m*₁–*m*₃ wie in der Vorlesung.
 - **Kein LaTeX** in App, Skript und Quiz; Formeln in HTML (kursiv, Unicode, `<sub>`/`<sup>`, `.ov`).
   Formelsatz (KaTeX o. ä.) war nur für die Beugung offen; die Frage geht an crystallography-common#73.
-- **Kap. 7:** „Fliesen und die Alhambra“, „Escher“, „Farbe“, „Conway“ sind Vertiefung (über die
+- **Kap. 7:** „Fliesen und die Alhambra“, „Escher“, „Farbe“ sind Vertiefung (über die
   Vorlesung hinaus); Fragen dazu Stufe 3, Generator `parkett` ebenfalls.
+- **Conway in eigenem Kapitel** (Thomas, 6.11.2026): Alles zur Signatur nach Conway steht in Kap. 9, einem
+  Vertiefungskapitel am Ende des Skripts (Teil „Vertiefung“, `data-level` am Kapitel), nicht mehr in
+  Kap. 7. Grund: Es ist ein eigener Zugang zu den 17 Gruppen und zur Bestimmung, neben dem Flussdiagramm
+  in Kap. 8. Der Anker `#conway` bleibt (jetzt das Kapitel). Die Fragen dazu heissen sc-3-01 … 04
+  (vorher tk-3-06, -07, -08, -10). Ein Vertiefungskapitel hat nur Fragen der Stufe 3; die Tests lassen
+  es bei den Mindestzahlen der Stufen 1 und 2 aus. Ausbau des Kapitels: #85.
 - **Alhambra:** Archimedische Parkettierungen und Alhambra nur über den Begriff Parkettierung verbinden.
   Dass Alhambra-Mosaiken auf archimedischen Parkettierungen beruhen, ist nicht belegt; nicht behaupten.
 - **Farbsymmetrie:** 17 gewöhnliche + 46 Schwarz-Weiss + 17 graue = 80 Gruppen. Paramagnet: graue
