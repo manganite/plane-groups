@@ -6,14 +6,13 @@
 // die International Tables (Part 6) und Borchardt-Ott (Tab. 10.1) kein Schoenflies-Symbol an.
 //
 // Conway: Signatur (Orbifold-Symbol) nach Conway, Burgiel & Goodman-Strauss, The Symmetries of
-// Things (2016), Kap. 2–3, Tab. 3.2, S. 40. Datendatei nach Leitfaden Abschn. 9: Zerlegung und Preis
-// der Signaturen stehen im Test.
-// Zeichen: * Kaleidoskop (Spiegellinien), Ziffern vor
+// Things (2016), Kap. 2–3, Tab. 3.2, S. 40. Zeichen: * Kaleidoskop (Spiegellinien), Ziffern vor
 // dem * Drehpunkte, die auf keiner Spiegellinie liegen (gyrations), Ziffern nach einem * Ecken
 // des Kaleidoskops (Schnittpunkte von Spiegellinien, Zahl der Spiegellinien), × miracle (Weg zu
 // einer spiegelbildlichen Kopie ohne Spiegellinie), o wonder (nur Translationen). Die Zuordnung zu
 // den Hermann-Mauguin-Symbolen prüft tests/symbole.test.mjs aus den Wyckoff-Lagen und dem
-// „Magic Theorem“ (Gesamtpreis 2).
+// „Magic Theorem“ (Gesamtpreis 2); Zerlegung und Preis einer Signatur stehen dort, weil diese
+// Datei nach Leitfaden Abschn. 9 nur Daten enthält.
 
 /** Schoenflies-Symbol je Punktgruppe der Ebene, als [Buchstabe, Index]. @type {Record<string, [string, string]>} */
 export const SCHOENFLIES = {
