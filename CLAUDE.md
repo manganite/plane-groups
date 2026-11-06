@@ -41,14 +41,17 @@ für diese App gilt.
   Formelsatz (KaTeX o. ä.) war nur für die Beugung offen; die Frage geht an crystallography-common#73.
 - **Kap. 7:** „Fliesen und die Alhambra“, „Escher“, „Farbe“ sind Vertiefung (über die
   Vorlesung hinaus); Fragen dazu Stufe 3, Generator `parkett` ebenfalls.
-- **Skript Kap. 8 „Ebenengruppen bestimmen“** (Gliederung Thomas, 6.11.2026; #38): Flussdiagramm nach Sanderson
-  (Hoffmann Abb. 4.14, S. 139) als eigene Zeichnung aus `js/bestimmen.js` (Daten; gezeichnet in `skizzen.js`,
-  `flussdiagramm`), Test gegen die Elemente aller 17 Gruppen (`tests/bestimmen.test.mjs`). Leitfrage 3 heisst
-  „Gleitspiegellinie, die nicht auf einer Spiegellinie liegt“: Gleitspiegellinien liegen nie auf
-  Spiegellinien (Test aus den Operationen). Hoffmanns Zusatz „die sich nicht bereits aus der Kombination von
-  Translation und Spiegelung ergibt“ ist wörtlich falsch (cm, c2mm: Antwort Ja); das Skript sagt das. Beispiele aus den Vorgaben; „Dreiergruppen“ (*p*31*m*) dafür angelegt,
-  Name ohne Gruppe. Kein Quiz-Link, solange es keine Fragen gibt (#102); Kap. 8 steht deshalb noch nicht in
-  `quiz-kapitel.js`. Dieselben Daten nutzt später die geführte Bestimmung (#38, Teil App).
+- **Skript Kap. 8 „Ebenengruppen bestimmen“** (Gliederung Thomas, 6.11.2026; #38): Flussdiagramm nach dem
+  Algorithmus von Brian Sanderson (Quelle: Fassung von D. Bar-Natan, Univ. Toronto; Sandersons Seite in Warwick ist
+  nicht mehr erreichbar), eigene Zeichnung aus `js/bestimmen.js` (Daten; gezeichnet von `flussdiagramm` in
+  `skizzen.js`), Test gegen die Elemente aller 17 Gruppen (`tests/bestimmen.test.mjs`). Rückmeldung Thomas:
+  eigenständig formulieren, nicht als Zusammenfassung von Hoffmann (Hoffmann nur noch in den Quellen); keine
+  Tabelle neben dem Diagramm (Doppelung); Beispiele in drei Schritten: Muster ohne Zelle und Elemente (Abb. 8.2),
+  gefundene Elemente ohne Zelle (Abb. 8.3, `strukturTafelB` mit `zelle: false, elemente: true`, nur im Skript),
+  Zelle (Abb. 8.4); der Fehler „Farbe übersehen“ an einem der Beispiele (h-BN → *p*6*mm*). Leitfrage 3:
+  Gleitspiegellinien liegen nie auf Spiegellinien (Test aus den Operationen); Sandersons „indecomposable glide“
+  verlangt bei *cm* und *c*2*mm* ein Ja. Vorgabe „Dreiergruppen“ (*p*31*m*), Name ohne Gruppe. Kein Quiz-Link,
+  solange es keine Fragen gibt (#102). Dieselben Daten nutzt später die geführte Bestimmung (#38, Teil App).
 - **Conway in eigenem Kapitel** (Thomas, 6.11.2026): Alles zur Signatur nach Conway steht in Kap. 9, einem
   Vertiefungskapitel am Ende des Skripts (Teil „Vertiefung“, `data-level` am Kapitel), nicht mehr in
   Kap. 7. Grund: Es ist ein eigener Zugang zu den 17 Gruppen und zur Bestimmung, neben dem Flussdiagramm
