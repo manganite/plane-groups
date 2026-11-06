@@ -9,7 +9,7 @@ import { gruppe, mod1 } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { dezimal } from './text.js';
-import { $, eingabe, auswahl, knopf, grafik } from '../lib/common/js/seite.js';
+import { $, eingabe, auswahl, knopf, grafik, element, modusTabs } from '../lib/common/js/seite.js';
 
 /** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
 /** @import { Zustand } from './zustand.js' */
@@ -44,6 +44,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** @type {string | null} */
   let vorher = null; // Symbol vor der letzten Änderung (für den Hinweis in den Kenndaten)
   const st = () => z.struktur;
+  /** Moduswahl als Tab-Muster (Leitfaden Abschn. 5.4); entsteht in init(). @type {{ markieren: (id: string) => void } | null} */
+  let modi = null;
 
   // ---------------------------------------------------------------- Aufbau der Bedienelemente
   function baue() {
@@ -61,8 +63,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const s = st();
     if (gewaehlt !== null && !s.basis[gewaehlt]) gewaehlt = null;
     document.body.classList.toggle('modus-struktur', z.modus === 'struktur');
-    $('tab-eg').setAttribute('aria-selected', String(z.modus === 'eg'));
-    $('tab-struktur').setAttribute('aria-selected', String(z.modus === 'struktur'));
+    modi?.markieren(z.modus === 'struktur' ? 'tab-struktur' : 'tab-eg');
     if (z.modus !== 'struktur') return;
     auswahl('s-vorgabe').value = wieVorgabe(s) ? s.vorgabe : '';
     eingabe('s-elemente').checked = s.elemente;
@@ -219,7 +220,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   // ---------------------------------------------------------------- Ereignisse
   function init() {
     baue();
-    knopf('tab-struktur').disabled = false;
+    modi = modusTabs(element('.tabs'), $('inhalt'));
     $('tab-eg').addEventListener('click', () => { z.modus = 'eg'; aktualisieren(); });
     $('tab-struktur').addEventListener('click', () => { z.modus = 'struktur'; aktualisieren(); });
     $('s-vorgabe').addEventListener('change', () => {
