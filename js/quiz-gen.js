@@ -181,7 +181,7 @@ export const PUNKTGRUPPE = {
       antworten: [r, ...ab].map(pgHTML),
       richtig: [0],
       hinweise: [null, ...ab.map((p) => hinweisPunktgruppe(g, r, p))],
-      erklaerung: g === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: <i>p</i>1 → 1.' : `Zellbuchstaben weglassen, <i>g</i> durch <i>m</i> ersetzen und Einsen weglassen: ${S(g)} → ${pgHTML(r)}.`,
+      erklaerung: `${regelPunktgruppe(g).slice(0, -1)}: ${S(g)} → ${pgHTML(r)}.`,
       skript: 'punktgruppe-system', app: `#m=eg&g=${g}`,
       quelle: 'Borchardt-Ott & Sowa (2018), Abschn. 10.2, Tab. 10.1',
     };
@@ -317,7 +317,7 @@ export const VERBAND = strukturGenerator({
   skript: 'mauerwerk',
   status: 'entwurf',
   // Die konventionelle Zelle ist hier zufällig quadratisch; das verleitet zu p4…
-  zusatz: { laeufer: 'Die hervorgehobene Zelle ist zufällig quadratisch; die Ziegel im Format 2 : 1 haben aber keine 4-zählige Drehung.' },
+  zusatz: { laeufer: 'Die hervorgehobene Zelle ist zufällig quadratisch; das Muster hat aber keine 4-zählige Drehung, das Gitter ist deshalb rechteckig zentriert.' },
 });
 
 export const PARKETT = strukturGenerator({
@@ -617,8 +617,8 @@ export const GLEIT_UNGENANNT = {
       frage: 'Welche dieser Ebenengruppen hat Gleitspiegellinien, obwohl ihr Symbol kein <i>g</i> enthält?',
       antworten: [g, ...ab].map(S),
       richtig: [0],
-      hinweise: [null, ...ab.map((x) => `${S(x)} hat ${MERKMALE[x]}.${MERKMALE[x].includes('Gleitspiegellinien') ? '' : ' Gleitspiegellinien hat es keine.'}`)],
-      erklaerung: `${S(g)} hat ${MERKMALE[g]}. Dazu kommen Gleitspiegellinien: Jede läuft parallel zu Spiegellinien, mitten zwischen zwei benachbarten${g === 'p4mm' ? ', bei <i>p</i>4<i>mm</i> nur in den beiden Diagonalrichtungen' : ''}. Sie folgen aus Spiegelungen und Translationen schräg zu den Spiegellinien; das Symbol nennt je Blickrichtung nur die Spiegellinie.`,
+      hinweise: [null, ...ab.map((x) => `${S(x)} hat ${MERKMALE[x]}.${MERKMALE[x].includes('Gleitspiegellinien') ? '' : ' Gleitspiegellinien hat sie keine.'}`)],
+      erklaerung: `${S(g)} hat ${MERKMALE[g]}. Die Gleitspiegellinien laufen parallel zu Spiegellinien, jede mitten zwischen zwei benachbarten${g === 'p4mm' ? ', bei <i>p</i>4<i>mm</i> nur in den beiden Diagonalrichtungen' : ''}. Sie folgen aus Spiegelungen und Translationen schräg zu den Spiegellinien; das Symbol nennt je Blickrichtung nur die Spiegellinie.`,
       skript: 'mehr-elemente', app: `#m=eg&g=${g}`,
       quelle: 'Borchardt-Ott & Sowa (2018), S. 206; Symmetrieelemente aus den Daten der App',
     };

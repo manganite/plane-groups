@@ -148,7 +148,7 @@ export function kachel(v, f, symbole = true) {
   /** @type {[(q: Vec2) => Vec2, boolean, Vec2][]} */
   const kopien = [];
   if (v === 'p2') {
-    for (let i = -3; i <= 4; i++) for (let j = -3; j <= 4; j++) {
+    for (let i = -2; i <= 3; i++) for (let j = -2; j <= 3; j++) {
       if ((i + j) % 2 === 0) kopien.push([(q) => [q[0] + i, q[1] + j], true, [i, j]]);
       else kopien.push([(q) => [2 - q[0] + i - 1, 1 - q[1] + j], false, [i, j]]);
     }

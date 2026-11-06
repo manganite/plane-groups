@@ -62,7 +62,7 @@ export function bildInhalt(angabe, f, opt = {}) {
   const { tafel, hash, k: gross, skizze } = zerlege(angabe);
   if (skizze) {
     if (!istSkizze(skizze)) return null;
-    const [zeichne, mitte, gross = K_SKIZZE] = SKIZZEN[skizze]; const k = gross;
+    const [zeichne, mitte, k = K_SKIZZE] = SKIZZEN[skizze];
     return `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(${k}) translate(-260 -${mitte})">${zeichne(f)}</g>`;
   }
   const z = startzustand();

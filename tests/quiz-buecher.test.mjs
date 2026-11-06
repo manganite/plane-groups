@@ -88,7 +88,7 @@ test('Gleitspiegellinien: Erklärung (parallel zu Spiegellinien, mitten zwischen
       if (g === 'p4mm') assert.ok(Math.abs(gl.richtung[0]) === Math.abs(gl.richtung[1]), 'p4mm: Gleitspiegellinie nicht diagonal');
     }
     // Hinweise sagen, dass der Ablenker keine Gleitspiegellinien hat
-    for (const h of GLEIT_UNGENANNT.make(g).hinweise.slice(1)) assert.match(text(/** @type {string} */ (h)), /keine (Spiegel- oder )?Gleitspiegellinien|Gleitspiegellinien hat es keine/, g);
+    for (const h of GLEIT_UNGENANNT.make(g).hinweise.slice(1)) assert.match(text(/** @type {string} */ (h)), /keine (Spiegel- oder )?Gleitspiegellinien|Gleitspiegellinien hat sie keine/, g);
   }
 });
 
