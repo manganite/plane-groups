@@ -6,7 +6,7 @@
 import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
-import { grad } from './zeichnung.js';
+import { grad, STRICH_GRENZE } from './zeichnung.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
@@ -83,6 +83,8 @@ export const FREI = {
 
 /** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). @type {Record<'ba' | 'gamma' | 'groesse', [number, number]>} */
 export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 1] };
+/** Höchste Nummer im Ablauf „Schritt für Schritt“ in Link und Speicher (die Anzeige begrenzt auf die Gruppe). */
+export const SCHRITT_GRENZE = 25;
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
 /** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. @type {[number, number]} */
@@ -188,22 +190,89 @@ const systemVon = (id) => /** @type {import('./ebenengruppen.js').Ebenengruppe} 
 /** Schlüssel eines erklärten Elements (herkunft.js), z. B. „4;1/2,1/2“ oder „m;1/4,0;0,1“. */
 export const ERKL_MUSTER = /^([2346];-?[\d/]+,-?[\d/]+|[mg];-?[\d/]+,-?[\d/]+;-?\d+,-?\d+)$/;
 
+/** Grenze für Koordinaten des Objekts und gezeichneter Striche (wie in der Link-Adresse). */
+const KOORD_GRENZE = 1e6;
+/** @param {unknown} p */
+const imFeld = (p) => zahlenpaar(p) && /** @type {number[]} */ (p).every((v) => Math.abs(v) <= KOORD_GRENZE);
+
 /**
- * Felder eines im Browser gespeicherten Zustands so prüfen wie die Link-Adresse: Der Speicher ist
- * Eingabe von aussen, und einige Felder gehen in HTML ein (z. B. aufbau in die Legende).
- * Ungültiges fällt auf den Startwert zurück. Die übrigen Felder prüft main.js beim Laden.
+ * Die eine Prüfung für Link und Speicher (Leitfaden Abschn. 5.2, crystallography-common#63): alle Felder
+ * mit ihren Abhängigkeiten, Ungültiges wird zum Startwert, nicht umgedeutet. ausSpeicher ruft sie für den
+ * Speicher des Browsers, hashAnwenden nach dem Lesen der Link-Adresse. Ändert z und gibt es zurück.
  * @param {Zustand} z
  */
-export function gespeichertPruefen(z) {
+export function zustandPruefen(z) {
   const s = startzustand();
+  if (!SYMBOLE.has(z.gruppe)) z.gruppe = s.gruppe;
+  if (z.modus !== 'eg' && z.modus !== 'struktur') z.modus = s.modus;
+  if (!imFeld(z.punkt)) z.punkt = s.punkt;
   for (const [, f] of SCHALTER) if (typeof z[f] !== 'boolean') z[f] = s[f];
   if (typeof z.warum !== 'boolean') z.warum = s.warum;
   if (!FORMEN.includes(z.form)) z.form = s.form;
   if (z.zellen !== 2) z.zellen = s.zellen;
   if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
   if (!Number.isInteger(z.aufbau) || z.aufbau < 0 || z.aufbau > 20) z.aufbau = s.aufbau;
+  if (!Number.isInteger(z.schritt) || z.schritt < 0 || z.schritt > SCHRITT_GRENZE) z.schritt = s.schritt;
+  if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = s.zoomB;
+  if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = s.objGroesse;
+  // Bedingungen der asymmetrischen Einheit: Nummern der Gruppe, ohne Doppelte, aufsteigend
+  const zahlTeile = /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === z.gruppe)).ae.text.split(';').length;
+  z.aeTeile = Array.isArray(z.aeTeile) ? [...new Set(z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile))].sort((x, y) => x - y) : [];
+  z.gitter = gitterPruefen(z.gitter);
+  // Brechen nur ausserhalb des schiefwinkligen Systems (dort ist nichts zu brechen), Metrik in FREI_BEREICH
+  const sys = systemVon(z.gruppe);
+  z.brechen = z.brechen === true && sys !== 'schiefwinklig';
+  /** @type {unknown} */
+  const fr = z.frei;
+  const s0 = z.brechen ? GITTER_START[sys] : s.frei;
+  z.frei = {
+    ba: istObjekt(fr) && imBereich(fr.ba, FREI_BEREICH.ba) ? /** @type {number} */ (fr.ba) : s0.ba,
+    gamma: grad(istObjekt(fr) && imBereich(fr.gamma, FREI_BEREICH.gamma) ? /** @type {number} */ (fr.gamma) : s0.gamma),
+  };
+  // Werkzeuge und gezeichnete Striche (nur im Speicher): Folgen von Punkten, höchstens STRICH_GRENZE
+  z.zeichnen = z.zeichnen === true;
+  z.radieren = z.radieren === true && !z.zeichnen;
+  z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(imFeld)) : [];
+  while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
+  z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
   return z;
 }
+
+/**
+ * Gitter je System wie in der Link-Adresse: Die freien Parameter des Systems (FREI) in GITTER_BEREICH,
+ * die übrigen auf den Startwert des Systems (Abhängigkeiten zwischen den Feldern, z. B. γ = 90° im
+ * rechteckigen System). Ungültiges oder Fehlendes wird zum Startwert (#96).
+ * @param {unknown} g @returns {Record<System, Gitter>}
+ */
+export function gitterPruefen(g) {
+  const roh = istObjekt(g) ? g : {};
+  const aus = /** @type {Record<System, Gitter>} */ (kopie(GITTER_START));
+  for (const sys of /** @type {System[]} */ (Object.keys(GITTER_START))) {
+    const e = roh[sys];
+    if (!istObjekt(e)) continue;
+    if (FREI[sys].includes('ba') && imBereich(e.ba, GITTER_BEREICH.ba)) aus[sys].ba = /** @type {number} */ (e.ba);
+    if (FREI[sys].includes('gamma') && imBereich(e.gamma, GITTER_BEREICH.gamma)) aus[sys].gamma = grad(/** @type {number} */ (e.gamma));
+  }
+  return aus;
+}
+
+/**
+ * Zustand aus dem Speicher des Browsers (JSON.parse von { v: 1, z }), geprüft mit zustandPruefen wie die
+ * Link-Adresse. Ohne gültigen Stand der Startzustand. Gegenstück: speicherStand.
+ * @param {unknown} gespeichert @returns {Zustand}
+ */
+export function ausSpeicher(gespeichert) {
+  const z = startzustand();
+  if (!istObjekt(gespeichert) || gespeichert.v !== 1 || !istObjekt(gespeichert.z)) return z;
+  // nur die Felder des Zustands (keine fremden Schlüssel, kein __proto__)
+  const g = gespeichert.z;
+  const ziel = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (z));
+  for (const k of Object.keys(z)) if (Object.hasOwn(g, k)) ziel[k] = g[k];
+  return zustandPruefen(z);
+}
+
+/** Stand für den Speicher des Browsers (Gegenstück zu ausSpeicher). @param {Zustand} z */
+export const speicherStand = (z) => ({ v: 1, z });
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
 /** @type {[string, Schalterfeld][]} */
@@ -329,13 +398,8 @@ export function hashVon(z) {
   return '#' + q.toString().replace(/%2F/g, '/').replace(/%3B/g, ';').replace(/%2C/g, ',');
 }
 
-/**
- * Link-Adresse auf einen Zustand anwenden. Unbekannte oder ungültige Werte werden ignoriert
- * (der Startwert bleibt). Gibt false zurück, wenn der Hash keinen Modus enthält.
- * @param {Zustand} z
- * @param {string} hash
- */
-export function hashAnwenden(z, hash) {
+/** Liest die Link-Adresse in z (ohne die gemeinsame Prüfung). @param {Zustand} z @param {string} hash @returns {boolean} */
+function hashLesen(z, hash) {
   const q = new URLSearchParams(String(hash).replace(/^#/, ''));
   if (!q.has('m')) return false;
   const s = startzustand();
@@ -373,7 +437,7 @@ export function hashAnwenden(z, hash) {
   if (erkl && ERKL_MUSTER.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
   if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
-  const schritt = zahl(q.get('schritt'), 0, 25);
+  const schritt = zahl(q.get('schritt'), 0, SCHRITT_GRENZE);
   if (schritt !== null && Number.isInteger(schritt)) z.schritt = schritt;
   // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
   const aet = q.get('aet');
@@ -394,5 +458,17 @@ export function hashAnwenden(z, hash) {
     const v = zahl(q.get(k), ...GITTER_BEREICH[k]);
     if (v !== null) z.gitter[sys][k] = grad(v); // ba oder gamma; grad() kennzeichnet nur
   }
+  return true;
+}
+
+/**
+ * Link-Adresse auf einen Zustand anwenden. Unbekannte oder ungültige Werte werden ignoriert
+ * (der Startwert bleibt). Gibt false zurück, wenn der Hash keinen Modus enthält.
+ * @param {Zustand} z
+ * @param {string} hash
+ */
+export function hashAnwenden(z, hash) {
+  if (!hashLesen(z, hash)) return false;
+  zustandPruefen(z); // dieselbe Prüfung wie für den Speicher, auch für Abhängigkeiten zwischen Feldern
   return true;
 }
