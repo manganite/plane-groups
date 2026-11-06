@@ -4,7 +4,7 @@ import { initHelp } from '../lib/common/js/help.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, element, elemente, grafik } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
-import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
+import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
 import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
@@ -163,11 +163,9 @@ function exportKnoepfe() {
 }
 
 // ------------------------------------------------------------------ Gruppenwahl
-/** @type {Record<System, string>} */
-const SYSTEMNAMEN = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
 function baueAuswahl() {
   const systeme = [...new Set(EBENENGRUPPEN.map((g) => g.system))];
-  $('picker').innerHTML = systeme.map((sys) => `<div class="sysrow"><span class="sys">${SYSTEMNAMEN[sys]}</span><div class="btns">${
+  $('picker').innerHTML = systeme.map((sys) => `<div class="sysrow"><span class="sys">${SYSTEME[sys].name}</span><div class="btns">${
     EBENENGRUPPEN.filter((g) => g.system === sys).map((g) => `<button class="pgb" type="button" data-g="${g.symbol}" aria-pressed="false" title="Nr. ${g.nr}, Punktgruppe ${g.punktgruppe}">${symbolHTML(g.symbol)}</button>`).join('')
   }</div></div>`).join('');
 }
@@ -416,13 +414,8 @@ function legende(f) {
 /** Tooltip zur Signatur nach Conway (Orbifold-Symbol). */
 const CONWAY_HINWEIS = 'Orbifold-Symbol nach Conway: * Spiegellinien (Kaleidoskop), Ziffern vor dem * Drehpunkte ohne Spiegellinie, Ziffern nach dem * Schnittpunkte von Spiegellinien, × eine spiegelbildliche Kopie ist erreichbar, ohne eine Spiegellinie zu überqueren, o nur Translationen';
 
-/** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
-/** @type {Record<string, string>} */
-const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
-/** @type {Record<string, string>} */
-const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
-/** @param {string} u */
-const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
+/** Ursprung als HTML: Text aus URSPRUNG (die Symbole m und g nach einem Leerzeichen kursiv, nicht das g in „beliebig“) oder Lage. @param {string} u */
+const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/ ([mg])\b/g, ' <i>$1</i>') : `auf ${lageHTML(u)}`);
 /** Bedingungen der asymmetrischen Einheit als Knöpfe: Tafel A zeigt, wo sie erfüllt sind. @param {Ebenengruppe} d */
 function aeBedingungen(d) {
   const teile = d.ae.text.split(';').map((t) => t.trim());
@@ -496,7 +489,7 @@ function kenndaten() {
   $('info').innerHTML = `
     <div class="info-head">
       <div class="hm-big">${symbolHTML(d.symbol)}</div>
-      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
+      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
     ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
     : herkunftAktiv() ? `<div class="warumbox" id="warumbox"><h3>Herkunft der Elemente</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
@@ -505,7 +498,7 @@ function kenndaten() {
     ${erklaerung ? '' : lagebox}
     <dl class="facts">
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
-      <div><dt>Kristallsystem</dt><dd>${SYSTEMNAMEN[d.system]}</dd></div>
+      <div><dt>Kristallsystem</dt><dd>${SYSTEME[d.system].name}</dd></div>
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
       <div><dt>Punktgruppe</dt><dd>${pgLink} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
       <div><dt>Signatur nach Conway</dt><dd title="${CONWAY_HINWEIS}">${CONWAY[d.symbol]}</dd></div>

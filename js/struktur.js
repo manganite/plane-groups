@@ -11,6 +11,7 @@ import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
 import { vektorText } from './warum.js';
 import { koordText, lageHTML, symbolHTML } from './text.js';
 import { schoenfliesHTML } from './symbole.js';
+import { SYSTEME, BRAVAIS } from './ebenengruppen.js';
 
 /** @import { Vec2, Mat2, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Metrik, Ansicht, Farben } from './zeichnung.js' */
@@ -23,10 +24,6 @@ import { schoenfliesHTML } from './symbole.js';
  * @typedef {{ elemente?: boolean, zelle?: boolean, ae?: boolean, bindungen?: boolean, farben?: boolean, k?: number }} Anzeige
  */
 
-/** @type {Record<System, string>} */
-const SYSTEMNAMEN = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
-/** @type {Record<string, string>} */
-const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
 
 /** Farben der Atomsorten (Motivfarben). */
 /** @param {Farben} f */
@@ -327,7 +324,7 @@ export function strukturHTML(st, r, vorher, farben) {
   return `
     <div class="info-head">
       <div class="hm-big">${symbolHTML(r.symbol)}</div>
-      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEMNAMEN[d.system]}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button></span></div>
+      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button></span></div>
     </div>
     ${aenderung}
     <dl class="facts">

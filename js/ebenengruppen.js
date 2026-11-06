@@ -47,6 +47,12 @@ export const SYSTEME = {
   hexagonal: { name: 'hexagonal', ita: 'hexagonal' },
 };
 
+/** Bravais-Gitter der Ebene: Symbol wie im Feld bravais (mp, op, …) → Name. @type {Record<string, string>} */
+export const BRAVAIS = { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' };
+
+/** Lage des Ursprungs, soweit sie nicht eine Wyckoff-Lage ist (Feld ursprung; main.js setzt die Symbole m und g kursiv). @type {Record<string, string>} */
+export const URSPRUNG = { beliebig: 'beliebig', '21g': 'auf 2 1 g', '41g': 'auf 4 1 g' };
+
 /** @type {Vec2[]} */
 const ZENTRIERUNG_C = [[0, 0], [1 / 2, 1 / 2]];
 

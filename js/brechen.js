@@ -8,6 +8,7 @@ import { bestimme } from './bestimmung.js';
 import { elementSchluessel } from './herkunft.js';
 import { vektorText } from './warum.js';
 import { dezimal, richtungHTML } from './text.js';
+import { SYSTEME } from './ebenengruppen.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Gruppe } from './symmetrie.js' */
@@ -19,8 +20,6 @@ import { dezimal, richtungHTML } from './text.js';
  * @typedef {{ bleibt: import('./symmetrie.js').Op[], weg: import('./symmetrie.js').Op[], ergebnis: Bestimmung | null, drehWeg: { n: number, neu: number }[], linienWeg: { art: 'spiegel' | 'gleit', richtung: Vec2 }[], bahnen: number }} Brechanalyse
  */
 
-/** @type {Record<System, string>} */
-const SYSTEME = { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' };
 /** @param {number} v */
 const komma = (v, n = 2) => dezimal(v, n, { kuerzen: true });
 const richtung = richtungHTML;
@@ -73,7 +72,7 @@ export function brechHTML(daten, frei, an) {
   const N = an.bleibt.length + an.weg.length;
   const kopf = `<h3>Symmetrie brechen: <i>b</i>/<i>a</i> = ${komma(frei.ba)}, γ = ${komma(frei.gamma, 1)}°</h3>`;
   if (!an.weg.length) {
-    return `${kopf}<p>Diese Metrik passt noch zum Kristallsystem ${SYSTEME[daten.system]} von ${kursiv(daten.symbol)}: Alle ${N} Operationen je Zelle bleiben, die Symmetrie ist unverändert. Erst wenn <i>b</i>/<i>a</i> oder γ die Bindung des Systems verlassen, fallen Symmetrieelemente weg.</p>`;
+    return `${kopf}<p>Diese Metrik passt noch zum Kristallsystem ${SYSTEME[daten.system].name} von ${kursiv(daten.symbol)}: Alle ${N} Operationen je Zelle bleiben, die Symmetrie ist unverändert. Erst wenn <i>b</i>/<i>a</i> oder γ die Bindung des Systems verlassen, fallen Symmetrieelemente weg.</p>`;
   }
   const r = an.ergebnis;
   /** @type {string[]} */
@@ -85,8 +84,8 @@ export function brechHTML(daten, frei, an) {
   if (scharen('gleit').length) teile.push(`die Gleitspiegellinien entlang ${scharen('gleit').join(', ')}`);
   const zelle = r ? zellText(r.zelle) : null;
   return `${kopf}
-    <p>Das Gitter passt nicht mehr zum Kristallsystem ${SYSTEME[daten.system]}. Es bleiben nur die Operationen, deren Drehung oder Spiegelung die neuen Längen und Winkel erhält: <strong>${an.bleibt.length} von ${N}</strong> je Zelle.</p>
-    ${r ? `<p>Verbleibende Symmetrie: <strong>${kursiv(r.symbol)}</strong> (${SYSTEME[r.system]}), eine Untergruppe von ${kursiv(daten.symbol)}.${zelle ? ` Ihre konventionelle Zelle nach ITA: ${zelle}.` : ''}</p>` : ''}
+    <p>Das Gitter passt nicht mehr zum Kristallsystem ${SYSTEME[daten.system].name}. Es bleiben nur die Operationen, deren Drehung oder Spiegelung die neuen Längen und Winkel erhält: <strong>${an.bleibt.length} von ${N}</strong> je Zelle.</p>
+    ${r ? `<p>Verbleibende Symmetrie: <strong>${kursiv(r.symbol)}</strong> (${SYSTEME[r.system].name}), eine Untergruppe von ${kursiv(daten.symbol)}.${zelle ? ` Ihre konventionelle Zelle nach ITA: ${zelle}.` : ''}</p>` : ''}
     <p>Weggefallen: ${teile.join('; ')}. Das Symmetriegerüst zeigt nur noch, was bleibt${r && r.symbol !== daten.symbol ? '; die Färbung nach Blickrichtung ist aus, weil die Restgruppe eine andere Aufstellung hat' : ''}.</p>
     ${an.bahnen > 1 ? `<p>Die ${N} Bilder des Objekts je Zelle zerfallen in <strong>${an.bahnen} Bahnen</strong> der Restsymmetrie (Farben): Bilder verschiedener Farbe sind nicht mehr gleichwertig. Keine verbleibende Operation führt sie ineinander über.</p>` : ''}`;
 }
