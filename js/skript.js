@@ -64,7 +64,7 @@ function appTafel(fig, f) {
   }
   // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
   const k = /[#&]og=/.test(app) ? 1 : symbolGroesse(fig, b);
-  return b ? tafelB(z.gruppe, z, f, { k }).svg : tafelA(z.gruppe, z, f, { k }).svg;
+  return b ? tafelB(z.gruppe, z, f, { k, tapeteElemente: fig.dataset.elemente === '1' }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
 
 // ------------------------------------------------------------------ Skizzen
