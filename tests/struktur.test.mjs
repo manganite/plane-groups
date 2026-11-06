@@ -219,14 +219,15 @@ test('Link-Adresse: Vorgabe kurz, veränderte Struktur ausgeschrieben, hin und z
 test('Basis als Text: ungültige Einträge fallen weg', () => {
   const b = liesBasis('atom,0,0,0,0;gibtsnicht,0,0,0,0;atom,7,0,0,0;atom,1,x,0,0;fahne,3,1/3,2/3,-45,1.5;fahne,3,1/3,2/3,-45,0.1');
   assert.equal(b.length, 3);
-  assert.equal(b[1].groesse, undefined, 'Grösse ausserhalb des Bereichs: Standard');
+  assert.equal(b[1].groesse, 1, 'Grösse ausserhalb des Bereichs: nächster gültiger Wert (Leitfaden 5.2)');
   assert.equal(b[2].groesse, 0.1);
   assert.equal(basisText([{ motiv: 'atom', farbe: 0, p: [1 / 3, 2 / 3], winkel: grad(0), groesse: 0.045 }]), 'atom,0,1/3,2/3,0');
 });
 
 test('Struktur aus dem Speicher prüfen', () => {
   assert.equal(pruefeStruktur(null), null);
-  assert.equal(pruefeStruktur({ ba: 5, gamma: 90, basis: [] }), null);
+  assert.equal(pruefeStruktur({ ba: 'x', gamma: 90, basis: [] }), null);
+  assert.equal(pruefeStruktur({ ba: 5, gamma: 90, basis: [] })?.ba, 2, 'ausserhalb: nächster gültiger Wert');
   const s = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'x', ba: 1, gamma: 90, basis: [{ motiv: 'atom', p: [0.1, 0.2] }, { motiv: 'atom', p: [NaN, 0] }, { motiv: 'böse', p: [0, 0] }], ae: 'ja' }));
   assert.equal(s.basis.length, 1);
   assert.equal(s.vorgabe, 'dreieck1');

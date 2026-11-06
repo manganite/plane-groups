@@ -71,7 +71,9 @@ test('Tafeln und Link-Adresse', () => {
   assert.equal(z2.brechen, true);
   assert.deepEqual(z2.frei, { ba: 1.2, gamma: 90 });
   hashAnwenden(z2, '#m=eg&g=p4mm&brechen=1&ba=9');
-  assert.deepEqual(z2.frei, GITTER_START.quadratisch, 'ungültig: Metrik des Systems');
+  assert.deepEqual(z2.frei, { ba: 2, gamma: 90 }, 'ausserhalb des Bereichs: nächster gültiger Wert (Leitfaden 5.2)');
+  hashAnwenden(z2, '#m=eg&g=p4mm&brechen=1&ba=x');
+  assert.deepEqual(z2.frei, GITTER_START.quadratisch, 'keine Zahl: Metrik des Systems');
   // im schiefwinkligen System gibt es nichts zu brechen
   hashAnwenden(z2, '#m=eg&g=p2&brechen=1&ba=1.3&gamma=80');
   assert.equal(z2.brechen, false);

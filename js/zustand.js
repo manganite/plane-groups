@@ -160,7 +160,8 @@ const B = (v) => (v ? '1' : '0');
 /** @param {string | null} s */
 const an = (s) => s === '1' || s === 'ja' || s === 'true';
 /**
- * Zahl aus der Adresse („0.25“ oder Bruch „1/3“); fehlend, leer oder ausserhalb [lo, hi]: null.
+ * Zahl aus der Adresse („0.25“ oder Bruch „1/3“); fehlend, leer oder ausserhalb [lo, hi]: null. Für
+ * Auswahlen (schritt, aufbau, Farbe) und Schutzgrenzen (Koordinaten); Regler: zahlBegrenzt.
  * @param {string | null | undefined} s @param {number} lo @param {number} hi
  * @returns {number | null}
  */
@@ -169,6 +170,16 @@ function zahl(s, lo, hi) {
   const m = String(s).trim().match(/^(-?\d+)\/(\d+)$/);
   const v = m ? Number(m[1]) / Number(m[2]) : Number(s);
   return Number.isFinite(v) && v >= lo && v <= hi ? v : null;
+}
+/**
+ * Zahl aus der Adresse wie zahl(), aber ausserhalb [lo, hi] auf den nächsten gültigen Wert gesetzt (Leitfaden
+ * Abschn. 5.2); fehlend, leer oder keine Zahl: null. Für Werte auf einer stetigen Skala (Regler).
+ * @param {string | null | undefined} s @param {number} lo @param {number} hi
+ * @returns {number | null}
+ */
+function zahlBegrenzt(s, lo, hi) {
+  const v = zahl(s, -Infinity, Infinity);
+  return v === null ? null : Math.min(hi, Math.max(lo, v));
 }
 /** @param {number} v @param {number} [n] */
 const kurz = (v, n = 4) => String(Number(v.toFixed(n)));
@@ -197,7 +208,9 @@ const imFeld = (p) => zahlenpaar(p) && /** @type {number[]} */ (p).every((v) => 
 
 /**
  * Die eine Prüfung für Link und Speicher (Leitfaden Abschn. 5.2, crystallography-common#63): alle Felder
- * mit ihren Abhängigkeiten, Ungültiges wird zum Startwert, nicht umgedeutet. ausSpeicher ruft sie für den
+ * mit ihren Abhängigkeiten. Zahlen auf einer stetigen Skala (Regler) ausserhalb ihres Bereichs werden auf den
+ * nächsten gültigen Wert gesetzt; alles andere Ungültige wird zum Startwert, auch ganzzahlige Auswahlen
+ * (schritt, aufbau) und Koordinaten jenseits der Schutzgrenze. ausSpeicher ruft sie für den
  * Speicher des Browsers, hashAnwenden nach dem Lesen der Link-Adresse. Ändert z und gibt es zurück.
  * @param {Zustand} z
  */
@@ -213,8 +226,8 @@ export function zustandPruefen(z) {
   if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
   if (!Number.isInteger(z.aufbau) || z.aufbau < 0 || z.aufbau > 20) z.aufbau = s.aufbau;
   if (!Number.isInteger(z.schritt) || z.schritt < 0 || z.schritt > SCHRITT_GRENZE) z.schritt = s.schritt;
-  if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = s.zoomB;
-  if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = s.objGroesse;
+  z.zoomB = begrenzt(z.zoomB, ZOOM_BEREICH) ?? s.zoomB;
+  z.objGroesse = begrenzt(z.objGroesse, OBJ_BEREICH) ?? s.objGroesse;
   // Bedingungen der asymmetrischen Einheit: Nummern der Gruppe, ohne Doppelte, aufsteigend
   const zahlTeile = /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === z.gruppe)).ae.text.split(';').length;
   z.aeTeile = Array.isArray(z.aeTeile) ? [...new Set(z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile))].sort((x, y) => x - y) : [];
@@ -226,8 +239,8 @@ export function zustandPruefen(z) {
   const fr = z.frei;
   const s0 = z.brechen ? GITTER_START[sys] : s.frei;
   z.frei = {
-    ba: istObjekt(fr) && imBereich(fr.ba, FREI_BEREICH.ba) ? /** @type {number} */ (fr.ba) : s0.ba,
-    gamma: grad(istObjekt(fr) && imBereich(fr.gamma, FREI_BEREICH.gamma) ? /** @type {number} */ (fr.gamma) : s0.gamma),
+    ba: (istObjekt(fr) ? begrenzt(fr.ba, FREI_BEREICH.ba) : null) ?? s0.ba,
+    gamma: grad((istObjekt(fr) ? begrenzt(fr.gamma, FREI_BEREICH.gamma) : null) ?? s0.gamma),
   };
   // Werkzeuge und gezeichnete Striche (nur im Speicher): Folgen von Punkten, höchstens STRICH_GRENZE
   z.zeichnen = z.zeichnen === true;
@@ -241,7 +254,8 @@ export function zustandPruefen(z) {
 /**
  * Gitter je System wie in der Link-Adresse: Die freien Parameter des Systems (FREI) in GITTER_BEREICH,
  * die übrigen auf den Startwert des Systems (Abhängigkeiten zwischen den Feldern, z. B. γ = 90° im
- * rechteckigen System). Ungültiges oder Fehlendes wird zum Startwert (#96).
+ * rechteckigen System). Werte ausserhalb des Bereichs: nächster gültiger Wert; keine Zahl oder fehlend:
+ * Startwert (#96, Leitfaden Abschn. 5.2).
  * @param {unknown} g @returns {Record<System, Gitter>}
  */
 export function gitterPruefen(g) {
@@ -250,8 +264,9 @@ export function gitterPruefen(g) {
   for (const sys of /** @type {System[]} */ (Object.keys(GITTER_START))) {
     const e = roh[sys];
     if (!istObjekt(e)) continue;
-    if (FREI[sys].includes('ba') && imBereich(e.ba, GITTER_BEREICH.ba)) aus[sys].ba = /** @type {number} */ (e.ba);
-    if (FREI[sys].includes('gamma') && imBereich(e.gamma, GITTER_BEREICH.gamma)) aus[sys].gamma = grad(/** @type {number} */ (e.gamma));
+    const ba = begrenzt(e.ba, GITTER_BEREICH.ba); const gamma = begrenzt(e.gamma, GITTER_BEREICH.gamma);
+    if (FREI[sys].includes('ba') && ba !== null) aus[sys].ba = ba;
+    if (FREI[sys].includes('gamma') && gamma !== null) aus[sys].gamma = grad(gamma);
   }
   return aus;
 }
@@ -294,7 +309,7 @@ export function liesBasis(text) {
     const [motiv, farbe, x, y, winkel, groesse] = teil.split(',');
     if (!Object.hasOwn(MOTIVE, motiv ?? '')) continue;
     const f = zahl(farbe, 0, 3); const px = zahl(x, -1e3, 1e3); const py = zahl(y, -1e3, 1e3);
-    const w = zahl(winkel ?? '0', -720, 720) ?? 0; const gr = groesse === undefined ? null : zahl(groesse, ...STRUKTUR_BEREICH.groesse);
+    const w = zahl(winkel ?? '0', -720, 720) ?? 0; const gr = groesse === undefined ? null : zahlBegrenzt(groesse, ...STRUKTUR_BEREICH.groesse);
     if (f === null || !Number.isInteger(f) || px === null || py === null) continue;
     /** @type {Basiseintrag} */
     const e = { motiv, farbe: f, p: [px, py], winkel: grad(w) };
@@ -309,6 +324,8 @@ export function liesBasis(text) {
 export const istObjekt = (x) => typeof x === 'object' && x !== null;
 /** Endliche Zahl im Bereich. @param {unknown} v @param {[number, number]} bereich @returns {v is number} */
 export const imBereich = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
+/** Endliche Zahl auf den Bereich gesetzt (nächster gültiger Wert, Leitfaden Abschn. 5.2), sonst null. @param {unknown} v @param {[number, number]} bereich */
+export const begrenzt = (v, [lo, hi]) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : null);
 /** Paar endlicher Zahlen. @param {unknown} p @returns {p is Vec2} */
 export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
 
@@ -320,17 +337,18 @@ export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(N
  */
 export function pruefeStruktur(st) {
   if (!istObjekt(st) || !Array.isArray(st.basis)) return null;
-  const { ba, gamma } = st;
-  if (!imBereich(ba, STRUKTUR_BEREICH.ba) || !imBereich(gamma, STRUKTUR_BEREICH.gamma)) return null;
+  const ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba); const gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma);
+  if (ba === null || gamma === null) return null;
   /** @type {Basiseintrag[]} */
   const basis = [];
   for (const e of /** @type {unknown[]} */ (st.basis)) {
     if (basis.length >= BASIS_GRENZE) break;
     if (!istObjekt(e)) continue;
-    const { motiv, p, groesse } = e, farbe = e.farbe ?? 0, winkel = e.winkel ?? 0;
+    const { motiv, p } = e, farbe = e.farbe ?? 0, winkel = e.winkel ?? 0;
+    const groesse = e.groesse === undefined ? undefined : begrenzt(e.groesse, STRUKTUR_BEREICH.groesse);
     if (typeof motiv !== 'string' || !Object.hasOwn(MOTIVE, motiv) || !zahlenpaar(p)) continue;
     if (typeof farbe !== 'number' || ![0, 1, 2, 3].includes(farbe) || typeof winkel !== 'number' || !Number.isFinite(winkel)) continue;
-    if (groesse !== undefined && !imBereich(groesse, STRUKTUR_BEREICH.groesse)) continue;
+    if (groesse === null) continue;
     basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(winkel), ...(groesse === undefined ? {} : { groesse }) });
   }
   const { vorgabe } = st;
@@ -413,12 +431,12 @@ function hashLesen(z, hash) {
     const st = strukturStart(VORGABEN.some((v) => v.id === q.get('v')) ? /** @type {string} */ (q.get('v')) : STRUKTUR_START);
     if (q.has('basis')) {
       st.basis = liesBasis(/** @type {string} */ (q.get('basis')));
-      st.ba = zahl(q.get('ba'), ...STRUKTUR_BEREICH.ba) ?? 1;
-      st.gamma = grad(zahl(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? 90);
+      st.ba = zahlBegrenzt(q.get('ba'), ...STRUKTUR_BEREICH.ba) ?? 1;
+      st.gamma = grad(zahlBegrenzt(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? 90);
     }
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
     z.struktur = st;
-    z.zoomB = zahl(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+    z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
     return true;
   }
   const g = q.get('g');
@@ -428,8 +446,8 @@ function hashLesen(z, hash) {
   z.punkt = [x ?? s.punkt[0], y ?? s.punkt[1]];
   for (const [k, f] of SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
   if (q.get('zellen') === '2') z.zellen = 2;
-  z.zoomB = zahl(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
-  z.objGroesse = zahl(q.get('og'), ...OBJ_BEREICH) ?? s.objGroesse;
+  z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+  z.objGroesse = zahlBegrenzt(q.get('og'), ...OBJ_BEREICH) ?? s.objGroesse;
   const form = q.get('form');
   if (form !== null && FORMEN.includes(form)) z.form = form;
   if (q.has('warum')) z.warum = an(q.get('warum'));
@@ -451,11 +469,11 @@ function hashLesen(z, hash) {
   if (an(q.get('brechen') ?? '') && sys !== 'schiefwinklig') {
     z.brechen = true;
     const s0 = GITTER_START[sys];
-    z.frei = { ba: zahl(q.get('ba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: grad(zahl(q.get('gamma'), ...FREI_BEREICH.gamma) ?? s0.gamma) };
+    z.frei = { ba: zahlBegrenzt(q.get('ba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: grad(zahlBegrenzt(q.get('gamma'), ...FREI_BEREICH.gamma) ?? s0.gamma) };
     return true;
   }
   for (const k of FREI[sys]) {
-    const v = zahl(q.get(k), ...GITTER_BEREICH[k]);
+    const v = zahlBegrenzt(q.get(k), ...GITTER_BEREICH[k]);
     if (v !== null) z.gitter[sys][k] = grad(v); // ba oder gamma; grad() kennzeichnet nur
   }
   return true;
