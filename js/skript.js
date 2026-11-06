@@ -14,6 +14,7 @@ import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktu
 import { MOTIVE } from './motive.js';
 import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe, kachel, flussdiagramm } from './skizzen.js';
 import { FLUSSDIAGRAMM, LEITFRAGEN } from './bestimmen.js';
+import { gruppe, anwenden, elemente as symmetrieElemente } from './symmetrie.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Ansicht, Farben, Box } from './zeichnung.js' */
@@ -268,8 +269,61 @@ function spurenSkizze(fig, f) {
   return svg.join('');
 }
 
+/**
+ * Merkmale nach Conway (Kap. 9) an einem Ornamentmuster: die Tapete der App mit ihren Symmetrieelementen
+ * (data-app wie bei einer Abbildung der App, mit tap=1 und mel=1), darüber die Merkmale wie bei Conway:
+ * blau Drehpunkte ohne Spiegellinie und Wanderung, rot Kaleidoskop-Ecken und Wunder.
+ * data-variante: '4*2' (p4gm), '*x' (cm) oder 'o' (p1).
+ * @param {HTMLElement} fig @param {SkriptFarben} f
+ */
+function conwaySkizze(fig, f) {
+  const z = zustandVon(/** @type {string} */ (fig.dataset.app));
+  const r = tafelB(z.gruppe, z, f, { k: 1, tapeteElemente: true });
+  const A = r.ansicht;
+  // eine Markierungsfarbe, deutlich verschieden vom Blau der Motive
+  const farbe = f.accent2;
+  /** @typedef {import('../lib/common/js/typen.js').Vec2} Vec2 */
+  /** @param {Vec2} p */
+  const bild = (p) => A.zuBild(p);
+  /** Beschriftung mit Halo in Papierfarbe. @param {Vec2} b Bildpunkt @param {string} t */
+  const schrift = (b, t) => `<text x="${f2(b[0])}" y="${f2(b[1])}" font-family="IBM Plex Sans, sans-serif" font-size="38" font-weight="700" fill="${farbe}" stroke="${f.paper}" stroke-width="7" paint-order="stroke" text-anchor="middle" dominant-baseline="middle">${t}</text>`;
+  /** Ring um einen Punkt mit Beschriftung oben rechts. @param {Vec2} p @param {string} t */
+  const ring = (p, t) => { const b = bild(p); return `<circle cx="${f2(b[0])}" cy="${f2(b[1])}" r="16" fill="none" stroke="${farbe}" stroke-width="3.5"/>${schrift([b[0] + 30, b[1] - 24], t)}`; };
+  /** Punkt (Motiv als Anfang oder Ende eines Wegs). @param {Vec2} p */
+  const punkt = (p) => { const b = bild(p); return `<circle cx="${f2(b[0])}" cy="${f2(b[1])}" r="7" fill="${farbe}" stroke="${f.paper}" stroke-width="2"/>`; };
+  /** Weg von p nach q (gepunktet). @param {Vec2} p @param {Vec2} q */
+  const weg = (p, q) => { const [a, b] = [bild(p), bild(q)]; return `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="${farbe}" stroke-width="4" stroke-dasharray="1 8" stroke-linecap="round"/>${punkt(p)}${punkt(q)}`; };
+  /** Stück einer Spiegellinie hervorgehoben. @param {Vec2} p @param {Vec2} q */
+  const spiegel = (p, q) => { const [a, b] = [bild(p), bild(q)]; return `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="${farbe}" stroke-width="7" stroke-opacity="0.75" stroke-linecap="round"/>`; };
+  /** Beschriftung seitlich der Mitte von p–q, um d Pixel. @param {Vec2} p @param {Vec2} q @param {number} d @param {string} t */
+  const seitlich = (p, q, d, t) => {
+    const [a, b] = [bild(p), bild(q)]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    return schrift([(a[0] + b[0]) / 2 - d * (b[1] - a[1]) / l, (a[1] + b[1]) / 2 + d * (b[0] - a[0]) / l], t);
+  };
+  const g = gruppe(z.gruppe);
+  const teile = [r.svg];
+  const v = fig.dataset.variante;
+  if (v === '4*2') {
+    // Kreisel: 4-zähliger Drehpunkt auf keiner Spiegellinie; Kaleidoskop: Ecke zweier Spiegellinien (2-zählig)
+    const e = symmetrieElemente(g);
+    /** Drehpunkt der Zähligkeit n nahe der Zellmitte. @param {number} n @returns {Vec2} */
+    const nahe = (n) => /** @type {Vec2} */ (e.drehpunkte.filter((d) => d.n === n)
+      .sort((a, b) => Math.hypot(a.punkt[0] - 0.5, a.punkt[1] - 0.5) - Math.hypot(b.punkt[0] - 0.5, b.punkt[1] - 0.5))[0].punkt);
+    teile.push(ring(nahe(4), '4'), ring(nahe(2), '*2'));
+  } else if (v === '*x') {
+    // Kaleidoskop: eine Spiegellinie; Wunder: Weg vom Motiv zu seinem Spiegelbild, der keine Spiegellinie kreuzt
+    const p = z.punkt; const q = anwenden(g.alle[3], p);
+    teile.push(spiegel([1, 0.15], [1, 0.95]), seitlich([1, 0.15], [1, 0.95], 26, '*'), weg(p, q), seitlich(p, q, 26, '×'));
+  } else if (v === 'o') {
+    // Wanderung: zwei Wege zu verschobenen Kopien, ohne Spiegelung und Drehung
+    const p = z.punkt;
+    teile.push(weg(p, [p[0] + 1, p[1]]), weg(p, [p[0], p[1] + 1]), schrift(bild([p[0] + 0.5, p[1] + 0.5]), 'o'));
+  }
+  return teile.join('');
+}
+
 /** @type {Record<string, (fig: HTMLElement, f: SkriptFarben) => string>} */
-const SKIZZEN = { kachel: (fig, f) => kachel(fig.dataset.variante || 'p1', f), dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(/** @type {'2mm' | '4mm' | '6mm'} */ (fig.dataset.pg), f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze,
+const SKIZZEN = { conway: conwaySkizze, kachel: (fig, f) => kachel(fig.dataset.variante || 'p1', f), dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(/** @type {'2mm' | '4mm' | '6mm'} */ (fig.dataset.pg), f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze,
   // Flussdiagramm (Kap. 8): Grösse aus der Zeichnung
   fluss: (fig, f) => { const r = flussdiagramm(FLUSSDIAGRAMM, LEITFRAGEN, f); fig.dataset.viewbox = `0 0 ${r.breite} ${r.hoehe}`; return r.svg; } };
 
