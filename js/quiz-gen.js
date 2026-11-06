@@ -135,6 +135,13 @@ const PG_ABLENKER = {
 };
 /** @param {string} p */
 const ohneSpiegel = (p) => p.replace(/m/g, '') || '1';
+/** Weg vom Symbol zur Punktgruppe, nur mit den Schritten, die das Symbol braucht. @param {string} symbol */
+export function regelPunktgruppe(symbol) {
+  const einsen = /1/.test(symbol.slice(1)) && symbol !== 'p1';
+  const g = symbol.includes('g');
+  if (!einsen && !g) return `Für ${S(symbol)} lässt man nur den Zellbuchstaben weg.`;
+  return `Für ${S(symbol)} lässt man den Zellbuchstaben${einsen ? ' und die 1' : ''} weg${g ? ' und liest <i>g</i> als <i>m</i>' : ''}.`;
+}
 /** Typischer Fehler hinter einer falschen Punktgruppe. @param {string} symbol @param {string} richtig @param {string} falsch */
 function hinweisPunktgruppe(symbol, richtig, falsch) {
   if (falsch === ohneSpiegel(richtig)) {
@@ -142,11 +149,11 @@ function hinweisPunktgruppe(symbol, richtig, falsch) {
       ? 'Das wäre die Punktgruppe ohne Spiegellinien. Ein <i>g</i> im Symbol zählt für die Punktgruppe wie ein <i>m</i>: Ohne ihre Verschiebung ist die Gleitspiegelung eine Spiegelung.'
       : 'Das wäre die Punktgruppe ohne Spiegellinien. Jedes <i>m</i> im Symbol gehört auch zur Punktgruppe.';
   }
-  return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. ${symbol === 'p1' ? 'Bei <i>p</i>1 lässt man nur den Zellbuchstaben weg: 1.' : `Für ${S(symbol)} lässt man den Zellbuchstaben und die Einsen weg und liest <i>g</i> als <i>m</i>.`}`;
+  return `Die Punktgruppe ${pgHTML(falsch)} hat ${PG_TEXT[falsch]}. ${regelPunktgruppe(symbol)}`;
 }
 /** @satisfies {Generator} */
 export const PUNKTGRUPPE = {
-  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'geprüft',
+  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'entwurf',
   params: () => ALLE.flatMap((g) => [`${g}:pg`, `${g}:sys`]),
   make(param) {
     const [g, art] = param.split(':');
@@ -261,10 +268,11 @@ export const LAGE = {
 /**
  * Generator: Vorgaben der genannten Gruppen (ohne die in ohne) → Ebenengruppe; Ablenker ohne die in ausser.
  * @param {{ id: string, kapitel: number, gruppen: string[], ohne?: string[], ausser?: string[], frage: string, bindungen?: boolean,
- *   zoom?: (vid: string) => number, lernziel: string, skript: string, stufen?: Stufe[], status?: Status }} optionen
+ *   zoom?: (vid: string) => number, lernziel: string, skript: string, stufen?: Stufe[], status?: Status,
+ *   zusatz?: Record<string, string> }} optionen
  * @returns {Generator}
  */
-function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript, stufen = [2], status = 'geprüft' }) {
+function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage, bindungen = false, zoom = () => 1, lernziel, skript, stufen = [2], status = 'geprüft', zusatz = {} }) {
   const vorgaben = VORGABEN.filter((v) => gruppen.includes(v.gruppe) && !ohne.includes(v.id));
   return {
     id, kapitel, stufen, status,
@@ -282,7 +290,7 @@ function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage
         antworten: [g, ...ab].map(S),
         richtig: [0],
         hinweise: [null, ...ab.map(hinweisGruppe)],
-        erklaerung: `Das Muster hat ${S(g)}: ${MERKMALE[g]}.`,
+        erklaerung: `Das Muster hat ${S(g)}: ${MERKMALE[g]}.${zusatz[vid] ? ` ${zusatz[vid]}` : ''}`,
         skript, app: `#m=struktur&v=${vid}${zz}`,
         quelle: 'Symmetriebestimmung der App (Vorgaben im Modus „Gitter und Basis“)',
       };
@@ -307,6 +315,9 @@ export const VERBAND = strukturGenerator({
   frage: 'Welche Ebenengruppe hat der Verband? Alle Steine sind gleich; hervorgehoben ist eine Elementarzelle.',
   lernziel: 'an Mauerwerk und Pflaster zeigen, wie der Versatz der Reihen die Symmetrie ändert, und die Ebenengruppen der Beispiele im Bild nachvollziehen',
   skript: 'mauerwerk',
+  status: 'entwurf',
+  // Die konventionelle Zelle ist hier zufällig quadratisch; das verleitet zu p4…
+  zusatz: { laeufer: 'Die hervorgehobene Zelle ist zufällig quadratisch; die Ziegel im Format 2 : 1 haben aber keine 4-zählige Drehung.' },
 });
 
 export const PARKETT = strukturGenerator({
@@ -596,7 +607,7 @@ export const OHNE_GLEIT = ALLE.filter((g) => !linienArten(g).g);
 const NAEHE = { cm: ['pm', 'p2mm', 'p1'], c2mm: ['p2mm', 'pm', 'p2'], p4mm: ['p4', 'p2mm', 'pm'], p3m1: ['p3', 'p6', 'pm'], p31m: ['p3', 'p6', 'p2mm'], p6mm: ['p6', 'p3', 'p2mm'] };
 /** @satisfies {Generator} */
 export const GLEIT_UNGENANNT = {
-  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'geprüft',
+  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'entwurf',
   params: () => MIT_GLEIT,
   make(g) {
     const ab = (NAEHE[g] || OHNE_GLEIT).filter((x) => OHNE_GLEIT.includes(x)).slice(0, 3);
@@ -606,8 +617,8 @@ export const GLEIT_UNGENANNT = {
       frage: 'Welche dieser Ebenengruppen hat Gleitspiegellinien, obwohl ihr Symbol kein <i>g</i> enthält?',
       antworten: [g, ...ab].map(S),
       richtig: [0],
-      hinweise: [null, ...ab.map((x) => `${S(x)} hat ${MERKMALE[x]}.`)],
-      erklaerung: `${S(g)} hat ${MERKMALE[g]}. Die Gleitspiegellinien folgen aus Spiegelungen und Translationen schräg zu den Spiegellinien; das Symbol nennt je Blickrichtung nur die Spiegellinie.`,
+      hinweise: [null, ...ab.map((x) => `${S(x)} hat ${MERKMALE[x]}.${MERKMALE[x].includes('Gleitspiegellinien') ? '' : ' Gleitspiegellinien hat es keine.'}`)],
+      erklaerung: `${S(g)} hat ${MERKMALE[g]}. Dazu kommen Gleitspiegellinien: Jede läuft parallel zu Spiegellinien, mitten zwischen zwei benachbarten${g === 'p4mm' ? ', bei <i>p</i>4<i>mm</i> nur in den beiden Diagonalrichtungen' : ''}. Sie folgen aus Spiegelungen und Translationen schräg zu den Spiegellinien; das Symbol nennt je Blickrichtung nur die Spiegellinie.`,
       skript: 'mehr-elemente', app: `#m=eg&g=${g}`,
       quelle: 'Borchardt-Ott & Sowa (2018), S. 206; Symmetrieelemente aus den Daten der App',
     };
@@ -635,7 +646,7 @@ const gegenbeispiel = (pg) => {
 const grundAbelsch = (pg) => (pg === '2mm' ? 'jede Operation ist zu sich selbst invers, zum Beispiel <i>m</i><sub><i>a</i></sub> ∘ <i>m</i><sub><i>b</i></sub> = <i>m</i><sub><i>b</i></sub> ∘ <i>m</i><sub><i>a</i></sub> = 2' : 'Drehungen um denselben Punkt sind vertauschbar');
 /** @satisfies {Generator} */
 export const REIHENFOLGE = {
-  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'geprüft',
+  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'entwurf',
   params: () => [...NICHT_ABELSCH.map((pg) => `ja:${pg}`), ...ABELSCH.map((pg) => `nein:${pg}`)],
   make(param) {
     const [ja, pgText] = param.split(':');
@@ -645,7 +656,9 @@ export const REIHENFOLGE = {
     return {
       typ: 'einfach',
       lernziel: 'die Gruppentafel einer Punktgruppe lesen und aufstellen',
-      frage: `In welcher dieser Punktgruppen kommt es bei der Verknüpfung zweier Operationen ${kommt ? '' : 'nie '}auf die Reihenfolge an?`,
+      frage: kommt
+        ? 'In welcher dieser Punktgruppen kommt es bei manchen Paaren von Operationen auf die Reihenfolge der Verknüpfung an?'
+        : 'In welcher dieser Punktgruppen kommt es bei der Verknüpfung zweier Operationen nie auf die Reihenfolge an?',
       antworten: [pg, ...ab].map(pgHTML),
       richtig: [0],
       hinweise: [null, ...ab.map((x) => (kommt ? `In ${pgHTML(x)} kommt es nicht darauf an: ${grundAbelsch(x)}.` : `In ${pgHTML(x)} kommt es darauf an: ${gegenbeispiel(x)}.`))],

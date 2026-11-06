@@ -1,7 +1,7 @@
 // Erzeugte Fragen nach Anregungen aus Borchardt-Ott und Hoffmann: Antworten mit dem Code der App nachgerechnet.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { KOORDINATEN, ELEMENTE_LAGE, elementOp, GLEIT_UNGENANNT, REIHENFOLGE, MUSTER } from '../js/quiz-gen.js';
+import { KOORDINATEN, ELEMENTE_LAGE, elementOp, GLEIT_UNGENANNT, REIHENFOLGE, MUSTER, regelPunktgruppe } from '../js/quiz-gen.js';
 import { gruppe, elemente, art, liesOp, gleichModGitter, anwenden } from '../js/symmetrie.js';
 import { OPERATIONEN, verknuepfe, gruppentafel } from '../js/punktoperationen.js';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
@@ -64,6 +64,43 @@ test('Gleitspiegellinien, die das Symbol nicht nennt: aus den Elementen der App'
     assert.equal(richtig, g);
     assert.ok(!g.includes('g') && linien(g).some((l) => l.art === 'gleit'), g);
     for (const x of ab) assert.ok(!linien(x).some((l) => l.art === 'gleit'), `${g}: ${x} hat Gleitspiegellinien`);
+  }
+});
+
+test('Gleitspiegellinien: Erklärung (parallel zu Spiegellinien, mitten zwischen zwei benachbarten) und Hinweise stimmen (#33)', () => {
+  const ps = /** @type {Generator} */ (GLEIT_UNGENANNT).params(2);
+  for (const g of ps) {
+    const l = elemente(gruppe(g)).linien;
+    for (const gl of l.filter((x) => x.art === 'gleit')) {
+      // k · p ist längs der Linie konstant (k · richtung = 0); Gittertranslationen ändern es um ganze Zahlen
+      const r = gl.richtung; const k = [r[1], -r[0]];
+      /** @param {Vec2} p Lage der Linie quer zu ihr, modulo Gittertranslation */
+      const c = (p) => (((k[0] * p[0] + k[1] * p[1]) % 1) + 1) % 1;
+      /** @param {Vec2} q */
+      const parallel = (q) => q[0] * r[1] - q[1] * r[0] === 0;
+      const spiegel = [...new Set(l.filter((x) => x.art === 'spiegel' && parallel(x.richtung)).map((x) => +c(x.punkt).toFixed(6)))].sort((u, v) => u - v);
+      assert.ok(spiegel.length > 0, `${g}: keine Spiegellinie parallel zur Gleitspiegellinie`);
+      const cg = c(gl.punkt);
+      // nächste Spiegellinien unterhalb und oberhalb (zyklisch) haben von der Gleitspiegellinie gleichen Abstand
+      const unten = Math.max(...spiegel.map((m) => (m <= cg + 1e-9 ? m : m - 1)));
+      const oben = Math.min(...spiegel.map((m) => (m >= cg - 1e-9 ? m : m + 1)));
+      assert.ok(Math.abs((cg - unten) - (oben - cg)) < 1e-9 && oben - unten > 1e-9, `${g}: Gleitspiegellinie nicht mitten zwischen Spiegellinien`);
+      if (g === 'p4mm') assert.ok(Math.abs(gl.richtung[0]) === Math.abs(gl.richtung[1]), 'p4mm: Gleitspiegellinie nicht diagonal');
+    }
+    // Hinweise sagen, dass der Ablenker keine Gleitspiegellinien hat
+    for (const h of GLEIT_UNGENANNT.make(g).hinweise.slice(1)) assert.match(text(/** @type {string} */ (h)), /keine (Spiegel- oder )?Gleitspiegellinien|Gleitspiegellinien hat es keine/, g);
+  }
+});
+
+test('Punktgruppe aus dem Symbol: die genannten Schritte ergeben die Punktgruppe (#33)', () => {
+  for (const d of EBENENGRUPPEN) {
+    const r = text(regelPunktgruppe(d.symbol));
+    let s = d.symbol.slice(1);
+    if (r.includes('die 1')) s = s.replace(/1/g, '');
+    if (r.includes('liest g als m')) s = s.replace(/g/g, 'm');
+    assert.equal(s || '1', d.punktgruppe, d.symbol);
+    assert.equal(r.includes('die 1'), d.symbol !== 'p1' && d.symbol.slice(1).includes('1'), d.symbol);
+    assert.equal(r.includes('liest g als m'), d.symbol.includes('g'), d.symbol);
   }
 });
 

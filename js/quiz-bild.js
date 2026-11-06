@@ -7,17 +7,18 @@
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB } from './struktur.js';
-import { dreieck3m, punktgruppe } from './skizzen.js';
+import { dreieck3m, punktgruppe, kachel } from './skizzen.js';
 
 /** @import { Farben } from './zeichnung.js' */
 /** @import { BildOptionen } from '../lib/common/js/quiz-core.js' */
 
-/** Skizzen aus dem Skript (viewBox 520 × 400): Zeichnung und Höhe ihrer Mitte; im Quizbild vergrössert und mittig. @type {Record<string, [(f: Farben) => string, number]>} */
+/** Skizzen aus dem Skript (viewBox 520 × 400, Kachel 520 × 520): Zeichnung, Höhe ihrer Mitte und Vergrösserung (Standard K_SKIZZE); im Quizbild mittig. @type {Record<string, [(f: Farben) => string, number, number?]>} */
 const SKIZZEN = {
   '3m': [dreieck3m, 190],
   '2mm': [(f) => punktgruppe('2mm', f), 200],
   '4mm': [(f) => punktgruppe('4mm', f), 200],
   '6mm': [(f) => punktgruppe('6mm', f), 200],
+  'kachel-p2': [(f) => kachel('p2', f, false), 260, 1],
 };
 
 /** Farben aus CSS-Variablen ({ paper: '#fff', …, dir1, dir2, dir3, fc0 … fc5 }) in der Form der Tafeln. @param {Record<string, string>} v @returns {Farben & { fc: string[] }} */
@@ -61,7 +62,7 @@ export function bildInhalt(angabe, f, opt = {}) {
   const { tafel, hash, k: gross, skizze } = zerlege(angabe);
   if (skizze) {
     if (!istSkizze(skizze)) return null;
-    const [zeichne, mitte] = SKIZZEN[skizze]; const k = K_SKIZZE;
+    const [zeichne, mitte, gross = K_SKIZZE] = SKIZZEN[skizze]; const k = gross;
     return `<rect width="520" height="520" fill="${f.paper}"/><g transform="translate(260 260) scale(${k}) translate(-260 -${mitte})">${zeichne(f)}</g>`;
   }
   const z = startzustand();
