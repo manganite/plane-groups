@@ -88,6 +88,12 @@ für diese App gilt.
   `warum`, Link `warum=1` und die Datei `js/warum.js` behalten den alten Namen (Link-Adressen sind
   Schnittstelle; Umbenennen der Datei ohne Nutzen). Ist es aus Speicher oder Link aktiv, klappt sein Abschnitt
   beim Start auf; ohne Elemente oder beim Brechen ist es gesperrt, bleibt aber gewählt.
+- **Zahlen aus Link und Speicher** (6.11.2026, #98, Leitfaden Abschn. 5.2, Entscheidung Thomas): Regler-Werte
+  (Gitter, Brechen, „Gitter und Basis“, Vergrösserung, Objekt- und Motivgrösse) werden ausserhalb ihres Bereichs
+  auf den nächsten gültigen Wert gesetzt, Drehwinkel der Motive in 0° bis unter 360° umgerechnet. `schritt` und
+  `aufbau` gelten als ganzzahlige Auswahl und erhalten ausserhalb 0 … 25 bzw. 0 … 20 den Startwert: Ihr Regler
+  hängt von der Gruppe ab, die Grenzen im Link sind feste Schutzgrenzen. Ebenso Koordinaten jenseits ±10⁶
+  (Basis ±10³). Neue Felder gehören in `zustandPruefen` und in `tests/rundlauf.test.mjs`.
 
 ## Konventionen
 

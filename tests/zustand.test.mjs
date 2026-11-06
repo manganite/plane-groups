@@ -46,7 +46,7 @@ test('ungültige Werte werden ignoriert, ohne Modus kein Link', () => {
   assert.deepEqual(z.punkt, [startzustand().punkt[0], 0.2]); // x ungültig: Startwert; y gültig
   assert.equal(z.zellen, 1);
   assert.equal(z.form, 'fahne');
-  assert.equal(z.gitter.rechteckig.ba, GITTER_START.rechteckig.ba);
+  assert.equal(z.gitter.rechteckig.ba, 1.6); // ausserhalb: nächster gültiger Wert (Leitfaden 5.2)
 });
 
 test('spezielle Lagen bleiben beim Neuladen speziell (Brüche exakt in der Adresse; Review PR #2)', async () => {
@@ -102,7 +102,7 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
   const w = startzustand(); hashAnwenden(w, h);
   assert.equal(w.zoomB, 2.2); assert.equal(w.objGroesse, 1.6);
   const u = startzustand(); hashAnwenden(u, '#m=eg&g=p4&zoom=9&og=0.1');
-  assert.equal(u.zoomB, 1); assert.equal(u.objGroesse, 1);
+  assert.equal(u.zoomB, 3); assert.equal(u.objGroesse, 0.5); // nächster gültiger Wert (Leitfaden 5.2)
   assert.doesNotMatch(hashVon(startzustand()), /zoom|og=/);  // auch im Modus „Gitter und Basis“ (Muster in Tafel B)
   const st = startzustand(); hashAnwenden(st, '#m=struktur&v=graphen&zoom=1.6');
   assert.equal(st.modus, 'struktur'); assert.equal(st.zoomB, 1.6);

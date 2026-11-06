@@ -128,12 +128,13 @@ test('Rundlauf: Zurücksetzen vor und nach dem Neuladen gleich (Speicher und Lin
 test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review #97)', () => {
   /** @param {Record<string, unknown>} felder */
   const speicher = (felder) => ausSpeicher({ v: 1, z: felder });
-  // Gitter: Grenzen der Regler eingeschlossen, darüber hinaus der Startwert
+  // Gitter: Grenzen der Regler eingeschlossen, darüber hinaus der nächste gültige Wert (Leitfaden 5.2), keine Zahl: Startwert
   const g = (/** @type {number} */ ba) => speicher({ gitter: { schiefwinklig: { ba, gamma: 110 } } }).gitter.schiefwinklig.ba;
-  assert.equal(g(1.6), 1.6); assert.equal(g(0.6), 0.6); assert.equal(g(1.65), 1.25); assert.equal(g(0.55), 1.25);
+  assert.equal(g(1.6), 1.6); assert.equal(g(0.6), 0.6); assert.equal(g(1.65), 1.6); assert.equal(g(0.55), 0.6);
+  assert.equal(speicher({ gitter: { schiefwinklig: { ba: '1.3', gamma: 110 } } }).gitter.schiefwinklig.ba, 1.25);
   const lg = (/** @type {string} */ ba) => { const z = startzustand(); hashAnwenden(z, `#m=eg&g=p1&ba=${ba}`); return z.gitter.schiefwinklig.ba; };
-  assert.deepEqual([lg('1.6'), lg('0.6'), lg('1.65'), lg('0.55')], [1.6, 0.6, 1.25, 1.25]);
-  // schritt: 25 bleibt, 26 wird zum Startwert, in beiden Wegen
+  assert.deepEqual([lg('1.6'), lg('0.6'), lg('1.65'), lg('0.55'), lg('x')], [1.6, 0.6, 1.6, 0.6, 1.25]);
+  // schritt (ganzzahlige Auswahl): 25 bleibt, 26 wird zum Startwert, in beiden Wegen
   assert.deepEqual([speicher({ schritt: 25 }).schritt, speicher({ schritt: 26 }).schritt], [25, 0]);
   const ls = (/** @type {string} */ n) => { const z = startzustand(); hashAnwenden(z, `#m=eg&schritt=${n}`); return z.schritt; };
   assert.deepEqual([ls('25'), ls('26')], [25, 0]);
@@ -141,11 +142,32 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.equal(speicher({ gruppe: 'p2', brechen: true }).brechen, false);
   const zl = startzustand(); hashAnwenden(zl, '#m=eg&g=p2&brechen=1&ba=1.8&gamma=70');
   assert.equal(zl.brechen, false);
-  // frei: ungültige Werte werden ersetzt (Startwert des Systems), nicht an die Grenze geschoben
+  // frei: ausserhalb von 0,5 … 2 bzw. 60 … 150° der nächste gültige Wert, keine Zahl: Startwert des Systems
   const f = speicher({ gruppe: 'p6mm', brechen: true, frei: { ba: 9, gamma: 30 } }).frei;
-  assert.deepEqual([f.ba, f.gamma], [1, 120]); // Startwert des hexagonalen Systems
+  assert.deepEqual([f.ba, f.gamma], [2, 60]);
   const fl = startzustand(); hashAnwenden(fl, '#m=eg&g=p6mm&brechen=1&ba=9&gamma=30');
-  assert.deepEqual([fl.frei.ba, fl.frei.gamma], [1, 120]);
+  assert.deepEqual([fl.frei.ba, fl.frei.gamma], [2, 60]);
+  const fx = speicher({ gruppe: 'p6mm', brechen: true, frei: { ba: 'x', gamma: null } }).frei;
+  assert.deepEqual([fx.ba, fx.gamma], [1, 120]); // Startwert des hexagonalen Systems
+  const fxl = startzustand(); hashAnwenden(fxl, '#m=eg&g=p6mm&brechen=1&ba=x&gamma=');
+  assert.deepEqual([fxl.frei.ba, fxl.frei.gamma], [1, 120]);
+  // Vergrösserung, Objekt, Struktur und Motivgrösse: in beiden Wegen der nächste gültige Wert
+  const zs = speicher({ zoomB: 9, objGroesse: 0.1, struktur: { ba: 5, gamma: 10, basis: [{ motiv: 'atom', p: [0, 0], groesse: 7 }] } });
+  assert.deepEqual([zs.zoomB, zs.objGroesse, zs.struktur.ba, zs.struktur.gamma, zs.struktur.basis[0].groesse], [3, 0.5, 2, 60, 1]);
+  const zl2 = startzustand(); hashAnwenden(zl2, '#m=struktur&v=quadratisch&basis=atom,0,0,0,0,7&ba=5&gamma=10&zoom=9');
+  assert.deepEqual([zl2.zoomB, zl2.struktur.ba, zl2.struktur.gamma, zl2.struktur.basis[0].groesse], [3, 2, 60, 1]);
+  // Drehwinkel der Motive laufen um: 0° bis unter 360°, in beiden Wegen und stabil (Review #99)
+  const ws = speicher({ struktur: { ba: 1, gamma: 90, basis: [800, -1000, -45, 360].map((winkel) => ({ motiv: 'fahne', p: [0, 0], winkel })) } });
+  assert.deepEqual(ws.struktur.basis.map((e) => e.winkel), [80, 80, 315, 0]);
+  const wl = startzustand(); hashAnwenden(wl, '#m=struktur&v=quadratisch&basis=fahne,0,0,0,800;fahne,0,0,0,-1000;fahne,0,0,0,-45;fahne,0,0,0,360');
+  assert.deepEqual(wl.struktur.basis.map((e) => e.winkel), [80, 80, 315, 0]);
+  assert.equal(hashVon(neuLaden(ws, hashVon(ws))), hashVon(ws));
+  // ohne ba oder γ: 1 bzw. 90° in beiden Wegen
+  const ohne = speicher({ modus: 'struktur', struktur: { basis: [] } }).struktur;
+  const ohneL = startzustand(); hashAnwenden(ohneL, '#m=struktur&v=quadratisch&basis=');
+  assert.deepEqual([ohne.ba, ohne.gamma, ohneL.struktur.ba, ohneL.struktur.gamma], [1, 90, 1, 90]);
+  const zl3 = startzustand(); hashAnwenden(zl3, '#m=eg&g=p4&zoom=9&og=0.1');
+  assert.deepEqual([zl3.zoomB, zl3.objGroesse], [3, 0.5]);
   // Objekt und Striche innerhalb ±10⁶, höchstens STRICH_GRENZE Punkte (1200, zeichnung.js)
   assert.deepEqual(speicher({ punkt: [2e6, 0] }).punkt, startzustand().punkt);
   assert.deepEqual(speicher({ striche: [[[0, 0], [1e300, 0]], [[0, 0], [1, 1]]] }).striche, [[[0, 0], [1, 1]]]);
