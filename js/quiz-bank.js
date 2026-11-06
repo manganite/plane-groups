@@ -418,7 +418,7 @@ export const BANK = [
     status: 'geprüft',
   },
   {
-    id: 'gs-3-02', stufe: 3, kapitel: 2, typ: 'einfach', lernziel: LZ.tc,
+    id: 'gs-2-04', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.bravais,
     frage: 'Warum gibt es in der Ebene kein zentriertes quadratisches Gitter?',
     antworten: [
       'Die zentrierte Zelle lässt sich durch ein kleineres, um 45° gedrehtes Quadrat ersetzen.',
@@ -432,8 +432,8 @@ export const BANK = [
       'Das innenzentrierte tetragonale Gitter gibt es im Raum. In der Ebene ist die zentrierte quadratische Zelle unnötig gross.'],
     erklaerung: 'Mit den Kanten <i>a</i>′ = ½(<i>a</i> − <i>b</i>), <i>b</i>′ = ½(<i>a</i> + <i>b</i>) entsteht eine primitive quadratische Zelle mit kürzeren Gittervektoren. Das „zentrierte quadratische“ Gitter ist ein gewöhnliches quadratisches Gitter.',
     skript: 'zentriert', app: '#m=struktur&ba=1&gamma=90&basis=atom,1,1/2,0,0;atom,1,0,1/2,0',
-    quelle: 'Skript, Abschn. 2.4, Vertiefung „Warum es kein zentriertes quadratisches Gitter gibt“; Hoffmann (2016), Abschn. 4.2.4',
-    status: 'entwurf',
+    quelle: 'Skript, Abschn. 2.4; Hoffmann (2016), Abschn. 4.2.4',
+    status: 'geprüft',
   },
   {
     id: 'gs-3-01', stufe: 3, kapitel: 2, typ: 'einfach', lernziel: LZ.netz,
