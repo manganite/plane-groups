@@ -1705,7 +1705,7 @@ export const BANK = [
     skript: 'conway',
     quelle: 'Skript, Abschn. 9.2; Conway, Burgiel & Goodman-Strauss (2016), Tab. 3.1, S. 29–30',
     pruefung: { art: 'preis' },
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'sc-3-02', stufe: 3, kapitel: 9, typ: 'einfach', lernziel: LZ.conway,
@@ -1719,7 +1719,7 @@ export const BANK = [
     erklaerung: 'Alle Drehpunkte liegen auf Schnittpunkten von Spiegellinien: zwei Sorten 4-zähliger Ecken und eine Sorte 2-zähliger. Das ist <i>p</i>4<i>mm</i>.',
     skript: 'conway', app: '#m=eg&g=p4mm',
     quelle: 'Skript, Abschn. 9.1; Conway, Burgiel & Goodman-Strauss (2016), S. 18 und Tab. 3.2, S. 40',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'sc-3-03', stufe: 3, kapitel: 9, typ: 'einfach', lernziel: LZ.conway,
@@ -1737,7 +1737,7 @@ export const BANK = [
     erklaerung: 'Ein Wunder (<i>miracle</i>, <i>mirrorless crossing</i>) ist ein Weg zu einem Spiegelbild, der keine Spiegellinie kreuzt; das leisten Gleitspiegelungen, die nicht aus Spiegellinien folgen, etwa in <i>pg</i> (××).',
     skript: 'conway', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 9.1; Conway, Burgiel & Goodman-Strauss (2016), S. 24–25',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'sc-3-04', stufe: 3, kapitel: 9, typ: 'einfach', lernziel: LZ.conway17,
@@ -1755,6 +1755,6 @@ export const BANK = [
     erklaerung: 'Eine Ziffer <i>n</i> kostet (<i>n</i> − 1)/<i>n</i>, also weniger als 1; zwei Ziffern bleiben unter 2. Mit drei Ziffern geht es nur als 632, 442 oder 333, mit vier nur als 2222.',
     skript: 'conway', app: '#m=eg&g=p6',
     quelle: 'Skript, Abschn. 9.3; Conway, Burgiel & Goodman-Strauss (2016), Tab. 3.1, S. 29; S. 34–35',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 ];
