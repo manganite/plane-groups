@@ -18,6 +18,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Behoben
 
+- **Ursprung bei p1:** In den Kenndaten stand „beliebi*g*“ mit kursivem g, weil alle Buchstaben m und g kursiv gesetzt wurden. Jetzt sind es nur noch die Symbole (z. B. „auf 2 1 *g*“ bei p2mg). Gefunden im Review von #100.
+
 - **Eine Prüfung für Link und Speicher** (#96, crystallography-common#63): `zustandPruefen()` in `js/zustand.js` prüft alle Felder mit ihren Abhängigkeiten; der Speicher des Browsers (`ausSpeicher`) und die Link-Adresse (`hashAnwenden`) laufen beide hindurch. Neu geprüft: die Gitterparameter aus dem Speicher (nur die freien Parameter des Systems, in den Bereichen der Regler, die übrigen fest; ein ungültiger Wert liess die App hängen), `schritt` bis 25, das Objekt innerhalb ±10⁶, die Bedingungen der asymmetrischen Einheit ohne Doppelte, „Symmetrie brechen“ nie im schiefwinkligen System (im Speicher blieb es bisher stehen; wechselt man bei gebrochener Symmetrie zu *p*1 oder *p*2, schaltet es sich jetzt aus), die freie Metrik ersetzt statt an die Grenze geschoben; aus dem Speicher nur die Felder des Zustands. Rundlauf-Tests (`tests/rundlauf.test.mjs`): Zustand → Link → Zustand, Zustand → Speicher → Zustand, verdorbener Speicherstand → gültiger Zustand, Grenzen und Abhängigkeiten in beiden Wegen gleich, Zurücksetzen vor und nach dem Neuladen gleich.
 - **„Zurücksetzen“ nach einem Link** (#81): Im Modus „Gitter und Basis“ enthielt die Link-Adresse einer veränderten Struktur keine Vorgabe; nach dem Öffnen des Links oder dem Neuladen setzte „Zurücksetzen“ auf das Dreiecksbeispiel statt auf die eigentliche Vorgabe zurück. Die Adresse enthält jetzt immer `v=…`; alte Links ohne `v` verhalten sich wie bisher.
 

@@ -414,9 +414,8 @@ function legende(f) {
 /** Tooltip zur Signatur nach Conway (Orbifold-Symbol). */
 const CONWAY_HINWEIS = 'Orbifold-Symbol nach Conway: * Spiegellinien (Kaleidoskop), Ziffern vor dem * Drehpunkte ohne Spiegellinie, Ziffern nach dem * Schnittpunkte von Spiegellinien, × eine spiegelbildliche Kopie ist erreichbar, ohne eine Spiegellinie zu überqueren, o nur Translationen';
 
-/** Punktgruppe in der App „Stereographische Projektion“ (Achse c senkrecht zur Ebene). */
-/** @param {string} u */
-const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/([mg])/g, '<i>$1</i>') : `auf ${lageHTML(u)}`);
+/** Ursprung als HTML: Text aus URSPRUNG (die Symbole m und g nach einem Leerzeichen kursiv, nicht das g in „beliebig“) oder Lage. @param {string} u */
+const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/ ([mg])\b/g, ' <i>$1</i>') : `auf ${lageHTML(u)}`);
 /** Bedingungen der asymmetrischen Einheit als Knöpfe: Tafel A zeigt, wo sie erfüllt sind. @param {Ebenengruppe} d */
 function aeBedingungen(d) {
   const teile = d.ae.text.split(';').map((t) => t.trim());
