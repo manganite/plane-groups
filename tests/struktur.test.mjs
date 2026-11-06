@@ -226,7 +226,7 @@ test('Basis als Text: ungültige Einträge fallen weg', () => {
 
 test('Struktur aus dem Speicher prüfen', () => {
   assert.equal(pruefeStruktur(null), null);
-  assert.equal(pruefeStruktur({ ba: 'x', gamma: 90, basis: [] }), null);
+  assert.deepEqual([pruefeStruktur({ ba: 'x', basis: [] })?.ba, pruefeStruktur({ ba: 'x', basis: [] })?.gamma], [1, 90], 'keine Zahl oder fehlend: 1 bzw. 90° wie im Link');
   assert.equal(pruefeStruktur({ ba: 5, gamma: 90, basis: [] })?.ba, 2, 'ausserhalb: nächster gültiger Wert');
   const s = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'x', ba: 1, gamma: 90, basis: [{ motiv: 'atom', p: [0.1, 0.2] }, { motiv: 'atom', p: [NaN, 0] }, { motiv: 'böse', p: [0, 0] }], ae: 'ja' }));
   assert.equal(s.basis.length, 1);

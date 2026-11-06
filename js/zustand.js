@@ -309,7 +309,7 @@ export function liesBasis(text) {
     const [motiv, farbe, x, y, winkel, groesse] = teil.split(',');
     if (!Object.hasOwn(MOTIVE, motiv ?? '')) continue;
     const f = zahl(farbe, 0, 3); const px = zahl(x, -1e3, 1e3); const py = zahl(y, -1e3, 1e3);
-    const w = zahl(winkel ?? '0', -720, 720) ?? 0; const gr = groesse === undefined ? null : zahlBegrenzt(groesse, ...STRUKTUR_BEREICH.groesse);
+    const w = umlauf(zahl(winkel ?? '0', -Infinity, Infinity) ?? 0); const gr = groesse === undefined ? null : zahlBegrenzt(groesse, ...STRUKTUR_BEREICH.groesse);
     if (f === null || !Number.isInteger(f) || px === null || py === null) continue;
     /** @type {Basiseintrag} */
     const e = { motiv, farbe: f, p: [px, py], winkel: grad(w) };
@@ -326,6 +326,8 @@ export const istObjekt = (x) => typeof x === 'object' && x !== null;
 export const imBereich = (v, [lo, hi]) => typeof v === 'number' && Number.isFinite(v) && v >= lo && v <= hi;
 /** Endliche Zahl auf den Bereich gesetzt (nächster gültiger Wert, Leitfaden Abschn. 5.2), sonst null. @param {unknown} v @param {[number, number]} bereich */
 export const begrenzt = (v, [lo, hi]) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : null);
+/** Umlaufender Winkel in 0° bis unter 360° (Leitfaden Abschn. 5.2). @param {number} w */
+export const umlauf = (w) => { const r = ((w % 360) + 360) % 360; return r >= 360 ? 0 : r; };
 /** Paar endlicher Zahlen. @param {unknown} p @returns {p is Vec2} */
 export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
 
@@ -337,8 +339,8 @@ export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(N
  */
 export function pruefeStruktur(st) {
   if (!istObjekt(st) || !Array.isArray(st.basis)) return null;
-  const ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba); const gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma);
-  if (ba === null || gamma === null) return null;
+  // wie im Link (hashLesen): fehlt ba oder γ oder ist keine Zahl, gilt 1 bzw. 90°
+  const ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba) ?? 1; const gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma) ?? 90;
   /** @type {Basiseintrag[]} */
   const basis = [];
   for (const e of /** @type {unknown[]} */ (st.basis)) {
@@ -349,7 +351,7 @@ export function pruefeStruktur(st) {
     if (typeof motiv !== 'string' || !Object.hasOwn(MOTIVE, motiv) || !zahlenpaar(p)) continue;
     if (typeof farbe !== 'number' || ![0, 1, 2, 3].includes(farbe) || typeof winkel !== 'number' || !Number.isFinite(winkel)) continue;
     if (groesse === null) continue;
-    basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(winkel), ...(groesse === undefined ? {} : { groesse }) });
+    basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(umlauf(winkel)), ...(groesse === undefined ? {} : { groesse }) });
   }
   const { vorgabe } = st;
   return {

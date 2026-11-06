@@ -156,6 +156,16 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.deepEqual([zs.zoomB, zs.objGroesse, zs.struktur.ba, zs.struktur.gamma, zs.struktur.basis[0].groesse], [3, 0.5, 2, 60, 1]);
   const zl2 = startzustand(); hashAnwenden(zl2, '#m=struktur&v=quadratisch&basis=atom,0,0,0,0,7&ba=5&gamma=10&zoom=9');
   assert.deepEqual([zl2.zoomB, zl2.struktur.ba, zl2.struktur.gamma, zl2.struktur.basis[0].groesse], [3, 2, 60, 1]);
+  // Drehwinkel der Motive laufen um: 0° bis unter 360°, in beiden Wegen und stabil (Review #99)
+  const ws = speicher({ struktur: { ba: 1, gamma: 90, basis: [800, -1000, -45, 360].map((winkel) => ({ motiv: 'fahne', p: [0, 0], winkel })) } });
+  assert.deepEqual(ws.struktur.basis.map((e) => e.winkel), [80, 80, 315, 0]);
+  const wl = startzustand(); hashAnwenden(wl, '#m=struktur&v=quadratisch&basis=fahne,0,0,0,800;fahne,0,0,0,-1000;fahne,0,0,0,-45;fahne,0,0,0,360');
+  assert.deepEqual(wl.struktur.basis.map((e) => e.winkel), [80, 80, 315, 0]);
+  assert.equal(hashVon(neuLaden(ws, hashVon(ws))), hashVon(ws));
+  // ohne ba oder γ: 1 bzw. 90° in beiden Wegen
+  const ohne = speicher({ modus: 'struktur', struktur: { basis: [] } }).struktur;
+  const ohneL = startzustand(); hashAnwenden(ohneL, '#m=struktur&v=quadratisch&basis=');
+  assert.deepEqual([ohne.ba, ohne.gamma, ohneL.struktur.ba, ohneL.struktur.gamma], [1, 90, 1, 90]);
   const zl3 = startzustand(); hashAnwenden(zl3, '#m=eg&g=p4&zoom=9&og=0.1');
   assert.deepEqual([zl3.zoomB, zl3.objGroesse], [3, 0.5]);
   // Objekt und Striche innerhalb ±10⁶, höchstens STRICH_GRENZE Punkte (1200, zeichnung.js)
