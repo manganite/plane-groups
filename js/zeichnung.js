@@ -7,7 +7,8 @@
 // Drehpunkte als Linse (2), Dreieck (3), Raute (4), Sechseck (6); Spiegellinien durchgezogen,
 // Gleitspiegellinien gestrichelt.
 
-import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, SYMMETRIERICHTUNGEN, verknuepfen, invers, translation } from './symmetrie.js';
+import { gruppe as gruppeVon, elemente, anwenden, mod1, clipLinie, verknuepfen, invers, translation } from './symmetrie.js';
+import { SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 import { herkunft, herleitung, klassenSchluessel, schrittVon, elementVonOp, vorbild } from './herkunft.js';
 import { bedingungen, bereich } from './asymmetrie.js';
 

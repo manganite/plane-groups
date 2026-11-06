@@ -3,7 +3,26 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
-import { SCHOENFLIES, CONWAY, zerlege, preis } from '../js/symbole.js';
+import { SCHOENFLIES, CONWAY } from '../js/symbole.js';
+
+/** Signatur in Bestandteile zerlegt: wonders, gyrations (vor dem ersten *), Kaleidoskope mit Ecken, miracles. @param {string} sig */
+function zerlege(sig) {
+  const wonders = (sig.match(/o/g) || []).length;
+  const miracles = (sig.match(/×/g) || []).length;
+  const rest = sig.replace(/[o×]/g, '');
+  const teile = rest.split('*');
+  const gyrations = [...teile[0]].map(Number);
+  const kaleidoskope = teile.slice(1).map((t) => [...t].map(Number));
+  return { wonders, gyrations, kaleidoskope, miracles };
+}
+
+/** Preis einer Signatur nach Conway, Tab. 3.1 (S. 29): o 2, * und × je 1, Drehpunkt n (n−1)/n, Ecke n (n−1)/(2n). @param {string} sig */
+function preis(sig) {
+  const z = zerlege(sig);
+  return 2 * z.wonders + z.miracles + z.kaleidoskope.length
+    + z.gyrations.reduce((s, n) => s + (n - 1) / n, 0)
+    + z.kaleidoskope.flat().reduce((s, n) => s + (n - 1) / (2 * n), 0);
+}
 
 /** @param {number[]} a */
 const sortiert = (a) => [...a].sort((x, y) => y - x);

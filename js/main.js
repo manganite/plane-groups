@@ -4,7 +4,7 @@ import { initHelp } from '../lib/common/js/help.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, element, elemente, grafik } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
 import { VERSION } from './version.js';
-import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG } from './ebenengruppen.js';
+import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
 import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
@@ -14,7 +14,7 @@ import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
-import { schoenfliesHTML, CONWAY } from './symbole.js';
+import { schoenfliesHTML, CONWAY, CONWAY_HINWEIS } from './symbole.js';
 import { brechAnalyse, brechHTML } from './brechen.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
@@ -348,12 +348,6 @@ function zeichnen() {
   kenndaten();
 }
 
-/** @type {Record<string, string[]>} */
-const RICHTUNG = {
-  rechteckig: [[1, 0], [0, 1]].map(richtungHTML),
-  quadratisch: [[[1, 0], [0, 1]], [[1, 1], [-1, 1]]].map((r) => r.map(richtungHTML).join(', ')),
-  hexagonal: [[[1, 0], [0, 1], [1, 1]], [[-1, 1], [1, 2], [2, 1]]].map((r) => r.map(richtungHTML).join(', ')),
-};
 /** @param {Farben} f */
 function legende(f) {
   const g = gruppeVon(z.gruppe);
@@ -374,7 +368,7 @@ function legende(f) {
     if (z.farben && sys !== 'schiefwinklig' && !(bruch && bruch.weg.length)) {
       const positionen = new Set(el.linien.map((l) => blickrichtung(sys, l.normale)));
       for (const pos of [2, 3]) {
-        if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i><span>Normale ∥ ${RICHTUNG[sys][pos - 2]}</span></span>`);
+        if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i><span>Normale ∥ ${SYMMETRIERICHTUNGEN[sys][pos - 2].map(richtungHTML).join(', ')}</span></span>`);
       }
     }
   }
@@ -411,8 +405,6 @@ function legende(f) {
 }
 
 // ------------------------------------------------------------------ Kenndaten
-/** Tooltip zur Signatur nach Conway (Orbifold-Symbol). */
-const CONWAY_HINWEIS = 'Orbifold-Symbol nach Conway: * Spiegellinien (Kaleidoskop), Ziffern vor dem * Drehpunkte ohne Spiegellinie, Ziffern nach dem * Schnittpunkte von Spiegellinien, × eine spiegelbildliche Kopie ist erreichbar, ohne eine Spiegellinie zu überqueren, o nur Translationen';
 
 /** Ursprung als HTML: Text aus URSPRUNG (die Symbole m und g nach einem Leerzeichen kursiv, nicht das g in „beliebig“) oder Lage. @param {string} u */
 const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/ ([mg])\b/g, ' <i>$1</i>') : `auf ${lageHTML(u)}`);
