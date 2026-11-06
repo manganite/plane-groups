@@ -257,7 +257,7 @@ export const BANK = [
     erklaerung: 'Die Zelle ist ein um 45° gedrehtes Quadrat mit der Fläche 2<i>a</i>², doppelt so gross wie eine primitive. Die Ecken ergeben zusammen einen Gitterpunkt, dazu kommt der Gitterpunkt in der Mitte, denn ½(<i>a</i>′ + <i>b</i>′) = <i>b</i>. Die App zeigt im Link die grosse Zelle als gegebene Zelle <i>a</i>, <i>b</i> und die primitive als <i>a</i>′, <i>b</i>′; die Namen sind dort also vertauscht.',
     skript: 'elementarzelle', app: '#m=struktur&ba=1&gamma=90&basis=atom,0,0,0,0;atom,0,1/2,1/2,0&sbind=0',
     quelle: 'Skript, Abschn. 1.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gb-2-05', stufe: 2, kapitel: 1, typ: 'einfach', lernziel: LZ.basisGitter,
@@ -293,7 +293,7 @@ export const BANK = [
     erklaerung: 'Die Verschiebung von (½,&nbsp;0) nach (0,&nbsp;½) bringt etwa das Atom bei (½,&nbsp;½) nach (0,&nbsp;1), wo kein Atom sitzt. Keine der Verschiebungen zwischen zwei Atomen bringt alle Atome auf Atome. Das Gitter ist hexagonal, die Basis besteht aus drei Atomen.',
     skript: 'basis', app: '#m=struktur&v=kagome',
     quelle: 'Skript, Abschn. 1.5 (Prinzip); Vorgabe Kagome der App',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 2 Symmetrie des Gitters
@@ -401,7 +401,7 @@ export const BANK = [
     erklaerung: 'Mit der Zelle ändern sich die Gittervektoren, die Koordinaten der Atome und die Zahl der Atome je Zelle. Struktur und Symmetrie bleiben dieselben.',
     skript: 'konventionell', app: '#m=struktur&ba=1&gamma=90&basis=atom,1,1/2,0,0;atom,1,0,1/2,0',
     quelle: 'Skript, Abschn. 2.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-03', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.systeme,
@@ -461,7 +461,7 @@ export const BANK = [
     erklaerung: 'Bei <i>a</i> = <i>b</i> und γ = 60° ist auch <i>b</i> − <i>a</i> so lang wie <i>a</i>: Um jeden Gitterpunkt liegen sechs nächste Nachbarn im gleichen Abstand, je 60° auseinander. Das Gitter hat 6-zählige Drehpunkte und die Punktgruppe 6<i>mm</i>, ist also hexagonal (<i>hp</i>). Die Zelle mit 60° ist eine seiner primitiven Zellen; konventionell nimmt man zwei gleich lange Gittervektoren unter 120°, etwa <i>a</i> und <i>b</i> − <i>a</i>. Ein Rhombus mit einem anderen Winkel als 60°, 90° oder 120° führt dagegen auf <i>oc</i>.',
     skript: 'konventionell', app: '#m=struktur&ba=1&gamma=60&basis=atom,0,0,0,0&sbind=0',
     quelle: 'Skript, Abschn. 2.3 und 2.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-2-06', stufe: 2, kapitel: 2, typ: 'einfach', lernziel: LZ.symbole,
@@ -543,7 +543,7 @@ export const BANK = [
     erklaerung: `Die Drehung um 180° um den Ursprung kehrt beide Koordinaten um, in der Schreibweise der International Tables ${ov('x')}, ${ov('y')}. In der Ebene ist die Inversion also keine eigene Operation: Ein Inversionszentrum der Ebene ist ein 2-zähliger Drehpunkt.`,
     skript: 'drehpunkte', app: '#m=eg&g=p2',
     quelle: 'Skript, Abschn. 2.1; Hoffmann (2016), Abschn. 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gs-1-09', stufe: 1, kapitel: 2, typ: 'mehrfach', lernziel: LZ.zaehlig,
@@ -557,7 +557,7 @@ export const BANK = [
     erklaerung: 'Nur gleichseitige Dreiecke, Quadrate und regelmässige Sechsecke parkettieren die Ebene allein, passend zu den 3-, 4- und 6-zähligen Drehpunkten eines Gitters.',
     skript: 'zaehligkeit',
     quelle: 'Skript, Abschn. 2.2; Hoffmann (2016), Abschn. 8.2, Abb. 8.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 3 Gitter und Motiv
@@ -573,7 +573,7 @@ export const BANK = [
     erklaerung: 'Die zehn kristallographischen Punktgruppen der Ebene: 1, 2, <i>m</i>, 2<i>mm</i>, 4, 4<i>mm</i>, 3, 3<i>m</i>, 6, 6<i>mm</i>.',
     skript: 'punktgruppen-ebene',
     quelle: 'Skript, Abschn. 3.1; Borchardt-Ott & Sowa (2018), Abschn. 10.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gm-1-02', stufe: 1, kapitel: 3, typ: 'einfach', lernziel: LZ.pg10,
@@ -738,7 +738,7 @@ export const BANK = [
     erklaerung: 'Ein runder Punkt geht bei jeder Drehung um seine Mitte und jeder Spiegelung an einer Linie durch seine Mitte in sich über; man sieht ihm nicht an, ob er gespiegelt oder gedreht wurde. Erst ein Objekt ohne eigene Symmetrie wie das Fähnchen zeigt den Unterschied: Gespiegelt wird es zu seinem Spiegelbild, gedreht nicht. Deshalb zeigen die App und die International Tables Fähnchen bzw. Kreise mit Komma.',
     skript: 'gitter-und-motiv',
     quelle: 'Skript, Abschn. 3.2; Borchardt-Ott & Sowa (2018), Aufg. 10.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 
   // ================================================================== Kap. 4 Gleitspiegelung und Verknüpfung
@@ -932,7 +932,7 @@ export const BANK = [
     erklaerung: 'Jede Operation muss die Mittellinie des Frieses auf sich abbilden; die Laufrichtung darf sich dabei umkehren: Drehpunkte nur 2-zählig, Spiegellinien längs oder quer, Gleitspiegellinien nur längs. Daraus ergeben sich sieben Friesgruppen: nur Translationen; Spiegellinie längs; Gleitspiegellinie längs; Spiegellinien quer; nur 2-zählige Drehpunkte; Spiegellinien quer mit Gleitspiegellinie längs; Spiegellinien längs und quer. In den beiden letzten entstehen 2-zählige Drehpunkte von selbst.',
     skript: 'gleitung',
     quelle: 'Skript, Abschn. 4.1, Vertiefung „Friesgruppen“',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-2-06', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.ita,
@@ -965,7 +965,7 @@ export const BANK = [
     erklaerung: 'Zuerst <i>m</i>₁ (Stelle 1 bleibt, 2 und 3 tauschen), dann +3 (die Ecke an Stelle 1 rückt nach Stelle 2, 2 nach 3, 3 nach 1). Fest bleibt nur die Ecke an Stelle 3: <i>m</i>₃ (Zeile +3, Spalte <i>m</i>₁).',
     skript: 'verknuepfung',
     quelle: 'Skript, Abschn. 4.4, Abb. 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-2-08', stufe: 2, kapitel: 4, typ: 'einfach', lernziel: LZ.verkn,
@@ -980,7 +980,7 @@ export const BANK = [
       'Eine Gleitkomponente ist die halbe Gitterperiode entlang der Linie. Eine ganze Translation entlang der Linie wiederholt nur die Spiegelung.',
       'Die Linie rückt um die Hälfte des Anteils senkrecht zu ihr.',
       'Nur <i>y</i> wechselt das Vorzeichen; die Operation spiegelt.'],
-    erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> der Translation steht senkrecht zur Linie und verschiebt sie um die Hälfte, nach <i>y</i> = ½. Der Anteil <i>a</i> liegt parallel zur Linie und ist eine ganze Gittertranslation: Das Ergebnis ist die Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>; eine neue Gleitspiegellinie entsteht nicht. Die App leitet dieselbe Linie aus der Translation <i>b</i> allein her; der Anteil <i>a</i> ändert nichts.`,
+    erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> der Translation steht senkrecht zur Linie und verschiebt sie um die Hälfte, nach <i>y</i> = ½. Der Anteil <i>a</i> liegt parallel zur Linie und ist eine ganze Gittertranslation: Das Ergebnis ist die Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>; eine neue Gleitspiegellinie entsteht nicht. Zum selben Element gehört die reine Spiegelung <i>x</i>, ${ov('y')} + 1 = <i>b</i> ∘ <i>B</i>; aus ihr leitet die App die Linie her. <i>A</i> ∘ <i>B</i> unterscheidet sich davon nur um die Gittertranslation <i>a</i>.`,
     skript: 'verknuepfung', app: '#m=eg&g=p2mm&erkl=m;0,1/2;1,0',
     quelle: 'Skript, Abschn. 4.4',
     status: 'entwurf',
@@ -1029,7 +1029,7 @@ export const BANK = [
     erklaerung: 'Zu sich selbst invers ist eine Operation <i>A</i> mit <i>A</i> ∘ <i>A</i> = 1. Das gilt für die Identität, für die Drehung um 180° (2 ∘ 2 = 1) und für jede Spiegelung (<i>m</i> ∘ <i>m</i> = 1). In 2<i>mm</i> ist deshalb jede Operation zu sich selbst invers.',
     skript: 'verknuepfung',
     quelle: 'Skript, Abschn. 4.4; Borchardt-Ott & Sowa (2018), Abschn. 11.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-1-08', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.gleit,
@@ -1067,7 +1067,7 @@ export const BANK = [
     erklaerung: 'Punktgruppe und Gitter kombinieren ergibt 13 (<i>m</i> und 2<i>mm</i> mit zwei Gittern, 3<i>m</i> auf zwei Arten). Einige oder alle Spiegellinien durch Gleitspiegellinien ersetzen ergibt <i>pg</i>, <i>p</i>2<i>mg</i>, <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>; <i>p</i>2<i>mg</i> und <i>p</i>4<i>gm</i> behalten Spiegellinien.',
     skript: 'siebzehn',
     quelle: 'Skript, Abschn. 5.1',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-1-02', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
@@ -1121,7 +1121,7 @@ export const BANK = [
     erklaerung: 'Die Punktgruppe 3<i>m</i> passt auf zwei Arten ins hexagonale Gitter: Spiegellinien senkrecht zu <i>a</i>, <i>b</i>, <i>a</i> + <i>b</i> (2. Blickrichtung, <i>p</i>3<i>m</i>1) oder entlang dieser Richtungen (3. Blickrichtung, <i>p</i>31<i>m</i>). Abb. 5.3 im Skript zeigt beide nebeneinander.',
     skript: 'symbol', app: '#m=eg&g=p31m&obj=0',
     quelle: 'Skript, Abschn. 5.2, Abb. 5.3',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-1-04', stufe: 1, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
@@ -1171,7 +1171,7 @@ export const BANK = [
     erklaerung: '<i>p</i>2<i>mm</i>, <i>p</i>2<i>mg</i>, <i>p</i>2<i>gg</i> und <i>c</i>2<i>mm</i>: Man lässt den Zellbuchstaben weg und liest <i>g</i> als <i>m</i>.',
     skript: 'punktgruppe-system',
     quelle: 'Skript, Abschn. 5.1 und 5.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-1-06', stufe: 1, kapitel: 5, typ: 'bild-text', lernziel: LZ.diagramm,
@@ -1222,7 +1222,7 @@ export const BANK = [
     erklaerung: 'Die Nebenklassen bilden die Faktorgruppe <i>E</i>/<i>T</i>; sie hat dieselbe Gruppentafel wie die Punktgruppe, <i>P</i> ≅ <i>E</i>/<i>T</i>. Das gilt für jede Ebenengruppe: Es gibt so viele Nebenklassen, wie die Punktgruppe Operationen hat; eine Zentrierung zählt dabei zu den Gittertranslationen. Deshalb listen die International Tables für <i>p</i>2<i>mg</i> vier Operationen, eine je Nebenklasse. Nebenklassen sind nicht mit den Konjugiertenklassen der Gruppentheorie zu verwechseln.',
     skript: 'punktgruppe-system', app: '#m=eg&g=p2mg&schritt=1',
     quelle: 'Skript, Abschn. 5.4, Vertiefung „Die Punktgruppe als Faktorgruppe“; ITA (2006), S. 98; Schwarzenbach (2001), Abschn. 2.4 und 2.5.1, S. 45–46',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'eg-2-03', stufe: 2, kapitel: 5, typ: 'einfach', lernziel: LZ.symbol,
@@ -1257,7 +1257,7 @@ export const BANK = [
     skript: 'allgemein-speziell', app: '#m=eg&g=pg&x=1/2&y=0.3',
     quelle: 'Skript, Abschn. 6.1, Abb. 6.2; ITA (2006), Abschn. 2.2.11',
     pruefung: { art: 'zaehligkeit', gruppe: 'pg', punkt: [0.5, 0.3] },
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'pl-2-01', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.lage,
@@ -1308,7 +1308,7 @@ export const BANK = [
     erklaerung: 'Dazu bräuchte man etwa eine Verschiebung um <i>a</i>/2 oder eine Spiegellinie bei <i>x</i> = ¼; beides hat <i>p</i>2<i>mm</i> nicht. Deshalb können auf 1<i>a</i> und 1<i>c</i> verschiedene Atome sitzen.',
     skript: 'wyckoff', app: '#m=eg&g=p2mm&x=1/2&y=0',
     quelle: 'Skript, Abschn. 6.2',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'pl-1-03', stufe: 1, kapitel: 6, typ: 'bild-text', lernziel: LZ.ae,
@@ -1337,7 +1337,7 @@ export const BANK = [
     erklaerung: 'Eine Gleitspiegelung hält keinen Punkt fest: Das Bild eines Punktes auf der Linie liegt um die Gleitkomponente entfernt, gleichwertige Punkte rücken nie beliebig nahe zusammen. Bei Spiegellinien und Drehpunkten geschieht das; sie müssen deshalb auf dem Rand liegen.',
     skript: 'asymmetrische-einheit', app: '#m=eg&g=p2mg&ae=1',
     quelle: 'Skript, Abschn. 6.3; ITA (2006), Abschn. 2.2.8',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'pl-2-04', stufe: 2, kapitel: 6, typ: 'einfach', lernziel: LZ.ae,
@@ -1501,7 +1501,7 @@ export const BANK = [
     erklaerung: 'Tapeten, Stoffe, Fliesen und Mauerwerk haben dieselben 17 Ebenengruppen wie zweidimensionale Kristallstrukturen.',
     skript: 'tapetengruppen',
     quelle: 'Skript, Abschn. 7.1; Hoffmann (2016), S. 141',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-1-02', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.anordnung,
@@ -1538,7 +1538,7 @@ export const BANK = [
     erklaerung: 'Die waagrechten Fugen werden zu Gleitspiegellinien, und die konventionelle Zelle wird zentriert: <i>c</i>2<i>mm</i>. Die Punktgruppe bleibt 2<i>mm</i>. Der Versatz verhindert zudem, dass die Fugen senkrecht durch die ganze Mauer laufen.',
     skript: 'mauerwerk', app: '#m=struktur&v=laeufer',
     quelle: 'Skript, Abschn. 7.2; Hoffmann (2016), S. 142',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-1-05', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.mauer,
@@ -1612,7 +1612,7 @@ export const BANK = [
     erklaerung: '3.3.3.3.6 hat nur Drehpunkte, weder Spiegel- noch Gleitspiegellinien (<i>p</i>6). Sie ist chiral: Sie und ihr Spiegelbild lassen sich nicht zur Deckung bringen.',
     skript: 'fliesen', app: '#m=struktur&v=a33336',
     quelle: 'Skript, Abschn. 7.3, Abb. 7.5d',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-3-03', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.escher,
@@ -1630,7 +1630,7 @@ export const BANK = [
     erklaerung: 'Die Partnerkanten gehen durch die Translationen <i>a</i> und <i>b</i> auseinander hervor. Die Kachel behält die Fläche der Zelle und füllt die Ebene wie die Zellen.',
     skript: 'escher',
     quelle: 'Skript, Abschn. 7.4, Abb. 7.6',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-3-04', stufe: 3, kapitel: 7, typ: 'bild-text', lernziel: LZ.escher,
@@ -1649,7 +1649,7 @@ export const BANK = [
     erklaerung: 'Eine Kante, die punktsymmetrisch zu ihrer Mitte ist, ist ihr eigener Partner: Die um 180° um ihre Mitte gedrehte Kachel passt an. Die Kantenmitten sind 2-zählige Drehpunkte, das Muster hat <i>p</i>2.',
     skript: 'escher',
     quelle: 'Skript, Abschn. 7.4, Abb. 7.6c',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-3-05', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.farbe,
@@ -1667,7 +1667,7 @@ export const BANK = [
     erklaerung: 'Mit Farben ist erst die Verschiebung schräg über die Ecke eine Translation. Die Zelle ist um 45° gedreht und doppelt so gross; die Ebenengruppe bleibt <i>p</i>4<i>mm</i>.',
     skript: 'farbe', app: '#m=struktur&ba=1&gamma=90&basis=quadrat,0,1/4,1/4,0,0.332;quadrat,1,1/4,3/4,0,0.332;quadrat,1,3/4,1/4,0,0.332;quadrat,0,3/4,3/4,0,0.332',
     quelle: 'Skript, Abschn. 7.5, Abb. 7.7; Hoffmann (2016), S. 202–203, 314–315',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-3-06', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway,
@@ -1732,7 +1732,7 @@ export const BANK = [
     erklaerung: 'Die Verschiebung um ein Feld bringt das Muster nicht in sich über, aber fast: Jedes Feld kommt auf ein Feld gleicher Form mit der anderen Farbe. Mit solchen Operationen erhält man die Schwarz-Weiss-Gruppen, in der Ebene 46.',
     skript: 'farbe', app: '#m=struktur&ba=1&gamma=90&basis=quadrat,0,1/4,1/4,0,0.332;quadrat,1,1/4,3/4,0,0.332;quadrat,1,3/4,1/4,0,0.332;quadrat,0,3/4,3/4,0,0.332',
     quelle: 'Skript, Abschn. 7.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'tk-3-10', stufe: 3, kapitel: 7, typ: 'einfach', lernziel: LZ.conway17,
@@ -1750,6 +1750,6 @@ export const BANK = [
     erklaerung: 'Eine Ziffer <i>n</i> kostet (<i>n</i> − 1)/<i>n</i>, also weniger als 1; zwei Ziffern bleiben unter 2. Mit drei Ziffern geht es nur als 632, 442 oder 333, mit vier nur als 2222.',
     skript: 'conway', app: '#m=eg&g=p6',
     quelle: 'Skript, Abschn. 7.6; Conway, Burgiel & Goodman-Strauss (2016), Tab. 3.1, S. 29; S. 34–35',
-    status: 'entwurf',
+    status: 'geprüft',
   },
 ];

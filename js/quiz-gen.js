@@ -153,7 +153,7 @@ function hinweisPunktgruppe(symbol, richtig, falsch) {
 }
 /** @satisfies {Generator} */
 export const PUNKTGRUPPE = {
-  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'entwurf',
+  id: 'punktgruppe', kapitel: 5, stufen: [1], status: 'geprüft',
   params: () => ALLE.flatMap((g) => [`${g}:pg`, `${g}:sys`]),
   make(param) {
     const [g, art] = param.split(':');
@@ -315,7 +315,6 @@ export const VERBAND = strukturGenerator({
   frage: 'Welche Ebenengruppe hat der Verband? Alle Steine sind gleich; hervorgehoben ist eine Elementarzelle.',
   lernziel: 'an Mauerwerk und Pflaster zeigen, wie der Versatz der Reihen die Symmetrie ändert, und die Ebenengruppen der Beispiele im Bild nachvollziehen',
   skript: 'mauerwerk',
-  status: 'entwurf',
   // Die konventionelle Zelle ist hier zufällig quadratisch; das verleitet zu p4…
   zusatz: { laeufer: 'Die hervorgehobene Zelle ist zufällig quadratisch; das Muster hat aber keine 4-zählige Drehung, das Gitter ist deshalb rechteckig zentriert.' },
 });
@@ -607,7 +606,7 @@ export const OHNE_GLEIT = ALLE.filter((g) => !linienArten(g).g);
 const NAEHE = { cm: ['pm', 'p2mm', 'p1'], c2mm: ['p2mm', 'pm', 'p2'], p4mm: ['p4', 'p2mm', 'pm'], p3m1: ['p3', 'p6', 'pm'], p31m: ['p3', 'p6', 'p2mm'], p6mm: ['p6', 'p3', 'p2mm'] };
 /** @satisfies {Generator} */
 export const GLEIT_UNGENANNT = {
-  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'entwurf',
+  id: 'gleit-ungenannt', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => MIT_GLEIT,
   make(g) {
     const ab = (NAEHE[g] || OHNE_GLEIT).filter((x) => OHNE_GLEIT.includes(x)).slice(0, 3);
@@ -646,7 +645,7 @@ const gegenbeispiel = (pg) => {
 const grundAbelsch = (pg) => (pg === '2mm' ? 'jede Operation ist zu sich selbst invers, zum Beispiel <i>m</i><sub><i>a</i></sub> ∘ <i>m</i><sub><i>b</i></sub> = <i>m</i><sub><i>b</i></sub> ∘ <i>m</i><sub><i>a</i></sub> = 2' : 'Drehungen um denselben Punkt sind vertauschbar');
 /** @satisfies {Generator} */
 export const REIHENFOLGE = {
-  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'entwurf',
+  id: 'reihenfolge', kapitel: 4, stufen: [2], status: 'geprüft',
   params: () => [...NICHT_ABELSCH.map((pg) => `ja:${pg}`), ...ABELSCH.map((pg) => `nein:${pg}`)],
   make(param) {
     const [ja, pgText] = param.split(':');
