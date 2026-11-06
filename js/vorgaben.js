@@ -1,6 +1,6 @@
 // Vorgaben für den Modus „Gitter und Basis“: Bravais-Gitter, das
 // Dreiecksbeispiel (Konzept §3.2), 2D-Materialien in der Draufsicht, Archimedische Parkettierungen,
-// Mauerwerk und Pflaster (Kap. 7) und künstliches Spin-Eis. Jede Vorgabe nennt die Ebenengruppe,
+// Mauerwerk und Pflaster (Kap. 7), künstliches Spin-Eis und Muster (Kap. 8). Jede Vorgabe nennt die Ebenengruppe,
 // die die Symmetriebestimmung ergeben muss (tests/struktur.test.mjs).
 //
 // Gitter wie im Modus „Ebenengruppen“: a nach unten, b nach rechts (metrik() in zeichnung.js).
@@ -90,6 +90,9 @@ export const VORGABEN = [
   { id: 'asi-quadrat', gruppe: 'Künstliches Spin-Eis', name: 'Square', gitter: Q, basis: [insel([0.5, 0], [1, 0], Q, 0.17), insel([0, 0.5], [0, 1], Q, 0.17)], erwartet: 'p4mm' },
   { id: 'asi-kagome', gruppe: 'Künstliches Spin-Eis', name: 'Kagome (Bienenwaben-Bindungen)', gitter: H, basis: [insel([0.5, 0], [1 / 3, 2 / 3], H, 0.2), insel([0, 0.5], [2 / 3, 1 / 3], H, 0.2), insel([0.5, 0.5], [1 / 3, -1 / 3], H, 0.2)], erwartet: 'p6mm' },
   { id: 'asi-pinwheel', gruppe: 'Künstliches Spin-Eis', name: 'Pinwheel (Inseln um 45° gedreht)', gitter: Q, basis: [{ ...insel([0.5, 0], [1, 0], Q, 0.17), winkel: grad(winkelVon(Q, [1, 0]) + 45) }, { ...insel([0, 0.5], [0, 1], Q, 0.17), winkel: grad(winkelVon(Q, [0, 1]) + 45) }], erwartet: 'p4gm' },
+
+  // Muster (#86, Skript Kap. 8): Dreiergruppen um die Gitterpunkte auf der Lage 3c von p31m, (x, 0), (0, x), (−x, −x)
+  { id: 'dreiergruppen', gruppe: 'Muster', name: 'Dreiergruppen (p31m)', gitter: H, basis: /** @type {Vec2[]} */ ([[0.3, 0], [0, 0.3], [-0.3, -0.3]]).map((p) => atom(p)), erwartet: 'p31m' },
 ];
 
 /** @param {string} id */
