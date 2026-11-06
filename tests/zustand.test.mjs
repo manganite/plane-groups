@@ -1,7 +1,7 @@
 // Link-Adressen: Format ist eine Schnittstelle (README), hin und zurück stabil.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, GITTER_START, gespeichertPruefen, introGesehen } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, GITTER_START, zustandPruefen, introGesehen } from '../js/zustand.js';
 import { grad } from '../js/zeichnung.js';
 
 /** @import { Zustand } from '../js/zustand.js' */
@@ -112,7 +112,7 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
 test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {
   const s = startzustand();
   // absichtlich falsche Arten, wie sie im Speicher des Browsers stehen könnten
-  const z = gespeichertPruefen(/** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 })));
+  const z = zustandPruefen(/** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 })));
   assert.equal(z.aufbau, s.aufbau);
   assert.equal(z.erkl, null);
   assert.equal(z.form, s.form);
@@ -120,7 +120,7 @@ test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie i
   assert.equal(z.elemente, s.elemente);
   assert.equal(z.warum, false);
   // gültige Werte bleiben
-  const g = gespeichertPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'ranke', zellen: 2, elemente: false });
+  const g = zustandPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'ranke', zellen: 2, elemente: false });
   assert.deepEqual([g.aufbau, g.erkl, g.form, g.zellen, g.elemente], [3, 'm;1/4,0;0,1', 'ranke', 2, false]);
 });
 

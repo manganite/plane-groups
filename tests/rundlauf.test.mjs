@@ -13,6 +13,7 @@ import { grad } from '../js/zeichnung.js';
 const SYMBOLE = ['p1', 'p2', 'pm', 'pg', 'cm', 'p2mm', 'p2mg', 'p2gg', 'c2mm', 'p4', 'p4mm', 'p4gm', 'p3', 'p3m1', 'p31m', 'p6', 'p6mm'];
 const FEST = { rechteckig: { gamma: 90 }, quadratisch: { ba: 1, gamma: 90 }, hexagonal: { ba: 1, gamma: 120 } };
 const BEREICH = { ba: [0.6, 1.6], gamma: [95, 125] };
+const SCHIEF = ['p1', 'p2']; // schiefwinklig: dort ist nichts zu brechen
 
 /** Neu laden: Speicher wie im Browser (JSON), dann der Link, wie main.js. @param {Zustand} z @param {string} [hash] */
 const neuLaden = (z, hash) => {
@@ -35,6 +36,14 @@ function pruefeGueltig(z) {
   }
   assert.ok(Number.isInteger(z.schritt) && z.schritt >= 0 && z.schritt <= 25, `schritt ${z.schritt}`);
   assert.ok(Number.isInteger(z.aufbau) && z.aufbau >= 0 && z.aufbau <= 20, `aufbau ${z.aufbau}`);
+  assert.ok(z.zoomB >= 0.5 && z.zoomB <= 3 && z.objGroesse >= 0.5 && z.objGroesse <= 3, 'zoomB, objGroesse');
+  assert.ok(Array.isArray(z.aeTeile) && z.aeTeile.every((i, k) => Number.isInteger(i) && i >= 0 && (k === 0 || i > z.aeTeile[k - 1])), `aeTeile ${z.aeTeile}`);
+  assert.ok(typeof z.brechen === 'boolean' && !(z.brechen && SCHIEF.includes(z.gruppe)), 'brechen');
+  assert.ok(z.frei.ba >= 0.5 && z.frei.ba <= 2 && z.frei.gamma >= 60 && z.frei.gamma <= 150, 'frei');
+  assert.ok(!(z.zeichnen && z.radieren), 'zeichnen und radieren');
+  assert.ok(VORGABEN.some((v) => v.id === z.struktur.vorgabe), `struktur.vorgabe ${z.struktur.vorgabe}`);
+  assert.ok(Array.isArray(z.struktur.basis) && z.struktur.basis.length > 0, 'struktur.basis');
+  assert.deepEqual(Object.keys(z).sort(), Object.keys(startzustand()).sort(), 'nur die Felder des Zustands');
   assert.equal(typeof hashVon(z), 'string');
 }
 
@@ -52,6 +61,12 @@ function beispiele() {
   for (const v of VORGABEN) {
     const z = startzustand();
     z.modus = 'struktur'; z.struktur = strukturStart(v.id);
+    out.push(z);
+  }
+  // Symmetrie gebrochen: freie Metrik
+  for (const g of ['pm', 'p4mm', 'p6mm']) {
+    const z = startzustand();
+    Object.assign(z, { gruppe: g, brechen: true, frei: { ba: 1.8, gamma: grad(70) } });
     out.push(z);
   }
   // verändert gegenüber der Vorgabe (Zurücksetzen muss die Vorgabe kennen)
@@ -85,7 +100,7 @@ test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne
     null, 'x', 42, { v: 2, z: {} }, { v: 1 }, { v: 1, z: null },
     // falsche Arten in allen Feldern
     { v: 1, z: { gruppe: '<b>', modus: 'tafel', punkt: [1, 'a'], gitter: { schiefwinklig: { ba: 'gross', gamma: NaN }, rechteckig: { ba: 9, gamma: 45 }, hexagonal: { ba: 2, gamma: 90 } }, schritt: 999, aufbau: -3, zoomB: 'x', objGroesse: 50, frei: 'nein', aeTeile: [7, -1, 'a'], striche: [[1, 2]], struktur: { vorgabe: 'gibtsnicht' } } },
-    { v: 1, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>' } },
+    { v: 1, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>', zeichnen: true, radieren: true, brechen: 'ja' } },
     { v: 1, z: { gitter: { quadratisch: { ba: 1.3, gamma: 100 } } } }, // Werte, die das System nicht zulässt
   ];
   for (const s of staende) {
@@ -108,4 +123,33 @@ test('Rundlauf: Zurücksetzen vor und nach dem Neuladen gleich (Speicher und Lin
       assert.deepEqual(strukturStart(n.struktur.vorgabe), vorher);
     }
   }
+});
+
+test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review #97)', () => {
+  /** @param {Record<string, unknown>} felder */
+  const speicher = (felder) => ausSpeicher({ v: 1, z: felder });
+  // Gitter: Grenzen der Regler eingeschlossen, darüber hinaus der Startwert
+  const g = (/** @type {number} */ ba) => speicher({ gitter: { schiefwinklig: { ba, gamma: 110 } } }).gitter.schiefwinklig.ba;
+  assert.equal(g(1.6), 1.6); assert.equal(g(0.6), 0.6); assert.equal(g(1.65), 1.25); assert.equal(g(0.55), 1.25);
+  const lg = (/** @type {string} */ ba) => { const z = startzustand(); hashAnwenden(z, `#m=eg&g=p1&ba=${ba}`); return z.gitter.schiefwinklig.ba; };
+  assert.deepEqual([lg('1.6'), lg('0.6'), lg('1.65'), lg('0.55')], [1.6, 0.6, 1.25, 1.25]);
+  // schritt: 25 bleibt, 26 wird zum Startwert, in beiden Wegen
+  assert.deepEqual([speicher({ schritt: 25 }).schritt, speicher({ schritt: 26 }).schritt], [25, 0]);
+  const ls = (/** @type {string} */ n) => { const z = startzustand(); hashAnwenden(z, `#m=eg&schritt=${n}`); return z.schritt; };
+  assert.deepEqual([ls('25'), ls('26')], [25, 0]);
+  // brechen im schiefwinkligen System: in beiden Wegen verworfen
+  assert.equal(speicher({ gruppe: 'p2', brechen: true }).brechen, false);
+  const zl = startzustand(); hashAnwenden(zl, '#m=eg&g=p2&brechen=1&ba=1.8&gamma=70');
+  assert.equal(zl.brechen, false);
+  // frei: ungültige Werte werden ersetzt (Startwert des Systems), nicht an die Grenze geschoben
+  const f = speicher({ gruppe: 'p4mm', brechen: true, frei: { ba: 9, gamma: 100 } }).frei;
+  assert.deepEqual([f.ba, f.gamma], [1, 100]);
+  const fl = startzustand(); hashAnwenden(fl, '#m=eg&g=p4mm&brechen=1&ba=9&gamma=100');
+  assert.deepEqual([fl.frei.ba, fl.frei.gamma], [1, 100]);
+  // aeTeile: Doppelte weg, aufsteigend
+  assert.deepEqual(speicher({ gruppe: 'p2mm', aeTeile: [1, 0, 0, 1, 99] }).aeTeile, [0, 1]);
+  // fremde Schlüssel und __proto__ werden nicht übernommen
+  const z = ausSpeicher(JSON.parse('{"v":1,"z":{"__proto__":{"boese":1},"fremd":2,"gruppe":"p4"}}'));
+  assert.equal(z.gruppe, 'p4');
+  assert.ok(!('fremd' in z) && !('boese' in z) && Object.getPrototypeOf(z) === Object.prototype);
 });
