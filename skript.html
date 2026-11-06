@@ -1731,9 +1731,9 @@
 
       <section id="vorgehen">
         <h3>Vorgehen</h3>
-        <p>Die Ebenengruppe eines Musters zu bestimmen heisst, seine Symmetrieelemente zu finden: Drehpunkte, Spiegellinien und Gleitspiegellinien. Das Symbol ergibt sich dann aus wenigen Merkmalen. Welche das sind, zeigt ein Flussdiagramm, das auf Brian Sanderson zurückgeht und das Hoffmann in seinem Lehrbuch wiedergibt. Es kennt fünf Leitfragen (Abschnitt 8.2) und führt nach höchstens vier Antworten zu einer der 17 Gruppen (Abschnitt 8.3).</p>
-        <p>Die Fragen beantwortet man am Muster selbst, das Diagramm nimmt einem diese Arbeit nicht ab. Hoffmann gibt dafür drei Hinweise: die Fragen zunächst für kleine Teilstücke des Musters beantworten, gedanklich von der Farbe absehen, um Kandidaten zu finden, und die dominanten Linien des Musters waagrecht oder senkrecht ausrichten. Ob ein Kandidat wirklich ein Symmetrieelement ist, entscheidet aber das ganze Muster, mit seinen Farben (Abschnitt 8.5). Eine Operation gehört nur dann zum Muster, wenn sie jedes Motiv auf ein gleiches Motiv abbildet, an jeder Stelle des Musters.</p>
-        <p>Zuletzt legt man die Zelle fest und zeichnet die Symmetrieelemente an ihren richtigen Stellen ein (Abschnitt 8.6). Erst damit ist die Bestimmung vollständig; Hoffmann führt sie an einem Muster mit der Ebenengruppe <i>p</i>2<i>mg</i> bis zu diesem Schritt vor.</p>
+        <p>Die Ebenengruppe eines Musters zu bestimmen heisst, seine Symmetrieelemente zu finden: Drehpunkte, Spiegellinien und Gleitspiegellinien. Das Symbol ergibt sich dann aus wenigen Merkmalen. Welche das sind, zeigt ein Flussdiagramm, das der Mathematiker Brian Sanderson als Algorithmus zum Erkennen von Mustern entworfen hat. Es kennt fünf Leitfragen (Abschnitt 8.2) und führt nach höchstens vier Antworten zu einer der 17 Gruppen (Abschnitt 8.3).</p>
+        <p>Die Fragen beantwortet man am Muster selbst; das Diagramm sagt nur, welche Elemente man suchen muss und in welcher Reihenfolge. Drei Hilfen machen das Suchen leichter: die Fragen zuerst an einem kleinen Teilstück des Musters beantworten, für den Anfang von der Farbe absehen, um Kandidaten zu finden, und das Muster so drehen, dass seine auffälligen Linien waagrecht oder senkrecht laufen. Ob ein Kandidat wirklich ein Symmetrieelement ist, entscheidet aber das ganze Muster, mit seinen Farben (Abschnitt 8.5). Eine Operation gehört nur dann zum Muster, wenn sie jedes Motiv auf ein gleiches Motiv abbildet, an jeder Stelle des Musters.</p>
+        <p>Zuletzt legt man die Zelle fest und zeichnet die Symmetrieelemente an ihren richtigen Stellen ein (Abschnitt 8.6). Erst damit ist die Bestimmung vollständig.</p>
       </section>
 
       <section id="leitfragen">
@@ -1741,7 +1741,7 @@
         <ol>
           <li><b>Welche Zähligkeit hat der Drehpunkt höchster Zähligkeit?</b> Möglich sind nur 1, 2, 3, 4 und 6 (Abschnitt 2.2); 1 heisst, es gibt keinen Drehpunkt. Kandidaten sind die Mitten von Motiven mit Drehsymmetrie und die Stellen zwischen zwei gleichen Motiven, die um 180° gegeneinander gedreht sind. Ein 6-zähliger Drehpunkt ist zugleich 3- und 2-zählig, ein 4-zähliger zugleich 2-zählig; gezählt wird die höchste Zähligkeit.</li>
           <li><b>Gibt es eine Spiegellinie?</b> Eine Spiegellinie bildet jedes Motiv auf sein Spiegelbild ab, und dieses Spiegelbild ist selbst ein Motiv des Musters (Abschnitt 2.1).</li>
-          <li><b>Gibt es eine Gleitspiegellinie, die nicht auf einer Spiegellinie liegt?</b> Eine Gleitspiegellinie gleitet um die halbe Gitterperiode entlang der Linie (Abschnitt 4.1). Auf einer Spiegellinie kann sie nicht liegen: Spiegelung und Gleitspiegelung an derselben Linie ergäben zusammen eine Translation entlang der Linie um die Gleitkomponente, kürzer als die kürzeste Gittertranslation in dieser Richtung. Gleitspiegellinien liegen deshalb immer neben den Spiegellinien, etwa in der Mitte zwischen zwei parallelen. Hoffmann fragt nach einer echten Gleitspiegellinie, „die sich nicht bereits aus der Kombination von Translation und Spiegelung ergibt“. Wörtlich genommen führt das in die Irre: Die Gleitspiegellinien von <i>cm</i> und <i>c</i>2<i>mm</i> entstehen gerade aus Spiegelung und Translation (Abschnitt 4.5), und für diese Gruppen muss die Antwort Ja lauten, sonst führt das Diagramm auf <i>pm</i> bzw. <i>p</i>2<i>mm</i>. Entscheidend ist nur, ob es eine Gleitspiegellinie gibt.</li>
+          <li><b>Gibt es eine Gleitspiegellinie, die nicht auf einer Spiegellinie liegt?</b> Eine Gleitspiegellinie gleitet um die halbe Gitterperiode entlang der Linie (Abschnitt 4.1). Auf einer Spiegellinie kann sie nicht liegen: Spiegelung und Gleitspiegelung an derselben Linie ergäben zusammen eine Translation entlang der Linie um die Gleitkomponente, kürzer als die kürzeste Gittertranslation in dieser Richtung. Gleitspiegellinien liegen deshalb immer neben den Spiegellinien, etwa in der Mitte zwischen zwei parallelen. Sanderson spricht von einer „unzerlegbaren“ Gleitspiegelung (<i>indecomposable glide reflection</i>). Für das Diagramm genügt die Frage, ob es überhaupt eine Gleitspiegellinie gibt. Auch Gleitspiegellinien, die aus einer Spiegelung und einer schrägen Translation entstehen, zählen, etwa die von <i>cm</i> und <i>c</i>2<i>mm</i> zwischen den Spiegellinien (Abschnitt 4.5); für diese Gruppen verlangt das Diagramm ein Ja.</li>
           <li><b>Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?</b> Diese Frage stellt das Diagramm nur bei Gruppen mit Spiegellinien und höchster Zähligkeit 3 oder 4. Gefragt ist nach irgendeinem Drehpunkt, nicht nur nach dem höchster Zähligkeit.</li>
           <li><b>Gibt es einen Drehpunkt, der auf einer Spiegellinie liegt?</b> Diese Frage stellt das Diagramm nur bei höchster Zähligkeit 2, wenn es Spiegellinien und Gleitspiegellinien gibt.</li>
         </ol>
@@ -1757,78 +1757,98 @@
         <p>Abb. 8.1 zeigt das Flussdiagramm. Man beginnt links mit der höchsten Zähligkeit und folgt dann den Antworten nach rechts. Nicht jede Frage wird in jedem Zweig gestellt: Bei 6-zähligen Drehpunkten genügt die Frage nach Spiegellinien, und bei höchster Zähligkeit 3 oder 4 ist die Frage nach Gleitspiegellinien unnötig. Gruppen mit Spiegellinien haben dort immer auch Gleitspiegellinien, etwa <i>p</i>4<i>mm</i> diagonal zwischen den diagonalen Spiegellinien (Abschnitt 4.5).</p>
         <figure class="fig-card" data-kind="fluss" data-alt="Flussdiagramm zur Bestimmung der Ebenengruppe: zuerst die höchste Zähligkeit, dann Fragen nach Spiegellinien, Gleitspiegellinien und der Lage der Drehpunkte, rechts die 17 Ebenengruppen">
           <div class="fig-art"></div>
-          <figcaption><b>Abb. 8.1</b> Flussdiagramm zur Bestimmung der Ebenengruppe, nach Sanderson (bei Hoffmann Abb. 4.14), neu gezeichnet. <i>m</i> steht für Spiegellinie; „Gleitspiegellinie neben <i>m</i>“ ist Leitfrage 3.</figcaption>
+          <figcaption><b>Abb. 8.1</b> Flussdiagramm zur Bestimmung der Ebenengruppe, nach dem Algorithmus von Brian Sanderson, neu gezeichnet. <i>m</i> steht für Spiegellinie; „Gleitspiegellinie neben <i>m</i>“ ist Leitfrage 3.</figcaption>
         </figure>
-        <p>Die Tabelle fasst die Wege zusammen; die Spalten sind die Leitfragen 1–5: höchste Zähligkeit, Spiegellinie, Gleitspiegellinie neben den Spiegellinien, Drehpunkt nicht auf einer Spiegellinie, Drehpunkt auf einer Spiegellinie. Ein Strich heisst, dass das Diagramm diese Frage auf dem Weg zur Gruppe nicht stellt.</p>
-        <div class="tabwrap">
-          <table class="tab">
-            <caption>Antworten auf die Leitfragen 1–5 (Abschnitt 8.2) und die Ebenengruppe</caption>
-            <thead><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>Gruppe</th></tr></thead>
-            <tbody>
-              <tr><td>6</td><td>ja</td><td>–</td><td>–</td><td>–</td><td><i>p</i>6<i>mm</i></td></tr>
-              <tr><td>6</td><td>nein</td><td>–</td><td>–</td><td>–</td><td><i>p</i>6</td></tr>
-              <tr><td>4</td><td>ja</td><td>–</td><td>ja</td><td>–</td><td><i>p</i>4<i>gm</i></td></tr>
-              <tr><td>4</td><td>ja</td><td>–</td><td>nein</td><td>–</td><td><i>p</i>4<i>mm</i></td></tr>
-              <tr><td>4</td><td>nein</td><td>–</td><td>–</td><td>–</td><td><i>p</i>4</td></tr>
-              <tr><td>3</td><td>ja</td><td>–</td><td>ja</td><td>–</td><td><i>p</i>31<i>m</i></td></tr>
-              <tr><td>3</td><td>ja</td><td>–</td><td>nein</td><td>–</td><td><i>p</i>3<i>m</i>1</td></tr>
-              <tr><td>3</td><td>nein</td><td>–</td><td>–</td><td>–</td><td><i>p</i>3</td></tr>
-              <tr><td>2</td><td>ja</td><td>ja</td><td>–</td><td>ja</td><td><i>c</i>2<i>mm</i></td></tr>
-              <tr><td>2</td><td>ja</td><td>ja</td><td>–</td><td>nein</td><td><i>p</i>2<i>mg</i></td></tr>
-              <tr><td>2</td><td>ja</td><td>nein</td><td>–</td><td>–</td><td><i>p</i>2<i>mm</i></td></tr>
-              <tr><td>2</td><td>nein</td><td>ja</td><td>–</td><td>–</td><td><i>p</i>2<i>gg</i></td></tr>
-              <tr><td>2</td><td>nein</td><td>nein</td><td>–</td><td>–</td><td><i>p</i>2</td></tr>
-              <tr><td>1</td><td>ja</td><td>ja</td><td>–</td><td>–</td><td><i>cm</i></td></tr>
-              <tr><td>1</td><td>ja</td><td>nein</td><td>–</td><td>–</td><td><i>pm</i></td></tr>
-              <tr><td>1</td><td>nein</td><td>ja</td><td>–</td><td>–</td><td><i>pg</i></td></tr>
-              <tr><td>1</td><td>nein</td><td>nein</td><td>–</td><td>–</td><td><i>p</i>1</td></tr>
-            </tbody>
-          </table>
-        </div>
         <p>Mit 2-zähligen Drehpunkten, Spiegellinien und Gleitspiegellinien bleiben zwei Gruppen. In <i>c</i>2<i>mm</i> liegen einige 2-zählige Drehpunkte auf den Schnittpunkten der Spiegellinien und andere zwischen ihnen; in <i>p</i>2<i>mg</i> liegt keiner auf einer Spiegellinie. In <i>p</i>2<i>mm</i> liegen dagegen alle Drehpunkte auf Schnittpunkten von Spiegellinien, und es gibt keine Gleitspiegellinien. Ebenso trennt das Diagramm <i>p</i>4<i>mm</i> von <i>p</i>4<i>gm</i>: In <i>p</i>4<i>mm</i> liegen alle Drehpunkte auf Spiegellinien, in <i>p</i>4<i>gm</i> liegt der 4-zählige Drehpunkt auf keiner.</p>
         <div class="box app">
           <h4>In der App</h4>
-          <p>Im Modus „Ebenengruppen“ zeigt die App für jede der 17 Gruppen alle Symmetrieelemente. Damit lässt sich jede Zeile der Tabelle nachprüfen. Dass jede Gruppe mit ihren eigenen Elementen genau bei sich ankommt, prüft ein Test der App für alle 17.</p>
+          <p>Im Modus „Ebenengruppen“ zeigt die App für jede der 17 Gruppen alle Symmetrieelemente. Damit lässt sich jeder Weg des Diagramms nachprüfen. Dass jede Gruppe mit ihren eigenen Elementen genau bei sich ankommt, prüft ein Test der App für alle 17.</p>
         </div>
       </section>
 
       <section id="beispiele">
         <h3>Beispiele</h3>
-        <p>Abb. 8.2 zeigt fünf Muster aus den Vorgaben der App im Modus „Gitter und Basis“. Bevor man weiterliest, lohnt es sich, jedes selbst mit dem Flussdiagramm zu bestimmen; Abb. 8.3 zeigt danach die Symmetrieelemente, wie die App sie bestimmt.</p>
+        <p>Abb. 8.2 zeigt fünf Muster aus den Vorgaben der App im Modus „Gitter und Basis“. Bevor man weiterliest, lohnt es sich, jedes selbst mit dem Flussdiagramm zu bestimmen. Abb. 8.3 zeigt danach die Symmetrieelemente, die man dabei findet, noch ohne Zelle; die Zelle kommt erst im letzten Schritt dazu (Abschnitt 8.6, Abb. 8.4).</p>
         <div class="fig-row fig-row3">
-          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=dreieck3&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Muster aus gleichschenkligen Dreiecken, die Spitzen der Reihen abwechselnd nach links und nach rechts">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=dreieck3&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Muster aus gleichschenkligen Dreiecken, die Spitzen der Reihen abwechselnd nach links und nach rechts">
             <div class="fig-art"></div>
             <figcaption><b>Abb. 8.2a</b> Dreiecke, die Spitzen abwechselnd umgekehrt.</figcaption>
           </figure>
-          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=hbn&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Bienenwabe aus zwei Sorten Atomen im Wechsel">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=hbn&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Bienenwabe aus zwei Sorten Atomen im Wechsel">
             <div class="fig-art"></div>
             <figcaption><b>b</b> Bienenwabe aus zwei Sorten Atomen (h-BN).</figcaption>
           </figure>
-          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=dreiergruppen&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Dreiergruppen aus Atomen auf einem hexagonalen Gitter">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=dreiergruppen&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Dreiergruppen aus Atomen auf einem hexagonalen Gitter">
             <div class="fig-art"></div>
             <figcaption><b>c</b> Dreiergruppen.</figcaption>
           </figure>
         </div>
         <div class="fig-row">
-          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=flecht&amp;sel=0" data-viewbox="142 142 236 236" data-alt="Flechtverband: je zwei Steine bilden ein Quadrat, abwechselnd waagrecht und senkrecht">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=flecht&amp;sel=0" data-viewbox="142 142 236 236" data-alt="Flechtverband: je zwei Steine bilden ein Quadrat, abwechselnd waagrecht und senkrecht">
             <div class="fig-art"></div>
             <figcaption><b>d</b> Flechtverband.</figcaption>
           </figure>
-          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=struktur&amp;v=fisch&amp;sel=0" data-viewbox="92.5 92.5 335 335" data-alt="Fischgrätverband: Steine im Zickzack, abwechselnd um 90 Grad gedreht">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=fisch&amp;sel=0" data-viewbox="92.5 92.5 335 335" data-alt="Fischgrätverband: Steine im Zickzack, abwechselnd um 90 Grad gedreht">
             <div class="fig-art"></div>
             <figcaption><b>e</b> Fischgrätverband.</figcaption>
           </figure>
         </div>
-        <p class="fig-note"><b>Abb. 8.2</b> Fünf Muster zum Bestimmen (Vorgaben im Modus „Gitter und Basis“). Hervorgehoben ist die konventionelle Zelle, die die App bestimmt.</p>
-        <p><b>Dreiecke</b> (Abb. 8.2a). Gedreht um 60°, 90° oder 120° kommt das Muster nicht zur Deckung, wohl aber um 180° um einen Punkt zwischen zwei entgegengesetzt weisenden Dreiecken: höchste Zähligkeit 2. Jedes Dreieck ist spiegelsymmetrisch zu seiner Achse, und die Linie entlang der Achsen ist eine Spiegellinie des ganzen Musters. Senkrecht zu den Spiegellinien liegen Gleitspiegellinien, auf halbem Weg zwischen einem Dreieck und dem umgekehrten der Nachbarreihe: Spiegeln und um eine halbe Periode quer zu den Reihen verschieben bringt ein Dreieck auf eines der Nachbarreihe, mit umgekehrter Spitze. Die 2-zähligen Drehpunkte liegen auf keiner Spiegellinie. Der Weg 2 → ja → ja → nein führt zu <i>p</i>2<i>mg</i> (Abb. 8.3a), derselben Gruppe wie in Hoffmanns Beispiel und wie bei den Dreiecken in Abschnitt 4.5.</p>
-        <p><b>Bienenwabe aus zwei Sorten Atomen</b> (Abb. 8.2b). Die Mitte jedes Sechsecks ist ein 3-zähliger Drehpunkt, ebenso jedes Atom; 6-zählig ist die Mitte nicht, weil eine Drehung um 60° die beiden Sorten vertauscht. Durch jedes Atom laufen Spiegellinien. Auf die Frage, ob ein Drehpunkt auf keiner Spiegellinie liegt, lautet die Antwort Nein: Alle drei Sorten von 3-zähligen Drehpunkten, Atome beider Sorten und Sechseckmitten, liegen auf Schnittpunkten von Spiegellinien. Das ergibt <i>p</i>3<i>m</i>1 (Abb. 8.3b).</p>
+        <p class="fig-note"><b>Abb. 8.2</b> Fünf Muster zum Bestimmen (Vorgaben im Modus „Gitter und Basis“), ohne Zelle und ohne Symmetrieelemente.</p>
+        <p><b>Dreiecke</b> (Abb. 8.2a). Gedreht um 60°, 90° oder 120° kommt das Muster nicht zur Deckung, wohl aber um 180° um einen Punkt zwischen zwei entgegengesetzt weisenden Dreiecken: höchste Zähligkeit 2. Jedes Dreieck ist spiegelsymmetrisch zu seiner Achse, und die Linie entlang der Achsen ist eine Spiegellinie des ganzen Musters. Senkrecht zu den Spiegellinien liegen Gleitspiegellinien, auf halbem Weg zwischen einem Dreieck und dem umgekehrten der Nachbarreihe: Spiegeln und um eine halbe Periode quer zu den Reihen verschieben bringt ein Dreieck auf eines der Nachbarreihe, mit umgekehrter Spitze. Die 2-zähligen Drehpunkte liegen auf keiner Spiegellinie. Der Weg 2 → ja → ja → nein führt zu <i>p</i>2<i>mg</i> (Abb. 8.3a), derselben Gruppe wie bei den Dreiecken in Abschnitt 4.5.</p>
+        <p><b>Bienenwabe aus zwei Sorten Atomen</b> (Abb. 8.2b). Die Mitte jedes Sechsecks ist ein 3-zähliger Drehpunkt, ebenso jedes Atom; 6-zählig ist die Mitte nicht, weil eine Drehung um 60° die beiden Sorten vertauscht. Durch jedes Atom laufen Spiegellinien. Auf die Frage, ob ein Drehpunkt auf keiner Spiegellinie liegt, lautet die Antwort Nein: Alle drei Sorten von 3-zähligen Drehpunkten, Atome beider Sorten und Sechseckmitten, liegen auf Schnittpunkten von Spiegellinien. Das ergibt <i>p</i>3<i>m</i>1 (Abb. 8.3b). Hier entscheidet die Farbe: Sähe man nur Atome einer Sorte, wäre das Muster die Bienenwabe von Graphen, mit 6-zähligen Drehpunkten in den Sechseckmitten und der Gruppe <i>p</i>6<i>mm</i>.</p>
         <p><b>Dreiergruppen</b> (Abb. 8.2c). Die Mitte jeder Dreiergruppe ist ein 3-zähliger Drehpunkt mit drei Spiegellinien, je eine durch ein Atom der Gruppe. Es gibt aber noch eine zweite Sorte 3-zähliger Drehpunkte: in den Lücken zwischen den Dreiergruppen. Durch sie geht keine Spiegellinie. Also: 3 → ja → ja, <i>p</i>31<i>m</i> (Abb. 8.3c). Die Gruppen der Muster b und c unterscheiden sich nur in der Lage der Spiegellinien zu den Drehpunkten; genau das prüft Leitfrage 4.</p>
         <p><b>Flechtverband</b> (Abb. 8.2d). Wo vier Steinquadrate zusammenstossen, liegt ein 4-zähliger Drehpunkt. Spiegellinien laufen durch die Mitten der Quadrate, aber nicht durch den 4-zähligen Drehpunkt: 4 → ja → ja, <i>p</i>4<i>gm</i> (Abb. 8.3d), wie in Abschnitt 7.2.</p>
         <p><b>Fischgrätverband</b> (Abb. 8.2e). Hier gibt es keine einzige Spiegellinie, aber Gleitspiegellinien in zwei Richtungen und 2-zählige Drehpunkte (Abschnitt 7.2): 2 → nein → ja, <i>p</i>2<i>gg</i> (Abb. 8.3e).</p>
         <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=dreieck3&amp;zoom=2" data-alt="Muster aus gleichschenkligen Dreiecken, die Spitzen der Reihen abwechselnd nach links und nach rechts, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 8.3a</b> Dreiecke: <i>p</i>2<i>mg</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=hbn&amp;zoom=2" data-alt="Bienenwabe aus zwei Sorten Atomen im Wechsel, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> h-BN: <i>p</i>3<i>m</i>1.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=dreiergruppen&amp;zoom=2" data-alt="Dreiergruppen aus Atomen auf einem hexagonalen Gitter, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Dreiergruppen: <i>p</i>31<i>m</i>.</figcaption>
+          </figure>
+        </div>
+        <div class="fig-row">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=flecht&amp;zoom=2" data-alt="Flechtverband: je zwei Steine bilden ein Quadrat, abwechselnd waagrecht und senkrecht, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> Flechtverband: <i>p</i>4<i>gm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=fisch&amp;zoom=2" data-alt="Fischgrätverband: Steine im Zickzack, abwechselnd um 90 Grad gedreht, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>e</b> Fischgrätverband: <i>p</i>2<i>gg</i>.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 8.3</b> Die Muster aus Abb. 8.2 mit den Symmetrieelementen, die das Diagramm finden lässt, noch ohne Zelle.</p>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Jede Abbildung öffnet die Vorgabe in der App. Schaltet man dort „Symmetrieelemente“ aus, sieht man das Muster ohne Hilfe; eingeschaltet zeigt die App, was das Diagramm hätte finden sollen. Verschiebt man ein Motiv, zeigt sie, wie sich die Gruppe ändert.</p>
+        </div>
+      </section>
+
+      <section id="fehler">
+        <h3>Typische Fehler</h3>
+        <p>Weil das Diagramm jede Antwort ernst nimmt, führt ein übersehenes oder ein falsch erkanntes Element zu einer falschen Gruppe. Drei Fehler liegen nahe.</p>
+        <ul>
+          <li><b>Ein Drehpunkt wird übersehen.</b> Übersieht man im Fischgrätverband die 2-zähligen Drehpunkte, beginnt man mit der Zähligkeit 1 und kommt über „keine Spiegellinie, aber Gleitspiegellinie“ zu <i>pg</i> statt zu <i>p</i>2<i>gg</i>. Bei Leitfrage 4 hilft es, alle Sorten von Drehpunkten durchzugehen: In <i>p</i>4<i>gm</i> liegen die 2-zähligen Drehpunkte auf Spiegellinien, der 4-zählige aber nicht.</li>
+          <li><b>Eine Gleitspiegellinie wird mit einer Spiegellinie verwechselt.</b> Wer eine Gleitspiegellinie für eine Spiegellinie hält, landet etwa bei <i>pm</i> statt bei <i>pg</i>. Umgekehrt liegt auf einer Spiegellinie nie eine Gleitspiegellinie (Abschnitt 8.2). Eine Spiegellinie prüft man an einem einzelnen Motiv: Sein Spiegelbild muss genau gegenüber liegen, ohne Verschiebung.</li>
+          <li><b>Die Farbe wird übersehen.</b> Farben gehören zum Muster. Die Bienenwabe aus zwei Sorten Atomen (Abb. 8.2b) zeigt, was sonst passiert: Wer die beiden Sorten nicht unterscheidet, findet 6-zählige Drehpunkte in den Sechseckmitten und kommt zu <i>p</i>6<i>mm</i> statt <i>p</i>3<i>m</i>1. Von der Farbe abzusehen hilft also, Kandidaten zu finden, darf aber nicht das Ergebnis bestimmen.</li>
+        </ul>
+        <p>Ein vierter Fehler betrifft nicht die Gruppe, sondern die Zelle: In <i>cm</i> und <i>c</i>2<i>mm</i> ist die konventionelle Zelle zentriert, obwohl es eine halb so grosse primitive Zelle gibt (Abschnitt 2.4). Am Symbol ändert das nichts, das Diagramm führt auf <i>cm</i> bzw. <i>c</i>2<i>mm</i>; die Zelle legt man danach nach den Regeln aus Abschnitt 2.5 fest.</p>
+      </section>
+
+      <section id="ergebnis">
+        <h3>Vom Ergebnis zur Zelle</h3>
+        <p>Mit der Gruppe steht fest, welche Symmetrieelemente das Muster hat, aber noch nicht, wo sie liegen. Als letzten Schritt legt man deshalb die Zelle fest und zeichnet die Elemente ein (Abb. 8.4). Für ein primitives Gitter sucht man die kleinste Einheit, die, nur aneinandergefügt, das ganze Muster ergibt. Die konventionelle Zelle legt man dann so, wie es die Regeln aus Abschnitt 2.5 verlangen: ihre Kanten entlang der Spiegellinien oder, bei 3-, 4- und 6-zähligen Drehpunkten, mit dem Winkel 120° bzw. 90°. Den Ursprung legt man wie die International Tables, für <i>p</i>2<i>mg</i> etwa auf einen 2-zähligen Drehpunkt (Abschnitt 4.5).</p>
+        <p>Zum Schluss vergleicht man das Bild mit dem Diagramm der Gruppe in den International Tables (Abschnitt 5.3). Jedes Element des Diagramms muss im Muster an der entsprechenden Stelle liegen, auch die, nach denen keine Leitfrage gefragt hat, etwa die Gleitspiegellinien in <i>p</i>4<i>mm</i>. Fehlt eines, ist entweder die Zelle falsch gelegt oder eine Antwort falsch gewesen.</p>
+        <div class="fig-row fig-row3">
           <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=dreieck3" data-alt="Dreiecksmuster mit Zelle, Spiegellinien, Gleitspiegellinien und Drehpunkten von p2mg">
             <div class="fig-art"></div>
-            <figcaption><b>Abb. 8.3a</b> <i>p</i>2<i>mg</i>.</figcaption>
+            <figcaption><b>Abb. 8.4a</b> <i>p</i>2<i>mg</i>.</figcaption>
           </figure>
           <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=hbn" data-alt="Bienenwabe aus zwei Sorten Atomen mit Zelle, Spiegellinien und Drehpunkten von p3m1">
             <div class="fig-art"></div>
@@ -1849,28 +1869,8 @@
             <figcaption><b>e</b> <i>p</i>2<i>gg</i>.</figcaption>
           </figure>
         </div>
-        <p class="fig-note"><b>Abb. 8.3</b> Die Muster aus Abb. 8.2 mit konventioneller Zelle und Symmetrieelementen, wie die App sie bestimmt.</p>
-        <div class="box app">
-          <h4>In der App</h4>
-          <p>Jede Abbildung öffnet die Vorgabe in der App. Schaltet man dort „Symmetrieelemente“ aus, sieht man das Muster ohne Hilfe; eingeschaltet zeigt die App, was das Diagramm hätte finden sollen. Verschiebt man ein Motiv, zeigt sie, wie sich die Gruppe ändert.</p>
-        </div>
-      </section>
+        <p class="fig-note"><b>Abb. 8.4</b> Die Muster aus Abb. 8.2 mit konventioneller Zelle und Symmetrieelementen, wie die App sie bestimmt.</p>
 
-      <section id="fehler">
-        <h3>Typische Fehler</h3>
-        <p>Weil das Diagramm jede Antwort ernst nimmt, führt ein übersehenes oder ein falsch erkanntes Element zu einer falschen Gruppe. Drei Fehler liegen nahe.</p>
-        <ul>
-          <li><b>Ein Drehpunkt wird übersehen.</b> Übersieht man im Fischgrätverband die 2-zähligen Drehpunkte, beginnt man mit der Zähligkeit 1 und kommt über „keine Spiegellinie, aber Gleitspiegellinie“ zu <i>pg</i> statt zu <i>p</i>2<i>gg</i>. Bei Leitfrage 4 hilft es, alle Sorten von Drehpunkten durchzugehen: In <i>p</i>4<i>gm</i> liegen die 2-zähligen Drehpunkte auf Spiegellinien, der 4-zählige aber nicht.</li>
-          <li><b>Eine Gleitspiegellinie wird mit einer Spiegellinie verwechselt.</b> Wer eine Gleitspiegellinie für eine Spiegellinie hält, landet etwa bei <i>pm</i> statt bei <i>pg</i>. Umgekehrt liegt auf einer Spiegellinie nie eine Gleitspiegellinie (Abschnitt 8.2). Eine Spiegellinie prüft man an einem einzelnen Motiv: Sein Spiegelbild muss genau gegenüber liegen, ohne Verschiebung.</li>
-          <li><b>Die Farbe wird übersehen.</b> Farben gehören zum Muster. Die beiden Dreiecksmuster aus Abschnitt 1.6 (Vorgaben „Stufe 1“ und „Stufe 2“ des Dreiecksbeispiels) unterscheiden sich nur darin, ob das Dreieck in der Mitte der Zelle eine andere Farbe hat: mit anderer Farbe <i>pm</i>, mit gleicher Farbe <i>cm</i>. Von der Farbe abzusehen hilft also, Kandidaten zu finden, darf aber nicht das Ergebnis bestimmen.</li>
-        </ul>
-        <p>Ein vierter Fehler betrifft nicht die Gruppe, sondern die Zelle: In <i>cm</i> und <i>c</i>2<i>mm</i> ist die konventionelle Zelle zentriert, obwohl es eine halb so grosse primitive Zelle gibt (Abschnitt 2.4). Am Symbol ändert das nichts, das Diagramm führt auf <i>cm</i> bzw. <i>c</i>2<i>mm</i>; die Zelle legt man danach nach den Regeln aus Abschnitt 2.5 fest.</p>
-      </section>
-
-      <section id="ergebnis">
-        <h3>Vom Ergebnis zur Zelle</h3>
-        <p>Mit der Gruppe steht fest, welche Symmetrieelemente das Muster hat, aber noch nicht, wo sie liegen. Als letzten Schritt legt man deshalb die Zelle fest und zeichnet die Elemente ein. Für ein primitives Gitter sucht man nach Hoffmann die kleinste Einheit, die, nur aneinandergefügt, das ganze Muster ergibt. Die konventionelle Zelle legt man dann so, wie es die Regeln aus Abschnitt 2.5 verlangen: ihre Kanten entlang der Spiegellinien oder, bei 3-, 4- und 6-zähligen Drehpunkten, mit dem Winkel 120° bzw. 90°. Den Ursprung legt man wie die International Tables, für <i>p</i>2<i>mg</i> etwa auf einen 2-zähligen Drehpunkt (Abschnitt 4.5).</p>
-        <p>Zum Schluss vergleicht man das Bild mit dem Diagramm der Gruppe in den International Tables (Abschnitt 5.3). Jedes Element des Diagramms muss im Muster an der entsprechenden Stelle liegen, auch die, nach denen keine Leitfrage gefragt hat, etwa die Gleitspiegellinien in <i>p</i>4<i>mm</i>. Fehlt eines, ist entweder die Zelle falsch gelegt oder eine Antwort falsch gewesen.</p>
         <div class="box app">
           <h4>In der App</h4>
           <p>Im Modus „Gitter und Basis“ bestimmt die App zu jedem Muster die konventionelle Zelle nach ITA und zeichnet die Symmetrieelemente ein; „im Modus ‚Ebenengruppen‘ ansehen“ öffnet die Gruppe mit ihrem Diagramm. So lässt sich eine eigene Bestimmung Schritt für Schritt prüfen.</p>
@@ -1890,7 +1890,8 @@
       <div class="quellen">
         <h4>Quellen</h4>
         <ul>
-          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2 (Flussdiagramm nach Sanderson, Abb. 4.14, und die fünf Leitfragen, S. 139; das Diagramm nimmt das Finden der Elemente nicht ab, S. 139; Hinweise zu Teilstücken, Farbe und Ausrichtung, S. 140; Beispiel <i>p</i>2<i>mg</i> mit Zelle und Elementen, Abb. 4.15–4.18, S. 139–141; kleinste Wiederholeinheit, S. 141). Das Diagramm geht nach Hoffmann auf Brian J. Sanderson zurück (Literatur zu Kap. 4, Nr. 4: Webseite der University of Warwick); Abb. 8.1 ist neu gezeichnet.</li>
+          <li>B. J. Sanderson, <i>Pattern Recognition Algorithm</i> (Flussdiagramm mit den Leitfragen nach höchster Zähligkeit, Spiegelung, „indecomposable glide reflection“ und der Lage der Drehpunkte zu den Spiegelungen), in der überarbeiteten Fassung von D. Bar-Natan, <a href="https://www.math.toronto.edu/~drorbn/Gallery/Symmetry/Tilings/Sanderson/index.html">Image Gallery, University of Toronto</a>. Die ursprüngliche Seite Sandersons an der University of Warwick ist nicht mehr erreichbar. Abb. 8.1 ist neu gezeichnet.</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2, S. 139–141 (das Flussdiagramm nach Sanderson mit einem durchgerechneten Beispiel, Abb. 4.14–4.18; Hilfen zum Suchen der Elemente).</li>
           <li>Dass jede der 17 Gruppen mit ihren eigenen Symmetrieelementen zu sich selbst führt und die Ebenengruppen aller Muster dieses Kapitels hat die App berechnet (Elemente aus den Operationen der International Tables, Vol. A, Part 6; Symmetriebestimmung im Modus „Gitter und Basis“).</li>
         </ul>
       </div>

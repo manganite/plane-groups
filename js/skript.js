@@ -59,7 +59,8 @@ function appTafel(fig, f) {
   if (z.modus === 'struktur') {
     const st = z.struktur;
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
-    return b ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
+    // data-zelle="0": ohne konventionelle Zelle; data-elemente="1": Symmetrieelemente im Muster (Kap. 8)
+    return b ? strukturTafelB(st, f, a.ergebnis, z.zoomB, { zelle: fig.dataset.zelle !== '0', elemente: fig.dataset.elemente === '1' }).svg : a.svg;
   }
   // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
   const k = /[#&]og=/.test(app) ? 1 : symbolGroesse(fig, b);

@@ -5,7 +5,6 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { FLUSSDIAGRAMM, LEITFRAGEN } from '../js/bestimmen.js';
 import { gruppe, elemente, art, gitterperiode } from '../js/symmetrie.js';
-import { readFileSync } from 'node:fs';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 
 /** @import { Knoten } from '../js/bestimmen.js' */
@@ -79,21 +78,4 @@ test('Keine Gleitspiegellinie liegt auf einer Spiegellinie (Skript Abschn. 8.2),
     assert.deepEqual(beide, [], d.symbol);
     assert.ok([...linien.values()].some((e) => e.spiegel || e.gleit) === (antworten(d.symbol).m || antworten(d.symbol).g), d.symbol);
   }
-});
-
-test('Tabelle im Skript (Abschn. 8.3) wie das Flussdiagramm', () => {
-  const skript = readFileSync(new URL('../skript.html', import.meta.url), 'utf8');
-  const a = skript.indexOf('<section id="flussdiagramm">');
-  const tab = skript.slice(skript.indexOf('<tbody>', a), skript.indexOf('</tbody>', a));
-  const zeilen = [...tab.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((m) => [...m[1].matchAll(/<td>([\s\S]*?)<\/td>/g)].map((x) => x[1].replace(/<[^>]+>/g, '')));
-  /** @type {string[][]} */
-  const erwartet = [];
-  /** @param {Knoten} k @param {Record<string, string>} p */
-  const geh = (k, p) => {
-    if (typeof k === 'string') { erwartet.push([p.n, p.m ?? '–', p.g ?? '–', p.nichtAuf ?? '–', p.auf ?? '–', k]); return; }
-    if ('zweige' in k) for (const z of /** @type {('6' | '4' | '3' | '2' | '1')[]} */ (['6', '4', '3', '2', '1'])) geh(k.zweige[z], { ...p, n: z });
-    else { geh(k.ja, { ...p, [k.frage]: 'ja' }); geh(k.nein, { ...p, [k.frage]: 'nein' }); }
-  };
-  geh(FLUSSDIAGRAMM, {});
-  assert.deepEqual(zeilen, erwartet);
 });
