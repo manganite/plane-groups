@@ -220,7 +220,6 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   // ---------------------------------------------------------------- Ereignisse
   function init() {
     baue();
-    knopf('tab-struktur').disabled = false;
     modi = modusTabs(element('.tabs'), $('inhalt'));
     $('tab-eg').addEventListener('click', () => { z.modus = 'eg'; aktualisieren(); });
     $('tab-struktur').addEventListener('click', () => { z.modus = 'struktur'; aktualisieren(); });
