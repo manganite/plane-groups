@@ -190,3 +190,61 @@ export function kachel(v, f, symbole = true) {
   svg.push(...g);
   return svg.join('');
 }
+
+/** Symbol einer Ebenengruppe in SVG: Buchstaben kursiv, Ziffern gerade. @param {string} s */
+const symbolTspans = (s) => s.replace(/[a-z]+/g, (b) => `<tspan font-style="italic">${b}</tspan>`);
+
+/**
+ * Flussdiagramm zur Bestimmung der Ebenengruppe (Skript Kap. 8, Daten in bestimmen.js), von links nach
+ * rechts: Fragen als Kästen, Antworten an den Kanten, rechts die 17 Gruppen untereinander. Gibt den
+ * Inhalt und die Grösse der Zeichnung zurück.
+ * @param {import('./bestimmen.js').Knoten} wurzel @param {Record<string, { kurz: string }>} fragen @param {Farben} f
+ * @returns {{ svg: string, breite: number, hoehe: number }}
+ */
+export function flussdiagramm(wurzel, fragen, f) {
+  const SP = 186; const ZEILE = 34; const KB = 132; const KH = 44; const BB = 72; const RAND = 12;
+  /** @type {{ x: number, y: number, knoten: import('./bestimmen.js').Knoten }[]} */
+  const kaesten = [];
+  /** @type {string[]} */
+  const kanten = [];
+  let blatt = 0;
+  // Tiefe des tiefsten Kastens: Blätter stehen in der Spalte dahinter
+  /** @param {import('./bestimmen.js').Knoten} k @returns {number} */
+  const tiefe = (k) => (typeof k === 'string' ? 0 : 1 + Math.max(...kinder(k).map(([, c]) => tiefe(c))));
+  /** @param {Exclude<import('./bestimmen.js').Knoten, string>} k @returns {[string, import('./bestimmen.js').Knoten][]} */
+  function kinder(k) { return 'zweige' in k ? ['6', '4', '3', '2', '1'].map((z) => [z, k.zweige[/** @type {'6'} */ (z)]]) : [['ja', k.ja], ['nein', k.nein]]; }
+  const blattSpalte = tiefe(wurzel);
+  /** @param {import('./bestimmen.js').Knoten} k @param {number} d @returns {number} y der Mitte */
+  function setze(k, d) {
+    if (typeof k === 'string') {
+      const y = RAND + ZEILE * blatt++ + ZEILE / 2;
+      kaesten.push({ x: RAND + blattSpalte * SP, y, knoten: k });
+      return y;
+    }
+    const ys = kinder(k).map(([, c]) => setze(c, d + 1));
+    const y = (Math.min(...ys) + Math.max(...ys)) / 2;
+    kaesten.push({ x: RAND + d * SP, y, knoten: k });
+    // Kanten vom rechten Rand dieses Kastens zu den Kindern: waagrecht, senkrecht, waagrecht
+    const x0 = RAND + d * SP + KB; const xm = x0 + 14;
+    kinder(k).forEach(([marke, c], i) => {
+      const yc = ys[i]; const x1 = typeof c === 'string' ? RAND + blattSpalte * SP : RAND + (d + 1) * SP;
+      kanten.push(`<path d="M${f2(x0)} ${f2(y)} H${f2(xm)} V${f2(yc)} H${f2(x1)}" fill="none" stroke="${f.muted}" stroke-width="1.4"/>`);
+      kanten.push(text([xm + 6, yc - 5], marke, `${SANS} font-size="12.5" fill="${f.muted}"`));
+    });
+    return y;
+  }
+  setze(wurzel, 0);
+  const svg = [...kanten];
+  for (const { x, y, knoten } of kaesten) {
+    if (typeof knoten === 'string') {
+      svg.push(`<rect x="${f2(x)}" y="${f2(y - 13)}" width="${BB}" height="26" rx="5" fill="${f.paper}" stroke="${f.accent}" stroke-width="1.6"/>`);
+      svg.push(`<text x="${f2(x + BB / 2)}" y="${f2(y + 6)}" font-family="Source Serif 4, serif" font-size="17" fill="${f.ink}" text-anchor="middle">${symbolTspans(knoten)}</text>`);
+      continue;
+    }
+    const zeilen = fragen[knoten.frage].kurz.split('\n');
+    svg.push(`<rect x="${f2(x)}" y="${f2(y - KH / 2)}" width="${KB}" height="${KH}" rx="8" fill="${f.paper}" stroke="${f.ink}" stroke-width="1.4"/>`);
+    zeilen.forEach((z, i) => svg.push(text([x + KB / 2, y + 5 + (i - (zeilen.length - 1) / 2) * 16], z.replace(/\bm\b/, '<tspan font-family="Source Serif 4, serif" font-style="italic">m</tspan>'), `${SANS} font-size="13.5" fill="${f.ink}" text-anchor="middle"`)));
+  }
+  const breite = RAND * 2 + blattSpalte * SP + BB; const hoehe = RAND * 2 + ZEILE * blatt;
+  return { svg: `<rect width="${breite}" height="${hoehe}" fill="${f.paper}"/>` + svg.join(''), breite, hoehe };
+}

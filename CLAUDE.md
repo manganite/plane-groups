@@ -41,6 +41,14 @@ für diese App gilt.
   Formelsatz (KaTeX o. ä.) war nur für die Beugung offen; die Frage geht an crystallography-common#73.
 - **Kap. 7:** „Fliesen und die Alhambra“, „Escher“, „Farbe“ sind Vertiefung (über die
   Vorlesung hinaus); Fragen dazu Stufe 3, Generator `parkett` ebenfalls.
+- **Skript Kap. 8 „Ebenengruppen bestimmen“** (Gliederung Thomas, 6.11.2026; #38): Flussdiagramm nach Sanderson
+  (Hoffmann Abb. 4.14, S. 139) als eigene Zeichnung aus `js/bestimmen.js` (Daten; gezeichnet in `skizzen.js`,
+  `flussdiagramm`), Test gegen die Elemente aller 17 Gruppen (`tests/bestimmen.test.mjs`). Leitfrage 3 heisst
+  „Gleitspiegellinie, die nicht auf einer Spiegellinie liegt“: Echte Gleitspiegellinien liegen nie auf
+  Spiegellinien; Hoffmanns „sich nicht schon aus Translation und Spiegelung ergibt“ meint die Spiegelung mit
+  Gittertranslation entlang der Linie. Beispiele aus den Vorgaben; „Dreiergruppen“ (*p*31*m*) dafür angelegt,
+  Name ohne Gruppe. Kein Quiz-Link, solange es keine Fragen gibt (#102); Kap. 8 steht deshalb noch nicht in
+  `quiz-kapitel.js`. Dieselben Daten nutzt später die geführte Bestimmung (#38, Teil App).
 - **Conway in eigenem Kapitel** (Thomas, 6.11.2026): Alles zur Signatur nach Conway steht in Kap. 9, einem
   Vertiefungskapitel am Ende des Skripts (Teil „Vertiefung“, `data-level` am Kapitel), nicht mehr in
   Kap. 7. Grund: Es ist ein eigener Zugang zu den 17 Gruppen und zur Bestimmung, neben dem Flussdiagramm

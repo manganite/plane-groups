@@ -12,7 +12,8 @@ import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, grad } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
 import { MOTIVE } from './motive.js';
-import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe, kachel } from './skizzen.js';
+import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe, kachel, flussdiagramm } from './skizzen.js';
+import { FLUSSDIAGRAMM, LEITFRAGEN } from './bestimmen.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Ansicht, Farben, Box } from './zeichnung.js' */
@@ -267,7 +268,9 @@ function spurenSkizze(fig, f) {
 }
 
 /** @type {Record<string, (fig: HTMLElement, f: SkriptFarben) => string>} */
-const SKIZZEN = { kachel: (fig, f) => kachel(fig.dataset.variante || 'p1', f), dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(/** @type {'2mm' | '4mm' | '6mm'} */ (fig.dataset.pg), f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze };
+const SKIZZEN = { kachel: (fig, f) => kachel(fig.dataset.variante || 'p1', f), dreieck3m: (fig, f) => dreieck3m(f), punktgruppe: (fig, f) => punktgruppe(/** @type {'2mm' | '4mm' | '6mm'} */ (fig.dataset.pg), f), gitter: gitterSkizze, zellen: zellenSkizze, koord: koordSkizze, fuenf: fuenfSkizze, motive: motiveSkizze, spuren: spurenSkizze,
+  // Flussdiagramm (Kap. 8): Grösse aus der Zeichnung
+  fluss: (fig, f) => { const r = flussdiagramm(FLUSSDIAGRAMM, LEITFRAGEN, f); fig.dataset.viewbox = `0 0 ${r.breite} ${r.hoehe}`; return r.svg; } };
 
 function abbildungen() {
   const f = farben();

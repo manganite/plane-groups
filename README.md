@@ -149,6 +149,7 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `js/brechen.js` | „Symmetrie brechen“: verbleibende Untergruppe |
 | `js/punktoperationen.js` | Operationen der Punktgruppen der Ebene mit Namen wie im Skript |
 | `js/struktur.js`, `js/struktur-ui.js`, `js/bestimmung.js`, `js/motive.js`, `js/vorgaben.js` | Modus „Gitter und Basis“: Tafeln und Kenndaten, Bedienung, Bestimmung der Ebenengruppe, Motive, Vorgaben |
+| `js/bestimmen.js` | Leitfragen und Flussdiagramm nach Sanderson (Skript Kap. 8), geprüft gegen die Symmetrieelemente aller 17 Gruppen |
 | `js/verweise.js` | Links in die App „Stereographische Projektion“ (Punktgruppe einer Ebenengruppe) |
 | `js/hilfetexte.js` | Texte der Tooltips und ⓘ-Erklärungen |
 | `skript.html`, `js/skript.js`, `js/skizzen.js` | Skript; Abbildungen aus Link-Adressen der App, Skizzen für Skript und Quiz |
