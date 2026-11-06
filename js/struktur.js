@@ -278,12 +278,23 @@ export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true
     const e = elementeImBereich(g, 1);
     /** @type {{ drehpunkte: typeof e.drehpunkte, linien: typeof e.linien }} */
     const alle = { drehpunkte: [], linien: [] };
+    const Ak = konvAnsicht(A, r);
     const n = Math.ceil(hi - lo) + 2;
+    // nur, was ins Bild reicht (mit Rand für die Symbole)
+    /** @param {Vec2} q */
+    const imBild = (q) => { const b = Ak.zuBild(q); return b[0] > -40 && b[0] < 560 && b[1] > -40 && b[1] < 560; };
     for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
-      for (const d of e.drehpunkte) alle.drehpunkte.push({ ...d, punkt: [d.punkt[0] + i, d.punkt[1] + j] });
-      for (const l of e.linien) alle.linien.push({ ...l, strecke: /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j])) });
+      for (const d of e.drehpunkte) {
+        /** @type {Vec2} */
+        const q = [d.punkt[0] + i, d.punkt[1] + j];
+        if (imBild(q)) alle.drehpunkte.push({ ...d, punkt: q });
+      }
+      for (const l of e.linien) {
+        const st = /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j]));
+        if (imBild(st[0]) || imBild(st[1]) || imBild([(st[0][0] + st[1][0]) / 2, (st[0][1] + st[1][1]) / 2])) alle.linien.push({ ...l, strecke: st });
+      }
     }
-    teile.push(elementeSVG(g, alle, konvAnsicht(A, r), farben, false));
+    teile.push(elementeSVG(g, alle, Ak, farben, false));
   }
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
