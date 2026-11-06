@@ -309,3 +309,18 @@ test('Dreiecksbeispiel: Lagen der Dreiecke in pm, cm und p2mg (Konzept §3.2)', 
   const b = bahn(gruppe('p2mg'), [0.25, 0.25]).map((p) => p.join(',')).sort();
   assert.deepEqual(b, ['0.25,0.25', '0.75,0.75']);
 });
+
+test('Namen für die Anzeige: Kristallsysteme und Bravais-Gitter aller 17 Gruppen (#55)', async () => {
+  const { EBENENGRUPPEN, SYSTEME, BRAVAIS, URSPRUNG } = await import('../js/ebenengruppen.js');
+  assert.deepEqual(Object.fromEntries(Object.entries(SYSTEME).map(([k, v]) => [k, v.name])),
+    { schiefwinklig: 'schiefwinklig', rechteckig: 'rechteckig', quadratisch: 'quadratisch', hexagonal: 'hexagonal' });
+  assert.deepEqual({ ...BRAVAIS }, { mp: 'schiefwinklig primitiv', op: 'rechteckig primitiv', oc: 'rechteckig zentriert', tp: 'quadratisch primitiv', hp: 'hexagonal primitiv' });
+  for (const d of EBENENGRUPPEN) {
+    assert.ok(Object.hasOwn(BRAVAIS, d.bravais), `${d.symbol}: ${d.bravais}`);
+    // Name des Gitters beginnt mit dem System der Gruppe
+    assert.ok(BRAVAIS[d.bravais].startsWith(SYSTEME[d.system].name), d.symbol);
+  }
+  // Ursprung als Text statt als Lagesymmetrie: nur p1, p2mg und p4gm
+  assert.deepEqual(EBENENGRUPPEN.filter((d) => Object.hasOwn(URSPRUNG, d.ursprung)).map((d) => [d.symbol, d.ursprung]),
+    [['p1', 'beliebig'], ['p2mg', '21g'], ['p4gm', '41g']]);
+});
