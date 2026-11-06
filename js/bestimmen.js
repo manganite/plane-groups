@@ -15,7 +15,7 @@
 export const LEITFRAGEN = {
   n: { lang: 'Welche Zähligkeit hat der Drehpunkt höchster Zähligkeit (1, wenn es keinen gibt)?', kurz: 'höchste\nZähligkeit?' },
   m: { lang: 'Gibt es eine Spiegellinie?', kurz: 'Spiegellinie?' },
-  g: { lang: 'Gibt es eine Gleitspiegellinie, die nicht auf einer Spiegellinie liegt?', kurz: 'Gleitspiegellinie\nneben m?' },
+  g: { lang: 'Gibt es eine Gleitspiegellinie?', kurz: 'Gleitspiegel-\nlinie?' },
   nichtAuf: { lang: 'Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?', kurz: 'Drehpunkt\nnicht auf m?' },
   auf: { lang: 'Gibt es einen Drehpunkt, der auf einer Spiegellinie liegt?', kurz: 'Drehpunkt\nauf m?' },
 };
