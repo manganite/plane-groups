@@ -49,9 +49,10 @@ für diese App gilt.
   Tabelle neben dem Diagramm (Doppelung); Beispiele in drei Schritten: Muster ohne Zelle und Elemente (Abb. 8.2),
   gefundene Elemente ohne Zelle (Abb. 8.3, `strukturTafelB` mit `zelle: false, elemente: true`, nur im Skript),
   Zelle (Abb. 8.4); der Fehler „Farbe übersehen“ an einem der Beispiele (h-BN → *p*6*mm*). Leitfrage 3:
-  Gleitspiegellinien liegen nie auf Spiegellinien (Test aus den Operationen); Sandersons „indecomposable glide“: weder die
-  Spiegelung an ihrer Linie noch die Verschiebung allein ist eine Symmetrie (Klärung mit Thomas, 6.11.2026); das sind
-  genau die Gleitspiegellinien neben den Spiegellinien, auch die aus der Zentrierung in *cm*, *c*2*mm* (Antwort Ja). Vorgabe „Dreiergruppen“ (*p*31*m*), Name ohne Gruppe. Kein Quiz-Link,
+  Gleitspiegellinien liegen nie auf Spiegellinien (Test aus den Operationen); Sandersons „indecomposable glide“ = echte
+  Gleitspiegelung (nicht Spiegelung + Gittertranslation entlang derselben Linie). Wo das Diagramm fragt, haben die
+  Nein-Gruppen gar keine Gleitspiegellinien, die Ja-Gruppen mindestens eine (bei *cm*, *c*2*mm* aus der Zentrierung;
+  Hinweis Thomas, 6.11.2026). *p*4*mm*/*p*4*gm* trennt Leitfrage 4, nicht 3 (beide haben echte Gleitspiegellinien). Vorgabe „Dreiergruppen“ (*p*31*m*), Name ohne Gruppe. Kein Quiz-Link,
   solange es keine Fragen gibt (#102). Dieselben Daten nutzt später die geführte Bestimmung (#38, Teil App).
 - **Conway in eigenem Kapitel** (Thomas, 6.11.2026): Alles zur Signatur nach Conway steht in Kap. 9, einem
   Vertiefungskapitel am Ende des Skripts (Teil „Vertiefung“, `data-level` am Kapitel), nicht mehr in
