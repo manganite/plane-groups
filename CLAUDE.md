@@ -49,7 +49,8 @@ für diese App gilt.
   Tabelle neben dem Diagramm (Doppelung); Beispiele in drei Schritten: Muster ohne Zelle und Elemente (Abb. 8.2),
   gefundene Elemente ohne Zelle (Abb. 8.3, `strukturTafelB` mit `zelle: false, elemente: true`, nur im Skript),
   Zelle (Abb. 8.4); der Fehler „Farbe übersehen“ an einem der Beispiele (h-BN → *p*6*mm*). Sechstes Beispiel (Thomas): reine Drehgruppe *p*6 als
-  Ornament (Ranken aus Abb. 7.2a; Elemente über der Tapete mit `tafelB(…, { tapeteElemente })`). Leitfrage 3 schlicht
+  Ornament (Ranken aus Abb. 7.2a; Elemente über der Tapete mit `tafelB(…, { tapeteElemente })`; Abb. 8.4f
+  als Muster mit Zelle und nur deren Elementen, `nurZelle`, damit es aussieht wie a–e). Leitfrage 3 schlicht
   „Gibt es eine Gleitspiegellinie?“ (Thomas, 6.11.2026): eine Ja/Nein-Frage wie die übrigen; Sandersons Wort
   „indecomposable“ wird nicht erklärt, was eine Gleitspiegellinie ist, steht in Abschn. 4.1. Wo das Diagramm fragt,
   haben die Nein-Gruppen gar keine Gleitspiegellinien (Test). Vorgabe „Dreiergruppen“ (*p*31*m*), Name ohne Gruppe. Kein Quiz-Link,
