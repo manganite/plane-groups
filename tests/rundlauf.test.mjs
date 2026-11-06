@@ -142,10 +142,19 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   const zl = startzustand(); hashAnwenden(zl, '#m=eg&g=p2&brechen=1&ba=1.8&gamma=70');
   assert.equal(zl.brechen, false);
   // frei: ungültige Werte werden ersetzt (Startwert des Systems), nicht an die Grenze geschoben
-  const f = speicher({ gruppe: 'p4mm', brechen: true, frei: { ba: 9, gamma: 100 } }).frei;
-  assert.deepEqual([f.ba, f.gamma], [1, 100]);
-  const fl = startzustand(); hashAnwenden(fl, '#m=eg&g=p4mm&brechen=1&ba=9&gamma=100');
-  assert.deepEqual([fl.frei.ba, fl.frei.gamma], [1, 100]);
+  const f = speicher({ gruppe: 'p6mm', brechen: true, frei: { ba: 9, gamma: 30 } }).frei;
+  assert.deepEqual([f.ba, f.gamma], [1, 120]); // Startwert des hexagonalen Systems
+  const fl = startzustand(); hashAnwenden(fl, '#m=eg&g=p6mm&brechen=1&ba=9&gamma=30');
+  assert.deepEqual([fl.frei.ba, fl.frei.gamma], [1, 120]);
+  // Objekt und Striche innerhalb ±10⁶, höchstens STRICH_GRENZE Punkte (1200, zeichnung.js)
+  assert.deepEqual(speicher({ punkt: [2e6, 0] }).punkt, startzustand().punkt);
+  assert.deepEqual(speicher({ striche: [[[0, 0], [1e300, 0]], [[0, 0], [1, 1]]] }).striche, [[[0, 0], [1, 1]]]);
+  const viele = speicher({ striche: Array.from({ length: 30 }, () => Array.from({ length: 100 }, (_, i) => [i / 100, 0])) }).striche;
+  assert.ok(viele.flat().length <= 1200 && viele.length > 0, `${viele.flat().length} Punkte`);
+  // hashAnwenden prüft auch, was es aus dem bisherigen Zustand übernimmt (Gitter, Striche)
+  const alt = /** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), gitter: { schiefwinklig: { ba: 'x', gamma: 1 } }, striche: [[[0, 0], ['a', 1]]] }));
+  hashAnwenden(alt, '#m=eg&g=p4');
+  assert.deepEqual([alt.gitter.schiefwinklig.ba, alt.striche.length], [1.25, 0]);
   // aeTeile: Doppelte weg, aufsteigend
   assert.deepEqual(speicher({ gruppe: 'p2mm', aeTeile: [1, 0, 0, 1, 99] }).aeTeile, [0, 1]);
   // fremde Schlüssel und __proto__ werden nicht übernommen

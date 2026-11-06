@@ -801,6 +801,8 @@ function init() {
     if (!b) return;
     if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; stoppeSchritte(); if (z.schritt > 0) z.schritt = 1; } // Abspielen rechnet mit der Zahl der Schritte der alten Gruppe
     z.gruppe = /** @type {string} */ (b.dataset.g); // jeder Knopf trägt data-g
+    // im schiefwinkligen System ist nichts zu brechen (wie in zustandPruefen): dort aus, sonst die Metrik des Systems
+    if (z.brechen && systemJetzt() === 'schiefwinklig') z.brechen = false;
     if (z.brechen) z.frei = { ...z.gitter[systemJetzt()] };
     aktualisieren();
   });
