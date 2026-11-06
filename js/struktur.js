@@ -248,10 +248,12 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
 
 /**
  * Tafel B: grösserer Ausschnitt der Struktur, konventionelle Zelle hervorgehoben; zoom > 1 zeigt einen kleineren Ausschnitt grösser.
+ * Für das Skript (Kap. 8) lassen sich die Zelle weglassen und die Symmetrieelemente über das ganze Muster legen.
  * @param {Struktur} st @param {Farben} farben @param {Bestimmung | null} r @param {number} [zoom]
+ * @param {{ zelle?: boolean, elemente?: boolean }} [optionen]
  * @returns {{ svg: string, ansicht: Ansicht }}
  */
-export function strukturTafelB(st, farben, r, zoom = 1) {
+export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true, elemente = false } = {}) {
   const M = metrik(st);
   const mitte = kart(M, [0.5, 0.5]);
   const w = (4.4 * Math.max(1, st.ba)) / zoom;
@@ -263,13 +265,37 @@ export function strukturTafelB(st, farben, r, zoom = 1) {
   const lo = Math.floor(Math.min(...ecken.flat())) - 1; const hi = Math.ceil(Math.max(...ecken.flat())) + 1;
   const teile = [`<defs><clipPath id="ausschnitt-s"><rect x="10" y="10" width="500" height="500" rx="6"/></clipPath></defs>`,
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt-s)">'];
-  if (r) {
+  if (r && mitZelle) {
     const Ak = konvAnsicht(A, r);
     const zelle = /** @type {Vec2[]} */ ([[0, 0], [1, 0], [1, 1], [0, 1]]).map((p) => pt(Ak.zuBild(p))).join(' ');
     teile.push(`<polygon points="${zelle}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
   }
   if (st.bindungen !== false) teile.push(bindungenSVG(st, A, M, [[lo, hi], [lo, hi]], farben.muted));
   teile.push(basisSVG(st, A, M, [[lo, hi], [lo, hi]], farben));
+  if (r && elemente) {
+    // Elemente einer konventionellen Zelle, über den ganzen Ausschnitt wiederholt (der Ausschnitt schneidet ab)
+    const g = gruppe(r.symbol);
+    const e = elementeImBereich(g, 1);
+    /** @type {{ drehpunkte: typeof e.drehpunkte, linien: typeof e.linien }} */
+    const alle = { drehpunkte: [], linien: [] };
+    const Ak = konvAnsicht(A, r);
+    const n = Math.ceil(hi - lo) + 2;
+    // nur, was ins Bild reicht (mit Rand für die Symbole)
+    /** @param {Vec2} q */
+    const imBild = (q) => { const b = Ak.zuBild(q); return b[0] > -40 && b[0] < 560 && b[1] > -40 && b[1] < 560; };
+    for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+      for (const d of e.drehpunkte) {
+        /** @type {Vec2} */
+        const q = [d.punkt[0] + i, d.punkt[1] + j];
+        if (imBild(q)) alle.drehpunkte.push({ ...d, punkt: q });
+      }
+      for (const l of e.linien) {
+        const st = /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j]));
+        if (imBild(st[0]) || imBild(st[1]) || imBild([(st[0][0] + st[1][0]) / 2, (st[0][1] + st[1][1]) / 2])) alle.linien.push({ ...l, strecke: st });
+      }
+    }
+    teile.push(elementeSVG(g, alle, Ak, farben, false));
+  }
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

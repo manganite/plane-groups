@@ -10,6 +10,7 @@ export const KAPITEL = [
   { nr: 5, titel: 'Die 17 Ebenengruppen', kurz: '17 Ebenengruppen', anker: 'ebenengruppen' },
   { nr: 6, titel: 'Punktlagen', kurz: 'Punktlagen', anker: 'punktlagen' },
   { nr: 7, titel: 'Tapeten, Ornamente und Kunst', kurz: 'Tapeten und Kunst', anker: 'kunst' },
+  { nr: 9, titel: 'Die Signatur nach Conway', kurz: 'Signatur nach Conway', anker: 'conway' },
 ];
 
 /** Präfix der Einträge im Browser: <Präfix>-v1 (Fortschritt), -entwurf (Schalter), -lauf (laufendes Quiz).

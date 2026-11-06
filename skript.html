@@ -103,7 +103,24 @@
               <li><a href="#fliesen">Fliesen und die Alhambra (Vertiefung)</a></li>
               <li><a href="#escher">Escher und die Kachel (Vertiefung)</a></li>
               <li><a href="#farbe">Ausblick: Farbe als Symmetrie (Vertiefung)</a></li>
-              <li><a href="#conway">Die Signatur nach Conway (Vertiefung)</a></li>
+            </ol>
+          </li>
+          <li><a href="#bestimmen"><span class="nr">8</span>Ebenengruppen bestimmen</a>
+            <ol>
+              <li><a href="#vorgehen">Vorgehen</a></li>
+              <li><a href="#leitfragen">Die fünf Leitfragen</a></li>
+              <li><a href="#flussdiagramm">Das Flussdiagramm</a></li>
+              <li><a href="#beispiele">Beispiele</a></li>
+              <li><a href="#fehler">Typische Fehler</a></li>
+              <li><a href="#ergebnis">Vom Ergebnis zur Zelle</a></li>
+            </ol>
+          </li>
+          <li class="toc-teil">Vertiefung</li>
+          <li><a href="#conway"><span class="nr">9</span>Die Signatur nach Conway</a>
+            <ol>
+              <li><a href="#merkmale">Vier Merkmale und die Signatur</a></li>
+              <li><a href="#preis">Preis und Magic Theorem</a></li>
+              <li><a href="#siebzehn-signaturen">Genau 17 Signaturen</a></li>
             </ol>
           </li>
         </ol>
@@ -1488,7 +1505,7 @@
 
     <section id="kunst">
       <h2><span class="nr">7</span>Tapeten, Ornamente und Kunst</h2>
-      <p class="lead">Periodische Muster gibt es nicht nur in Kristallen. Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster wiederholen ein Motiv in zwei Richtungen, und für sie gelten dieselben 17 Ebenengruppen. Dieses Kapitel zeigt solche Muster, alle mit dem Code der App gezeichnet, und wie Handwerker und Künstler mit Symmetrie gearbeitet haben. Die Vertiefungen am Ende führen weiter: zu Parkettierungen aus regelmässigen Vielecken und den Mosaiken der Alhambra, zu den Kacheln von Escher, zu Farbe als Symmetrie und zu einem zweiten, sehr anschaulichen Blick auf die 17 Gruppen, dem von John Conway.</p>
+      <p class="lead">Periodische Muster gibt es nicht nur in Kristallen. Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster wiederholen ein Motiv in zwei Richtungen, und für sie gelten dieselben 17 Ebenengruppen. Dieses Kapitel zeigt solche Muster, alle mit dem Code der App gezeichnet, und wie Handwerker und Künstler mit Symmetrie gearbeitet haben. Die Vertiefungen am Ende führen weiter: zu Parkettierungen aus regelmässigen Vielecken und den Mosaiken der Alhambra, zu den Kacheln von Escher und zu Farbe als Symmetrie.</p>
 
       <div class="box ziele">
         <h4>Lernziele</h4>
@@ -1502,8 +1519,6 @@
           <li>die Namen archimedischer Parkettierungen lesen und erklären, was eine chirale Parkettierung ist</li>
           <li>erklären, wie man Kacheln im Stil von Escher konstruiert</li>
           <li>am Schachbrett erklären, was eine Operation mit Farbwechsel ist</li>
-          <li>die Signatur einer Ebenengruppe nach Conway lesen und ihren Preis berechnen</li>
-          <li>erklären, warum die Bedingung „Preis 2“ auf genau 17 Ebenengruppen führt</li>
         </ul>
       </div>
 
@@ -1671,9 +1686,255 @@
         <p>Mit derselben Idee beschreibt man magnetische Strukturen: Dort spielt die Umkehr der magnetischen Momente, die Zeitumkehr, die Rolle des Farbwechsels. Ein Paramagnet, dessen Momente im Mittel verschwinden, hat eine graue Gruppe. Bringt in einem Antiferromagneten wie beim Schachbrett eine Verschiebung jedes Moment auf ein entgegengesetztes, hat er eine Schwarz-Weiss-Gruppe mit einer solchen Translation mit Farbwechsel. Ein Ferromagnet kann eine solche Gruppe nie haben, denn diese Operation kehrte sein Gesamtmoment um. Seine Gruppe ist eine gewöhnliche oder eine Schwarz-Weiss-Gruppe, in der keine reine Translation die Farbe wechselt.</p>
       </section>
 
-      <section id="conway" data-level="vertiefung">
-        <h3>Die Signatur nach Conway</h3>
-        <p>Diese Vertiefung knüpft an die Kapitel 5 und 6 an und zeigt einen zweiten Weg zu den 17 Ebenengruppen, der ohne Koordinaten und Tabellen auskommt und vom Bild ausgeht. Für den Rest des Skripts braucht man ihn nicht. Der Mathematiker John H. Conway hat mit Heidi Burgiel und Chaim Goodman-Strauss beschrieben, wie man jede Ebenengruppe mit vier Merkmalen festlegt, die man im Muster sieht. Die Merkmale werden zu einer <span class="term">Signatur</span> zusammengesetzt, auch Orbifold-Symbol genannt, und zwar in fester Reihenfolge: zuerst o, dann die Drehpunkte, dann jedes Kaleidoskop mit seinen Ecken, zuletzt ×.</p>
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster sind periodische Muster mit denselben 17 Ebenengruppen; englisch heissen sie <i>wallpaper groups</i>.</li>
+          <li>Die Ebenengruppe hängt von der Anordnung der Motive ab; bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt.</li>
+          <li>Der Versatz der Reihen bestimmt die Symmetrie eines Verbands: ohne Versatz <i>p</i>2<i>mm</i>, halb versetzt <i>c</i>2<i>mm</i> mit Gleitspiegellinien entlang der Fugen, um ein Drittel versetzt <i>p</i>2. Fischgrät- und Flechtverband haben <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>.</li>
+        </ul>
+        <h5>Zur Vertiefung</h5>
+        <ul>
+          <li>Regelmässige Vielecke parkettieren die Ebene allein nur als Dreiecke, Quadrate oder Sechsecke; gemischt ergeben sie die archimedischen Parkettierungen. Ihr Name zählt die Vielecke um eine Ecke auf; 3.3.3.3.6 ist chiral, mit <i>p</i>6.</li>
+          <li>Kacheln im Stil von Escher entstehen, indem man die Kanten einer Zelle paarweise gleich verformt; eine Kante, die punktsymmetrisch zu ihrer Mitte ist, ergibt 2-zählige Drehpunkte.</li>
+          <li>Operationen mit Farbwechsel führen auf die Schwarz-Weiss-Gruppen, 46 in der Ebene. In den 17 grauen Gruppen ist schon der Farbwechsel allein eine Operation; anschaulich ist jedes Feld zugleich schwarz und weiss.</li>
+        </ul>
+      </div>
+
+      <p class="quizlink">Lernziele prüfen im Quiz: <a href="quiz.html?kap=7&amp;stufe=1" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 1</a> · <a href="quiz.html?kap=7&amp;stufe=2" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 2</a> · <a href="quiz.html?kap=7&amp;stufe=3" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 3</a></p>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>Die Ebenengruppen aller Muster dieses Kapitels (Verbände, Parkettierungen, Schachbrett) hat die App mit ihrer Symmetriebestimmung berechnet (Vorgaben im Modus „Gitter und Basis“).</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2 (Fedorov leitet 1891 die 17 Ebenengruppen ab, S. 136), 4.2.3 (Ebenensymmetrie im Alltag; <i>wallpaper group</i> im Englischen verbreiteter als <i>plane symmetry group</i>, S. 141; Mauerwerksverbände: versetzte Reihen gegen Sollbruchstellen, „Gleitspiegelmotiv“, Läufer und Binder, Zierverbände, Abb. 4.19, S. 142–143; islamische Kunst und Alhambra, Weltkulturerbe seit 1984, Streit um die 17 Gruppen, S. 143–144; Escher: erster Besuch der Alhambra 1922, löwenartige Figur 1926, zweiter Besuch im Mai 1936, Artikel aus kristallographischen Zeitschriften auf Empfehlung des Halbbruders, S. 144–146), 6.1.4 (Schachbrett, Abb. 6.13, S. 202–203; Lösung <i>p</i>4<i>mm</i>, Anhang, S. 314–315), 8.2 (Parkettierungen nur mit Vielecken der Zähligkeit 1 bis 4 und 6, Abb. 8.3, S. 269).</li>
+          <li>B. Grünbaum, What symmetry groups are present in the Alhambra?, <i>Notices of the American Mathematical Society</i> 53, 670–673 (2006); E. A. Müller, Dissertation, Universität Zürich (1944); beide nach Hoffmann, Literatur zu Kap. 4.</li>
+          <li>D. Schattschneider, <i>M.&nbsp;C. Escher: Visions of Symmetry</i>, 2. Aufl., Harry N. Abrams, New York (2004). Bilder: <a href="https://mcescher.com/gallery/symmetry/">mcescher.com, Galerie „Symmetry“</a>.</li>
+          <li>Lexikon der Geowissenschaften, Stichwort „Antisymmetriegruppen“, Spektrum Akademischer Verlag (2000), <a href="https://www.spektrum.de/lexikon/geowissenschaften/antisymmetriegruppen/802">spektrum.de</a> (46 Antisymmetriegruppen aus den 17 Ebenengruppen; mit einfarbigen und grauen Gruppen 80; Graugruppen; Anwendung auf antiferromagnetische Strukturen).</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="bestimmen">
+      <h2><span class="nr">8</span>Ebenengruppen bestimmen</h2>
+      <p class="lead">Die Kapitel 1–7 haben gezeigt, wie aus Gitter und Motiv eine Ebenengruppe entsteht. Dieses Kapitel geht den umgekehrten Weg: Gegeben ist ein Muster, gesucht ist seine Ebenengruppe. Dafür gibt es ein einfaches Verfahren, ein Flussdiagramm aus wenigen Fragen, die man mit Ja oder Nein beantwortet. Es nimmt einem die Arbeit nicht ab, die Symmetrieelemente im Muster zu finden, sagt aber, welche man suchen muss und in welcher Reihenfolge.</p>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>die Ebenengruppe eines periodischen Musters mit den Leitfragen des Flussdiagramms bestimmen</li>
+          <li>erklären, welche Symmetrieelemente und welche Lagen der Drehpunkte die Gruppen mit gleicher höchster Zähligkeit unterscheiden</li>
+          <li>typische Fehler beim Bestimmen erkennen, etwa einen übersehenen Drehpunkt oder eine übersehene Farbe</li>
+          <li>zur bestimmten Gruppe die konventionelle Zelle und die Lage der Symmetrieelemente im Muster angeben</li>
+        </ul>
+      </div>
+
+      <section id="vorgehen">
+        <h3>Vorgehen</h3>
+        <p>Die Ebenengruppe eines Musters zu bestimmen heisst, seine Symmetrieelemente zu finden: Drehpunkte, Spiegellinien und Gleitspiegellinien. Das Symbol ergibt sich dann aus wenigen Merkmalen. Welche das sind, zeigt ein Flussdiagramm, das der Mathematiker Brian Sanderson als Algorithmus zum Erkennen von Mustern entworfen hat. Es kennt fünf Leitfragen (Abschnitt 8.2) und führt nach höchstens vier Antworten zu einer der 17 Gruppen (Abschnitt 8.3).</p>
+        <p>Die Fragen beantwortet man am Muster selbst; das Diagramm sagt nur, welche Elemente man suchen muss und in welcher Reihenfolge. Drei Hilfen machen das Suchen leichter: die Fragen zuerst an einem kleinen Teilstück des Musters beantworten, für den Anfang von der Farbe absehen, um Kandidaten zu finden, und das Muster so drehen, dass seine auffälligen Linien waagrecht oder senkrecht laufen. Ob ein Kandidat wirklich ein Symmetrieelement ist, entscheidet aber das ganze Muster, mit seinen Farben (Abschnitt 8.5). Eine Operation gehört nur dann zum Muster, wenn sie jedes Motiv auf ein gleiches Motiv abbildet, an jeder Stelle des Musters.</p>
+        <p>Zuletzt legt man die Zelle fest und zeichnet die Symmetrieelemente an ihren richtigen Stellen ein (Abschnitt 8.6). Erst damit ist die Bestimmung vollständig.</p>
+      </section>
+
+      <section id="leitfragen">
+        <h3>Die fünf Leitfragen</h3>
+        <ol>
+          <li><b>Welche Zähligkeit hat der Drehpunkt höchster Zähligkeit?</b> Möglich sind nur 1, 2, 3, 4 und 6 (Abschnitt 2.2); 1 heisst, es gibt keinen Drehpunkt. Kandidaten sind die Mitten von Motiven mit Drehsymmetrie und die Stellen zwischen zwei gleichen Motiven, die um 180° gegeneinander gedreht sind. Ein 6-zähliger Drehpunkt ist zugleich 3- und 2-zählig, ein 4-zähliger zugleich 2-zählig; gezählt wird die höchste Zähligkeit.</li>
+          <li><b>Gibt es eine Spiegellinie?</b> Eine Spiegellinie bildet jedes Motiv auf sein Spiegelbild ab, und dieses Spiegelbild ist selbst ein Motiv des Musters (Abschnitt 2.1).</li>
+          <li><b>Gibt es eine Gleitspiegellinie?</b> Eine Gleitspiegellinie bildet das Muster erst dann auf sich ab, wenn man spiegelt und um die halbe Gitterperiode entlang der Linie verschiebt (Abschnitt 4.1).</li>
+          <li><b>Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?</b> Diese Frage stellt das Diagramm nur bei Gruppen mit Spiegellinien und höchster Zähligkeit 3 oder 4. Gefragt ist nach irgendeinem Drehpunkt, nicht nur nach dem höchster Zähligkeit.</li>
+          <li><b>Gibt es einen Drehpunkt, der auf einer Spiegellinie liegt?</b> Diese Frage stellt das Diagramm nur bei höchster Zähligkeit 2, wenn es Spiegellinien und Gleitspiegellinien gibt.</li>
+        </ol>
+        <p>Die Fragen 4 und 5 unterscheiden Gruppen, die dieselben Arten von Symmetrieelementen haben und sich nur darin unterscheiden, wie diese zueinander liegen. Das ist genau das, was im Symbol die Reihenfolge der Buchstaben ausdrückt (Abschnitt 5.2): <i>p</i>3<i>m</i>1 und <i>p</i>31<i>m</i> haben beide 3-zählige Drehpunkte und Spiegellinien, aber in <i>p</i>31<i>m</i> liegen einige der 3-zähligen Drehpunkte auf keiner Spiegellinie.</p>
+        <div class="box merke">
+          <h4>Merke</h4>
+          <p>Die fünf Leitfragen: höchste Zähligkeit eines Drehpunkts; Spiegellinie; Gleitspiegellinie; Drehpunkt, der auf keiner Spiegellinie liegt; Drehpunkt auf einer Spiegellinie.</p>
+        </div>
+      </section>
+
+      <section id="flussdiagramm">
+        <h3>Das Flussdiagramm</h3>
+        <p>Abb. 8.1 zeigt das Flussdiagramm. Man beginnt links mit der höchsten Zähligkeit und folgt dann den Antworten nach rechts. Nicht jede Frage wird in jedem Zweig gestellt: Bei 6-zähligen Drehpunkten genügt die Frage nach Spiegellinien, und bei höchster Zähligkeit 3 oder 4 ist die Frage nach Gleitspiegellinien unnötig. Gruppen mit Spiegellinien haben dort immer auch Gleitspiegellinien, etwa <i>p</i>4<i>mm</i> diagonal zwischen den diagonalen Spiegellinien (Abschnitt 4.5).</p>
+        <figure class="fig-card" data-kind="fluss" data-alt="Flussdiagramm zur Bestimmung der Ebenengruppe: zuerst die höchste Zähligkeit, dann Fragen nach Spiegellinien, Gleitspiegellinien und der Lage der Drehpunkte, rechts die 17 Ebenengruppen">
+          <div class="fig-art"></div>
+          <figcaption><b>Abb. 8.1</b> Flussdiagramm zur Bestimmung der Ebenengruppe, nach dem Algorithmus von Brian Sanderson, neu gezeichnet. <i>m</i> steht für Spiegellinie.</figcaption>
+        </figure>
+        <p>Mit 2-zähligen Drehpunkten, Spiegellinien und Gleitspiegellinien bleiben zwei Gruppen. In <i>c</i>2<i>mm</i> liegen einige 2-zählige Drehpunkte auf den Schnittpunkten der Spiegellinien und andere zwischen ihnen; in <i>p</i>2<i>mg</i> liegt keiner auf einer Spiegellinie. In <i>p</i>2<i>mm</i> liegen dagegen alle Drehpunkte auf Schnittpunkten von Spiegellinien, und es gibt keine Gleitspiegellinien. Ebenso trennt das Diagramm <i>p</i>4<i>mm</i> von <i>p</i>4<i>gm</i>: In <i>p</i>4<i>mm</i> liegen alle Drehpunkte auf Spiegellinien, in <i>p</i>4<i>gm</i> liegt der 4-zählige Drehpunkt auf keiner.</p>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Ebenengruppen“ zeigt die App für jede der 17 Gruppen alle Symmetrieelemente. Damit lässt sich jeder Weg des Diagramms nachprüfen. Dass jede Gruppe mit ihren eigenen Elementen genau bei sich ankommt, prüft ein Test der App für alle 17.</p>
+        </div>
+      </section>
+
+      <section id="beispiele">
+        <h3>Beispiele</h3>
+        <p>Abb. 8.2 zeigt sechs Muster: fünf aus den Vorgaben der App im Modus „Gitter und Basis“ und eine Tapete aus Abschnitt 7.1. Bevor man weiterliest, lohnt es sich, jedes selbst mit dem Flussdiagramm zu bestimmen. Abb. 8.3 zeigt danach die Symmetrieelemente, die man dabei findet, noch ohne Zelle; die Zelle kommt erst im letzten Schritt dazu (Abschnitt 8.6, Abb. 8.4).</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=dreieck3&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Muster aus gleichschenkligen Dreiecken, die Spitzen der Reihen abwechselnd nach links und nach rechts">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 8.2a</b> Dreiecke, die Spitzen abwechselnd umgekehrt.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=hbn&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Bienenwabe aus zwei Sorten Atomen im Wechsel">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> Bienenwabe aus zwei Sorten Atomen (h-BN).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=dreiergruppen&amp;sel=0" data-viewbox="24 24 472 472" data-alt="Dreiergruppen aus Atomen auf einem hexagonalen Gitter">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Dreiergruppen.</figcaption>
+          </figure>
+        </div>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=flecht&amp;sel=0" data-viewbox="142 142 236 236" data-alt="Flechtverband: je zwei Steine bilden ein Quadrat, abwechselnd waagrecht und senkrecht">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> Flechtverband.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-app="#m=struktur&amp;v=fisch&amp;sel=0" data-viewbox="92.5 92.5 335 335" data-alt="Fischgrätverband: Steine im Zickzack, abwechselnd um 90 Grad gedreht">
+            <div class="fig-art"></div>
+            <figcaption><b>e</b> Fischgrätverband.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-app="#m=eg&amp;g=p6&amp;form=ranke&amp;tap=1&amp;zoom=1.49&amp;og=2.65" data-alt="Tapete aus Ranken, die sich alle im selben Sinn drehen">
+            <div class="fig-art"></div>
+            <figcaption><b>f</b> Ranken.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 8.2</b> Sechs Muster zum Bestimmen, ohne Zelle und ohne Symmetrieelemente: a–e Vorgaben im Modus „Gitter und Basis“, f die Tapete aus Abb. 7.2a.</p>
+        <p><b>Dreiecke</b> (Abb. 8.2a). Gedreht um 60°, 90° oder 120° kommt das Muster nicht zur Deckung, wohl aber um 180° um einen Punkt zwischen zwei entgegengesetzt weisenden Dreiecken: höchste Zähligkeit 2. Jedes Dreieck ist spiegelsymmetrisch zu seiner Achse, und die Linie entlang der Achsen ist eine Spiegellinie des ganzen Musters. Senkrecht zu den Spiegellinien liegen Gleitspiegellinien, auf halbem Weg zwischen einem Dreieck und dem umgekehrten der Nachbarreihe: Spiegeln und um eine halbe Periode quer zu den Reihen verschieben bringt ein Dreieck auf eines der Nachbarreihe, mit umgekehrter Spitze. Die 2-zähligen Drehpunkte liegen auf keiner Spiegellinie. Der Weg 2 → ja → ja → nein führt zu <i>p</i>2<i>mg</i> (Abb. 8.3a), derselben Gruppe wie bei den Dreiecken in Abschnitt 4.5.</p>
+        <p><b>Bienenwabe aus zwei Sorten Atomen</b> (Abb. 8.2b). Die Mitte jedes Sechsecks ist ein 3-zähliger Drehpunkt, ebenso jedes Atom; 6-zählig ist die Mitte nicht, weil eine Drehung um 60° die beiden Sorten vertauscht. Durch jedes Atom laufen Spiegellinien. Auf die Frage, ob ein Drehpunkt auf keiner Spiegellinie liegt, lautet die Antwort Nein: Alle drei Sorten von 3-zähligen Drehpunkten, Atome beider Sorten und Sechseckmitten, liegen auf Schnittpunkten von Spiegellinien. Das ergibt <i>p</i>3<i>m</i>1 (Abb. 8.3b). Hier entscheidet die Farbe: Sähe man nur Atome einer Sorte, wäre das Muster die Bienenwabe von Graphen, mit 6-zähligen Drehpunkten in den Sechseckmitten und der Gruppe <i>p</i>6<i>mm</i>.</p>
+        <p><b>Dreiergruppen</b> (Abb. 8.2c). Die Mitte jeder Dreiergruppe ist ein 3-zähliger Drehpunkt mit drei Spiegellinien, je eine durch ein Atom der Gruppe. Es gibt aber noch eine zweite Sorte 3-zähliger Drehpunkte: in den Lücken zwischen den Dreiergruppen. Durch sie geht keine Spiegellinie. Also: 3 → ja → ja, <i>p</i>31<i>m</i> (Abb. 8.3c). Die Gruppen der Muster b und c unterscheiden sich nur in der Lage der Spiegellinien zu den Drehpunkten; genau das prüft Leitfrage 4.</p>
+        <p><b>Flechtverband</b> (Abb. 8.2d). Wo vier Steinquadrate zusammenstossen, liegt ein 4-zähliger Drehpunkt. Spiegellinien laufen durch die Mitten der Quadrate, aber nicht durch den 4-zähligen Drehpunkt: 4 → ja → ja, <i>p</i>4<i>gm</i> (Abb. 8.3d), wie in Abschnitt 7.2.</p>
+        <p><b>Fischgrätverband</b> (Abb. 8.2e). Hier gibt es keine einzige Spiegellinie, aber Gleitspiegellinien in zwei Richtungen und 2-zählige Drehpunkte (Abschnitt 7.2): 2 → nein → ja, <i>p</i>2<i>gg</i> (Abb. 8.3e).</p>
+        <p><b>Ranken</b> (Abb. 8.2f). Um die Mitte jeder Rosette aus sechs Ranken dreht sich das Muster um 60° in sich über: ein 6-zähliger Drehpunkt. Eine Spiegellinie gibt es nicht, denn alle Ranken drehen sich im selben Sinn; ein Spiegelbild käme im Muster nicht vor. Das Diagramm braucht nur zwei Antworten: 6 → nein, <i>p</i>6 (Abb. 8.3f). Zwischen den Rosetten liegen dazu 3- und 2-zählige Drehpunkte, nach denen keine Leitfrage fragt; sie gehören aber zum Ergebnis (Abschnitt 8.6).</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=dreieck3&amp;zoom=2" data-alt="Muster aus gleichschenkligen Dreiecken, die Spitzen der Reihen abwechselnd nach links und nach rechts, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 8.3a</b> Dreiecke: <i>p</i>2<i>mg</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=hbn&amp;zoom=2" data-alt="Bienenwabe aus zwei Sorten Atomen im Wechsel, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> h-BN: <i>p</i>3<i>m</i>1.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=dreiergruppen&amp;zoom=2" data-alt="Dreiergruppen aus Atomen auf einem hexagonalen Gitter, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> Dreiergruppen: <i>p</i>31<i>m</i>.</figcaption>
+          </figure>
+        </div>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=flecht&amp;zoom=2" data-alt="Flechtverband: je zwei Steine bilden ein Quadrat, abwechselnd waagrecht und senkrecht, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> Flechtverband: <i>p</i>4<i>gm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-zelle="0" data-elemente="1" data-app="#m=struktur&amp;v=fisch&amp;zoom=2" data-alt="Fischgrätverband: Steine im Zickzack, abwechselnd um 90 Grad gedreht, mit Symmetrieelementen">
+            <div class="fig-art"></div>
+            <figcaption><b>e</b> Fischgrätverband: <i>p</i>2<i>gg</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-elemente="1" data-app="#m=eg&amp;g=p6&amp;form=ranke&amp;tap=1&amp;zoom=1.49&amp;og=2.65&amp;mel=1" data-alt="Tapete aus Ranken mit 6-, 3- und 2-zähligen Drehpunkten">
+            <div class="fig-art"></div>
+            <figcaption><b>f</b> Ranken: <i>p</i>6.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 8.3</b> Die Muster aus Abb. 8.2 mit den Symmetrieelementen, die das Diagramm finden lässt, noch ohne Zelle.</p>
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Jede Abbildung öffnet die Vorgabe in der App. Schaltet man dort „Symmetrieelemente“ aus, sieht man das Muster ohne Hilfe; eingeschaltet zeigt die App, was das Diagramm hätte finden sollen. Verschiebt man ein Motiv, zeigt sie, wie sich die Gruppe ändert.</p>
+        </div>
+      </section>
+
+      <section id="fehler">
+        <h3>Typische Fehler</h3>
+        <p>Weil das Diagramm jede Antwort ernst nimmt, führt ein übersehenes oder ein falsch erkanntes Element zu einer falschen Gruppe. Drei Fehler liegen nahe.</p>
+        <ul>
+          <li><b>Ein Drehpunkt wird übersehen.</b> Übersieht man im Fischgrätverband die 2-zähligen Drehpunkte, beginnt man mit der Zähligkeit 1 und kommt über „keine Spiegellinie, aber Gleitspiegellinie“ zu <i>pg</i> statt zu <i>p</i>2<i>gg</i>. Bei Leitfrage 4 hilft es, alle Sorten von Drehpunkten durchzugehen: In <i>p</i>4<i>gm</i> liegen die 2-zähligen Drehpunkte auf Spiegellinien, der 4-zählige aber nicht.</li>
+          <li><b>Eine Gleitspiegellinie wird mit einer Spiegellinie verwechselt.</b> Wer eine Gleitspiegellinie für eine Spiegellinie hält, landet etwa bei <i>pm</i> statt bei <i>pg</i>. Eine Spiegellinie prüft man an einem einzelnen Motiv: Sein Spiegelbild muss genau gegenüber liegen, ohne Verschiebung.</li>
+          <li><b>Die Farbe wird übersehen.</b> Farben gehören zum Muster. Die Bienenwabe aus zwei Sorten Atomen (Abb. 8.2b) zeigt, was sonst passiert: Wer die beiden Sorten nicht unterscheidet, findet 6-zählige Drehpunkte in den Sechseckmitten und kommt zu <i>p</i>6<i>mm</i> statt <i>p</i>3<i>m</i>1. Von der Farbe abzusehen hilft also, Kandidaten zu finden, darf aber nicht das Ergebnis bestimmen.</li>
+        </ul>
+        <p>Ein vierter Fehler betrifft nicht die Gruppe, sondern die Zelle: In <i>cm</i> und <i>c</i>2<i>mm</i> ist die konventionelle Zelle zentriert, obwohl es eine halb so grosse primitive Zelle gibt (Abschnitt 2.4). Am Symbol ändert das nichts, das Diagramm führt auf <i>cm</i> bzw. <i>c</i>2<i>mm</i>; die Zelle legt man danach nach den Regeln aus Abschnitt 2.5 fest.</p>
+      </section>
+
+      <section id="ergebnis">
+        <h3>Vom Ergebnis zur Zelle</h3>
+        <p>Mit der Gruppe steht fest, welche Symmetrieelemente das Muster hat, aber noch nicht, wo sie liegen. Als letzten Schritt legt man deshalb die Zelle fest und zeichnet die Elemente ein (Abb. 8.4). Für ein primitives Gitter sucht man die kleinste Einheit, die, nur aneinandergefügt, das ganze Muster ergibt. Die konventionelle Zelle legt man dann so, wie es die Regeln aus Abschnitt 2.5 verlangen: ihre Kanten entlang der Spiegellinien oder, bei 3-, 4- und 6-zähligen Drehpunkten, mit dem Winkel 120° bzw. 90°. Den Ursprung legt man wie die International Tables, für <i>p</i>2<i>mg</i> etwa auf einen 2-zähligen Drehpunkt (Abschnitt 4.5).</p>
+        <p>Zum Schluss vergleicht man das Bild mit dem Diagramm der Gruppe in den International Tables (Abschnitt 5.3). Jedes Element des Diagramms muss im Muster an der entsprechenden Stelle liegen, auch die, nach denen keine Leitfrage gefragt hat, etwa die Gleitspiegellinien in <i>p</i>4<i>mm</i>. Fehlt eines, ist entweder die Zelle falsch gelegt oder eine Antwort falsch gewesen.</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=dreieck3" data-alt="Dreiecksmuster mit Zelle, Spiegellinien, Gleitspiegellinien und Drehpunkten von p2mg">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 8.4a</b> <i>p</i>2<i>mg</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=hbn" data-alt="Bienenwabe aus zwei Sorten Atomen mit Zelle, Spiegellinien und Drehpunkten von p3m1">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> <i>p</i>3<i>m</i>1.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=dreiergruppen" data-alt="Dreiergruppen mit Zelle, Spiegellinien und Drehpunkten von p31m">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> <i>p</i>31<i>m</i>.</figcaption>
+          </figure>
+        </div>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=flecht" data-alt="Flechtverband mit Zelle, Spiegellinien, Gleitspiegellinien und Drehpunkten von p4gm">
+            <div class="fig-art"></div>
+            <figcaption><b>d</b> <i>p</i>4<i>gm</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="a" data-app="#m=struktur&amp;v=fisch" data-alt="Fischgrätverband mit Zelle, Gleitspiegellinien und Drehpunkten von p2gg">
+            <div class="fig-art"></div>
+            <figcaption><b>e</b> <i>p</i>2<i>gg</i>.</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="app" data-tafel="b" data-elemente="zelle" data-app="#m=eg&amp;g=p6&amp;form=ranke&amp;zoom=1.49&amp;og=2.65&amp;mel=1&amp;farb=0" data-alt="Muster aus Ranken mit Elementarzelle und den Drehpunkten von p6">
+            <div class="fig-art"></div>
+            <figcaption><b>f</b> <i>p</i>6.</figcaption>
+          </figure>
+        </div>
+        <p class="fig-note"><b>Abb. 8.4</b> Die Muster aus Abb. 8.2 mit konventioneller Zelle und Symmetrieelementen, wie die App sie bestimmt: a–e im Modus „Gitter und Basis“, f im Modus „Ebenengruppen“.</p>
+
+        <div class="box app">
+          <h4>In der App</h4>
+          <p>Im Modus „Gitter und Basis“ bestimmt die App zu jedem Muster die konventionelle Zelle nach ITA und zeichnet die Symmetrieelemente ein; „im Modus ‚Ebenengruppen‘ ansehen“ öffnet die Gruppe mit ihrem Diagramm. So lässt sich eine eigene Bestimmung Schritt für Schritt prüfen.</p>
+        </div>
+      </section>
+
+      <div class="box zusammen">
+        <h4>Zusammenfassung</h4>
+        <ul>
+          <li>Das Flussdiagramm nach Sanderson bestimmt die Ebenengruppe eines Musters mit fünf Leitfragen: höchste Zähligkeit, Spiegellinie, Gleitspiegellinie, Drehpunkt nicht auf einer Spiegellinie, Drehpunkt auf einer Spiegellinie.</li>
+          <li>Gruppen mit gleichen Arten von Elementen unterscheiden sich darin, ob Drehpunkte auf Spiegellinien liegen: <i>p</i>3<i>m</i>1 und <i>p</i>31<i>m</i>, <i>p</i>4<i>mm</i> und <i>p</i>4<i>gm</i>, <i>c</i>2<i>mm</i> und <i>p</i>2<i>mg</i>.</li>
+          <li>Typische Fehler sind ein übersehener Drehpunkt, eine Gleitspiegellinie, die man für eine Spiegellinie hält, und eine übersehene Farbe.</li>
+          <li>Zur vollständigen Bestimmung gehören die konventionelle Zelle und die Lage aller Elemente, im Vergleich mit dem Diagramm der International Tables.</li>
+        </ul>
+      </div>
+
+      <div class="quellen">
+        <h4>Quellen</h4>
+        <ul>
+          <li>B. J. Sanderson, <i>Pattern Recognition Algorithm</i> (Flussdiagramm mit den Leitfragen nach höchster Zähligkeit, Spiegelung, Gleitspiegelung und der Lage der Drehpunkte zu den Spiegelungen), in der überarbeiteten Fassung von D. Bar-Natan, <a href="https://www.math.toronto.edu/~drorbn/Gallery/Symmetry/Tilings/Sanderson/index.html">Image Gallery, University of Toronto</a>. Abb. 8.1 ist neu gezeichnet.</li>
+          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2, S. 139–141 (das Flussdiagramm nach Sanderson mit einem durchgerechneten Beispiel, Abb. 4.14–4.18; Hilfen zum Suchen der Elemente).</li>
+          <li>Dass jede der 17 Gruppen mit ihren eigenen Symmetrieelementen zu sich selbst führt und die Ebenengruppen aller Muster dieses Kapitels hat die App berechnet (Elemente aus den Operationen der International Tables, Vol. A, Part 6; Symmetriebestimmung im Modus „Gitter und Basis“).</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="teil">
+      <p class="teil-titel">Vertiefung</p>
+      <p>Kapitel 9 geht über den Grundstoff hinaus. Es baut auf den Kapiteln 5 und 6 auf; der Kasten „Voraussetzungen“ am Anfang nennt die Anknüpfungspunkte. Die Randlinie links markiert den ganzen Teil.</p>
+    </div>
+
+    <section id="conway" data-level="vertiefung">
+      <h2><span class="nr">9</span>Die Signatur nach Conway</h2>
+      <p class="lead">Die Symbole nach Hermann-Mauguin beschreiben eine Ebenengruppe durch ihre Zelle und ihre Blickrichtungen. John Conway hat einen zweiten, sehr anschaulichen Blick auf die 17 Gruppen beschrieben, der ohne Koordinaten und Tabellen auskommt und vom Bild ausgeht: Man zählt, was man im Muster sieht, und schreibt es als Signatur. Ein Preis für jedes Zeichen erklärt dann, warum es genau 17 Gruppen gibt.</p>
+
+      <div class="box bezug">
+        <h4>Voraussetzungen</h4>
+        <p>Das Kapitel knüpft an die 17 Ebenengruppen (Kapitel 5) und die Punktlagen (Kapitel 6) an: Jede Ziffer der Signatur gehört zu einer Wyckoff-Lage. Es ist ein zweiter Weg zu denselben 17 Gruppen, neben der Bestimmung mit dem Flussdiagramm in Kapitel 8. Für den Rest des Skripts braucht man es nicht.</p>
+      </div>
+
+      <div class="box ziele">
+        <h4>Lernziele</h4>
+        <ul>
+          <li>die Signatur einer Ebenengruppe nach Conway lesen und ihren Preis berechnen</li>
+          <li>erklären, warum die Bedingung „Preis 2“ auf genau 17 Ebenengruppen führt</li>
+        </ul>
+      </div>
+
+      <section id="merkmale">
+        <h3>Vier Merkmale und die Signatur</h3>
+        <p>Der Mathematiker John H. Conway hat mit Heidi Burgiel und Chaim Goodman-Strauss beschrieben, wie man jede Ebenengruppe mit vier Merkmalen festlegt, die man im Muster sieht. Die Merkmale werden zu einer <span class="term">Signatur</span> zusammengesetzt, auch Orbifold-Symbol genannt, und zwar in fester Reihenfolge: zuerst o, dann die Drehpunkte, dann jedes Kaleidoskop mit seinen Ecken, zuletzt ×.</p>
         <ul>
           <li><b>Kaleidoskop</b>, Zeichen *: Spiegellinien, die ein Gebiet begrenzen wie die Spiegel eines Kaleidoskops, oder eine einzelne Spiegellinie, die keine andere schneidet. Hinter dem * folgen die Ecken des Kaleidoskops, die Schnittpunkte von Spiegellinien, jeweils mit der Zahl der Spiegellinien durch den Punkt.</li>
           <li><b>Drehpunkte, die auf keiner Spiegellinie liegen</b> (englisch <i>gyrations</i>), mit ihrer Zähligkeit, vor dem *.</li>
@@ -1681,8 +1942,31 @@
           <li><b>Wanderung</b> (<i>wonder</i>, von <i>wonderful wandering</i>), Zeichen o: Kopien ohne Spiegelung, die weder durch Drehpunkte noch durch Spiegellinien oder Wunder erklärt sind. Das kommt nur in <i>p</i>1 vor.</li>
         </ul>
         <p>Gleichartige Merkmale zählt man nur einmal, wobei zwei Punkte oder Linien gleichartig sind, wenn eine Symmetrieoperation des Musters das eine in das andere überführt. In <i>pm</i> gibt es zwei Sorten paralleler Spiegellinien, die keine Operation ineinander überführt; jede ist ein Kaleidoskop für sich, daher **. Das ist genau der Begriff der Punktlage aus Kapitel 6. Jede Ziffer der Signatur steht deshalb für eine Wyckoff-Lage, deren Lagesymmetrie eine Drehung enthält: vor dem * eine mit der Lagesymmetrie <i>n</i>, hinter dem * eine mit <i>n</i> Spiegellinien und einem <i>n</i>-zähligen Drehpunkt. Ein Beispiel ist das Paar aus Abb. 5.2. In <i>p</i>4<i>mm</i> liegen alle Drehpunkte auf Schnittpunkten von Spiegellinien: zwei Sorten 4-zähliger Punkte (1<i>a</i> und 1<i>b</i>) und eine Sorte 2-zähliger (2<i>c</i>); die Signatur ist *442. In <i>p</i>4<i>gm</i> liegt der 4-zählige Punkt auf keiner Spiegellinie, nur der 2-zählige auf einem Schnittpunkt: 4*2. Conway färbt die Merkmale ohne Spiegelung (Drehpunkte, Wanderung) blau, die spiegelnden (Kaleidoskope, Wunder) rot, ähnlich wie die App: blau, was durch Drehen und Verschieben entsteht, orange die Spiegelbilder.</p>
+        <p>Abb. 9.1 zeigt alle vier Merkmale an drei Mustern. Durchgezogene Linien sind Spiegellinien, gestrichelte Gleitspiegellinien; die Motive sind alle blau gezeichnet. Die Merkmale sind deshalb alle in einer Farbe markiert, nicht in Conways Blau und Rot.</p>
+        <div class="fig-row fig-row3">
+          <figure class="fig-card" data-kind="conway" data-variante="4*2" data-app="#m=eg&amp;g=p4gm&amp;form=blatt&amp;tap=1&amp;mel=1&amp;farb=0&amp;zoom=2.2&amp;og=2" data-alt="Muster p4gm aus Blättern; markiert sind ein 4-zähliger Drehpunkt ohne Spiegellinie und ein Schnittpunkt zweier Spiegellinien">
+            <div class="fig-art"></div>
+            <figcaption><b>Abb. 9.1a</b> <i>p</i>4<i>gm</i>, 4*2: Durch den 4-zähligen Drehpunkt (4) läuft keine Spiegellinie, nur Gleitspiegellinien. Die Spiegellinien bilden ein Kaleidoskop mit einer Sorte Ecke, an der sich zwei Spiegellinien kreuzen (*2).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="conway" data-variante="*x" data-app="#m=eg&amp;g=cm&amp;form=tropfen&amp;tap=1&amp;mel=1&amp;farb=0&amp;zoom=2&amp;og=2" data-alt="Muster cm aus Tropfen; markiert sind eine Spiegellinie und ein Weg von einem Motiv zu einem Spiegelbild, der keine Spiegellinie überquert">
+            <div class="fig-art"></div>
+            <figcaption><b>b</b> <i>cm</i>, *×: Alle Spiegellinien sind gleichartig, ein Kaleidoskop ohne Ecken (*), anders als in <i>pm</i> (**). Der gepunktete Weg führt von einem Motiv zu einem Spiegelbild und überquert dabei keine der beiden benachbarten Spiegellinien, nur eine Gleitspiegellinie: ein Wunder (×).</figcaption>
+          </figure>
+          <figure class="fig-card" data-kind="conway" data-variante="o" data-app="#m=eg&amp;g=p1&amp;form=ranke&amp;tap=1&amp;mel=1&amp;farb=0&amp;zoom=1.3&amp;og=2" data-alt="Muster p1 aus Ranken; markiert sind zwei Wege zu verschobenen Kopien">
+            <div class="fig-art"></div>
+            <figcaption><b>c</b> <i>p</i>1, o: Weder Spiegellinien noch Drehpunkte noch Gleitspiegellinien; die Kopien sind nur durch Verschiebungen verbunden. Die beiden gepunkteten Wege, zwei unabhängige Verschiebungen, stehen zusammen für eine Wanderung (o).</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="preis">
+        <h3>Preis und Magic Theorem</h3>
         <p>Nun bekommt jedes Zeichen einen Preis: o kostet 2, * und × je 1, eine Ziffer <i>n</i> vor dem * kostet <span class="nowrap">(<i>n</i>&nbsp;−&nbsp;1)/<i>n</i></span>, eine Ziffer <i>n</i> hinter dem * die Hälfte davon, <span class="nowrap">(<i>n</i>&nbsp;−&nbsp;1)/(2<i>n</i>)</span>. Conways <span class="term">Magic Theorem</span> sagt: Die Signaturen der periodischen Muster der Ebene sind genau die mit dem Gesamtpreis 2. Für <i>p</i>4<i>gm</i> ist das ¾ + 1 + ¼ = 2, für <i>p</i>6<i>mm</i> (*632) 1 + <sup>5</sup>⁄<sub>12</sub> + ⅓ + ¼ = 2.</p>
-        <p>Daraus folgt mit wenig Rechnung, dass es genau 17 Gruppen gibt. Nur blaue Zeichen: Jede Ziffer kostet weniger als 1, also braucht man mindestens drei. Mit drei Ziffern geht es nur als 632, 442 oder 333, mit vier nur als 2222, mehr Ziffern sind zu teuer; dazu kommt o allein. Nur Kaleidoskope (ein * mit Ziffern dahinter): Es kostet genau die Hälfte der entsprechenden blauen Signatur plus 1, also *632, *442, *333, *2222 und, als Gegenstück zu o, **. Die gemischten Signaturen entstehen aus diesen, indem man zwei gleiche Ziffern hinter dem * durch eine davor ersetzt (*<i>nn</i> → <i>n</i>*) oder ein letztes * durch × (der Preis bleibt gleich): 4*2, 3*3, 2*22, 22*, *×, 22× und ××. Umgekehrt wird jede gemischte Signatur zu einer reinen, wenn man <i>n</i>* durch *<i>nn</i> und × durch * ersetzt, ohne dass sich der Preis ändert; deshalb gibt es keine weiteren. Das sind 5 + 5 + 7 = 17 Signaturen, und zu jeder gehört genau eine Ebenengruppe.</p>
+      </section>
+
+      <section id="siebzehn-signaturen">
+        <h3>Genau 17 Signaturen</h3>
+        <p>Aus dem Magic Theorem folgt mit wenig Rechnung, dass es genau 17 Gruppen gibt. Nur blaue Zeichen: Jede Ziffer kostet weniger als 1, also braucht man mindestens drei. Mit drei Ziffern geht es nur als 632, 442 oder 333, mit vier nur als 2222, mehr Ziffern sind zu teuer; dazu kommt o allein. Nur Kaleidoskope (ein * mit Ziffern dahinter): Es kostet genau die Hälfte der entsprechenden blauen Signatur plus 1, also *632, *442, *333, *2222 und, als Gegenstück zu o, **. Die gemischten Signaturen entstehen aus diesen, indem man zwei gleiche Ziffern hinter dem * durch eine davor ersetzt (*<i>nn</i> → <i>n</i>*) oder ein letztes * durch × (der Preis bleibt gleich): 4*2, 3*3, 2*22, 22*, *×, 22× und ××. Umgekehrt wird jede gemischte Signatur zu einer reinen, wenn man <i>n</i>* durch *<i>nn</i> und × durch * ersetzt, ohne dass sich der Preis ändert; deshalb gibt es keine weiteren. Das sind 5 + 5 + 7 = 17 Signaturen, und zu jeder gehört genau eine Ebenengruppe.</p>
         <div class="tabwrap">
           <table class="tab tafel">
             <thead><tr><th colspan="5">Signatur nach Conway und Symbol nach Hermann-Mauguin</th></tr></thead>
@@ -1708,30 +1992,16 @@
       <div class="box zusammen">
         <h4>Zusammenfassung</h4>
         <ul>
-          <li>Tapeten, Stoffe, Fliesen, Mauerwerk und Pflaster sind periodische Muster mit denselben 17 Ebenengruppen; englisch heissen sie <i>wallpaper groups</i>.</li>
-          <li>Die Ebenengruppe hängt von der Anordnung der Motive ab; bei Motiven ohne eigene Symmetrie nicht von ihrer Gestalt.</li>
-          <li>Der Versatz der Reihen bestimmt die Symmetrie eines Verbands: ohne Versatz <i>p</i>2<i>mm</i>, halb versetzt <i>c</i>2<i>mm</i> mit Gleitspiegellinien entlang der Fugen, um ein Drittel versetzt <i>p</i>2. Fischgrät- und Flechtverband haben <i>p</i>2<i>gg</i> und <i>p</i>4<i>gm</i>.</li>
-        </ul>
-        <h5>Zur Vertiefung</h5>
-        <ul>
-          <li>Regelmässige Vielecke parkettieren die Ebene allein nur als Dreiecke, Quadrate oder Sechsecke; gemischt ergeben sie die archimedischen Parkettierungen. Ihr Name zählt die Vielecke um eine Ecke auf; 3.3.3.3.6 ist chiral, mit <i>p</i>6.</li>
-          <li>Kacheln im Stil von Escher entstehen, indem man die Kanten einer Zelle paarweise gleich verformt; eine Kante, die punktsymmetrisch zu ihrer Mitte ist, ergibt 2-zählige Drehpunkte.</li>
-          <li>Operationen mit Farbwechsel führen auf die Schwarz-Weiss-Gruppen, 46 in der Ebene. In den 17 grauen Gruppen ist schon der Farbwechsel allein eine Operation; anschaulich ist jedes Feld zugleich schwarz und weiss.</li>
           <li>Conways Signatur nennt Drehpunkte ohne Spiegellinie, Kaleidoskope, Wunder und Wanderungen; der Preis jeder Signatur ist 2, und genau 17 Signaturen erfüllen das.</li>
         </ul>
       </div>
 
-      <p class="quizlink">Lernziele prüfen im Quiz: <a href="quiz.html?kap=7&amp;stufe=1" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 1</a> · <a href="quiz.html?kap=7&amp;stufe=2" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 2</a> · <a href="quiz.html?kap=7&amp;stufe=3" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 3</a></p>
+      <p class="quizlink">Lernziele prüfen im Quiz: <a href="quiz.html?kap=9&amp;stufe=3" target="_blank" rel="noopener" title="Öffnet das Quiz zu diesem Kapitel in einem neuen Tab">Stufe 3</a></p>
 
       <div class="quellen">
         <h4>Quellen</h4>
         <ul>
-          <li>Die Ebenengruppen aller Muster dieses Kapitels (Verbände, Parkettierungen, Schachbrett) hat die App mit ihrer Symmetriebestimmung berechnet (Vorgaben im Modus „Gitter und Basis“).</li>
-          <li>F. Hoffmann, <i>Faszination Kristalle und Symmetrie</i>, Springer Fachmedien, Wiesbaden (2016), Abschn. 4.2 (Fedorov leitet 1891 die 17 Ebenengruppen ab, S. 136), 4.2.3 (Ebenensymmetrie im Alltag; <i>wallpaper group</i> im Englischen verbreiteter als <i>plane symmetry group</i>, S. 141; Mauerwerksverbände: versetzte Reihen gegen Sollbruchstellen, „Gleitspiegelmotiv“, Läufer und Binder, Zierverbände, Abb. 4.19, S. 142–143; islamische Kunst und Alhambra, Weltkulturerbe seit 1984, Streit um die 17 Gruppen, S. 143–144; Escher: erster Besuch der Alhambra 1922, löwenartige Figur 1926, zweiter Besuch im Mai 1936, Artikel aus kristallographischen Zeitschriften auf Empfehlung des Halbbruders, S. 144–146), 6.1.4 (Schachbrett, Abb. 6.13, S. 202–203; Lösung <i>p</i>4<i>mm</i>, Anhang, S. 314–315), 8.2 (Parkettierungen nur mit Vielecken der Zähligkeit 1 bis 4 und 6, Abb. 8.3, S. 269).</li>
-          <li>B. Grünbaum, What symmetry groups are present in the Alhambra?, <i>Notices of the American Mathematical Society</i> 53, 670–673 (2006); E. A. Müller, Dissertation, Universität Zürich (1944); beide nach Hoffmann, Literatur zu Kap. 4.</li>
-          <li>D. Schattschneider, <i>M.&nbsp;C. Escher: Visions of Symmetry</i>, 2. Aufl., Harry N. Abrams, New York (2004). Bilder: <a href="https://mcescher.com/gallery/symmetry/">mcescher.com, Galerie „Symmetry“</a>.</li>
           <li>J. H. Conway, H. Burgiel, C. Goodman-Strauss, <i>The Symmetries of Things</i>, A K Peters/CRC Press (2016), Kap. 2 (Spiegellinien und Kaleidoskope, S. 15–18; gleichartige Merkmale, S. 18; Drehpunkte, S. 19–22; zwei Kaleidoskope, S. 23; Wunder, S. 24–25; Wanderung, S. 26; die vier Merkmale, Tab. 2.1, Farben blau und rot, S. 27), Kap. 3 (Preise, Tab. 3.1, S. 29; Magic Theorem, Satz 3.1, S. 30; Signatur bestimmen, S. 30–31; genau 17 Typen, S. 33–40, Tab. 3.2, S. 40).</li>
-          <li>Lexikon der Geowissenschaften, Stichwort „Antisymmetriegruppen“, Spektrum Akademischer Verlag (2000), <a href="https://www.spektrum.de/lexikon/geowissenschaften/antisymmetriegruppen/802">spektrum.de</a> (46 Antisymmetriegruppen aus den 17 Ebenengruppen; mit einfarbigen und grauen Gruppen 80; Graugruppen; Anwendung auf antiferromagnetische Strukturen).</li>
         </ul>
       </div>
     </section>

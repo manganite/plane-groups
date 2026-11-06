@@ -1184,11 +1184,12 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
 
 /**
  * Tafel B: Muster. Ein quadratischer Ausschnitt des unendlichen Musters, die Elementarzelle
- * hervorgehoben, Symmetrieelemente wahlweise.
- * @param {string} id @param {Zustand} z @param {Farben} farben @param {{ k?: number }} [optionen]
+ * hervorgehoben, Symmetrieelemente wahlweise. Nur im Skript (Kap. 8): tapeteElemente zeichnet die Elemente auch über der
+ * Tapete, nurZelle nur die Elemente der hervorgehobenen Zelle (wie Tafel A im Modus „Gitter und Basis“).
+ * @param {string} id @param {Zustand} z @param {Farben} farben @param {{ k?: number, tapeteElemente?: boolean, nurZelle?: boolean }} [optionen]
  * @returns {{ svg: string, ansicht: Ansicht }}
  */
-export function tafelB(id, z, farben, { k = 1 } = {}) {
+export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle = false } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const brechen = z.brechen ? gebrochen(g, z.frei) : null;
@@ -1215,11 +1216,12 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
   const teile = [`<defs><clipPath id="ausschnitt"><rect x="10" y="10" width="500" height="500" rx="6"/></clipPath></defs>`,
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
   if (!tapete) teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
-  if (z.musterElemente && !tapete) {
+  if (z.musterElemente && (!tapete || tapeteElemente)) {
     const e = elementeImBereich(brechen ? brechen.H : g, 1);
     /** @type {Elementauswahl} */
     const alle = { drehpunkte: [], linien: [] };
-    for (let i = lo; i < hi; i++) for (let j = lo; j < hi; j++) {
+    const [i0, i1] = nurZelle ? [0, 1] : [lo, hi];
+    for (let i = i0; i < i1; i++) for (let j = i0; j < i1; j++) {
       for (const d of e.drehpunkte) alle.drehpunkte.push({ ...d, punkt: [d.punkt[0] + i, d.punkt[1] + j] });
       for (const l of e.linien) alle.linien.push({ ...l, strecke: /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j])) });
     }
