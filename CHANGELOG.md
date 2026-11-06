@@ -16,6 +16,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Behoben
 
+- **Gespeicherter Zustand vollständig geprüft** (#96, crystallography-common#63): Gitterparameter aus dem Speicher des Browsers werden jetzt geprüft wie in der Link-Adresse, nur die freien Parameter des Systems in den Bereichen der Regler, die übrigen fest. `schritt` ist wie im Link auf 25 begrenzt. Ein ungültiger Wert liess die App vorher hängen. Das Laden aus dem Speicher steht jetzt in `js/zustand.js` (`ausSpeicher`, `speicherStand`). Rundlauf-Tests (`tests/rundlauf.test.mjs`): Zustand → Link → Zustand, Zustand → Speicher → Zustand, verdorbener Speicherstand → gültiger Zustand, Zurücksetzen vor und nach dem Neuladen gleich.
 - **„Zurücksetzen“ nach einem Link** (#81): Im Modus „Gitter und Basis“ enthielt die Link-Adresse einer veränderten Struktur keine Vorgabe; nach dem Öffnen des Links oder dem Neuladen setzte „Zurücksetzen“ auf das Dreiecksbeispiel statt auf die eigentliche Vorgabe zurück. Die Adresse enthält jetzt immer `v=…`; alte Links ohne `v` verhalten sich wie bisher.
 
 ## [1.1.0] - 2026-11-05

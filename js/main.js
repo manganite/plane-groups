@@ -9,7 +9,7 @@ import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './sy
 import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, strukturStart, pruefeStruktur, wieVorgabe, ZOOM_BEREICH, OBJ_BEREICH, gespeichertPruefen, introGesehen, istObjekt, imBereich, zahlenpaar } from './zustand.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, wieVorgabe, ausSpeicher, speicherStand, introGesehen } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
 import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
@@ -31,35 +31,11 @@ const coarse = window.matchMedia('(pointer: coarse)');
 
 // ------------------------------------------------------------------ Zustand
 const SPEICHER = 'ebenen-zustand';
-const z = startzustand();
-try {
-  const s = JSON.parse(localStorage.getItem(SPEICHER) || 'null');
-  if (s && s.v === 1 && s.z) {
-    const g = s.z.gitter;
-    Object.assign(z, s.z, { gitter: { ...z.gitter, ...(g && typeof g === 'object' ? g : {}) } });
-    if (!EBENENGRUPPEN.some((e) => e.symbol === z.gruppe)) z.gruppe = startzustand().gruppe;
-    if (!Array.isArray(z.punkt) || z.punkt.length !== 2 || !z.punkt.every(Number.isFinite)) z.punkt = startzustand().punkt;
-    const zahlTeile = ebenengruppe(z.gruppe).ae.text.split(';').length;
-    if (!Number.isInteger(z.schritt) || z.schritt < 0) z.schritt = 0;
-    gespeichertPruefen(z);
-    // gezeichnete Striche: nur Folgen von Zahlenpaaren, höchstens STRICH_GRENZE Punkte
-    z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
-    while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
-    z.zeichnen = z.zeichnen === true;
-    z.radieren = z.radieren === true && !z.zeichnen;
-    z.brechen = z.brechen === true;
-    if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = 1;
-    if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = 1;
-    /** @type {unknown} aus dem Speicher, unbekannten Aufbaus */
-    const fr = z.frei;
-    /** @param {unknown} v @param {[number, number]} bereich @param {number} sonst */
-    const begrenzt = (v, [lo, hi], sonst) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(Math.max(v, lo), hi) : sonst);
-    z.frei = istObjekt(fr) ? { ba: begrenzt(fr.ba, FREI_BEREICH.ba, 1), gamma: grad(begrenzt(fr.gamma, FREI_BEREICH.gamma, 90)) } : { ba: 1, gamma: grad(90) };
-    z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
-    if (!['eg', 'struktur'].includes(z.modus)) z.modus = 'eg';
-    z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
-  }
-} catch { /* ohne Speicher weiter */ }
+/** @type {unknown} */
+let gespeichert = null;
+try { gespeichert = JSON.parse(localStorage.getItem(SPEICHER) || 'null'); } catch { /* ohne Speicher weiter */ }
+// Speicher und Link durch dieselben Prüfungen (zustand.js, Leitfaden Abschn. 5.2)
+const z = ausSpeicher(gespeichert);
 if (location.hash.length > 1) hashAnwenden(z, location.hash); // Link hat Vorrang
 
 let letzterHash = '';
@@ -67,7 +43,7 @@ let hashAktiv = location.hash.length > 1;
 /** @type {string | null} */
 let basisHash = null;
 function speichern() {
-  try { localStorage.setItem(SPEICHER, JSON.stringify({ v: 1, z })); } catch { /* ignorieren */ }
+  try { localStorage.setItem(SPEICHER, JSON.stringify(speicherStand(z))); } catch { /* ignorieren */ }
   try {
     const h = hashVon(z);
     if (basisHash === null) basisHash = h;

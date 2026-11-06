@@ -3,10 +3,10 @@
 // stabil, durch tests/zustand.test.mjs abgesichert. Geschrieben wird nur, was vom Startzustand
 // abweicht; ein Link stellt genau diese Ansicht her.
 
-import { EBENENGRUPPEN } from './ebenengruppen.js';
+import { EBENENGRUPPEN, ebenengruppe } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE } from './motive.js';
-import { grad } from './zeichnung.js';
+import { grad, STRICH_GRENZE } from './zeichnung.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
@@ -83,6 +83,8 @@ export const FREI = {
 
 /** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). @type {Record<'ba' | 'gamma' | 'groesse', [number, number]>} */
 export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 1] };
+/** Höchste Nummer im Ablauf „Schritt für Schritt“ in Link und Speicher (die Anzeige begrenzt auf die Gruppe). */
+export const SCHRITT_GRENZE = 25;
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
 /** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. @type {[number, number]} */
@@ -202,8 +204,63 @@ export function gespeichertPruefen(z) {
   if (z.zellen !== 2) z.zellen = s.zellen;
   if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
   if (!Number.isInteger(z.aufbau) || z.aufbau < 0 || z.aufbau > 20) z.aufbau = s.aufbau;
+  if (!Number.isInteger(z.schritt) || z.schritt < 0 || z.schritt > SCHRITT_GRENZE) z.schritt = s.schritt;
+  z.gitter = gitterPruefen(z.gitter);
   return z;
 }
+
+/**
+ * Gitter je System wie in der Link-Adresse: Die freien Parameter des Systems (FREI) in GITTER_BEREICH,
+ * die übrigen auf den Startwert des Systems (Abhängigkeiten zwischen den Feldern, z. B. γ = 90° im
+ * rechteckigen System). Ungültiges oder Fehlendes wird zum Startwert (#96).
+ * @param {unknown} g @returns {Record<System, Gitter>}
+ */
+export function gitterPruefen(g) {
+  const roh = istObjekt(g) ? g : {};
+  const aus = /** @type {Record<System, Gitter>} */ (kopie(GITTER_START));
+  for (const sys of /** @type {System[]} */ (Object.keys(GITTER_START))) {
+    const e = roh[sys];
+    if (!istObjekt(e)) continue;
+    if (FREI[sys].includes('ba') && imBereich(e.ba, GITTER_BEREICH.ba)) aus[sys].ba = /** @type {number} */ (e.ba);
+    if (FREI[sys].includes('gamma') && imBereich(e.gamma, GITTER_BEREICH.gamma)) aus[sys].gamma = grad(/** @type {number} */ (e.gamma));
+  }
+  return aus;
+}
+
+/**
+ * Zustand aus dem Speicher des Browsers (JSON.parse von { v: 1, z }): alle Felder geprüft wie die
+ * Link-Adresse, Ungültiges auf den Startwert. Ohne gültigen Stand der Startzustand. Gegenstück: speicherStand.
+ * @param {unknown} gespeichert @returns {Zustand}
+ */
+export function ausSpeicher(gespeichert) {
+  const z = startzustand();
+  if (!istObjekt(gespeichert) || gespeichert.v !== 1 || !istObjekt(gespeichert.z)) return z;
+  Object.assign(z, gespeichert.z);
+  if (!EBENENGRUPPEN.some((e) => e.symbol === z.gruppe)) z.gruppe = startzustand().gruppe;
+  if (!zahlenpaar(z.punkt)) z.punkt = startzustand().punkt;
+  const zahlTeile = ebenengruppe(z.gruppe).ae.text.split(';').length;
+  gespeichertPruefen(z);
+  // gezeichnete Striche: nur Folgen von Zahlenpaaren, höchstens STRICH_GRENZE Punkte
+  z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(zahlenpaar)) : [];
+  while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
+  z.zeichnen = z.zeichnen === true;
+  z.radieren = z.radieren === true && !z.zeichnen;
+  z.brechen = z.brechen === true;
+  if (!imBereich(z.zoomB, ZOOM_BEREICH)) z.zoomB = 1;
+  if (!imBereich(z.objGroesse, OBJ_BEREICH)) z.objGroesse = 1;
+  /** @type {unknown} aus dem Speicher, unbekannten Aufbaus */
+  const fr = z.frei;
+  /** @param {unknown} v @param {[number, number]} bereich @param {number} sonst */
+  const begrenzt = (v, [lo, hi], sonst) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(Math.max(v, lo), hi) : sonst);
+  z.frei = istObjekt(fr) ? { ba: begrenzt(fr.ba, FREI_BEREICH.ba, 1), gamma: grad(begrenzt(fr.gamma, FREI_BEREICH.gamma, 90)) } : { ba: 1, gamma: grad(90) };
+  z.aeTeile = Array.isArray(z.aeTeile) ? z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile) : [];
+  if (!['eg', 'struktur'].includes(z.modus)) z.modus = 'eg';
+  z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
+  return z;
+}
+
+/** Stand für den Speicher des Browsers (Gegenstück zu ausSpeicher). @param {Zustand} z */
+export const speicherStand = (z) => ({ v: 1, z });
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
 /** @type {[string, Schalterfeld][]} */
@@ -373,7 +430,7 @@ export function hashAnwenden(z, hash) {
   if (erkl && ERKL_MUSTER.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
   if (aufbau !== null && Number.isInteger(aufbau)) z.aufbau = aufbau;
-  const schritt = zahl(q.get('schritt'), 0, 25);
+  const schritt = zahl(q.get('schritt'), 0, SCHRITT_GRENZE);
   if (schritt !== null && Number.isInteger(schritt)) z.schritt = schritt;
   // Bedingungen der asymmetrischen Einheit: höchstens so viele, wie die Gruppe hat
   const aet = q.get('aet');
