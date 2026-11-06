@@ -5,7 +5,7 @@
 // Begriffe und Konventionen nach ITA Vol. A (2006): Symmetrierichtungen Tab. 2.2.4.1, Beschreibung
 // der Operationen Abschn. 11.1.2, orientierte Lagesymmetrie Abschn. 2.2.12.
 
-import { ebenengruppe } from './ebenengruppen.js';
+import { ebenengruppe, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Ebenengruppe, Wyckoff, Bedingung } from './ebenengruppen.js' */
@@ -449,19 +449,6 @@ export function elemente(g) {
 // ---------------------------------------------------------------------------------------------
 // Lagen: Lagesymmetrie, Zähligkeit, Wyckoff-Lage (ITA Abschn. 2.2.11–2.2.12)
 // ---------------------------------------------------------------------------------------------
-
-/**
- * Symmetrierichtungen der Gitter (ITA Tab. 2.2.4.1): je Position im Symbol die Menge
- * gleichwertiger Richtungen. Position 1 ist der Drehpunkt; Spiegellinien gehören zur Position,
- * in deren Menge ihre Normale liegt.
- * @type {Record<import('./ebenengruppen.js').System, Vec2[][]>}
- */
-export const SYMMETRIERICHTUNGEN = {
-  schiefwinklig: [],
-  rechteckig: [[[1, 0]], [[0, 1]]],
-  quadratisch: [[[1, 0], [0, 1]], [[1, -1], [1, 1]]],
-  hexagonal: [[[1, 0], [0, 1], [-1, -1]], [[1, -1], [1, 2], [-2, -1]]],
-};
 
 /** @param {Vec2} u @param {Vec2} v */
 const parallel = (u, v) => nahe(u[0] * v[1] - u[1] * v[0], 0);

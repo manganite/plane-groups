@@ -39,12 +39,25 @@
  * @property {{ allgemein: Bedingung[], [buchstabe: string]: Bedingung[] }} bedingungen
  */
 
-/** Kristallsysteme der Ebene mit den Symmetrierichtungen (ITA Tab. 2.2.4.1, Ebene). @type {Record<System, { name: string, ita: string }>} */
+/** Kristallsysteme der Ebene (ITA Tab. 2.2.4.1, Ebene). @type {Record<System, { name: string, ita: string }>} */
 export const SYSTEME = {
   schiefwinklig: { name: 'schiefwinklig', ita: 'oblique' },
   rechteckig: { name: 'rechteckig', ita: 'rectangular' },
   quadratisch: { name: 'quadratisch', ita: 'square' },
   hexagonal: { name: 'hexagonal', ita: 'hexagonal' },
+};
+
+/**
+ * Symmetrierichtungen der Gitter (ITA Tab. 2.2.4.1): je Position im Symbol die Menge
+ * gleichwertiger Richtungen. Position 1 ist der Drehpunkt; Spiegellinien gehören zur Position,
+ * in deren Menge ihre Normale liegt.
+ * @type {Record<System, Vec2[][]>}
+ */
+export const SYMMETRIERICHTUNGEN = {
+  schiefwinklig: [],
+  rechteckig: [[[1, 0]], [[0, 1]]],
+  quadratisch: [[[1, 0], [0, 1]], [[1, -1], [1, 1]]],
+  hexagonal: [[[1, 0], [0, 1], [-1, -1]], [[1, -1], [1, 2], [-2, -1]]],
 };
 
 /** Bravais-Gitter der Ebene: Symbol wie im Feld bravais (mp, op, …) → Name. @type {Record<string, string>} */
