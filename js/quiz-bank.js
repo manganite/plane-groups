@@ -983,7 +983,7 @@ export const BANK = [
     erklaerung: `(<i>x</i>,&nbsp;<i>y</i>) → (<i>x</i>,&nbsp;−<i>y</i>) → (<i>x</i> + 1,&nbsp;−<i>y</i> + 1). Der Anteil <i>b</i> der Translation steht senkrecht zur Linie und verschiebt sie um die Hälfte, nach <i>y</i> = ½. Der Anteil <i>a</i> liegt parallel zur Linie und ist eine ganze Gittertranslation: Das Ergebnis ist die Spiegelung an <i>y</i> = ½, gefolgt von der Translation <i>a</i>; eine neue Gleitspiegellinie entsteht nicht. Zum selben Element gehört die reine Spiegelung <i>x</i>, ${ov('y')} + 1 = <i>b</i> ∘ <i>B</i>; aus ihr leitet die App die Linie her. <i>A</i> ∘ <i>B</i> unterscheidet sich davon nur um die Gittertranslation <i>a</i>.`,
     skript: 'verknuepfung', app: '#m=eg&g=p2mm&erkl=m;0,1/2;1,0',
     quelle: 'Skript, Abschn. 4.4',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'gl-1-05', stufe: 1, kapitel: 4, typ: 'einfach', lernziel: LZ.tafel,
