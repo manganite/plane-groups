@@ -14,7 +14,7 @@ import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktu
 import { MOTIVE } from './motive.js';
 import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe, kachel, flussdiagramm } from './skizzen.js';
 import { FLUSSDIAGRAMM, LEITFRAGEN } from './bestimmen.js';
-import { gruppe, anwenden, elemente as symmetrieElemente } from './symmetrie.js';
+import { gruppe, anwenden, art, elemente as symmetrieElemente } from './symmetrie.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Ansicht, Farben, Box } from './zeichnung.js' */
@@ -272,7 +272,7 @@ function spurenSkizze(fig, f) {
 /**
  * Merkmale nach Conway (Kap. 9) an einem Ornamentmuster: die Tapete der App mit ihren Symmetrieelementen
  * (data-app wie bei einer Abbildung der App, mit tap=1 und mel=1), darüber die Merkmale wie bei Conway:
- * blau Drehpunkte ohne Spiegellinie und Wanderung, rot Kaleidoskop-Ecken und Wunder.
+ * alle Markierungen in einer Farbe (accent2), weil die Motive schon blau sind.
  * data-variante: '4*2' (p4gm), '*x' (cm) oder 'o' (p1).
  * @param {HTMLElement} fig @param {SkriptFarben} f
  */
@@ -297,7 +297,7 @@ function conwaySkizze(fig, f) {
   const spiegel = (p, q) => { const [a, b] = [bild(p), bild(q)]; return `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="${farbe}" stroke-width="7" stroke-opacity="0.75" stroke-linecap="round"/>`; };
   /** Beschriftung seitlich der Mitte von p–q, um d Pixel. @param {Vec2} p @param {Vec2} q @param {number} d @param {string} t */
   const seitlich = (p, q, d, t) => {
-    const [a, b] = [bild(p), bild(q)]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    const [a, b] = [bild(p), bild(q)]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
     return schrift([(a[0] + b[0]) / 2 - d * (b[1] - a[1]) / l, (a[1] + b[1]) / 2 + d * (b[0] - a[0]) / l], t);
   };
   const g = gruppe(z.gruppe);
@@ -308,12 +308,23 @@ function conwaySkizze(fig, f) {
     const e = symmetrieElemente(g);
     /** Drehpunkt der Zähligkeit n nahe der Zellmitte. @param {number} n @returns {Vec2} */
     const nahe = (n) => /** @type {Vec2} */ (e.drehpunkte.filter((d) => d.n === n)
-      .sort((a, b) => Math.hypot(a.punkt[0] - 0.5, a.punkt[1] - 0.5) - Math.hypot(b.punkt[0] - 0.5, b.punkt[1] - 0.5))[0].punkt);
+      .sort((a, b) => Math.hypot(a.punkt[0] - 0.5, a.punkt[1] - 0.5) - Math.hypot(b.punkt[0] - 0.5, b.punkt[1] - 0.5)
+        || a.punkt[0] - b.punkt[0] || b.punkt[1] - a.punkt[1])[0].punkt);
     teile.push(ring(nahe(4), '4'), ring(nahe(2), '*2'));
   } else if (v === '*x') {
     // Kaleidoskop: eine Spiegellinie; Wunder: Weg vom Motiv zu seinem Spiegelbild, der keine Spiegellinie kreuzt
-    const p = z.punkt; const q = anwenden(g.alle[3], p);
-    teile.push(spiegel([1, 0.15], [1, 0.95]), seitlich([1, 0.15], [1, 0.95], 26, '*'), weg(p, q), seitlich(p, q, 26, '×'));
+    // Spiegellinien x = n/2 (aus symmetrie.js); das Motiv in den Streifen 0 < x < ½ bringen (Translation,
+    // nötigenfalls Spiegelung an x = ½), dann bleibt sein Bild unter der Gleitspiegelung x = ¼ im selben Streifen
+    const gl = /** @type {import('./symmetrie.js').Op} */ (g.alle.find((o) => art(o).art === 'gleit'));
+    const sp = symmetrieElemente(g).linien.filter((l) => l.art === 'spiegel' && Math.abs(l.richtung[0]) < 1e-9);
+    const x0 = sp.map((l) => l.punkt[0]).filter((x) => x > 0.25).sort((a, b) => a - b)[0];
+    const xr = z.punkt[0] - Math.floor(z.punkt[0]);
+    /** @type {Vec2} */
+    const p = [xr > 0.5 ? 1 - xr : xr, z.punkt[1]];
+    const q = anwenden(gl, p);
+    /** @type {[Vec2, Vec2]} */
+    const s = [[x0, p[1] - 0.9], [x0, p[1] - 0.2]];
+    teile.push(spiegel(...s), seitlich(...s, -26, '*'), weg(p, q), seitlich(p, q, 26, '×'));
   } else if (v === 'o') {
     // Wanderung: zwei Wege zu verschobenen Kopien, ohne Spiegelung und Drehung
     const p = z.punkt;
