@@ -495,7 +495,7 @@ function kenndaten() {
       <div><dt>Kristallsystem</dt><dd>${SYSTEME[d.system].name}</dd></div>
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
       <div><dt>Punktgruppe</dt><dd>${pgLink} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
-      <div><dt>Signatur nach Conway</dt><dd title="${CONWAY_HINWEIS}">${CONWAY[d.symbol]}</dd></div>
+      <div><dt><a class="skript-term" href="skript.html#conway">Signatur nach Conway</a></dt><dd title="${CONWAY_HINWEIS}">${CONWAY[d.symbol]}</dd></div>
       <div><dt>Operationen je Zelle</dt><dd class="num">${g.ordnung}</dd></div>
       <div><dt>Ursprung</dt><dd>${ursprungHTML(d.ursprung)}</dd></div>
       <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeBedingungen(d)}</dd></div>
