@@ -20,6 +20,7 @@ const FILES = [
   'js/bestimmung.js',
   'js/brechen.js',
   'js/ebenengruppen.js',
+  'js/experimente.js',
   'js/herkunft.js',
   'js/hilfetexte.js',
   'js/main.js',

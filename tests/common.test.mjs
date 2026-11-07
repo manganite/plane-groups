@@ -29,6 +29,12 @@ test('Quiz: Speicher im Browser behält seinen Namen (sonst ginge der Stand der 
   assert.equal(SPEICHER, 'ebenen-quiz');
 });
 
+test('Experimente: Speicher im Browser behält seinen Namen und beginnt mit dem Präfix der App', () => {
+  const main = read('js/main.js');
+  assert.match(main, /ablaufKarte\(\$\('experimente'\), [^{]*\{[^}]*speicher: 'ebenen-experimente'/);
+  assert.match(main, /alleEinstellungenZuruecksetzen\('ebenen'\)/);
+});
+
 test('keine Kopien gemeinsamer Module mehr in js/', () => {
   for (const f of ['format.js', 'help.js', 'quiz-core.js']) assert.throws(() => read(`js/${f}`), `js/${f}`);
 });
