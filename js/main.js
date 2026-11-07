@@ -4,6 +4,7 @@ import { initHelp } from '../lib/common/js/help.js';
 import { ablaufKarte } from '../lib/common/js/ablauf.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS, ABLAEUFE, ERSTE_SCHRITTE } from './hilfetexte.js';
+import { ERZEUGTE } from './experimente.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
@@ -939,7 +940,7 @@ function init() {
     experimente: () => { const d = abschnitt('sec-experimente'); d.open = true; d.scrollIntoView({ block: 'nearest' }); },
   };
   const einstieg = ablaufKarte($('ablauf'), ERSTE_SCHRITTE, { anwenden, adresse, aktionen, skriptUrl, liste: false, beiAbschluss: () => introZu() });
-  const experimente = ablaufKarte($('experimente'), ABLAEUFE, { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
+  const experimente = ablaufKarte($('experimente'), [...ABLAEUFE, ...ERZEUGTE], { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
   einstieg.modus(z.modus); experimente.modus(z.modus);
   introAbgleichen = () => {
     if (z.modus === introModus) return;

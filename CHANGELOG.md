@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Erzeugte Experimente** (#109, crystallography-common#92): „An wie vielen Stellen?“ stellt immer neue Aufgaben zur Zähligkeit, wie die Generatoren im Quiz; am Ende steht „Neue Aufgabe“, in der Liste ↻. Jede Wyckoff-Lage der Ebenengruppen ab p2, allgemein, auf einer Spiegellinie, auf einem Drehpunkt, auch mit Spiegellinien (33 Aufgaben). Das Objekt liegt so, dass alle Bilder im Innern der Zelle liegen, gut getrennt und nicht auf einer Gleitspiegellinie. Auflösung über Zähligkeit mal Ordnung der Lagesymmetrie. Code in `js/experimente.js`; ein Test prüft jede Aufgabe gegen die App.
 - **Stand der Experimente wie im Quiz** (crystallography-common#91): Die Liste merkt sich je Experiment, ob zuletzt alle Vermutungen zutrafen (✓) oder es nur durchgespielt wurde (○), auch nach dem Neuladen, mit Übersicht und „Stand löschen“. „Alle Einstellungen zurücksetzen“ lässt den Stand stehen wie das Quiz. Speicher `ebenen-experimente`.
 
 ### Geändert

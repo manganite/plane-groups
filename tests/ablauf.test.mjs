@@ -6,6 +6,9 @@ import { readFileSync } from 'node:fs';
 import { pruefeAblaeufe } from '../lib/common/js/ablauf.js';
 import { ABLAEUFE, ERSTE_SCHRITTE } from '../js/hilfetexte.js';
 import { startzustand, hashAnwenden, hashVon } from '../js/zustand.js';
+import { ERZEUGTE, ZAEHLIGKEIT, ZAEHLIGKEIT_PARAMS, zaehligkeitDaten, lageteile, ortText, punktImInnern } from '../js/experimente.js';
+import { variante } from '../lib/common/js/ablauf.js';
+import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 
 const ANKER = [...readFileSync(new URL('../skript.html', import.meta.url), 'utf8').matchAll(/ id="([^"]+)"/g)].map((m) => m[1]);
 
@@ -19,7 +22,7 @@ function gueltig(h) {
 }
 
 test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker bekannt', () => {
-  assert.deepEqual(pruefeAblaeufe(ABLAEUFE, { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER }), []);
+  assert.deepEqual(pruefeAblaeufe([...ABLAEUFE, ...ERZEUGTE], { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER }), []);
   for (const m of ['eg', 'struktur']) assert.equal(ABLAEUFE.filter((a) => a.modus === m).length, 3, m);
 });
 
@@ -62,3 +65,43 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
   }
   assert.equal(vorgabe('graphen')?.basis.length, 2, 'Graphen: zwei Atome in der Basis');
 });
+
+test('Erzeugte Experimente: Zähligkeit stimmt für jede Lage mit der App, Bilder nur im Innern der Zelle', async () => {
+  const { gruppe, lage, bahn, stabilisator, punktAufLage } = await import('../js/symmetrie.js');
+  /** @param {string} h */
+  const zustand = (h) => { const z = startzustand(); hashAnwenden(z, h); return z; };
+  const params = ZAEHLIGKEIT_PARAMS();
+  assert.ok(params.length >= 25, `${params.length} Parameter`);
+  const fragen = new Set(params.map((p) => variante(ZAEHLIGKEIT, p).schritte[0].frage));
+  assert.equal(fragen.size, params.length, 'keine zwei gleichen Fragen');
+  // ausgelassen sind genau die Lagen, deren Punkte immer ein Bild auf Kante oder Ecke haben, und Doppelte im Wortlaut
+  for (const e of EBENENGRUPPEN) for (const w of e.wyckoff) {
+    const p = `${e.symbol}:${w.b}`;
+    if (params.includes(p) || e.symbol === 'p1') continue;
+    const g = gruppe(e.symbol);
+    const rand = [[0.21, 0.37], [0.13, 0.41], [0.29, 0.07]].map((q) => punktAufLage(g, w.b, /** @type {[number, number]} */ (q)));
+    const aufDemRand = rand.every((r) => bahn(g, r).some((x) => x.some((v) => v < 1e-6)));
+    const doppelt = punktImInnern(e.symbol, w.b) !== null && fragen.has(variante(ZAEHLIGKEIT, p).schritte[0].frage);
+    assert.ok(aufDemRand || doppelt, `${p} fehlt`);
+  }
+  for (const p of params) {
+    const d = zaehligkeitDaten(p);
+    const z = zustand(d.hash);
+    assert.equal(z.gruppe, d.id, p);
+    const g = gruppe(z.gruppe);
+    const l = lage(g, z.punkt);
+    assert.equal(l.buchstabe, d.b, `${p}: Wyckoff-Lage an der Adresse`);
+    assert.equal(bahn(g, z.punkt).length, l.zaehligkeit, `${p}: Stellen in der Zelle`);
+    assert.ok(bahn(g, z.punkt).every((r) => r.every((v) => v > 1e-6)), `${p}: Bilder im Innern`);
+    assert.equal(lageteile(l.symbol).ordnung, stabilisator(g, l.punkt).length, `${p}: Ordnung der Lagesymmetrie ${l.symbol}`);
+    assert.equal(l.zaehligkeit * lageteile(l.symbol).ordnung, g.ordnung, `${p}: Zähligkeit mal Lagesymmetrie`);
+    const sch = variante(ZAEHLIGKEIT, p).schritte[0];
+    assert.match(sch.vermutung?.[/** @type {number} */ (sch.richtig)] ?? '', new RegExp(`^an ${l.zaehligkeit === 1 ? 'einer' : l.zaehligkeit}$`), p);
+    assert.equal(new Set(sch.vermutung).size, sch.vermutung?.length, `${p}: Antworten verschieden`);
+    assert.match(sch.frage, new RegExp(ortText(l.symbol)), p);
+  }
+  // jede Art von Lage kommt vor
+  const arten = new Set(params.map((p) => { const t = lageteile(zaehligkeitDaten(p).symbol); return `${t.n}/${t.linien}`; }));
+  for (const a of ['1/0', '1/1', '2/0', '2/2', '3/0', '3/3', '4/0', '4/4']) assert.ok(arten.has(a), a);
+});
+
