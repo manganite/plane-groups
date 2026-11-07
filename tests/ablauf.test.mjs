@@ -32,6 +32,16 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
   /** @param {string} h */
   const zustand = (h) => { const z = startzustand(); hashAnwenden(z, h); return z; };
   // allgemeine und spezielle Lage: 4-mal auf der Spiegellinie, 1-mal auf dem Drehpunkt
+  // Objekt nicht auf dem Rand der Zelle (Entscheidung Thomas, 7.11.2026): sonst sieht man mehr Bilder, als die
+  // Zähligkeit sagt, weil Bilder auf Kanten und Ecken nur anteilig zur Zelle gehören
+  const { anwenden } = await import('../js/symmetrie.js');
+  for (const i of [0, 1]) {
+    const z = zustand(adresse('lage', i));
+    for (const op of gruppe(z.gruppe).alle) {
+      const q = anwenden(op, z.punkt).map((c) => c - Math.floor(c + 1e-9));
+      assert.ok(q.every((c) => c > 1e-6), `${z.gruppe} (${z.punkt}): Bild auf dem Rand bei (${q})`);
+    }
+  }
   for (const [i, n] of [[0, 4], [1, 1]]) { const z = zustand(adresse('lage', i)); assert.equal(lage(gruppe(z.gruppe), z.punkt).zaehligkeit, n); }
   // asymmetrische Einheit: ein Achtel, weil beide Gruppen 8 Operationen je (konventioneller) Zelle haben
   for (const i of [0, 1]) { const z = zustand(adresse('ae', i)); assert.ok(z.ae); assert.equal(gruppe(z.gruppe).ordnung, 8, z.gruppe); }
