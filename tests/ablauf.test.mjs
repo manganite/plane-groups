@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { pruefeAblaeufe } from '../lib/common/js/ablauf.js';
-import { ABLAEUFE } from '../js/hilfetexte.js';
+import { ABLAEUFE, ERSTE_SCHRITTE } from '../js/hilfetexte.js';
 import { startzustand, hashAnwenden, hashVon } from '../js/zustand.js';
 
 const ANKER = [...readFileSync(new URL('../skript.html', import.meta.url), 'utf8').matchAll(/ id="([^"]+)"/g)].map((m) => m[1]);
@@ -21,6 +21,17 @@ function gueltig(h) {
 test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker bekannt', () => {
   assert.deepEqual(pruefeAblaeufe(ABLAEUFE, { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER }), []);
   for (const m of ['eg', 'struktur']) assert.equal(ABLAEUFE.filter((a) => a.modus === m).length, 3, m);
+});
+
+test('Erste Schritte: je Modus ein Ablauf mit 3–4 Bedienschritten, der letzte öffnet die Experimente', () => {
+  assert.deepEqual(pruefeAblaeufe(ERSTE_SCHRITTE, { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER, aktionen: ['hinzufuegen', 'experimente'] }), []);
+  for (const m of ['eg', 'struktur']) {
+    const a = ERSTE_SCHRITTE.filter((x) => x.modus === m);
+    assert.equal(a.length, 1, m);
+    assert.ok(a[0].schritte.length >= 3 && a[0].schritte.length <= 4, m);
+    assert.ok(a[0].schritte.every((s) => !s.vermutung), `${m}: ohne Vermutung`);
+    assert.equal(a[0].schritte.at(-1)?.handlung?.aktion, 'experimente', m);
+  }
 });
 
 test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operationen je Zelle, bestimmte Gruppe)', async () => {

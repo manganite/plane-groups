@@ -99,7 +99,38 @@ export const LABELS = {
 
 /** @import { Ablauf } from '../lib/common/js/ablauf.js' */
 /**
- * Lernexperimente der Karte „Erste Schritte“ (lib/common/js/ablauf.js, Leitfaden Abschn. 5.3), je Modus drei: erst
+ * Erste Schritte (lib/common/js/ablauf.js mit liste: false, Leitfaden Abschn. 5.3): je Modus wenige kurze
+ * Schritte zur Bedienung, ohne Vermutung; der letzte öffnet die Experimente. Tafeln mit Namen, nicht „links/rechts“
+ * (auf dem Telefon sind sie umschaltbar).
+ * @type {Ablauf[]}
+ */
+export const ERSTE_SCHRITTE = [
+  {
+    id: 'einstieg-eg', modus: 'eg', titel: 'Erste Schritte',
+    schritte: [
+      { frage: '<b>Ebenengruppe wählen.</b> Das Symmetriegerüst zeigt eine Elementarzelle mit Drehpunkten, Spiegel- und Gleitspiegellinien, das Muster einen Ausschnitt der Ebene.',
+        handlung: { text: '<i>p</i>4<i>gm</i> wählen', hash: '#m=eg&g=p4gm' } },
+      { frage: '<b>Fähnchen ziehen.</b> Alle Bilder folgen. Auf einer Spiegellinie oder einem Drehpunkt rastet es ein: spezielle Lage, weniger Bilder.',
+        handlung: { text: 'Auf eine Spiegellinie setzen', hash: '#m=eg&g=p4gm&x=0.15&y=0.65' } },
+      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche zu Lagen, Gleitspiegellinien und zur asymmetrischen Einheit: erst vermuten, dann ausprobieren.',
+        handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
+    ],
+  },
+  {
+    id: 'einstieg-struktur', modus: 'struktur', titel: 'Erste Schritte',
+    schritte: [
+      { frage: '<b>Struktur ansehen.</b> Gitter und Basis: zwei Dreiecke in einer rechteckigen Zelle. Die App bestimmt daraus die Ebenengruppe, hier <i>pm</i> (unten), und zeichnet konventionelle Zelle und Symmetrieelemente ein.',
+        handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' } },
+      { frage: '<b>Selbst bauen.</b> Mit „Hinzufügen“ über der Struktur neue Motive setzen, mit „Wählen und ziehen“ verschieben; unter „Gitter“ Achsenverhältnis und Winkel ändern. Die App bestimmt die Symmetrie jedes Mal neu.',
+        handlung: { text: '„Hinzufügen“ wählen', aktion: 'hinzufuegen' } },
+      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche: gleiche Atome, gedrehte Motive, Graphen. Erst vermuten, dann ausprobieren.',
+        handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
+    ],
+  },
+];
+
+/**
+ * Lernexperimente im Abschnitt „Experimente“ (lib/common/js/ablauf.js, Leitfaden Abschn. 5.3), je Modus drei: erst
  * vermuten, dann die Handlung (Link-Adresse), dann Beobachtung und Erklärung. Themen: Lage und Zähligkeit,
  * Spiegel- und Gleitspiegellinie, asymmetrische Einheit, Zentrierung durch gleiche Atome, Atome und Gitterpunkte.
  * tests/ablauf.test.mjs prüft Adressen, Anker und den Inhalt (Zähligkeit, Gruppe) gegen die App.
