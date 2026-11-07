@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { pruefeAblaeufe } from '../lib/common/js/ablauf.js';
 import { ABLAEUFE, ERSTE_SCHRITTE } from '../js/hilfetexte.js';
 import { startzustand, hashAnwenden, hashVon } from '../js/zustand.js';
-import { ERZEUGTE, ZAEHLIGKEIT, ZAEHLIGKEIT_PARAMS, zaehligkeitDaten, lageteile, ortText, punktImInnern } from '../js/experimente.js';
+import { ERZEUGTE, ZAEHLIGKEIT, ZAEHLIGKEIT_PARAMS, zaehligkeitDaten, lageteile, ortText, punktImInnern, imInnernMoeglich, KNAPP } from '../js/experimente.js';
 import { variante } from '../lib/common/js/ablauf.js';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 
@@ -67,22 +67,23 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
 });
 
 test('Erzeugte Experimente: Zähligkeit stimmt für jede Lage mit der App, Bilder nur im Innern der Zelle', async () => {
-  const { gruppe, lage, bahn, stabilisator, punktAufLage } = await import('../js/symmetrie.js');
+  const { gruppe, lage, bahn, stabilisator, punktAufLage, elemente } = await import('../js/symmetrie.js');
   /** @param {string} h */
   const zustand = (h) => { const z = startzustand(); hashAnwenden(z, h); return z; };
   const params = ZAEHLIGKEIT_PARAMS();
-  assert.ok(params.length >= 25, `${params.length} Parameter`);
+  assert.equal(params.length, 33);
   const fragen = new Set(params.map((p) => variante(ZAEHLIGKEIT, p).schritte[0].frage));
   assert.equal(fragen.size, params.length, 'keine zwei gleichen Fragen');
-  // ausgelassen sind genau die Lagen, deren Punkte immer ein Bild auf Kante oder Ecke haben, und Doppelte im Wortlaut
+  // die Regel aus den Daten (feste Koordinate 0) stimmt mit der Rechnung; ausgelassen sind sonst nur Doppelte im Wortlaut
   for (const e of EBENENGRUPPEN) for (const w of e.wyckoff) {
-    const p = `${e.symbol}:${w.b}`;
-    if (params.includes(p) || e.symbol === 'p1') continue;
+    if (e.symbol === 'p1') continue;
     const g = gruppe(e.symbol);
     const rand = [[0.21, 0.37], [0.13, 0.41], [0.29, 0.07]].map((q) => punktAufLage(g, w.b, /** @type {[number, number]} */ (q)));
     const aufDemRand = rand.every((r) => bahn(g, r).some((x) => x.some((v) => v < 1e-6)));
-    const doppelt = punktImInnern(e.symbol, w.b) !== null && fragen.has(variante(ZAEHLIGKEIT, p).schritte[0].frage);
-    assert.ok(aufDemRand || doppelt, `${p} fehlt`);
+    assert.equal(imInnernMoeglich(w), !aufDemRand, `${e.symbol}:${w.b}`);
+    assert.equal(punktImInnern(e.symbol, w.b) !== null, !aufDemRand, `${e.symbol}:${w.b} gerechnet`);
+    const p = `${e.symbol}:${w.b}`;
+    if (!aufDemRand && !params.includes(p)) assert.ok(fragen.has(variante(ZAEHLIGKEIT, p).schritte[0].frage), `${p} fehlt`);
   }
   for (const p of params) {
     const d = zaehligkeitDaten(p);
@@ -91,17 +92,30 @@ test('Erzeugte Experimente: Zähligkeit stimmt für jede Lage mit der App, Bilde
     const g = gruppe(z.gruppe);
     const l = lage(g, z.punkt);
     assert.equal(l.buchstabe, d.b, `${p}: Wyckoff-Lage an der Adresse`);
-    assert.equal(bahn(g, z.punkt).length, l.zaehligkeit, `${p}: Stellen in der Zelle`);
-    assert.ok(bahn(g, z.punkt).every((r) => r.every((v) => v > 1e-6)), `${p}: Bilder im Innern`);
-    assert.equal(lageteile(l.symbol).ordnung, stabilisator(g, l.punkt).length, `${p}: Ordnung der Lagesymmetrie ${l.symbol}`);
-    assert.equal(l.zaehligkeit * lageteile(l.symbol).ordnung, g.ordnung, `${p}: Zähligkeit mal Lagesymmetrie`);
+    const b = bahn(g, z.punkt);
+    assert.equal(b.length, l.zaehligkeit, `${p}: Stellen in der Zelle`);
+    assert.ok(b.every((r) => r.every((v) => v > 1e-6)), `${p}: Bilder im Innern`);
+    const t = lageteile(l.symbol);
+    assert.equal(t.ordnung, stabilisator(g, l.punkt).length, `${p}: Ordnung der Lagesymmetrie ${l.symbol}`);
+    assert.equal(l.zaehligkeit * t.ordnung, g.ordnung, `${p}: Zähligkeit mal Lagesymmetrie`);
+    // Spiegel- und Gleitspiegellinien unabhängig aus der Zeichnung der App: Spiegellinien durch das Objekt je
+    // Richtung einmal; ein allgemeiner Punkt liegt auf keiner Gleitspiegellinie
+    const el = elemente(g);
+    // modulo Gitter: die App zeichnet jede Linie einmal je Zelle, als Strecke mit einem Punkt darauf
+    const durch = (/** @type {import('../js/symmetrie.js').Linie} */ x, /** @type {[number, number]} */ r) => [-1, 0, 1].some((i) => [-1, 0, 1].some((j) => Math.abs((r[0] - x.punkt[0] + i) * x.richtung[1] - (r[1] - x.punkt[1] + j) * x.richtung[0]) < 1e-6));
+    const richtungen = new Set(el.linien.filter((x) => x.art === 'spiegel' && durch(x, z.punkt)).map((x) => { const a = Math.atan2(x.richtung[1], x.richtung[0]); return ((a + Math.PI) % Math.PI).toFixed(4); }));
+    assert.equal(richtungen.size, t.linien, `${p}: Spiegellinien durch das Objekt`);
+    if (l.allgemein) for (const r of b) assert.ok(!el.linien.some((x) => x.art === 'gleit' && durch(x, r)), `${p}: auf einer Gleitspiegellinie`);
+    // gut getrennt: sonst kleineres Objekt in der Adresse
+    assert.ok(d.wert >= KNAPP || (z.objGroesse === 0.5 && d.wert >= KNAPP / 2.5), `${p}: Trennung ${d.wert}`);
     const sch = variante(ZAEHLIGKEIT, p).schritte[0];
-    assert.match(sch.vermutung?.[/** @type {number} */ (sch.richtig)] ?? '', new RegExp(`^an ${l.zaehligkeit === 1 ? 'einer' : l.zaehligkeit}$`), p);
-    assert.equal(new Set(sch.vermutung).size, sch.vermutung?.length, `${p}: Antworten verschieden`);
+    const zahlen = (sch.vermutung ?? []).map((v) => (v === 'an einer' ? 1 : Number(v.replace('an ', ''))));
+    assert.equal(zahlen[/** @type {number} */ (sch.richtig)], l.zaehligkeit, p);
+    assert.equal(new Set(zahlen).size, zahlen.length, `${p}: Antworten verschieden`);
+    assert.ok(zahlen.every((x) => g.ordnung % x === 0), `${p}: Antworten teilen die Zahl der Operationen`);
     assert.match(sch.frage, new RegExp(ortText(l.symbol)), p);
   }
   // jede Art von Lage kommt vor
   const arten = new Set(params.map((p) => { const t = lageteile(zaehligkeitDaten(p).symbol); return `${t.n}/${t.linien}`; }));
   for (const a of ['1/0', '1/1', '2/0', '2/2', '3/0', '3/3', '4/0', '4/4']) assert.ok(arten.has(a), a);
 });
-

@@ -22,16 +22,29 @@ function einmal(f) {
 /** Werte für die freien Parameter einer Wyckoff-Lage: Brüche mit kleinem Nenner (die Adresse bleibt exakt). */
 const WERTE = [5, 8, 10, 12].flatMap((n) => Array.from({ length: (n - 1) * (n - 1) }, (_, i) => [(1 + (i % (n - 1))) / n, (1 + Math.floor(i / (n - 1))) / n]));
 
-/**
- * Abstand zweier Punkte in Zellkoordinaten, modulo Gitter; hexagonal mit γ = 120°, sonst wie rechtwinklig
- * (für die Wahl gut sichtbarer Punkte genügt das).
- * @param {Vec2} a @param {Vec2} b @param {boolean} hex
- */
+/** Kartesische Koordinaten in Einheiten von a (hexagonal γ = 120°, sonst rechtwinklig mit b = a). @param {Vec2} p @param {boolean} hex @returns {Vec2} */
+const kart = (p, hex) => (hex ? [p[0] - p[1] / 2, p[1] * Math.sqrt(3) / 2] : [p[0], p[1]]);
+
+/** Abstand zweier Punkte modulo Gitter. @param {Vec2} a @param {Vec2} b @param {boolean} hex */
 function abstand(a, b, hex) {
   let best = Infinity;
   for (const i of [-1, 0, 1]) for (const j of [-1, 0, 1]) {
-    const dx = a[0] - b[0] + i, dy = a[1] - b[1] + j;
-    best = Math.min(best, Math.sqrt(hex ? dx * dx + dy * dy - dx * dy : dx * dx + dy * dy));
+    const [x, y] = kart([a[0] - b[0] + i, a[1] - b[1] + j], hex);
+    best = Math.min(best, Math.hypot(x, y));
+  }
+  return best;
+}
+
+/**
+ * Abstand eines Punkts von einer Linie und ihren Bildern unter dem Gitter (Punkt und Richtung in Zellkoordinaten).
+ * @param {Vec2} r @param {Vec2} punkt @param {Vec2} richtung @param {boolean} hex
+ */
+export function linienAbstand(r, punkt, richtung, hex) {
+  const [dx, dy] = kart(richtung, hex);
+  let best = Infinity;
+  for (const i of [-1, 0, 1]) for (const j of [-1, 0, 1]) {
+    const [ux, uy] = kart([r[0] - punkt[0] + i, r[1] - punkt[1] + j], hex);
+    best = Math.min(best, Math.abs(ux * dy - uy * dx) / Math.hypot(dx, dy));
   }
   return best;
 }
@@ -40,8 +53,9 @@ function abstand(a, b, hex) {
 const ELEMENTE = new Map();
 /**
  * Wie gut die Bilder eines Punkts zu sehen sind: kleinster Abstand zweier Bilder an verschiedenen Stellen, zum
- * Rand der Zelle und zu den Symmetrieelementen, auf denen sie nicht liegen (gross: Fähnchen getrennt, keines nahe
- * einer Kante, und kein allgemeiner Punkt sieht aus, als läge er auf einer Gleitspiegellinie).
+ * Rand der Zelle und zu den Drehpunkten und Spiegellinien, auf denen sie nicht liegen (gross: Fähnchen getrennt,
+ * keines nahe einer Kante). Ein Punkt in allgemeiner Lage auf einer Gleitspiegellinie ist ausgeschlossen (-1): Er
+ * sähe speziell aus. Gleitspiegellinien zählen sonst nicht, sie gehen ohnehin durch viele Stellen.
  * @param {import('./symmetrie.js').Gruppe} g @param {Vec2} p
  */
 function sichtbarkeit(g, p) {
@@ -49,19 +63,22 @@ function sichtbarkeit(g, p) {
   let el = ELEMENTE.get(g.daten.symbol);
   if (!el) { el = elemente(g); ELEMENTE.set(g.daten.symbol, el); }
   const b = bahn(g, p);
+  const allgemein = b.length === g.ordnung;
   let m = Math.min(...b.flatMap((r) => [r[0], 1 - r[0], r[1], 1 - r[1]])) * 2;
   for (let i = 0; i < b.length; i++) for (let j = i + 1; j < b.length; j++) m = Math.min(m, abstand(b[i], b[j], hex));
   for (const r of b) {
     for (const d of el.drehpunkte) { const a = abstand(r, d.punkt, hex); if (a > 1e-6) m = Math.min(m, 2 * a); }
     for (const l of el.linien) {
-      const n = Math.hypot(l.normale[0], l.normale[1]);
-      const a = Math.abs((r[0] - l.punkt[0]) * l.normale[0] + (r[1] - l.punkt[1]) * l.normale[1]) / n;
-      // eine Spiegellinie durch das Bild hält es fest (spezielle Lage); eine Gleitspiegellinie nie
-      if (a > 1e-6 || l.art === 'gleit') m = Math.min(m, 2 * a);
+      const a = linienAbstand(r, l.punkt, l.richtung, hex);
+      if (l.art === 'gleit') { if (allgemein && a < 1e-6) return -1; continue; }
+      if (a > 1e-6) m = Math.min(m, 2 * a);
     }
   }
   return m;
 }
+
+/** Unter diesem Wert zeigt die Aufgabe das Objekt halb so gross, damit sich die Fähnchen nicht decken. */
+export const KNAPP = 0.3;
 
 /**
  * Lagesymmetrie in Achse und Zahl der Spiegellinien (die Symbole sind orientiert, z. B. „.m.“, „2mm“, „4..“).
@@ -81,22 +98,29 @@ export function ortText(symbol) {
   const { n, linien } = lageteile(symbol);
   if (n === 1) return linien ? 'auf einer Spiegellinie' : 'in allgemeiner Lage, also auf keinem Symmetrieelement';
   if (!linien) return `auf einem ${n}-zähligen Drehpunkt`;
-  return `auf einem ${n}-zähligen Drehpunkt, durch den ${linien} Spiegellinien gehen`;
+  return `auf einem ${n}-zähligen Drehpunkt, durch den ${ZAHL[linien]} Spiegellinien gehen`;
 }
 
+/** Zahlwörter wie im Skript („vier Spiegellinien“). */
+const ZAHL = ['keine', 'eine', 'zwei', 'drei', 'vier', 'fünf', 'sechs'];
+
+/** @type {Map<string, { p: Vec2, wert: number } | null>} */
+const PUNKTE = new Map();
 /**
  * Punkt auf der Wyckoff-Lage b, dessen Bilder alle im Innern der Zelle liegen (nicht auf Kanten oder Ecken,
  * Entscheidung Thomas, 7.11.2026, #108), oder null, wenn die Lage keinen solchen Punkt hat (z. B. 0,0). Unter
- * den möglichen der, dessen Bilder am weitesten auseinander und vom Rand der Zelle weg liegen.
+ * den möglichen der am besten sichtbare (sichtbarkeit), mit seinem Wert.
  * @param {string} id Ebenengruppe @param {string} b Buchstabe
- * @returns {Vec2 | null}
  */
 export function punktImInnern(id, b) {
+  const key = `${id}:${b}`;
+  const da = PUNKTE.get(key);
+  if (da !== undefined) return da;
   const g = gruppe(id);
   const w = /** @type {{ b: string, koord: string[] }} */ (g.daten.wyckoff.find((x) => x.b === b));
   const o = liesOp(w.koord[0]);
-  /** @type {Vec2 | null} */
-  let best = null, wert = -1;
+  /** @type {{ p: Vec2, wert: number } | null} */
+  let best = null;
   const gesehen = new Set();
   for (const q of WERTE) {
     const p = /** @type {Vec2} */ (anwenden(o, /** @type {Vec2} */ (q)).map(mod1));
@@ -105,50 +129,55 @@ export function punktImInnern(id, b) {
     gesehen.add(k);
     if (lage(g, p).buchstabe !== b || !bahn(g, p).every((r) => r.every((c) => c > 1e-6))) continue;
     const v = sichtbarkeit(g, p);
-    if (v > wert + 1e-9) { best = p; wert = v; }
+    if (v >= 0 && (!best || v > best.wert + 1e-9)) best = { p, wert: v };
   }
+  PUNKTE.set(key, best);
   return best;
 }
+
+/**
+ * Kann die Lage einen Punkt mit allen Bildern im Innern haben? Genau dann nicht, wenn eine Koordinate fest 0 ist
+ * (z. B. „0,y“, „x,0“, „1/2,0“): Modulo Gitter bleibt der Punkt dann auf dem Rand. Aus den Daten, ohne Rechnung.
+ * @param {{ koord: string[] }} w
+ */
+export const imInnernMoeglich = (w) => !w.koord.some((k) => k.split(',').some((c) => c.trim() === '0'));
 
 /** Adresse und Kenndaten zu einem Parameter (Gruppe:Buchstabe). @param {string} param */
 export function zaehligkeitDaten(param) {
   const [id, b] = param.split(':');
   const g = gruppe(id);
-  const p = /** @type {Vec2} */ (punktImInnern(id, b));
+  const { p, wert } = /** @type {{ p: Vec2, wert: number }} */ (punktImInnern(id, b));
   const l = lage(g, p);
   return {
-    id, b, p, symbol: l.symbol, zaehligkeit: l.zaehligkeit, ordnung: g.ordnung,
+    id, b, p, wert, symbol: l.symbol, zaehligkeit: l.zaehligkeit, ordnung: g.ordnung,
     zentriert: g.zentr.length > 1, stellen: bahn(g, p).length,
-    hash: `#m=eg&g=${id}&x=${koordText(p[0])}&y=${koordText(p[1])}`,
+    hash: `#m=eg&g=${id}&x=${koordText(p[0])}&y=${koordText(p[1])}${wert < KNAPP ? '&og=0.5' : ''}`,
   };
 }
 
-/** Frage zu einem Parameter. @param {string} param */
-const frage = (param) => {
-  const d = zaehligkeitDaten(param);
-  return `In ${symbolHTML(d.id)} liegt das Objekt ${ortText(d.symbol)}. An wie vielen Stellen je Elementarzelle liegen seine Bilder?`;
-};
+/** Frage zu Gruppe und Lagesymmetrie. @param {string} id @param {string} symbol */
+const frage = (id, symbol) => `In ${symbolHTML(id)} liegt das Objekt ${ortText(symbol)}. An wie vielen Stellen je Elementarzelle liegen seine Bilder?`;
 
 /**
- * Parameter: jede Wyckoff-Lage jeder Ebenengruppe ausser p1, die einen Punkt mit Bildern nur im Innern der Zelle
- * hat; Lagen mit gleichem Wortlaut der Frage nur einmal.
+ * Parameter: jede Wyckoff-Lage jeder Ebenengruppe ausser p1, deren Bilder im Innern der Zelle liegen können;
+ * Lagen mit gleichem Wortlaut der Frage nur einmal. Aus den Daten (schnell, die Liste braucht sie beim Zeichnen).
  */
 export const ZAEHLIGKEIT_PARAMS = einmal(/** @returns {string[]} */ () => {
   const gesehen = new Set();
-  return EBENENGRUPPEN.flatMap((e) => e.wyckoff.map((w) => `${e.symbol}:${w.b}`))
-    .filter((p) => { const [id, b] = p.split(':'); return gruppe(id).ordnung >= 2 && punktImInnern(id, b) !== null; })
-    .filter((p) => { const f = frage(p); if (gesehen.has(f)) return false; gesehen.add(f); return true; });
+  return EBENENGRUPPEN.filter((e) => e.symbol !== 'p1').flatMap((e) => e.wyckoff.filter(imInnernMoeglich)
+    .filter((w) => { const f = frage(e.symbol, w.sym); if (gesehen.has(f)) return false; gesehen.add(f); return true; })
+    .map((w) => `${e.symbol}:${w.b}`));
 });
 
 /**
- * Zwei Ablenker aus typischen Fehlern, ohne die richtige Zahl, jede höchstens einmal, zwischen 1 und der Zahl der
- * Operationen je Zelle.
+ * Zwei Ablenker aus typischen Fehlern, ohne die richtige Zahl, jede höchstens einmal; nur Teiler der Zahl der
+ * Operationen je Zelle (andere Zahlen sind unmöglich).
  * @param {number} richtig @param {number} n @param {number[]} kand
  */
 function ablenker(richtig, n, kand) {
   /** @type {number[]} */
   const out = [];
-  for (const x of kand) if (x !== richtig && Number.isInteger(x) && x >= 1 && x <= n && !out.includes(x) && out.length < 2) out.push(x);
+  for (const x of kand) if (x !== richtig && Number.isInteger(x) && x >= 1 && n % x === 0 && !out.includes(x) && out.length < 2) out.push(x);
   return out;
 }
 
@@ -163,17 +192,17 @@ export const ZAEHLIGKEIT = {
     const d = zaehligkeitDaten(param);
     const k = lageteile(d.symbol).ordnung;
     // typische Fehler: Lage vergessen (alle Operationen), Ordnung der Lagesymmetrie, doppelt bzw. halb so viele
-    const falsch = ablenker(d.zaehligkeit, d.ordnung, [d.ordnung, d.zaehligkeit * 2, d.zaehligkeit / 2, k, 1]);
+    const falsch = ablenker(d.zaehligkeit, d.ordnung, [d.ordnung, k, d.zaehligkeit * 2, d.zaehligkeit / 2, 1]);
     const zahlen = [d.zaehligkeit, ...falsch].sort((a, b) => b - a);
     const je = d.zentriert ? ' je Elementarzelle (mit der Zentrierung)' : ' je Elementarzelle';
     /** @type {Schritt} */
     const s = {
-      frage: frage(param),
+      frage: frage(d.id, d.symbol),
       vermutung: zahlen.map(an), richtig: zahlen.indexOf(d.zaehligkeit),
       handlung: { text: 'Objekt dorthin setzen', hash: d.hash },
       beobachtung: `${an(d.zaehligkeit).replace(/^an/, 'An')} Stelle${d.zaehligkeit === 1 ? '' : 'n'}.`,
       erklaerung: k === 1
-        ? `Jede der ${d.ordnung} Operationen${je} bringt das Objekt an eine andere Stelle.`
+        ? `Keine Operation ausser der Identität hält das Objekt fest; die ${d.ordnung} Operationen${je} bringen es an ${d.ordnung} verschiedene Stellen.`
         : `Die Lagesymmetrie ${lageHTML(d.symbol)} hat ${k} Operationen; sie halten das Objekt fest. Zähligkeit mal Ordnung der Lagesymmetrie ergibt die ${d.ordnung} Operationen${je}: ${d.zaehligkeit} · ${k} = ${d.ordnung}.`,
       skript: 'wyckoff',
     };
