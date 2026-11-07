@@ -6,10 +6,10 @@
 > - Grundlage „Leitfaden (claude/leitfaden-familie.md)“: heute `LEITFADEN.md` in crystallography-common.
 > - „Warum ist das da?“ heisst seit #72 „Herkunft der Elemente“ und ist ein Schalter im Abschnitt „Aufbau aus Erzeugenden“, nicht mehr ein Knopf über dem Symmetriegerüst.
 > - Die Statusabsätze am Ende sind ein Verlauf bis 3.11.2026; Fortschritt steht künftig in Issues und PRs, nicht hier.
-> - Offene Punkte als Issues: Skript Kap. 8 und geführte Bestimmung #38, Vertiefungskapitel Conway #85, Escher-artige Vorgaben #86, Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Erste Schritte und Hilfeseite #56 (ersetzt das Tutorial), externe Gegenprüfung #33.
+> - Offene Punkte als Issues: geführte Bestimmung #38 (Teil App), Quizfragen zu Kap. 8 #102, Escher-artige Vorgaben #86, Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Hilfeseite #56 (ersetzt das Tutorial).
 > - **Überholt am 5.11.2026** (Thomas; Entscheidungen mit Grund in `CLAUDE.md`, „Modi und Umfang“, Planung in den Issues):
 >   - **Beugung** kommt in eine eigene App (crystallography-common#73). Überholt sind damit hier alle Stellen zur Beugung: Abschn. 3.2 (Tafel B), 3.3, 5 (`beugung=1`), 6 (Kap. 9), 7 (Generator Beugungsbild), 8 (Tests), 10 (zweites Release), 12 (Entscheidungen 6, 12, 13, 16) und 13 (offene Frage 1, Formelsatz). Abschn. 3.3 bleibt nur Quelle; Entwurfsentscheidungen zur Beugung kommen in das Konzept der neuen App bzw. vorerst nach common#73.
->   - **Bestimmen:** kein eigener Modus (Abschn. 3.4, 10, Entscheidung 8), sondern #38. Die Signatur nach Conway bestimmen nur im Skript (#85): Abschn. 3.6 Punkt 4 und Entscheidung 24 dazu entfallen, Abschn. 6 (Kap. 7 und 8, Vertiefungen) wird beim Schreiben angepasst.
+>   - **Bestimmen:** kein eigener Modus (Abschn. 3.4, 10, Entscheidung 8), sondern #38. Die Signatur nach Conway bestimmen nur im Skript: Abschn. 3.6 Punkt 4 und Entscheidung 24 dazu entfallen. Abschn. 6 (Kapitel) ist überholt: Kap. 8 „Ebenengruppen bestimmen“ (Flussdiagramm nach Sanderson) und Kap. 9 „Die Signatur nach Conway“ (Vertiefungskapitel) sind umgesetzt, die Vertiefung zu Conway in Kap. 7 ist darin aufgegangen.
 >   - Abschn. 3.6 Punkte 3 und 5 und Abschn. 3.7: siehe #86, #37, #40, #39.
 > 
 > Dieses Konzept wird für die noch offenen Teile („Bestimmen“, Erweiterungen) weiter genutzt: Neue Entwurfsentscheidungen kommen hier hinzu, der Fortschritt nicht.

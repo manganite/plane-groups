@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Verbindung von Kap. 8 und Kap. 9** (#85): Kap. 8 endet mit einer Überleitung zur Signatur nach Conway als zweitem Weg zu denselben 17 Gruppen; in den Kenndaten führt „Signatur nach Conway“ ins Skript (Kap. 9).
 - **Erzeugte Experimente** (#109, crystallography-common#92): „An wie vielen Stellen?“ stellt immer neue Aufgaben zur Zähligkeit, wie die Generatoren im Quiz; am Ende steht „Neue Aufgabe“, in der Liste ↻. Jede Wyckoff-Lage der Ebenengruppen ab p2, deren Bilder im Innern der Zelle liegen können: allgemein, auf einer Spiegellinie, auf einem Drehpunkt, auch mit Spiegellinien (33 Aufgaben; Lagen auf Kanten und Ecken entfallen, darunter alle 6-zähligen Punkte). Das Objekt liegt so, dass die Bilder gut getrennt sind und ein allgemeiner Punkt nicht auf einer Gleitspiegellinie liegt; wo es eng wird, zeigt die Aufgabe das Objekt halb so gross. Auflösung über Zähligkeit mal Ordnung der Lagesymmetrie. Code in `js/experimente.js`; ein Test prüft jede Aufgabe gegen die App.
 - **Stand der Experimente wie im Quiz** (crystallography-common#91): Die Liste merkt sich je Experiment, ob zuletzt alle Vermutungen zutrafen (✓) oder es nur durchgespielt wurde (○), auch nach dem Neuladen, mit Übersicht und „Stand löschen“. „Alle Einstellungen zurücksetzen“ lässt den Stand stehen wie das Quiz. Speicher `ebenen-experimente`.
 

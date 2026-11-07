@@ -37,7 +37,7 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
 - **Kenndaten** mit Schoenflies-Symbol und Signatur nach Conway.
 - **Kopieren und Speichern** je Tafel: Bild in die Zwischenablage, als SVG oder PNG.
 
-- **[Skript](https://manganite.github.io/plane-groups/skript.html)** mit sieben Kapiteln: Gitter, Elementarzelle und Basis; Symmetrie des Gitters; Gitter und Motiv; Gleitspiegelung und Verknüpfung; die 17 Ebenengruppen; Punktlagen; Tapeten, Ornamente und Kunst. Die Abbildungen zeichnet der Code der App, jede mit Link in die App; Vertiefungen sind gekennzeichnet. Auch als [PDF](https://manganite.github.io/plane-groups/skript.pdf) und als Anhang jedes Releases.
+- **[Skript](https://manganite.github.io/plane-groups/skript.html)** mit neun Kapiteln: Gitter, Elementarzelle und Basis; Symmetrie des Gitters; Gitter und Motiv; Gleitspiegelung und Verknüpfung; die 17 Ebenengruppen; Punktlagen; Tapeten, Ornamente und Kunst; Ebenengruppen bestimmen; die Signatur nach Conway (Vertiefung). Die Abbildungen zeichnet der Code der App, jede mit Link in die App; Vertiefungen sind gekennzeichnet. Auch als [PDF](https://manganite.github.io/plane-groups/skript.pdf) und als Anhang jedes Releases.
 - **[Quiz](https://manganite.github.io/plane-groups/quiz.html)** zu allen Kapiteln in drei Stufen (1 Grundlagen, 2 Anwendung, 3 Vertiefung; Stufe 3 bedeutet mehr Stoff, nicht unbedingt schwierigere Fragen): handgeschriebene Fragen und Fragengeneratoren, Bilder aus dem Code der App, sofortige Rückmeldung mit Link ins Skript und in die passende Ansicht der App. Standardmässig erscheinen nur fachlich geprüfte Fragen; „Auch ungeprüfte Fragen zeigen“ (oder `quiz.html?entwurf`) nimmt die Entwürfe dazu. Der Stand bleibt nur im Browser.
 
 ## Nutzung
