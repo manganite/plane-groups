@@ -96,3 +96,147 @@ export const LABELS = {
   's-ba': 'b/a',
   's-gamma': 'γ',
 };
+
+/** @import { Ablauf } from '../lib/common/js/ablauf.js' */
+/**
+ * Erste Schritte (lib/common/js/ablauf.js mit liste: false, Leitfaden Abschn. 5.3): je Modus wenige kurze
+ * Schritte zur Bedienung, ohne Vermutung; der letzte öffnet die Experimente. Tafeln mit Namen, nicht „links/rechts“
+ * (auf dem Telefon sind sie umschaltbar).
+ * @type {Ablauf[]}
+ */
+export const ERSTE_SCHRITTE = [
+  {
+    id: 'einstieg-eg', modus: 'eg', titel: 'Erste Schritte',
+    schritte: [
+      { frage: '<b>Ebenengruppe wählen.</b> Das Symmetriegerüst zeigt eine Elementarzelle mit Drehpunkten, Spiegel- und Gleitspiegellinien, das Muster einen Ausschnitt der Ebene.',
+        handlung: { text: '<i>p</i>4<i>gm</i> wählen', hash: '#m=eg&g=p4gm' } },
+      { frage: '<b>Fähnchen ziehen.</b> Alle Bilder folgen. Auf einer Spiegellinie oder einem Drehpunkt rastet es ein: spezielle Lage, weniger Bilder.',
+        handlung: { text: 'Auf eine Spiegellinie setzen', hash: '#m=eg&g=p4gm&x=0.15&y=0.65' } },
+      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche zu Lagen, Gleitspiegellinien und zur asymmetrischen Einheit: erst vermuten, dann ausprobieren.',
+        handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
+    ],
+  },
+  {
+    id: 'einstieg-struktur', modus: 'struktur', titel: 'Erste Schritte',
+    schritte: [
+      { frage: '<b>Struktur ansehen.</b> Gitter und Basis: zwei Dreiecke in einer rechteckigen Zelle. Die App bestimmt daraus die Ebenengruppe, hier <i>pm</i> (unten), und zeichnet konventionelle Zelle und Symmetrieelemente ein.',
+        handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' } },
+      { frage: '<b>Selbst bauen.</b> Mit „Hinzufügen“ über der Struktur neue Motive setzen, mit „Wählen und ziehen“ verschieben; unter „Gitter“ Achsenverhältnis und Winkel ändern. Die App bestimmt die Symmetrie jedes Mal neu.',
+        handlung: { text: '„Hinzufügen“ wählen', aktion: 'hinzufuegen' } },
+      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche: gleiche Atome, gedrehte Motive, Graphen. Erst vermuten, dann ausprobieren.',
+        handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
+    ],
+  },
+];
+
+/**
+ * Lernexperimente im Abschnitt „Experimente“ (lib/common/js/ablauf.js, Leitfaden Abschn. 5.3), je Modus drei: erst
+ * vermuten, dann die Handlung (Link-Adresse), dann Beobachtung und Erklärung. Themen: Lage und Zähligkeit,
+ * Spiegel- und Gleitspiegellinie, asymmetrische Einheit, Zentrierung durch gleiche Atome, Atome und Gitterpunkte.
+ * tests/ablauf.test.mjs prüft Adressen, Anker und den Inhalt (Zähligkeit, Gruppe) gegen die App.
+ * @type {Ablauf[]}
+ */
+export const ABLAEUFE = [
+  {
+    id: 'lage', modus: 'eg', titel: 'Allgemeine und spezielle Lage',
+    schritte: [
+      {
+        frage: 'In <i>p</i>4<i>mm</i> liegen die Bilder eines Objekts in allgemeiner Lage an 8 Stellen je Elementarzelle. An wie vielen Stellen liegen sie, wenn das Objekt auf einer Spiegellinie liegt?',
+        vermutung: ['an 8', 'an 4', 'an 2'], richtig: 1,
+        handlung: { text: 'Objekt auf eine Spiegellinie setzen', hash: '#m=eg&g=p4mm&x=1/5&y=1/5' },
+        beobachtung: 'An 4 Stellen, alle auf den diagonalen Spiegellinien: An jeder liegen das Fähnchen und sein Spiegelbild übereinander.',
+        erklaerung: 'Die Spiegelung hält das Objekt fest, seine Lagesymmetrie ist <i>m</i>. Zähligkeit mal Ordnung der Lagesymmetrie ergibt die 8 Operationen je Zelle: 4 · 2 = 8.',
+        skript: 'allgemein-speziell',
+      },
+      {
+        frage: 'Und wenn das Objekt auf dem 4-zähligen Drehpunkt in der Mitte der Zelle liegt, durch den vier Spiegellinien gehen?',
+        vermutung: ['an 4', 'an 2', 'an einer'], richtig: 2,
+        handlung: { text: 'Objekt auf den Drehpunkt setzen', hash: '#m=eg&g=p4mm&x=1/2&y=1/2' },
+        beobachtung: 'An einer Stelle: Alle 8 Bilder liegen übereinander, denn alle 8 Operationen halten das Objekt fest.',
+        erklaerung: 'Lagesymmetrie 4<i>mm</i> mit 8 Operationen, also 8 / 8 = 1.',
+        skript: 'wyckoff',
+      },
+    ],
+  },
+  {
+    id: 'gleitspiegel', modus: 'eg', titel: 'Spiegellinie oder Gleitspiegellinie',
+    schritte: [
+      {
+        frage: 'In <i>p</i>4<i>gm</i> gehen durch jeden 4-zähligen Drehpunkt zwei diagonale Linien. Sind es Spiegellinien?',
+        vermutung: ['Ja, Spiegellinien', 'Nein, Gleitspiegellinien'], richtig: 1,
+        handlung: { text: '<i>p</i>4<i>gm</i> zeigen', hash: '#m=eg&g=p4gm' },
+        beobachtung: 'Gleitspiegellinien (gestrichelt). Die Spiegellinien (durchgezogen) gehen nur durch die 2-zähligen Drehpunkte.',
+        erklaerung: 'Darin unterscheidet sich <i>p</i>4<i>gm</i> von <i>p</i>4<i>mm</i>, wo durch jeden 4-zähligen Drehpunkt Spiegellinien gehen.',
+        skript: 'leitfragen',
+      },
+    ],
+  },
+  {
+    id: 'ae', modus: 'eg', titel: 'Asymmetrische Einheit',
+    schritte: [
+      {
+        frage: 'Welcher Teil der Elementarzelle von <i>p</i>4<i>mm</i> genügt, damit die Operationen der Gruppe daraus das ganze Muster erzeugen?',
+        vermutung: ['ein Viertel', 'ein Achtel', 'ein Sechzehntel'], richtig: 1,
+        handlung: { text: 'Asymmetrische Einheit einblenden', hash: '#m=eg&g=p4mm&ae=1' },
+        beobachtung: 'Ein Achtel der Zelle, ein Dreieck.',
+        erklaerung: 'Die Gruppe hat 8 Operationen je Zelle; ihre Bilder der asymmetrischen Einheit füllen die Zelle ohne Lücken und Überlappungen.',
+        skript: 'asymmetrische-einheit',
+      },
+      {
+        frage: 'Die Punktgruppe von <i>c</i>2<i>mm</i> hat nur 4 Operationen. Welcher Teil der konventionellen, zentrierten Zelle ist die asymmetrische Einheit?',
+        vermutung: ['ein Viertel', 'ein Achtel'], richtig: 1,
+        handlung: { text: '<i>c</i>2<i>mm</i> zeigen', hash: '#m=eg&g=c2mm&ae=1' },
+        beobachtung: 'Ein Achtel der konventionellen Zelle.',
+        erklaerung: 'Die Zentrierung verdoppelt die Operationen je Zelle: 4 · 2 = 8.',
+        skript: 'zentriert',
+      },
+    ],
+  },
+  {
+    id: 'zentrierung', modus: 'struktur', titel: 'Gleiche Atome, zentrierte Zelle',
+    schritte: [
+      {
+        frage: 'Zwei Dreiecke verschiedener Farbe in einer rechteckigen Zelle. Welche Symmetrie bestimmt die App?',
+        vermutung: ['nur Spiegellinien (<i>pm</i>)', 'Spiegellinien und Drehpunkte (<i>p</i>2<i>mm</i>)'], richtig: 0,
+        handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' },
+        beobachtung: '<i>pm</i>: Spiegellinien, keine Drehpunkte.',
+        erklaerung: 'Die Dreiecke sind spiegelsymmetrisch, aber nicht punktsymmetrisch; deshalb entstehen keine 2-zähligen Drehpunkte.',
+        skript: 'basis-gitter',
+      },
+      {
+        frage: 'Das Dreieck in der Mitte bekommt die Farbe des Eckdreiecks. Was geschieht?',
+        vermutung: ['Nichts, es bleibt <i>pm</i>', 'Die Zelle wird zentriert (<i>cm</i>)', 'Es entstehen Drehpunkte'], richtig: 1,
+        handlung: { text: 'Farbe angleichen', hash: '#m=struktur&v=dreieck2' },
+        beobachtung: '<i>cm</i>: Die konventionelle Zelle ist zentriert, zwischen den Spiegellinien liegen Gleitspiegellinien.',
+        erklaerung: 'Das mittlere Dreieck ist jetzt eine verschobene Kopie des Eckdreiecks: eine zusätzliche Translation um (½, ½).',
+        skript: 'zentriert',
+      },
+    ],
+  },
+  {
+    id: 'drehen', modus: 'struktur', titel: 'Motiv drehen',
+    schritte: [
+      {
+        frage: 'Im zentrierten Beispiel (<i>cm</i>) wird das Dreieck in der Mitte um 180° gedreht. Was entsteht?',
+        vermutung: ['Drehpunkte und Gleitspiegellinien quer zu den Spiegellinien', 'Keine Symmetrie mehr ausser Translationen'], richtig: 0,
+        handlung: { text: 'Um 180° drehen', hash: '#m=struktur&v=dreieck3' },
+        beobachtung: '<i>p</i>2<i>mg</i>: 2-zählige Drehpunkte und Gleitspiegellinien senkrecht zu den Spiegellinien.',
+        erklaerung: 'Hineingesteckt hat man sie nicht: Sie folgen aus Spiegelung und Translation. Der Ursprung der konventionellen Zelle wandert auf einen Drehpunkt.',
+        skript: 'verknuepfung',
+      },
+    ],
+  },
+  {
+    id: 'graphen', modus: 'struktur', titel: 'Atome und Gitterpunkte',
+    schritte: [
+      {
+        frage: 'Graphen besteht nur aus Kohlenstoffatomen. Liegt auf jedem Atom ein Gitterpunkt?',
+        vermutung: ['Ja', 'Nein, die Zelle enthält zwei Atome'], richtig: 1,
+        handlung: { text: 'Graphen laden', hash: '#m=struktur&v=graphen' },
+        beobachtung: 'Die Zelle enthält zwei Atome. Die Ebenengruppe ist <i>p</i>6<i>mm</i>.',
+        erklaerung: 'Die Wabe ist kein Gitter: Die Verschiebung von einem Atom zu seinem Nachbarn bildet die Struktur nicht auf sich ab. Hexagonales Gitter mit zwei Atomen in der Basis.',
+        skript: 'basis',
+      },
+    ],
+  },
+];

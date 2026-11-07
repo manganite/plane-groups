@@ -1,8 +1,9 @@
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
 import { initHelp } from '../lib/common/js/help.js';
-import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, element, elemente, grafik } from '../lib/common/js/seite.js';
-import { TIPS, SECTIONS, LABELS } from './hilfetexte.js';
+import { ablaufKarte } from '../lib/common/js/ablauf.js';
+import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik } from '../lib/common/js/seite.js';
+import { TIPS, SECTIONS, LABELS, ABLAEUFE, ERSTE_SCHRITTE } from './hilfetexte.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
@@ -919,7 +920,7 @@ function init() {
   /** @type {Set<string>} */
   const ueberLink = new Set(location.hash.length > 1 ? [z.modus] : []);
   /** @param {boolean} an */
-  const intro = (an) => { $('intro').hidden = !an; $('help-open').setAttribute('aria-expanded', String(an)); };
+  const intro = (an) => { $('intro').hidden = !an; $('help-open').setAttribute('aria-expanded', String(an)); if (!an) einstieg.liste(); };
   const introZu = () => {
     intro(false);
     gesehen.add(z.modus);
@@ -927,27 +928,27 @@ function init() {
   };
   /** @type {string | null} */
   let introModus = location.hash.length > 1 ? z.modus : null;
+  // Erste Schritte (kurz, zur Bedienung) und Experimente (eigener Abschnitt) mit derselben Mechanik
+  // (lib/common/js/ablauf.js): Handlungen setzen den Zustand über die Link-Adresse; am Telefon zeigt die App
+  // danach die Tafel mit dem Symmetriegerüst bzw. der Struktur
+  const anwenden = (/** @type {string} */ h) => { hashAnwenden(z, h); tafelZeigen('a'); aktualisieren(); };
+  const adresse = () => hashVon(z);
+  const skriptUrl = (/** @type {string} */ anker) => `skript.html#${anker}`;
+  const aktionen = {
+    hinzufuegen: () => { sUI.werkzeugSetzen('hinzufuegen'); tafelZeigen('a'); aktualisieren(); },
+    experimente: () => { const d = abschnitt('sec-experimente'); d.open = true; d.scrollIntoView({ block: 'nearest' }); },
+  };
+  const einstieg = ablaufKarte($('ablauf'), ERSTE_SCHRITTE, { anwenden, adresse, aktionen, skriptUrl, liste: false, beiAbschluss: () => introZu() });
+  const experimente = ablaufKarte($('experimente'), ABLAEUFE, { anwenden, adresse, aktionen, skriptUrl });
+  einstieg.modus(z.modus); experimente.modus(z.modus);
   introAbgleichen = () => {
     if (z.modus === introModus) return;
     introModus = z.modus;
+    einstieg.modus(z.modus); experimente.modus(z.modus);
     intro(!gesehen.has(z.modus) && !ueberLink.has(z.modus));
-    elemente('.steps li.done').forEach((li) => li.classList.remove('done'));
   };
   $('intro-close').addEventListener('click', introZu);
   $('help-open').addEventListener('click', () => { if ($('intro').hidden) intro(true); else introZu(); });
-  // Jeder Schritt zeigt am Telefon die Tafel, in der er wirkt (Symmetriegerüst bzw. Struktur)
-  /** @param {number | string} n @param {() => void} f */
-  const schritt = (n, f) => element(`[data-step="${n}"]`).addEventListener('click', () => {
-    f(); tafelZeigen('a'); /** @type {HTMLElement} */ (element(`[data-step="${n}"]`).closest('li')).classList.add('done'); aktualisieren();
-  });
-  schritt(1, () => { z.gruppe = 'p4gm'; z.objekt = true; });
-  schritt(2, () => { z.objekt = true; const w = ebenengruppe(z.gruppe).wyckoff.find((x) => /m/.test(x.sym) && x.koord[0].includes('x')); if (w) wyckoffSetzen(w.b); });
-  schritt(3, () => { z.ae = true; });
-  // Gitter und Basis: Dreiecksbeispiel pm → cm → p2mg (Konzept 3.2), das Dreieck im Zentrum gewählt
-  schritt('s1', () => { sUI.vorgabeZeigen('dreieck1'); Object.assign(z.struktur, { elemente: true, zelle: true }); });
-  schritt('s2', () => sUI.vorgabeZeigen('dreieck2', 1));
-  schritt('s3', () => sUI.vorgabeZeigen('dreieck3', 1));
-  schritt('s4', () => sUI.werkzeugSetzen('hinzufuegen'));
   $('copy-link').addEventListener('click', () => {
     const url = location.origin + location.pathname + location.search + hashVon(z);
     navigator.clipboard?.writeText(url);
