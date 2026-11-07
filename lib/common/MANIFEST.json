@@ -1,8 +1,8 @@
 {
   "name": "crystallography-common",
-  "version": "0.10.0",
-  "tag": null,
-  "commit": "36828849818a24b91f945d74aacaef8dcb84c7d0",
+  "version": "0.11.0",
+  "tag": "v0.11.0",
+  "commit": "4453f5dee6d8804adfe27ac533d985167e846044",
   "files": {
     "lib/common/css/app.css": "c4b0cea8ef72b91d673e70563ba677d90b8d9a3ccaf4baee5fb7ed29899b1aae",
     "lib/common/css/base.css": "c8d7951986b5b740adc5efa85fc1046d2e4bef3a57a677b5799e8d9b567e1c04",
@@ -16,7 +16,7 @@
     "lib/common/js/seite.js": "603e3c94811a372c81a7c6deabf13c53ace2805ac6f9c8637dc1ad838c49dbd9",
     "lib/common/js/skript-kern.js": "1faf7b4a88615f163cde6359a7412db1e67fef05618f29d31f67be9f4c814988",
     "lib/common/js/typen.js": "3ad299729f1c44d92297ec62e3ff9d2ef582b1b3679b5de152d37f3776df34cd",
-    "lib/common/js/version.js": "8c0f36fe7f1ea62f31d4ca4896266d237f63ec04b8acc7adc9e377f8c300909d",
+    "lib/common/js/version.js": "0693021be79fe36a7462f26731908f7f0c8205f5518b2dc5a95d9cb62d3c5cd1",
     "lib/common/fonts/LICENSE-ibm-plex-mono.txt": "23b0a9d0c6d3f140a0b77e483c5cfa6bba574325ef5cb189ed9f2fec4884533f",
     "lib/common/fonts/LICENSE-ibm-plex-sans.txt": "d0283623ef57e722fd0eb688a8041589670c608ab780cd3612d06ba6f153d3fd",
     "lib/common/fonts/LICENSE-source-serif-4.txt": "18aabf190848725e2576eefb5c29ba06aac1029d02132252a7f312eac2e50cf3",
