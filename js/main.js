@@ -939,7 +939,7 @@ function init() {
     experimente: () => { const d = abschnitt('sec-experimente'); d.open = true; d.scrollIntoView({ block: 'nearest' }); },
   };
   const einstieg = ablaufKarte($('ablauf'), ERSTE_SCHRITTE, { anwenden, adresse, aktionen, skriptUrl, liste: false, beiAbschluss: () => introZu() });
-  const experimente = ablaufKarte($('experimente'), ABLAEUFE, { anwenden, adresse, aktionen, skriptUrl });
+  const experimente = ablaufKarte($('experimente'), ABLAEUFE, { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
   einstieg.modus(z.modus); experimente.modus(z.modus);
   introAbgleichen = () => {
     if (z.modus === introModus) return;

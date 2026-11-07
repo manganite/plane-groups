@@ -138,7 +138,7 @@ für diese App gilt.
 - Dezimalkomma in Skript und Oberfläche; Querstrich statt Minus, wo die Kristallographie ihn verwendet.
 - **Präfixe nie ändern:** Service-Worker-Cache `ebenengruppen-`, Zustand `ebenen-zustand`, Quiz-Speicher
   `ebenen-quiz`, Erste Schritte `ebenen-intro` (Wert: die gesehenen Modi, z. B. `eg,struktur`; `1` aus v1.0 gilt
-  als `eg`). Jeder Eintrag im Speicher heisst `ebenen-…` (Leitfaden Abschn. 5.2, „Alle Einstellungen zurücksetzen“).
+  als `eg`), Stand der Experimente `ebenen-experimente` (bleibt beim Zurücksetzen wie das Quiz). Jeder Eintrag im Speicher heisst `ebenen-…` (Leitfaden Abschn. 5.2, „Alle Einstellungen zurücksetzen“).
 - **Bildangaben im Quiz:** `#…` Tafel A, `B#…` Tafel B (Muster); Endung `@k` setzt die Symbolgrösse;
   `skizze:3m|2mm|4mm|6mm|kachel-p2` sind Skizzen aus dem Skript (`kachel-p2` ohne Drehpunkte, Abb. 7.6c). Zerlegen nur mit `zerlege()` aus
   `js/quiz-bild.js` (`hashAnwenden` verträgt das `@` nicht).
