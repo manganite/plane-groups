@@ -61,6 +61,7 @@ const FILES = [
   'lib/common/fonts/ibm-plex-sans-latin-600-normal.woff2',
   'lib/common/fonts/source-serif-4-latin-500-normal.woff2',
   'lib/common/fonts/source-serif-4-latin-600-normal.woff2',
+  'lib/common/js/ablauf.js',
   'lib/common/js/format.js',
   'lib/common/js/help.js',
   'lib/common/js/quiz-core.js',
