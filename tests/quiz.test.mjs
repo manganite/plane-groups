@@ -58,7 +58,7 @@ function abschnitt(anker) {
 function ziele(nr) {
   const k = /** @type {Kapitel} */ (KAPITEL.find((x) => x.nr === nr));
   const a = skript.indexOf(`<section id="${k.anker}"`);
-  // bis zum nächsten Kapitel im Skript (nicht nur im Quiz: Kap. 8 hat noch keine Fragen)
+  // bis zum nächsten Kapitel im Skript
   const h2 = skript.indexOf('<h2><span class="nr">', skript.indexOf('<h2>', a) + 4);
   const b = h2 > 0 ? h2 : skript.indexOf('</article>');
   // ganzes Kapitel als Vertiefung (data-level am Kapitel): alle Lernziele gehören zur Vertiefung
