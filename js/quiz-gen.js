@@ -9,6 +9,7 @@ import { koordText } from './zustand.js';
 import { symbolHTML } from './text.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { OPERATIONEN, verknuepfe, istGruppe, nichtAbgeschlossen, teilmengen, untergruppen, symbolVon } from './punktoperationen.js';
+import { FLUSSDIAGRAMM } from './bestimmen.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Generator, Frageinhalt, Stufe, Status } from '../lib/common/js/quiz-core.js' */
@@ -16,6 +17,7 @@ import { OPERATIONEN, verknuepfe, istGruppe, nichtAbgeschlossen, teilmengen, unt
 /** @import { System, Wyckoff } from './ebenengruppen.js' */
 /** @import { Vorgabe } from './vorgaben.js' */
 /** @import { PG } from './punktoperationen.js' */
+/** @import { Knoten, Leitfrage } from './bestimmen.js' */
 /**
  * Element an gegebener Lage (Kap. 4): Spiegel- oder Gleitspiegellinie x = c bzw. y = c, Drehpunkt.
  * @typedef {{ art: 'm' | 'g', achse: 'x' | 'y', c: number } | { art: '2', punkt: Vec2 }} ElementLage
@@ -671,5 +673,81 @@ export const REIHENFOLGE = {
   },
 };
 
+// ------------------------------------------------------------------ Antworten auf die Leitfragen → Ebenengruppe (Kap. 8)
+// Ein Muster ist nur durch die Antworten auf die Leitfragen beschrieben, die das Flussdiagramm (js/bestimmen.js)
+// auf dem Weg zu seiner Gruppe stellt; gesucht ist die Gruppe. Die Antworten jeder Gruppe kommen aus ihren
+// Symmetrieelementen (js/symmetrie.js), wie in tests/bestimmen.test.mjs. Ablenker: die Gruppen, deren eigene
+// Antworten auf diese Fragen am wenigsten abweichen, zuerst die mit gleicher höchster Zähligkeit, dann aus demselben
+// Kristallsystem, dann die mit bzw. ohne Drehpunkte wie die Gruppe; der Hinweis nennt
+// die erste Leitfrage, die sie anders beantworten.
+/** Antworten der Ebenengruppe auf die Leitfragen. @param {string} symbol @returns {{ n: string, m: boolean, g: boolean, nichtAuf: boolean, auf: boolean }} */
+export function leitAntworten(symbol) {
+  const e = elemente(gruppe(symbol));
+  const spiegel = e.linien.filter((l) => l.art === 'spiegel');
+  /** @param {Vec2} p */
+  const aufSpiegel = (p) => spiegel.some((l) => Math.abs((p[0] - l.punkt[0]) * l.richtung[1] - (p[1] - l.punkt[1]) * l.richtung[0]) < 1e-6);
+  return {
+    n: String(Math.max(1, ...e.drehpunkte.map((d) => d.n))),
+    m: spiegel.length > 0,
+    g: e.linien.some((l) => l.art === 'gleit'), // eine Gleitung auf einer Spiegellinie führt elemente() als Spiegellinie
+    nichtAuf: e.drehpunkte.some((d) => !aufSpiegel(d.punkt)),
+    auf: e.drehpunkte.some((d) => aufSpiegel(d.punkt)),
+  };
+}
+/** Weg einer Gruppe durch das Diagramm: die gestellten Fragen in Reihenfolge. @param {string} symbol @returns {Leitfrage[]} */
+export function leitWeg(symbol) {
+  const a = leitAntworten(symbol);
+  /** @type {Leitfrage[]} */
+  const weg = [];
+  /** @type {Knoten} */
+  let k = FLUSSDIAGRAMM;
+  while (typeof k !== 'string') {
+    weg.push(k.frage);
+    if ('zweige' in k) k = k.zweige[/** @type {'1'} */ (a.n)]; else k = a[k.frage] ? k.ja : k.nein;
+  }
+  return weg;
+}
+/** Beobachtung als Satz. @param {Leitfrage} f @param {string | boolean} w */
+function beobachtung(f, w) {
+  switch (f) {
+    case 'n': return w === '1' ? 'Es gibt keinen Drehpunkt.' : `Der Drehpunkt höchster Zähligkeit ist ${w}-zählig.`;
+    case 'm': return w ? 'Es gibt Spiegellinien.' : 'Es gibt keine Spiegellinie.';
+    case 'g': return w ? 'Es gibt Gleitspiegellinien.' : 'Es gibt keine Gleitspiegellinie.';
+    case 'nichtAuf': return w ? 'Mindestens ein Drehpunkt liegt auf keiner Spiegellinie.' : 'Alle Drehpunkte liegen auf Spiegellinien.';
+    default: return w ? 'Mindestens ein Drehpunkt liegt auf einer Spiegellinie.' : 'Kein Drehpunkt liegt auf einer Spiegellinie.';
+  }
+}
+/** @satisfies {Generator} */
+export const LEITFRAGEN_GEN = {
+  id: 'leitfragen', kapitel: 8, stufen: [2], status: 'entwurf',
+  params: () => ALLE,
+  make(g) {
+    const weg = leitWeg(g);
+    const a = leitAntworten(g);
+    /** @param {string} x */
+    const abweichend = (x) => { const b = leitAntworten(x); return weg.filter((f) => b[f] !== a[f]); };
+    const ab = ALLE.filter((x) => x !== g)
+      .map((x) => {
+        const b = leitAntworten(x);
+        // Rang: gleiche höchste Zähligkeit, gleiches Kristallsystem, Drehpunkte ja/nein wie die Gruppe
+        const r = (b.n === a.n ? 0 : 4) + (ebenengruppe(x).system === ebenengruppe(g).system ? 0 : 2) + ((b.n === '1') === (a.n === '1') ? 0 : 1);
+        return { x, r, d: abweichend(x).length, i: ALLE.indexOf(x) };
+      })
+      .sort((p, q) => p.r - q.r || p.d - q.d || p.i - q.i)
+      .slice(0, 3).map((p) => p.x);
+    return {
+      typ: 'einfach',
+      lernziel: 'die Ebenengruppe eines periodischen Musters mit den Leitfragen des Flussdiagramms bestimmen',
+      frage: `Beim Bestimmen eines periodischen Musters mit dem Flussdiagramm ergibt sich: ${weg.map((f) => beobachtung(f, a[f])).join(' ')} Welche Ebenengruppe hat das Muster?`,
+      antworten: [g, ...ab].map(S),
+      richtig: [0],
+      hinweise: [null, ...ab.map((x) => { const f = abweichend(x)[0]; return `In ${S(x)} gilt dagegen: ${beobachtung(f, leitAntworten(x)[f])}`; })],
+      erklaerung: `Im Flussdiagramm führen diese ${['', '', 'zwei', 'drei', 'vier'][weg.length]} Antworten zu ${S(g)}; weitere Leitfragen stellt es auf diesem Weg nicht. ${S(g)} hat ${MERKMALE[g]}.`,
+      skript: 'flussdiagramm', app: `#m=eg&g=${g}`,
+      quelle: 'Skript, Abschn. 8.2 und 8.3, Abb. 8.1; Symmetrieelemente aus den Daten der App',
+    };
+  },
+};
+
 /** @type {Generator[]} */
-export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, UNTERGRUPPE, MUSTER, KOORDINATEN, GLEIT_UNGENANNT, REIHENFOLGE];
+export const GENERATOREN = [DIAGRAMM, PUNKTGRUPPE, LAGE, STRUKTUR, VERBAND, PARKETT, UNTERGRUPPE, MUSTER, KOORDINATEN, GLEIT_UNGENANNT, REIHENFOLGE, LEITFRAGEN_GEN];
