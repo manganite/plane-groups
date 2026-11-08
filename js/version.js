@@ -1,2 +1,2 @@
-// Version der App (Semantic Versioning). Gleich in sw.js, CHANGELOG.md und CITATION.cff (tests/release.test.mjs).
-export const VERSION = '1.1.0';
+// Version der App (Semantic Versioning). Gleich in sw.js und CHANGELOG.md (geprüft von tests/release.test.mjs) und in CITATION.cff (von Hand).
+export const VERSION = '1.2.0';

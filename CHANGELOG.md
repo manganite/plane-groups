@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-08
+
+Hilfeseite mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente; Abschnitt „Experimente“ mit festen und erzeugten Lernexperimenten, Stand wie im Quiz; Skript Kap. 8 „Ebenengruppen bestimmen“ mit Quizfragen, Signatur nach Conway als eigenes Kapitel 9; Gleitspiegelung im Skript genauer; Quiz nach der Gegenprüfung; Moduswahl mit der Tastatur; eine Prüfung für Link und Speicher; Ansage von Symbolen für Screenreader und Kontraste nach WCAG 2.2; gemeinsame Grundlage v0.15.0.
+
 ### Hinzugefügt
 
 - **Hilfeseite** (crystallography-common#24, #56): „?“ in der Kopfzeile führt jetzt zur Seite `hilfe.html`, aufgebaut wie das Skript. Je Modus die Erste Schritte als Anleitung, jeder Schritt mit einem Bild der Bedienung (Ausschnitt, das Bedienelement umrahmt) und „In der App zeigen“; danach die Experimente als Liste mit ihrer Frage und „In der App ausprobieren“, das die App öffnet und das Experiment startet. Die Erste Schritte erscheinen in der App weiter beim ersten Aufruf eines Modus, „?“ öffnet sie nicht mehr. Bilder erzeugt `tools/common/hilfe-bilder.mjs`; ein Test prüft, dass Bilder und abgebildete Bedienelemente da sind.
@@ -126,7 +130,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/manganite/plane-groups/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/manganite/plane-groups/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/manganite/plane-groups/compare/v0.1.0...v1.0.0
