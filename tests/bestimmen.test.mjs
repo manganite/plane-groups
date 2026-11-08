@@ -160,3 +160,19 @@ test('Quiz Kap. 8: Aussagen der Fragen bs-… stimmen mit den Elementen', () => 
     assert.deepEqual([...new Set(e.linien.filter((l) => l.art === 'gleit').map((l) => l.punkt[1]))].sort(), [0, 0.5, 1]);
   }
 });
+
+// Quiz Kap. 8 und Experimente: Jede zitierte Leitfrage („…?“) steht im Wortlaut der Daten (LEITFRAGEN).
+test('Zitierte Leitfragen in Quiz und Experimenten im Wortlaut der Daten', async () => {
+  const { BANK } = await import('../js/quiz-bank.js');
+  const { ABLAEUFE } = await import('../js/hilfetexte.js');
+  const lang = new Set(Object.values(LEITFRAGEN).map((l) => l.lang));
+  const texte = [
+    ...BANK.filter((q) => q.id.startsWith('bs-')).map((q) => JSON.stringify([q.frage, q.antworten, q.hinweise, q.erklaerung])),
+    JSON.stringify(ABLAEUFE),
+  ];
+  let n = 0;
+  for (const t of texte) {
+    for (const [, z] of t.matchAll(/„([^“]*\?)“/g)) { assert.ok(lang.has(z), `nicht im Wortlaut: „${z}“`); n++; }
+  }
+  assert.ok(n >= 6, `${n} Zitate geprüft`);
+});
