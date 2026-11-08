@@ -147,8 +147,9 @@ für diese App gilt.
   - Kein Inhalt, bleibt im Code: Formen der Motive und Ornamente (`motive.js`, `ORNAMENTE`, `FAHNE` in
     `zeichnung.js`; Zeichnungsgeometrie, Ort der Ornamente klärt #104), Schriften in `skizzen.js`, die
     Link-Tabelle `STEREO_HASH` in `verweise.js` (Schnittstelle zur Stereo-App, nicht Fachinhalt).
-  - `hilfe-daten.js` stellt nur zusammen (Modi, Erste Schritte, Reihenfolge der Experimente mit den erzeugten aus
-    `experimente.js`); App und Hilfeseite nehmen die Liste `EXPERIMENTE` von dort, damit die Reihenfolge an einem Ort steht.
+  - `hilfe-daten.js` ist Code, keine Datendatei (Wahl beim Umsetzen, 8.11.2026): Sie stellt Modi, Erste Schritte und
+    die Experimente zusammen und ordnet die erzeugten aus `experimente.js` ein (`findIndex`, `slice`). App und
+    Hilfeseite nehmen die Liste `EXPERIMENTE` von dort, damit die Reihenfolge an einem Ort steht.
   - `herkunft.js`, `warum.js`, `text.js` setzen Sätze aus berechneten Teilen zusammen (Lage, Operation,
     Winkel); dort gibt es keine festen Texte, die sich als Daten herauslösen liessen.
 
