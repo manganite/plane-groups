@@ -719,7 +719,7 @@ function beobachtung(f, w) {
 }
 /** @satisfies {Generator} */
 export const LEITFRAGEN_GEN = {
-  id: 'leitfragen', kapitel: 8, stufen: [2], status: 'entwurf',
+  id: 'leitfragen', kapitel: 8, stufen: [2], status: 'geprüft',
   params: () => ALLE,
   make(g) {
     const weg = leitWeg(g);
