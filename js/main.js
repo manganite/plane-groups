@@ -940,7 +940,9 @@ function init() {
     experimente: () => { const d = abschnitt('sec-experimente'); d.open = true; d.scrollIntoView({ block: 'nearest' }); },
   };
   const einstieg = ablaufKarte($('ablauf'), ERSTE_SCHRITTE, { anwenden, adresse, aktionen, skriptUrl, liste: false, beiAbschluss: () => introZu() });
-  const experimente = ablaufKarte($('experimente'), [...ABLAEUFE, ...ERZEUGTE], { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
+  // Reihenfolge nach den Kapiteln des Skripts: die erzeugten Aufgaben zur Zähligkeit direkt nach „Allgemeine und spezielle Lage“
+  const nachLage = ABLAEUFE.findIndex((x) => x.id === 'lage') + 1;
+  const experimente = ablaufKarte($('experimente'), [...ABLAEUFE.slice(0, nachLage), ...ERZEUGTE, ...ABLAEUFE.slice(nachLage)], { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
   einstieg.modus(z.modus); experimente.modus(z.modus);
   introAbgleichen = () => {
     if (z.modus === introModus) return;

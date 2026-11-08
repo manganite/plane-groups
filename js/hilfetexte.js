@@ -112,7 +112,7 @@ export const ERSTE_SCHRITTE = [
         handlung: { text: '<i>p</i>4<i>gm</i> wählen', hash: '#m=eg&g=p4gm' } },
       { frage: '<b>Fähnchen ziehen.</b> Alle Bilder folgen. Auf einer Spiegellinie oder einem Drehpunkt rastet es ein: spezielle Lage, weniger Bilder.',
         handlung: { text: 'Auf eine Spiegellinie setzen', hash: '#m=eg&g=p4gm&x=0.15&y=0.65' } },
-      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche zu Lagen, Gleitspiegellinien und zur asymmetrischen Einheit: erst vermuten, dann ausprobieren.',
+      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche, etwa zu Gleitspiegellinien, Drehpunkten, Lagen und zur asymmetrischen Einheit: erst vermuten, dann ausprobieren.',
         handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
     ],
   },
@@ -123,20 +123,90 @@ export const ERSTE_SCHRITTE = [
         handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' } },
       { frage: '<b>Selbst bauen.</b> Mit „Hinzufügen“ über der Struktur neue Motive setzen, mit „Wählen und ziehen“ verschieben; unter „Gitter“ Achsenverhältnis und Winkel ändern. Die App bestimmt die Symmetrie jedes Mal neu.',
         handlung: { text: '„Hinzufügen“ wählen', aktion: 'hinzufuegen' } },
-      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche: gleiche Atome, gedrehte Motive, Graphen. Erst vermuten, dann ausprobieren.',
+      { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche, etwa zu Gitterpunkten, entfernten Motiven, Mauerwerk und Farbe. Erst vermuten, dann ausprobieren.',
         handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
     ],
   },
 ];
 
 /**
- * Lernexperimente im Abschnitt „Experimente“ (lib/common/js/ablauf.js, Leitfaden Abschn. 5.3), je Modus drei: erst
- * vermuten, dann die Handlung (Link-Adresse), dann Beobachtung und Erklärung. Themen: Lage und Zähligkeit,
- * Spiegel- und Gleitspiegellinie, asymmetrische Einheit, Zentrierung durch gleiche Atome, Atome und Gitterpunkte.
- * tests/ablauf.test.mjs prüft Adressen, Anker und den Inhalt (Zähligkeit, Gruppe) gegen die App.
+ * Lernexperimente im Abschnitt „Experimente“ (lib/common/js/ablauf.js, Leitfaden Abschn. 5.3): erst vermuten,
+ * dann die Handlung (Link-Adresse), dann Beobachtung und Erklärung. Je Modus 8 bis 12 Einträge zusammen mit den
+ * erzeugten (js/experimente.js), geordnet nach den Kapiteln des Skripts; jedes spricht eine Fehlvorstellung an,
+ * die im Kursmaterial auftaucht (#109). tests/ablauf.test.mjs prüft Adressen, Anker und den Inhalt (Zähligkeit,
+ * Gruppe, Lage der Elemente) gegen die App.
  * @type {Ablauf[]}
  */
 export const ABLAEUFE = [
+  // ------------------------------------------------------------------ Modus „Ebenengruppen“
+  {
+    id: 'gleitung', modus: 'eg', titel: 'Wohin führt eine Gleitspiegelung?',
+    schritte: [
+      {
+        frage: 'In <i>pg</i> liegt ein Fähnchen nahe der Gleitspiegellinie bei <i>x</i> = ½. Wo liegt sein Bild unter der Gleitspiegelung an dieser Linie?',
+        vermutung: ['genau gegenüber, auf gleicher Höhe', 'gegenüber, um eine halbe Gitterperiode entlang der Linie verschoben', 'auf derselben Seite, nur entlang der Linie verschoben'], richtig: 1,
+        handlung: { text: 'Fähnchen nahe an die Linie setzen', hash: '#m=eg&g=pg&x=2/5&y=1/4' },
+        beobachtung: 'Das Bild bei (⅗, ¾) liegt jenseits der gestrichelten Linie, ist ein Spiegelbild (andere Farbe) und um <i>b</i>/2 entlang der Linie verschoben. Genau gegenüber liegt kein Fähnchen.',
+        erklaerung: 'Eine Gleitspiegelung spiegelt und verschiebt um die halbe Gitterperiode entlang der Linie. Erst zweimal ausgeführt ergibt sie eine Translation des Gitters. Wer sie für eine Spiegelung hält, sucht das Bild an der falschen Stelle.',
+        skript: 'gleitung',
+      },
+    ],
+  },
+  {
+    id: 'zwei-spiegel', modus: 'eg', titel: 'Zwei Spiegelungen nacheinander',
+    schritte: [
+      {
+        frage: 'In <i>pm</i> laufen parallele Spiegellinien bei <i>x</i> = 0 und <i>x</i> = ½. Was ergibt die Spiegelung an der einen, gefolgt von der Spiegelung an der anderen?',
+        vermutung: ['die Identität: Zweimal spiegeln hebt sich auf', 'eine Translation um <i>a</i>, doppelt so weit wie der Abstand der Linien', 'eine Drehung um 180°'], richtig: 1,
+        handlung: { text: 'Herkunft der Spiegellinie bei <i>x</i> = ½ zeigen', hash: '#m=eg&g=pm&warum=1&erkl=m;1/2,0;0,1' },
+        beobachtung: 'Die App zeigt: Die Spiegelung an <i>x</i> = ½ ist die Spiegelung an <i>x</i> = 0, gefolgt von der Translation um <i>a</i>.',
+        erklaerung: 'Daraus folgt: Spiegelt man zuerst an <i>x</i> = 0 und dann an <i>x</i> = ½, heben sich die beiden Spiegelungen an <i>x</i> = 0 auf, und es bleibt die Translation um <i>a</i>, doppelt so weit wie der Abstand der Linien. Nur zweimal an derselben Linie gespiegelt ergibt die Identität. Parallele Spiegellinien folgen deshalb im Abstand der halben kürzesten Translation senkrecht zu ihnen aufeinander, nicht erst im Abstand der ganzen.',
+        skript: 'verknuepfung',
+      },
+    ],
+  },
+  {
+    id: 'drehpunkte-p6', modus: 'eg', titel: 'Drehpunkte verschiedener Zähligkeit',
+    schritte: [
+      {
+        frage: 'In <i>p</i>6 liegen auf den Ecken der Zelle 6-zählige Drehpunkte. Welche Zähligkeit hat der Drehpunkt bei (⅔, ⅓) im Innern der Zelle?',
+        vermutung: ['6', '3', '2'], richtig: 1,
+        handlung: { text: 'Herkunft des Drehpunkts zeigen', hash: '#m=eg&g=p6&warum=1&erkl=3;2/3,1/3' },
+        beobachtung: 'Er ist 3-zählig. Die App zeigt, woher er kommt: Drehung um 120° um den Ursprung, gefolgt von der Translation um <i>a</i>.',
+        erklaerung: 'Eine Drehung und eine Translation ergeben eine Drehung um denselben Winkel um einen verschobenen Punkt. Aus den Drehungen um 120° und 180° um den 6-zähligen Drehpunkt entstehen so Drehpunkte kleinerer Zähligkeit, wo keiner hineingesteckt wurde.',
+        skript: 'verknuepfung',
+      },
+      {
+        frage: 'Und der Drehpunkt in der Mitte der Zellkante bei (½, 0)?',
+        vermutung: ['6', '3', '2'], richtig: 2,
+        handlung: { text: 'Herkunft des Drehpunkts zeigen', hash: '#m=eg&g=p6&warum=1&erkl=2;1/2,0' },
+        beobachtung: 'Er ist 2-zählig: Drehung um 180° um den Ursprung, gefolgt von der Translation um <i>a</i>. Er liegt in der Mitte der Translation.',
+        erklaerung: 'Eine Elementarzelle von <i>p</i>6 enthält deshalb drei Sorten Drehpunkte: 6-zählige auf den Ecken, 3-zählige in den Mitten der beiden gleichseitigen Dreiecke der Zelle, bei (⅓, ⅔) und (⅔, ⅓), 2-zählige auf den Kantenmitten und in der Zellmitte.',
+        skript: 'verknuepfung',
+      },
+    ],
+  },
+  {
+    id: 'punktgruppe', modus: 'eg', titel: 'Punktgruppe einer Ebenengruppe',
+    schritte: [
+      {
+        frage: '<i>pg</i> hat keine einzige Spiegellinie, nur Gleitspiegellinien. Welche Punktgruppe hat <i>pg</i>?',
+        vermutung: ['1, weil es keine Spiegellinie gibt', '<i>m</i>', '<i>g</i>'], richtig: 1,
+        handlung: { text: '<i>pg</i> zeigen', hash: '#m=eg&g=pg' },
+        beobachtung: 'Die Kenndaten unter den Tafeln nennen die Punktgruppe <i>m</i>.',
+        erklaerung: 'Die Punktgruppe enthält die Operationen ohne ihre Verschiebungen. Ohne die Verschiebung um <i>b</i>/2 wird aus der Gleitspiegelung eine Spiegelung. Für die Punktgruppe zählt nur die Richtung eines Elements, nicht seine Lage und nicht die Gleitkomponente; ein Symbol <i>g</i> gibt es in Punktgruppen deshalb nicht.',
+        skript: 'punktgruppe-system',
+      },
+      {
+        frage: 'Und die Punktgruppe von <i>p</i>4<i>gm</i>?',
+        vermutung: ['4<i>mm</i>', '4', '4<i>m</i>'], richtig: 0,
+        handlung: { text: '<i>p</i>4<i>gm</i> zeigen', hash: '#m=eg&g=p4gm' },
+        beobachtung: 'Die Kenndaten nennen 4<i>mm</i>.',
+        erklaerung: 'Aus dem Symbol: Zellbuchstaben weglassen und jedes <i>g</i> durch <i>m</i> ersetzen. Eine Punktgruppe 4<i>m</i> gibt es nicht: Eine Drehung um 90° und eine Spiegelung ergeben zusammen eine Spiegelung an einer Linie unter 45° zur ersten; es gibt also immer zwei Sorten Spiegellinien.',
+        skript: 'punktgruppe-system',
+      },
+    ],
+  },
   {
     id: 'lage', modus: 'eg', titel: 'Allgemeine und spezielle Lage',
     schritte: [
@@ -155,19 +225,6 @@ export const ABLAEUFE = [
         beobachtung: 'An einer Stelle: Alle 8 Bilder liegen übereinander, denn alle 8 Operationen halten das Objekt fest.',
         erklaerung: 'Lagesymmetrie 4<i>mm</i> mit 8 Operationen, also 8 / 8 = 1.',
         skript: 'wyckoff',
-      },
-    ],
-  },
-  {
-    id: 'gleitspiegel', modus: 'eg', titel: 'Spiegellinie oder Gleitspiegellinie',
-    schritte: [
-      {
-        frage: 'In <i>p</i>4<i>gm</i> gehen durch jeden 4-zähligen Drehpunkt zwei diagonale Linien. Sind es Spiegellinien?',
-        vermutung: ['Ja, Spiegellinien', 'Nein, Gleitspiegellinien'], richtig: 1,
-        handlung: { text: '<i>p</i>4<i>gm</i> zeigen', hash: '#m=eg&g=p4gm' },
-        beobachtung: 'Gleitspiegellinien (gestrichelt). Die Spiegellinien (durchgezogen) gehen nur durch die 2-zähligen Drehpunkte.',
-        erklaerung: 'Darin unterscheidet sich <i>p</i>4<i>gm</i> von <i>p</i>4<i>mm</i>, wo durch jeden 4-zähligen Drehpunkt Spiegellinien gehen.',
-        skript: 'leitfragen',
       },
     ],
   },
@@ -193,6 +250,67 @@ export const ABLAEUFE = [
     ],
   },
   {
+    id: 'p3m1-p31m', modus: 'eg', titel: '<i>p</i>3<i>m</i>1 oder <i>p</i>31<i>m</i>',
+    schritte: [
+      {
+        frage: '<i>p</i>31<i>m</i> hat 3-zählige Drehpunkte und Spiegellinien. Liegen alle 3-zähligen Drehpunkte auf Spiegellinien?',
+        vermutung: ['Ja, alle', 'Nein, nur ein Teil'], richtig: 1,
+        handlung: { text: '<i>p</i>31<i>m</i> zeigen', hash: '#m=eg&g=p31m' },
+        beobachtung: 'Nur die Drehpunkte auf den Ecken liegen auf Spiegellinien. Die beiden im Innern der Zelle, bei (⅓, ⅔) und (⅔, ⅓), liegen auf keiner.',
+        erklaerung: 'Die Spiegellinien von <i>p</i>31<i>m</i> laufen entlang der Zellkanten und der kurzen Diagonalen; die Drehpunkte im Innern liegen zwischen ihnen.',
+        skript: 'symbol',
+      },
+      {
+        frage: 'Und in <i>p</i>3<i>m</i>1?',
+        vermutung: ['Ja, alle', 'Nein, nur ein Teil'], richtig: 0,
+        handlung: { text: '<i>p</i>3<i>m</i>1 zeigen', hash: '#m=eg&g=p3m1' },
+        beobachtung: 'Alle drei Sorten von 3-zähligen Drehpunkten liegen auf Schnittpunkten von Spiegellinien.',
+        erklaerung: 'Daran unterscheidet man die beiden Gruppen, auch im Flussdiagramm zur Bestimmung (Leitfrage 4). Im Symbol zeigt es die Stelle des <i>m</i>: Die Spiegellinien von <i>p</i>3<i>m</i>1 stehen senkrecht auf den Zellkanten, die von <i>p</i>31<i>m</i> laufen entlang.',
+        skript: 'leitfragen',
+      },
+    ],
+  },
+  {
+    id: 'gleitspiegel', modus: 'eg', titel: 'Spiegellinie oder Gleitspiegellinie',
+    schritte: [
+      {
+        frage: 'In <i>p</i>4<i>gm</i> gehen durch jeden 4-zähligen Drehpunkt zwei diagonale Linien. Sind es Spiegellinien?',
+        vermutung: ['Ja, Spiegellinien', 'Nein, Gleitspiegellinien'], richtig: 1,
+        handlung: { text: '<i>p</i>4<i>gm</i> zeigen', hash: '#m=eg&g=p4gm' },
+        beobachtung: 'Gleitspiegellinien (gestrichelt). Die Spiegellinien (durchgezogen) gehen nur durch die 2-zähligen Drehpunkte.',
+        erklaerung: 'Darin unterscheidet sich <i>p</i>4<i>gm</i> von <i>p</i>4<i>mm</i>, wo durch jeden 4-zähligen Drehpunkt Spiegellinien gehen.',
+        skript: 'leitfragen',
+      },
+    ],
+  },
+  // ------------------------------------------------------------------ Modus „Gitter und Basis“
+  {
+    id: 'gitterpunkte', modus: 'struktur', titel: 'Gitterpunkte in der Zelle zählen',
+    schritte: [
+      {
+        frage: 'Im rechteckig zentrierten Gitter liegt ein Gitterpunkt auf jeder Ecke der konventionellen Zelle und einer in ihrer Mitte. Wie viele Gitterpunkte gehören zur Zelle?',
+        vermutung: ['1', '2', '5'], richtig: 1,
+        handlung: { text: 'Zentriertes Gitter laden', hash: '#m=struktur&v=zentriert&sel=0&sbind=0' },
+        beobachtung: 'Auf und in der Zelle liegen fünf Punkte: vier auf den Ecken, einer in der Mitte. Die Kenndaten nennen 2 Gitterpunkte in der Zelle.',
+        erklaerung: 'Ein Punkt auf einer Ecke gehört zu vier Zellen und zählt zu einem Viertel, einer im Innern ganz: 4 · ¼ + 1 = 2. Die zentrierte Zelle ist deshalb doppelt so gross wie eine primitive.',
+        skript: 'elementarzelle',
+      },
+    ],
+  },
+  {
+    id: 'graphen', modus: 'struktur', titel: 'Atome und Gitterpunkte',
+    schritte: [
+      {
+        frage: 'Graphen besteht nur aus Kohlenstoffatomen. Liegt auf jedem Atom ein Gitterpunkt?',
+        vermutung: ['Ja', 'Nein, die Zelle enthält zwei Atome'], richtig: 1,
+        handlung: { text: 'Graphen laden', hash: '#m=struktur&v=graphen' },
+        beobachtung: 'Die Zelle enthält zwei Atome. Die Ebenengruppe ist <i>p</i>6<i>mm</i>.',
+        erklaerung: 'Die Wabe ist kein Gitter: Die Verschiebung von einem Atom zu seinem Nachbarn bildet die Struktur nicht auf sich ab. Hexagonales Gitter mit zwei Atomen in der Basis.',
+        skript: 'basis',
+      },
+    ],
+  },
+  {
     id: 'zentrierung', modus: 'struktur', titel: 'Gleiche Atome, zentrierte Zelle',
     schritte: [
       {
@@ -214,6 +332,40 @@ export const ABLAEUFE = [
     ],
   },
   {
+    id: 'erniedrigen', modus: 'struktur', titel: 'Motive entfernen',
+    schritte: [
+      {
+        frage: 'Vier Fähnchen je Zelle, um die Zellmitte jeweils um 90° gedreht. Welche Ebenengruppe hat das Muster?',
+        vermutung: ['<i>p</i>4', '<i>p</i>4<i>mm</i>', '<i>p</i>2'], richtig: 0,
+        handlung: { text: 'Muster laden', hash: '#m=struktur&v=quadratisch&ba=1&gamma=90&basis=fahne,0,3/10,1/5,0;fahne,0,4/5,3/10,270;fahne,0,7/10,4/5,180;fahne,0,1/5,7/10,90&sae=1' },
+        beobachtung: '<i>p</i>4: 4-zählige Drehpunkte in der Zellmitte und auf den Ecken, 2-zählige auf den Kantenmitten, keine Spiegellinien. Die asymmetrische Einheit ist ein Viertel der Zelle.',
+        erklaerung: 'Fähnchen haben keine eigene Symmetrie; Spiegellinien gibt es deshalb nur, wenn auch Spiegelbilder vorkommen. Hier sind alle Fähnchen nur gedreht.',
+        skript: 'gitter-und-motiv',
+      },
+      {
+        frage: 'Nun entfernt man die beiden Fähnchen, deren Stange waagrecht liegt. Was bleibt von der Symmetrie?',
+        vermutung: ['<i>p</i>4 bleibt', '2-zählige Drehpunkte (<i>p</i>2)', 'nur Translationen (<i>p</i>1)'], richtig: 1,
+        handlung: { text: 'Zwei Fähnchen entfernen', hash: '#m=struktur&v=quadratisch&ba=1&gamma=90&basis=fahne,0,3/10,1/5,0;fahne,0,7/10,4/5,180&sae=1' },
+        beobachtung: '<i>p</i>2: Die 4-zähligen Drehpunkte sind nur noch 2-zählig. Die Zelle bleibt gleich gross, die asymmetrische Einheit wird doppelt so gross, die halbe Zelle.',
+        erklaerung: 'Die beiden verbleibenden Fähnchen gehen durch eine Drehung um 180° um die Zellmitte auseinander hervor; diese Drehung bleibt eine Symmetrieoperation, die um 90° nicht. Weniger Motive heisst also nicht keine Symmetrie: Es bleibt eine Untergruppe.',
+        skript: 'gitter-und-motiv',
+      },
+    ],
+  },
+  {
+    id: 'metrik', modus: 'struktur', titel: 'Quadratische Metrik, rechteckiges System',
+    schritte: [
+      {
+        frage: 'Im Läuferverband sind die kürzesten Translationen gleich lang und stehen senkrecht aufeinander: Das Gitter hat die Metrik eines quadratischen Gitters. Hat der Verband deshalb 4-zählige Drehpunkte?',
+        vermutung: ['Ja, die Gruppe ist <i>p</i>4<i>mm</i>', 'Nein, er bleibt <i>c</i>2<i>mm</i>'], richtig: 1,
+        handlung: { text: 'Läuferverband mit Elementen zeigen', hash: '#m=struktur&v=laeufer' },
+        beobachtung: '<i>c</i>2<i>mm</i>: nur 2-zählige Drehpunkte. Auch die konventionelle Zelle ist quadratisch, weil die Steine samt Fuge doppelt so lang wie breit sind.',
+        erklaerung: 'Das Kristallsystem folgt aus der Symmetrie, nicht aus der Metrik. Ein Ziegel ist zu einer Drehung um 90° nicht symmetrisch; die Metrik allein erzeugt keine 4-zähligen Drehpunkte.',
+        skript: 'gitter-und-motiv',
+      },
+    ],
+  },
+  {
     id: 'drehen', modus: 'struktur', titel: 'Motiv drehen',
     schritte: [
       {
@@ -227,15 +379,44 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'graphen', modus: 'struktur', titel: 'Atome und Gitterpunkte',
+    id: 'versatz', modus: 'struktur', titel: 'Versetzte Reihen',
     schritte: [
       {
-        frage: 'Graphen besteht nur aus Kohlenstoffatomen. Liegt auf jedem Atom ein Gitterpunkt?',
-        vermutung: ['Ja', 'Nein, die Zelle enthält zwei Atome'], richtig: 1,
+        frage: 'Ziegel ohne Versatz haben <i>p</i>2<i>mm</i>. Jede zweite Reihe wird um eine halbe Steinlänge versetzt. Bleiben die senkrechten Spiegellinien durch die Steinmitten?',
+        vermutung: ['Ja, die Zelle wird zentriert (<i>c</i>2<i>mm</i>)', 'Nein, es bleiben nur Drehpunkte (<i>p</i>2)'], richtig: 0,
+        handlung: { text: 'Läuferverband laden', hash: '#m=struktur&v=laeufer' },
+        beobachtung: '<i>c</i>2<i>mm</i>: Die Spiegellinien bleiben, dazu kommen Gleitspiegellinien entlang der waagrechten Fugen.',
+        erklaerung: 'Eine Steinmitte der versetzten Reihe liegt genau über einer Fuge der Reihe darunter; die Spiegelung an der senkrechten Linie durch sie passt zu beiden Reihen.',
+        skript: 'mauerwerk',
+      },
+      {
+        frage: 'Und wenn jede Reihe gegen die vorige um ein Drittel einer Steinlänge versetzt ist, immer in dieselbe Richtung?',
+        vermutung: ['Es bleibt <i>c</i>2<i>mm</i>', 'Die Spiegellinien verschwinden (<i>p</i>2)'], richtig: 1,
+        handlung: { text: 'Um ein Drittel versetzen', hash: '#m=struktur&v=drittel' },
+        beobachtung: '<i>p</i>2: keine Spiegellinien mehr, nur 2-zählige Drehpunkte.',
+        erklaerung: 'Eine Spiegelung, senkrecht oder waagrecht, würde die Richtung des Versatzes umkehren; die Reihen sind aber alle in dieselbe Richtung versetzt. Es bleiben nur Drehungen um 180°, etwa um die Steinmitten.',
+        skript: 'mauerwerk',
+      },
+    ],
+  },
+  {
+    id: 'farbe', modus: 'struktur', titel: 'Farbe gehört zum Muster',
+    schritte: [
+      {
+        frage: 'Eine Bienenwabe aus zwei Sorten Atomen im Wechsel (h-BN). Ist die Mitte eines Sechsecks ein 6-zähliger Drehpunkt?',
+        vermutung: ['Ja, 6-zählig', 'Nein, nur 3-zählig'], richtig: 1,
+        handlung: { text: 'h-BN laden', hash: '#m=struktur&v=hbn' },
+        beobachtung: '<i>p</i>3<i>m</i>1: Die Sechseckmitten sind 3-zählige Drehpunkte.',
+        erklaerung: 'Eine Drehung um 60° bringt Atome der einen Sorte auf die der anderen. Sie gehört deshalb nicht zur Symmetrie, die um 120° schon.',
+        skript: 'fehler',
+      },
+      {
+        frage: 'Und wenn beide Sorten gleich sind, wie bei Graphen?',
+        vermutung: ['Es bleibt <i>p</i>3<i>m</i>1', 'Es wird <i>p</i>6<i>mm</i>'], richtig: 1,
         handlung: { text: 'Graphen laden', hash: '#m=struktur&v=graphen' },
-        beobachtung: 'Die Zelle enthält zwei Atome. Die Ebenengruppe ist <i>p</i>6<i>mm</i>.',
-        erklaerung: 'Die Wabe ist kein Gitter: Die Verschiebung von einem Atom zu seinem Nachbarn bildet die Struktur nicht auf sich ab. Hexagonales Gitter mit zwei Atomen in der Basis.',
-        skript: 'basis',
+        beobachtung: '<i>p</i>6<i>mm</i>: Die Sechseckmitten sind jetzt 6-zählig.',
+        erklaerung: 'Wer beim Bestimmen die Farbe übersieht, kommt zu dieser höheren Symmetrie. Farben unterscheiden Motive; sie gehören zum Muster.',
+        skript: 'fehler',
       },
     ],
   },
