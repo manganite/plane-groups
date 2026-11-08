@@ -23,7 +23,11 @@ function gueltig(h) {
 
 test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker bekannt', () => {
   assert.deepEqual(pruefeAblaeufe([...ABLAEUFE, ...ERZEUGTE], { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER }), []);
-  for (const m of ['eg', 'struktur']) assert.equal(ABLAEUFE.filter((a) => a.modus === m).length, 3, m);
+  // Ziel (Thomas, 7.11.2026, #109): 8 bis 12 Experimente je Modus, erzeugte mitgezählt
+  for (const m of ['eg', 'struktur']) {
+    const n = [...ABLAEUFE, ...ERZEUGTE].filter((a) => a.modus === m).length;
+    assert.ok(n >= 8 && n <= 12, `${m}: ${n} Experimente`);
+  }
 });
 
 test('Erste Schritte: je Modus ein Ablauf mit 3–4 Bedienschritten, der letzte öffnet die Experimente', () => {
@@ -64,6 +68,55 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
     assert.equal(strukturSymmetrie(zustand(adresse(id, i)).struktur)?.symbol, g, `${id} ${i}`);
   }
   assert.equal(vorgabe('graphen')?.basis.length, 2, 'Graphen: zwei Atome in der Basis');
+  // Ausbau (#109): bestimmte Gruppen der Strukturen
+  for (const [id, i, g] of /** @type {[string, number, string][]} */ ([['erniedrigen', 0, 'p4'], ['erniedrigen', 1, 'p2'], ['versatz', 0, 'c2mm'], ['versatz', 1, 'p2'], ['metrik', 0, 'c2mm'], ['farbe', 0, 'p3m1'], ['farbe', 1, 'p6mm'], ['gitterpunkte', 0, 'c2mm']])) {
+    assert.equal(strukturSymmetrie(zustand(adresse(id, i)).struktur)?.symbol, g, `${id} ${i}`);
+  }
+  // Motive entfernen: dieselbe Zelle (primitiv, gleiche Fläche), die Hälfte der Fähnchen, asymmetrische Einheit doppelt
+  {
+    const [a, b] = [0, 1].map((i) => zustand(adresse('erniedrigen', i)).struktur);
+    assert.equal(b.basis.length * 2, a.basis.length);
+    assert.equal(strukturSymmetrie(a)?.primitiv, 1);
+    assert.equal(strukturSymmetrie(b)?.primitiv, 1);
+    assert.equal(gruppe('p4').ordnung, 2 * gruppe('p2').ordnung);
+    // entfernt sind die um 90° und 270° gedrehten Fähnchen (Mast waagrecht), es bleiben 0° und 180°
+    assert.deepEqual(b.basis.map((e) => Number(e.winkel)).sort(), a.basis.map((e) => Number(e.winkel)).filter((w) => w % 180 === 0).sort());
+  }
+  // Läuferverband: konventionelle Zelle quadratisch, Gruppe ohne 4-zählige Drehpunkte
+  { const v = /** @type {import('../js/vorgaben.js').Vorgabe} */ (vorgabe('laeufer')); assert.equal(v.gitter.ba, 1); assert.equal(Number(v.gitter.gamma), 90); }
+  // Gitterpunkte zählen: zwei Gitterpunkte (Atome) in der konventionellen zentrierten Zelle, Zelle doppelt so gross wie primitiv
+  assert.equal(zustand(adresse('gitterpunkte', 0)).struktur.basis.length, 2);
+  assert.equal(strukturSymmetrie(zustand(adresse('gitterpunkte', 0)).struktur)?.primitiv, 2);
+  // Ebenengruppen: Lage und Zähligkeit der Elemente, wie die Texte sie nennen
+  const { elemente, bahn } = await import('../js/symmetrie.js');
+  const auf = (/** @type {number[]} */ p, /** @type {{ punkt: number[], richtung: number[] }} */ l) => [-1, 0, 1].some((i) => [-1, 0, 1].some((j) => Math.abs((p[0] - l.punkt[0] + i) * l.richtung[1] - (p[1] - l.punkt[1] + j) * l.richtung[0]) < 1e-6));
+  /** @param {string} g */
+  const spiegel = (g) => elemente(gruppe(g)).linien.filter((l) => l.art === 'spiegel');
+  /** @param {string} g @param {number[]} p */
+  const dreh = (g, p) => elemente(gruppe(g)).drehpunkte.find((d) => Math.hypot(d.punkt[0] - p[0], d.punkt[1] - p[1]) < 1e-6)?.n;
+  // p6: (⅔, ⅓) 3-zählig, (½, 0) und (½, ½) 2-zählig, Ecken 6-zählig; die Adressen erklären genau diese Punkte
+  assert.equal(dreh('p6', [2 / 3, 1 / 3]), 3); assert.equal(dreh('p6', [1 / 3, 2 / 3]), 3);
+  assert.equal(dreh('p6', [0.5, 0]), 2); assert.equal(dreh('p6', [0.5, 0.5]), 2); assert.equal(dreh('p6', [0, 0]), 6);
+  assert.equal(zustand(adresse('drehpunkte-p6', 0)).erkl, '3;2/3,1/3');
+  assert.equal(zustand(adresse('drehpunkte-p6', 1)).erkl, '2;1/2,0');
+  // pm: Spiegellinien bei x = 0 und x = ½
+  assert.deepEqual(spiegel('pm').map((l) => l.punkt[0]).sort(), [0, 0.5, 1]);
+  // pg: das Bild des Fähnchens bei (⅗, ¾), keines bei (⅗, ¼); Gleitspiegellinie bei x = ½
+  {
+    const z = zustand(adresse('gleitung', 0));
+    const b = bahn(gruppe('pg'), z.punkt);
+    assert.ok(b.some((r) => Math.hypot(r[0] - 0.6, r[1] - 0.75) < 1e-9) && !b.some((r) => Math.hypot(r[0] - 0.6, r[1] - 0.25) < 1e-9));
+    assert.ok(elemente(gruppe('pg')).linien.some((l) => l.art === 'gleit' && Math.abs(l.punkt[0] - 0.5) < 1e-9 && l.richtung[0] === 0));
+  }
+  // Punktgruppen wie in den Daten
+  const { ebenengruppe } = await import('../js/ebenengruppen.js');
+  assert.equal(ebenengruppe('pg').punktgruppe, 'm'); assert.equal(ebenengruppe('p4gm').punktgruppe, '4mm');
+  // p31m: nur die Drehpunkte auf den Ecken auf Spiegellinien; p3m1: alle
+  for (const [g, alle] of /** @type {[string, boolean][]} */ ([['p31m', false], ['p3m1', true]])) {
+    const d = elemente(gruppe(g)).drehpunkte;
+    assert.equal(d.every((x) => spiegel(g).some((l) => auf(x.punkt, l))), alle, g);
+    if (!alle) assert.deepEqual(d.filter((x) => !spiegel(g).some((l) => auf(x.punkt, l))).map((x) => x.punkt.map((v) => Math.round(v * 3)).join()).sort(), ['1,2', '2,1']);
+  }
 });
 
 test('Erzeugte Experimente: Zähligkeit stimmt für jede Lage mit der App, Bilder nur im Innern der Zelle', async () => {
