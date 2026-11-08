@@ -10,6 +10,7 @@ export const KAPITEL = [
   { nr: 5, titel: 'Die 17 Ebenengruppen', kurz: '17 Ebenengruppen', anker: 'ebenengruppen' },
   { nr: 6, titel: 'Punktlagen', kurz: 'Punktlagen', anker: 'punktlagen' },
   { nr: 7, titel: 'Tapeten, Ornamente und Kunst', kurz: 'Tapeten und Kunst', anker: 'kunst' },
+  { nr: 8, titel: 'Ebenengruppen bestimmen', kurz: 'Bestimmen', anker: 'bestimmen' },
   { nr: 9, titel: 'Die Signatur nach Conway', kurz: 'Signatur nach Conway', anker: 'conway' },
 ];
 

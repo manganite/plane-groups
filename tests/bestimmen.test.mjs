@@ -79,3 +79,44 @@ test('Keine Gleitspiegellinie liegt auf einer Spiegellinie (Skript Abschn. 8.2),
     assert.ok([...linien.values()].some((e) => e.spiegel || e.gleit) === (antworten(d.symbol).m || antworten(d.symbol).g), d.symbol);
   }
 });
+
+// Generator „leitfragen“ (Quiz Kap. 8): Die Sätze der Frage beschreiben die Antworten auf die Leitfragen; mit
+// ihnen führt das Diagramm genau zur richtigen Antwort. Jeder Hinweis nennt eine Antwort, die der Ablenker mit
+// seinen eigenen Elementen gibt und die der Beschreibung widerspricht. Die Sätze werden hier unabhängig gelesen.
+test('Quiz-Generator „leitfragen“: Beschreibung führt zur richtigen Gruppe, Hinweise widersprechen ihr', async () => {
+  const { LEITFRAGEN_GEN } = await import('../js/quiz-gen.js');
+  /** @type {[RegExp, string, string | boolean][]} */
+  const SAETZE = [
+    [/^Es gibt keinen Drehpunkt\.$/i, 'n', '1'],
+    [/^Es gibt keine Spiegellinie\.$/i, 'm', false], [/^Es gibt Spiegellinien\.$/i, 'm', true],
+    [/^Es gibt keine Gleitspiegellinie\.$/i, 'g', false], [/^Es gibt Gleitspiegellinien\.$/i, 'g', true],
+    [/^Mindestens ein Drehpunkt liegt auf keiner Spiegellinie\.$/i, 'nichtAuf', true], [/^Alle Drehpunkte liegen auf Spiegellinien\.$/i, 'nichtAuf', false],
+    [/^Mindestens ein Drehpunkt liegt auf einer Spiegellinie\.$/i, 'auf', true], [/^Kein Drehpunkt liegt auf einer Spiegellinie\.$/i, 'auf', false],
+  ];
+  /** @param {string} satz @returns {[string, string | boolean]} */
+  const lies = (satz) => {
+    const z = /^Der Drehpunkt höchster Zähligkeit ist (\d)-zählig\.$/i.exec(satz);
+    if (z) return ['n', z[1]];
+    const t = SAETZE.find(([re]) => re.test(satz));
+    assert.ok(t, satz);
+    return [t[1], t[2]];
+  };
+  const ohneTags = (/** @type {string} */ s) => s.replace(/<[^>]+>/g, '');
+  for (const d of EBENENGRUPPEN) {
+    const q = LEITFRAGEN_GEN.make(d.symbol);
+    const teil = /** @type {RegExpExecArray} */ (/ergibt sich: (.*) Welche Ebenengruppe/.exec(q.frage))[1];
+    /** @type {Record<string, string | boolean>} */
+    const beschr = Object.fromEntries(teil.split(/(?<=\.) /).map(lies));
+    /** @type {Knoten} */
+    let k = FLUSSDIAGRAMM;
+    while (typeof k !== 'string') k = 'zweige' in k ? k.zweige[/** @type {'1'} */ (beschr.n)] : (assert.ok(k.frage in beschr, `${d.symbol}: ${k.frage}`), beschr[k.frage] ? k.ja : k.nein);
+    assert.equal(ohneTags(/** @type {string} */ (q.antworten[0])), d.symbol);
+    assert.equal(new Set(q.antworten.map((a) => ohneTags(/** @type {string} */ (a)))).size, 4, d.symbol);
+    q.antworten.slice(1).forEach((a, i) => {
+      const x = ohneTags(/** @type {string} */ (a));
+      const [f, w] = lies(/** @type {string} */ (/** @type {string[]} */ (q.hinweise)[i + 1]).replace(/^.*gilt dagegen: /, '').replace(/^./, (c) => c.toUpperCase()));
+      assert.equal(antworten(x)[/** @type {'n'} */ (f)], w, `${d.symbol}/${x}: Hinweis stimmt nicht für ${x}`);
+      assert.notEqual(beschr[f], w, `${d.symbol}/${x}: Hinweis widerspricht der Beschreibung nicht`);
+    });
+  }
+});
