@@ -151,7 +151,8 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `js/struktur.js`, `js/struktur-ui.js`, `js/bestimmung.js`, `js/motive.js`, `js/vorgaben.js` | Modus „Gitter und Basis“: Tafeln und Kenndaten, Bedienung, Bestimmung der Ebenengruppe, Motive, Vorgaben |
 | `js/bestimmen.js` | Leitfragen und Flussdiagramm nach Sanderson (Skript Kap. 8), geprüft gegen die Symmetrieelemente aller 17 Gruppen |
 | `js/verweise.js` | Links in die App „Stereographische Projektion“ (Punktgruppe einer Ebenengruppe) |
-| `js/hilfetexte.js` | Texte der Tooltips und ⓘ-Erklärungen |
+| `js/hilfetexte.js` | Texte der Tooltips und ⓘ-Erklärungen, Erste Schritte und Experimente |
+| `hilfe.html`, `js/hilfe.js`, `js/hilfe-daten.js`, `hilfe/` | Hilfeseite: Erste Schritte als Anleitungen mit Bildern, Experimente als Liste (Reihenfolge `EXPERIMENTE` auch für die App); Bilder mit `node tools/common/hilfe-bilder.mjs` |
 | `skript.html`, `js/skript.js`, `js/skizzen.js` | Skript; Abbildungen aus Link-Adressen der App, Skizzen für Skript und Quiz |
 | `quiz.html`, `js/quiz.js`, `js/quiz-kapitel.js` | Quiz: Ablauf aus `lib/common/`, Kapitel und Speicher dieser App |
 | `js/quiz-bank.js`, `js/quiz-gen.js`, `js/quiz-bild.js` | Handgeschriebene Fragen (mit Quelle und Prüfstatus), Generatoren für erzeugte Fragen, Bilder aus der App |
