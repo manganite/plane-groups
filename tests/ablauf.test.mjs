@@ -23,9 +23,9 @@ function gueltig(h) {
 
 test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker bekannt', () => {
   assert.deepEqual(pruefeAblaeufe([...ABLAEUFE, ...ERZEUGTE], { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER }), []);
-  // Ziel (Thomas, 7.11.2026, #109): 8 bis 12 Experimente je Modus, erzeugte mitgezählt
+  // Ziel (Thomas, 7.11.2026, #109): 8 bis 12 feste Experimente je Modus
   for (const m of ['eg', 'struktur']) {
-    const n = [...ABLAEUFE, ...ERZEUGTE].filter((a) => a.modus === m).length;
+    const n = ABLAEUFE.filter((a) => a.modus === m).length;
     assert.ok(n >= 8 && n <= 12, `${m}: ${n} Experimente`);
   }
 });
@@ -53,8 +53,8 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
   // Objekt nicht auf dem Rand der Zelle (Entscheidung Thomas, 7.11.2026): sonst sieht man mehr Bilder, als die
   // Zähligkeit sagt, weil Bilder auf Kanten und Ecken nur anteilig zur Zelle gehören
   const { anwenden } = await import('../js/symmetrie.js');
-  for (const i of [0, 1]) {
-    const z = zustand(adresse('lage', i));
+  for (const [id, i] of /** @type {[string, number][]} */ ([['lage', 0], ['lage', 1], ['gleitung', 0]])) {
+    const z = zustand(adresse(id, i));
     for (const op of gruppe(z.gruppe).alle) {
       const q = anwenden(op, z.punkt).map((c) => c - Math.floor(c + 1e-9));
       assert.ok(q.every((c) => c > 1e-6), `${z.gruppe} (${z.punkt}): Bild auf dem Rand bei (${q})`);
@@ -111,6 +111,25 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
   // Punktgruppen wie in den Daten
   const { ebenengruppe } = await import('../js/ebenengruppen.js');
   assert.equal(ebenengruppe('pg').punktgruppe, 'm'); assert.equal(ebenengruppe('p4gm').punktgruppe, '4mm');
+  // Herkunft der Elemente: Spiegelung bzw. Drehung um den Ursprung, gefolgt von der Translation um a
+  {
+    const { erklaerungsDaten, metrik } = await import('../js/zeichnung.js');
+    const { art } = await import('../js/symmetrie.js');
+    for (const [id, i, b] of /** @type {[string, number, string][]} */ ([['zwei-spiegel', 0, 'spiegel'], ['drehpunkte-p6', 0, 'dreh'], ['drehpunkte-p6', 1, 'dreh']])) {
+      const z = zustand(adresse(id, i));
+      const d = /** @type {any} */ (erklaerungsDaten(gruppe(z.gruppe), /** @type {string} */ (z.erkl), z.punkt, 1, metrik(z.gitter[ebenengruppe(z.gruppe).system])));
+      assert.equal(art(d.B).art, b, `${id} ${i}: B`);
+      assert.deepEqual(d.B.t.map((/** @type {number} */ v) => Math.abs(v)), [0, 0], `${id} ${i}: B durch den Ursprung`);
+      assert.equal(art(d.A).art, 't', `${id} ${i}: A Translation`);
+      assert.deepEqual(d.A.t, [1, 0], `${id} ${i}: Translation um a`);
+    }
+  }
+  // h-BN und Graphen: die Sechseckmitte ist 3- bzw. 6-zählig (konventionelle Zelle der App)
+  for (const [i, n] of [[0, 3], [1, 6]]) {
+    const r = /** @type {import('../js/bestimmung.js').Bestimmung} */ (strukturSymmetrie(zustand(adresse('farbe', i)).struktur));
+    const mitte = elemente(gruppe(r.symbol)).drehpunkte.filter((d) => Math.max(...d.punkt.map((v) => Math.abs(v - Math.round(v)))) < 1e-9);
+    assert.ok(mitte.length > 0 && mitte.every((d) => d.n === n), `farbe ${i}`);
+  }
   // p31m: nur die Drehpunkte auf den Ecken auf Spiegellinien; p3m1: alle
   for (const [g, alle] of /** @type {[string, boolean][]} */ ([['p31m', false], ['p3m1', true]])) {
     const d = elemente(gruppe(g)).drehpunkte;
@@ -171,4 +190,39 @@ test('Erzeugte Experimente: Zähligkeit stimmt für jede Lage mit der App, Bilde
   // jede Art von Lage kommt vor
   const arten = new Set(params.map((p) => { const t = lageteile(zaehligkeitDaten(p).symbol); return `${t.n}/${t.linien}`; }));
   for (const a of ['1/0', '1/1', '2/0', '2/2', '3/0', '3/3', '4/0', '4/4']) assert.ok(arten.has(a), a);
+});
+
+// Die als richtig markierte Vermutung passt zu dem, was die App zeigt; keine andere Vermutung nennt denselben Wert
+test('Lernexperimente: richtige Vermutung wie die App (Gruppe, Zähligkeit, Anteil, Punktgruppe)', async () => {
+  const { strukturSymmetrie } = await import('../js/struktur.js');
+  const { gruppe, lage, elemente } = await import('../js/symmetrie.js');
+  const { ebenengruppe } = await import('../js/ebenengruppen.js');
+  /** @param {string} h */
+  const zustand = (h) => { const z = startzustand(); hashAnwenden(z, h); return z; };
+  const text = (/** @type {string} */ s) => s.replace(/<[^>]+>/g, '');
+  /** Gruppe als Wort in einer Vermutung. @param {string} g */
+  const gruppeIn = (g) => new RegExp(`(^|[ (])${g}(\\)|$| )`);
+  const STRUKTUR = (/** @type {ReturnType<typeof zustand>} */ z) => gruppeIn(/** @type {string} */ (strukturSymmetrie(z.struktur)?.symbol));
+  /** Wert, den die App zum Schritt zeigt, als Muster für die richtige Vermutung. @type {Record<string, (z: ReturnType<typeof zustand>) => RegExp>} */
+  const wert = {
+    'drehpunkte-p6': (z) => new RegExp(`^${elemente(gruppe(z.gruppe)).drehpunkte.find((d) => z.erkl?.endsWith(d.punkt.map((v) => (v === 0 ? '0' : v === 0.5 ? '1/2' : v < 0.5 ? '1/3' : '2/3')).join(',')))?.n}$`),
+    lage: (z) => new RegExp(`^an ${lage(gruppe(z.gruppe), z.punkt).zaehligkeit === 1 ? 'einer' : lage(gruppe(z.gruppe), z.punkt).zaehligkeit}$`),
+    punktgruppe: (z) => new RegExp(`^${ebenengruppe(z.gruppe).punktgruppe}$`),
+    gitterpunkte: (z) => new RegExp(`^${strukturSymmetrie(z.struktur)?.primitiv}$`),
+    zentrierung: STRUKTUR, erniedrigen: STRUKTUR, metrik: STRUKTUR,
+    // h-BN: Frage nach der Sechseckmitte (3-zählig), Graphen: nach der Gruppe
+    farbe: (z) => (strukturSymmetrie(z.struktur)?.symbol === 'p3m1' ? /nur 3-zählig/ : STRUKTUR(z)),
+  };
+  let n = 0;
+  for (const a of ABLAEUFE) {
+    const f = wert[a.id];
+    if (!f) continue;
+    for (const s of a.schritte) {
+      if (!s.vermutung || s.richtig === undefined || !s.handlung?.hash) continue;
+      const re = f(zustand(s.handlung.hash));
+      s.vermutung.forEach((v, i) => assert.equal(re.test(text(v)), i === s.richtig, `${a.id}: „${text(v)}“ (${re})`));
+      n++;
+    }
+  }
+  assert.ok(n >= 12, `${n} Schritte geprüft`);
 });
