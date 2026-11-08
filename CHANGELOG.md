@@ -8,7 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [1.2.0] - 2026-11-08
 
-Hilfeseite mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente; Abschnitt „Experimente“ mit festen und erzeugten Lernexperimenten, Stand wie im Quiz; Skript Kap. 8 „Ebenengruppen bestimmen“ mit Quizfragen und Kap. 9 zur Signatur nach Conway; Quiz nach der Gegenprüfung; Moduswahl mit der Tastatur; eine Prüfung für Link und Speicher; Ansage von Symbolen für Screenreader und Kontraste nach WCAG 2.2; gemeinsame Grundlage v0.15.0.
+Hilfeseite mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente; Abschnitt „Experimente“ mit festen und erzeugten Lernexperimenten, Stand wie im Quiz; Skript Kap. 8 „Ebenengruppen bestimmen“ mit Quizfragen, Signatur nach Conway als eigenes Kapitel 9; Gleitspiegelung im Skript genauer; Quiz nach der Gegenprüfung; Moduswahl mit der Tastatur; eine Prüfung für Link und Speicher; Ansage von Symbolen für Screenreader und Kontraste nach WCAG 2.2; gemeinsame Grundlage v0.15.0.
 
 ### Hinzugefügt
 
