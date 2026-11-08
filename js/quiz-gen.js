@@ -738,7 +738,7 @@ export const LEITFRAGEN_GEN = {
     return {
       typ: 'einfach',
       lernziel: 'die Ebenengruppe eines periodischen Musters mit den Leitfragen des Flussdiagramms bestimmen',
-      frage: `Beim Bestimmen eines periodischen Musters mit dem Flussdiagramm ergibt sich: ${weg.map((f) => beobachtung(f, a[f])).join(' ')} Welche Ebenengruppe hat das Muster?`,
+      frage: `Beim Bestimmen eines periodischen Musters mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) ergibt sich: ${weg.map((f) => beobachtung(f, a[f])).join(' ')} Welche Ebenengruppe hat das Muster?`,
       antworten: [g, ...ab].map(S),
       richtig: [0],
       hinweise: [null, ...ab.map((x) => { const f = abweichend(x)[0]; return `In ${S(x)} gilt dagegen: ${beobachtung(f, leitAntworten(x)[f])}`; })],
