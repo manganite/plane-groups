@@ -101,7 +101,8 @@ export const LABELS = {
 /**
  * Erste Schritte (lib/common/js/ablauf.js mit liste: false, Leitfaden Abschn. 5.3): je Modus wenige kurze
  * Schritte zur Bedienung, ohne Vermutung; der letzte öffnet die Experimente. Tafeln mit Namen, nicht „links/rechts“
- * (auf dem Telefon sind sie umschaltbar).
+ * (auf dem Telefon sind sie umschaltbar). Zugleich die Anleitungen der Hilfeseite (js/hilfe-daten.js): zeige =
+ * Bedienelement, das ihr Bild markiert (tools/common/hilfe-bilder.mjs).
  * @type {Ablauf[]}
  */
 export const ERSTE_SCHRITTE = [
@@ -109,22 +110,22 @@ export const ERSTE_SCHRITTE = [
     id: 'einstieg-eg', modus: 'eg', titel: 'Erste Schritte',
     schritte: [
       { frage: '<b>Ebenengruppe wählen.</b> Das Symmetriegerüst zeigt eine Elementarzelle mit Drehpunkten, Spiegel- und Gleitspiegellinien, das Muster einen Ausschnitt der Ebene.',
-        handlung: { text: '<i>p</i>4<i>gm</i> wählen', hash: '#m=eg&g=p4gm' } },
+        handlung: { text: '<i>p</i>4<i>gm</i> wählen', hash: '#m=eg&g=p4gm' }, zeige: '#picker' },
       { frage: '<b>Fähnchen ziehen.</b> Alle Bilder folgen. Auf einer Spiegellinie oder einem Drehpunkt rastet es ein: spezielle Lage, weniger Bilder.',
-        handlung: { text: 'Auf eine Spiegellinie setzen', hash: '#m=eg&g=p4gm&x=0.15&y=0.65' } },
+        handlung: { text: 'Auf eine Spiegellinie setzen', hash: '#m=eg&g=p4gm&x=0.15&y=0.65' }, zeige: '#bild-a' },
       { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche, etwa zu Gleitspiegellinien, Drehpunkten, Lagen und zur asymmetrischen Einheit: erst vermuten, dann ausprobieren.',
-        handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
+        handlung: { text: 'Experimente öffnen', aktion: 'experimente' }, zeige: '#sec-experimente > summary' },
     ],
   },
   {
     id: 'einstieg-struktur', modus: 'struktur', titel: 'Erste Schritte',
     schritte: [
       { frage: '<b>Struktur ansehen.</b> Gitter und Basis: zwei Dreiecke in einer rechteckigen Zelle. Die App bestimmt daraus die Ebenengruppe, hier <i>pm</i> (unten), und zeichnet konventionelle Zelle und Symmetrieelemente ein.',
-        handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' } },
+        handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' }, zeige: '#s-vorgabe' },
       { frage: '<b>Selbst bauen.</b> Mit „Hinzufügen“ über der Struktur neue Motive setzen, mit „Wählen und ziehen“ verschieben; unter „Gitter“ Achsenverhältnis und Winkel ändern. Die App bestimmt die Symmetrie jedes Mal neu.',
-        handlung: { text: '„Hinzufügen“ wählen', aktion: 'hinzufuegen' } },
+        handlung: { text: '„Hinzufügen“ wählen', aktion: 'hinzufuegen' }, zeige: '#s-werkzeug-hinzufuegen' },
       { frage: '<b>Ausprobieren.</b> Unter „Experimente“ stehen kleine Versuche, etwa zu Gitterpunkten, entfernten Motiven, Mauerwerk und Farbe. Erst vermuten, dann ausprobieren.',
-        handlung: { text: 'Experimente öffnen', aktion: 'experimente' } },
+        handlung: { text: 'Experimente öffnen', aktion: 'experimente' }, zeige: '#sec-experimente > summary' },
     ],
   },
 ];

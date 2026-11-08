@@ -3,8 +3,9 @@
 import { initHelp } from '../lib/common/js/help.js';
 import { ablaufKarte } from '../lib/common/js/ablauf.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik } from '../lib/common/js/seite.js';
-import { TIPS, SECTIONS, LABELS, ABLAEUFE, ERSTE_SCHRITTE } from './hilfetexte.js';
-import { ERZEUGTE } from './experimente.js';
+import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE } from './hilfetexte.js';
+import { EXPERIMENTE } from './hilfe-daten.js';
+import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
@@ -911,9 +912,9 @@ function init() {
     elemente('.figswitch button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.fig === fig)));
   };
   elemente('.figswitch button').forEach((b) => b.addEventListener('click', () => tafelZeigen(b.dataset.fig ?? 'a')));
-  // Erste Schritte je Modus: beim ersten Aufruf eines Modus, wegklickbar (× oder „?“), über „?“ wieder; nicht
-  // für den Modus, in dem ein Link die App öffnet (für die Sitzung, nicht gespeichert). Gespeichert: die
-  // gesehenen Modi (introGesehen in zustand.js).
+  // Erste Schritte je Modus: beim ersten Aufruf eines Modus, wegklickbar; nicht für den Modus, in dem ein Link die
+  // App öffnet (für die Sitzung, nicht gespeichert). Gespeichert: die gesehenen Modi (introGesehen in zustand.js).
+  // „?“ führt zur Hilfeseite (hilfe.html), dort stehen sie als Anleitung.
   const INTRO = 'ebenen-intro';
   /** @type {Set<string>} */
   let gesehen = new Set();
@@ -921,7 +922,7 @@ function init() {
   /** @type {Set<string>} */
   const ueberLink = new Set(location.hash.length > 1 ? [z.modus] : []);
   /** @param {boolean} an */
-  const intro = (an) => { $('intro').hidden = !an; $('help-open').setAttribute('aria-expanded', String(an)); if (!an) einstieg.liste(); };
+  const intro = (an) => { $('intro').hidden = !an; if (!an) einstieg.liste(); };
   const introZu = () => {
     intro(false);
     gesehen.add(z.modus);
@@ -940,9 +941,8 @@ function init() {
     experimente: () => { const d = abschnitt('sec-experimente'); d.open = true; d.scrollIntoView({ block: 'nearest' }); },
   };
   const einstieg = ablaufKarte($('ablauf'), ERSTE_SCHRITTE, { anwenden, adresse, aktionen, skriptUrl, liste: false, beiAbschluss: () => introZu() });
-  // Reihenfolge nach den Kapiteln des Skripts: die erzeugten Aufgaben zur Zähligkeit direkt nach „Allgemeine und spezielle Lage“
-  const nachLage = ABLAEUFE.findIndex((x) => x.id === 'lage') + 1;
-  const experimente = ablaufKarte($('experimente'), [...ABLAEUFE.slice(0, nachLage), ...ERZEUGTE, ...ABLAEUFE.slice(nachLage)], { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
+  // Reihenfolge nach den Kapiteln des Skripts (EXPERIMENTE in js/hilfe-daten.js, gleich auf der Hilfeseite)
+  const experimente = ablaufKarte($('experimente'), EXPERIMENTE, { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
   einstieg.modus(z.modus); experimente.modus(z.modus);
   introAbgleichen = () => {
     if (z.modus === introModus) return;
@@ -951,7 +951,8 @@ function init() {
     intro(!gesehen.has(z.modus) && !ueberLink.has(z.modus));
   };
   $('intro-close').addEventListener('click', introZu);
-  $('help-open').addEventListener('click', () => { if ($('intro').hidden) intro(true); else introZu(); });
+  // Von der Hilfeseite: „In der App ausprobieren“ startet ein Experiment (index.html?experiment=<id>#…)
+  experimentAusAdresse(experimente, EXPERIMENTE.map((x) => x.id), aktionen.experimente);
   $('copy-link').addEventListener('click', () => {
     const url = location.origin + location.pathname + location.search + hashVon(z);
     navigator.clipboard?.writeText(url);

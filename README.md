@@ -36,6 +36,7 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
 - **Muster als Tapete und Ornamente:** Das Muster ohne Zelle und Elemente, einfarbig, mit Ornamenten (Blatt, Tropfen, Ranke) statt des Fähnchens; Vergrösserung des Musters und Grösse des Objekts frei. Eine **Lupe** vergrössert das Symmetriegerüst um das Objekt.
 - **Kenndaten** mit Schoenflies-Symbol und Signatur nach Conway.
 - **Kopieren und Speichern** je Tafel: Bild in die Zwischenablage, als SVG oder PNG.
+- **Hilfen:** Erste Schritte je Modus beim ersten Aufruf, Experimente zum Vermuten und Ausprobieren, Tooltips und ⓘ-Erklärungen; „?“ führt zur [Hilfeseite](https://manganite.github.io/plane-groups/hilfe.html) mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente.
 
 - **[Skript](https://manganite.github.io/plane-groups/skript.html)** mit neun Kapiteln: Gitter, Elementarzelle und Basis; Symmetrie des Gitters; Gitter und Motiv; Gleitspiegelung und Verknüpfung; die 17 Ebenengruppen; Punktlagen; Tapeten, Ornamente und Kunst; Ebenengruppen bestimmen; die Signatur nach Conway (Vertiefung). Die Abbildungen zeichnet der Code der App, jede mit Link in die App; Vertiefungen sind gekennzeichnet. Auch als [PDF](https://manganite.github.io/plane-groups/skript.pdf) und als Anhang jedes Releases.
 - **[Quiz](https://manganite.github.io/plane-groups/quiz.html)** zu allen Kapiteln in drei Stufen (1 Grundlagen, 2 Anwendung, 3 Vertiefung; Stufe 3 bedeutet mehr Stoff, nicht unbedingt schwierigere Fragen): handgeschriebene Fragen und Fragengeneratoren, Bilder aus dem Code der App, sofortige Rückmeldung mit Link ins Skript und in die passende Ansicht der App. Standardmässig erscheinen nur fachlich geprüfte Fragen; „Auch ungeprüfte Fragen zeigen“ (oder `quiz.html?entwurf`) nimmt die Entwürfe dazu. Der Stand bleibt nur im Browser.
@@ -151,7 +152,8 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `js/struktur.js`, `js/struktur-ui.js`, `js/bestimmung.js`, `js/motive.js`, `js/vorgaben.js` | Modus „Gitter und Basis“: Tafeln und Kenndaten, Bedienung, Bestimmung der Ebenengruppe, Motive, Vorgaben |
 | `js/bestimmen.js` | Leitfragen und Flussdiagramm nach Sanderson (Skript Kap. 8), geprüft gegen die Symmetrieelemente aller 17 Gruppen |
 | `js/verweise.js` | Links in die App „Stereographische Projektion“ (Punktgruppe einer Ebenengruppe) |
-| `js/hilfetexte.js` | Texte der Tooltips und ⓘ-Erklärungen |
+| `js/hilfetexte.js` | Texte der Tooltips und ⓘ-Erklärungen, Erste Schritte und Experimente |
+| `hilfe.html`, `js/hilfe.js`, `js/hilfe-daten.js`, `hilfe/` | Hilfeseite: Erste Schritte als Anleitungen mit Bildern, Experimente als Liste (Reihenfolge `EXPERIMENTE` auch für die App); Bilder mit `node tools/common/hilfe-bilder.mjs` |
 | `skript.html`, `js/skript.js`, `js/skizzen.js` | Skript; Abbildungen aus Link-Adressen der App, Skizzen für Skript und Quiz |
 | `quiz.html`, `js/quiz.js`, `js/quiz-kapitel.js` | Quiz: Ablauf aus `lib/common/`, Kapitel und Speicher dieser App |
 | `js/quiz-bank.js`, `js/quiz-gen.js`, `js/quiz-bild.js` | Handgeschriebene Fragen (mit Quelle und Prüfstatus), Generatoren für erzeugte Fragen, Bilder aus der App |
