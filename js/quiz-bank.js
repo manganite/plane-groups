@@ -1700,7 +1700,7 @@ export const BANK = [
   // ================================================================== Kap. 8 Ebenengruppen bestimmen (#102)
   {
     id: 'bs-1-01', stufe: 1, kapitel: 8, typ: 'einfach', lernziel: LZ.bestimmen,
-    frage: 'Beim Bestimmen mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) lautet die erste Leitfrage: Welche Zähligkeit hat der Drehpunkt höchster Zähligkeit? Ein Muster hat 2-, 3- und 6-zählige Drehpunkte. Wie lautet die Antwort?',
+    frage: 'Die erste Leitfrage im Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) lautet: „Welche Zähligkeit hat der Drehpunkt höchster Zähligkeit (1, wenn es keinen gibt)?“ Ein Muster hat 2-, 3- und 6-zählige Drehpunkte. Wie lautet die Antwort?',
     antworten: [
       '6',
       '2',
@@ -1729,7 +1729,7 @@ export const BANK = [
       'Beide haben Gleitspiegellinien, jeweils auf halbem Weg zwischen parallelen Spiegellinien.',
       'Beide haben ein primitives hexagonales Gitter; das <i>p</i> im Symbol sagt es.',
       'Umgekehrt: In <i>p</i>3<i>m</i>1 liegen alle Drehpunkte auf Schnittpunkten von Spiegellinien.'],
-    erklaerung: 'Beide Gruppen haben dieselben Arten von Elementen. Sie unterscheiden sich darin, wie die Drehpunkte zu den Spiegellinien liegen: In <i>p</i>3<i>m</i>1 liegen alle 3-zähligen Drehpunkte auf Spiegellinien, in <i>p</i>31<i>m</i> nur ein Teil. Im Flussdiagramm zur Bestimmung trennt sie deshalb die Leitfrage „Liegt ein Drehpunkt auf keiner Spiegellinie?“',
+    erklaerung: 'Beide Gruppen haben dieselben Arten von Elementen. Sie unterscheiden sich darin, wie die Drehpunkte zu den Spiegellinien liegen: In <i>p</i>3<i>m</i>1 liegen alle 3-zähligen Drehpunkte auf Spiegellinien, in <i>p</i>31<i>m</i> nur ein Teil. Im Flussdiagramm zur Bestimmung der Ebenengruppe trennt sie deshalb die Leitfrage „Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?“',
     skript: 'leitfragen', app: '#m=eg&g=p31m',
     quelle: 'Skript, Abschn. 8.2 und 8.4, Abb. 8.3b und c',
     status: 'entwurf',
@@ -1747,7 +1747,7 @@ export const BANK = [
       'Das <i>m</i> an dritter Stelle des Symbols steht für Spiegellinien; in <i>p</i>4<i>gm</i> laufen sie diagonal.',
       'Auch <i>p</i>4<i>mm</i> hat Gleitspiegellinien, diagonal zwischen den diagonalen Spiegellinien.',
       'Die 2-zähligen Drehpunkte von <i>p</i>4<i>gm</i> liegen auf Spiegellinien, der 4-zählige nicht.'],
-    erklaerung: 'Beide haben 4-zählige Drehpunkte, Spiegellinien und Gleitspiegellinien. In <i>p</i>4<i>mm</i> liegen alle Drehpunkte auf Spiegellinien, in <i>p</i>4<i>gm</i> liegt der 4-zählige auf keiner. Im Flussdiagramm zur Bestimmung trennt sie deshalb die Leitfrage „Liegt ein Drehpunkt auf keiner Spiegellinie?“',
+    erklaerung: 'Beide haben 4-zählige Drehpunkte, Spiegellinien und Gleitspiegellinien. In <i>p</i>4<i>mm</i> liegen alle Drehpunkte auf Spiegellinien, in <i>p</i>4<i>gm</i> liegt der 4-zählige auf keiner. Im Flussdiagramm zur Bestimmung der Ebenengruppe trennt sie deshalb die Leitfrage „Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?“',
     skript: 'flussdiagramm', app: '#m=eg&g=p4gm',
     quelle: 'Skript, Abschn. 8.3 und 8.5',
     status: 'entwurf',
@@ -1791,7 +1791,7 @@ export const BANK = [
   },
   {
     id: 'bs-1-06', stufe: 1, kapitel: 8, typ: 'einfach', lernziel: LZ.zelleLage,
-    frage: 'Die Bestimmung mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) ergibt <i>c</i>2<i>mm</i>. Welche Zelle gibt man als konventionelle Zelle an?',
+    frage: 'Mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) ergibt sich <i>c</i>2<i>mm</i>. Welche Zelle gibt man als konventionelle Zelle an?',
     antworten: [
       'die zentrierte rechteckige Zelle mit Kanten entlang der Spiegellinien',
       'die halb so grosse primitive Zelle, weil sie die kleinste ist',
@@ -1829,17 +1829,17 @@ export const BANK = [
   },
   {
     id: 'bs-2-02', stufe: 2, kapitel: 8, typ: 'einfach', lernziel: LZ.unterscheiden,
-    frage: 'Ein Muster hat 2-zählige Drehpunkte, Spiegellinien und Gleitspiegellinien. Welche der Leitfragen aus dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) entscheidet zwischen <i>c</i>2<i>mm</i> und <i>p</i>2<i>mg</i>?',
+    frage: 'In einem Muster ist der Drehpunkt höchster Zähligkeit 2-zählig; es gibt Spiegel- und Gleitspiegellinien. Welche der Leitfragen aus dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) entscheidet zwischen <i>c</i>2<i>mm</i> und <i>p</i>2<i>mg</i>?',
     antworten: [
-      'ob ein Drehpunkt auf einer Spiegellinie liegt',
-      'ob es Gleitspiegellinien gibt',
-      'ob ein Drehpunkt auf keiner Spiegellinie liegt',
-      'welche Zähligkeit der Drehpunkt höchster Zähligkeit hat'],
+      '„Gibt es einen Drehpunkt, der auf einer Spiegellinie liegt?“',
+      '„Gibt es eine Gleitspiegellinie?“',
+      '„Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?“',
+      '„Welche Zähligkeit hat der Drehpunkt höchster Zähligkeit (1, wenn es keinen gibt)?“'],
     richtig: [0],
     hinweise: [null,
-      'Beide Gruppen haben Gleitspiegellinien; diese Frage ist auf dem Weg schon mit Ja beantwortet.',
+      'Beide Gruppen haben Gleitspiegellinien; diese Frage ist mit Ja schon beantwortet.',
       'Diese Frage beantworten beide mit Ja: Auch <i>c</i>2<i>mm</i> hat 2-zählige Drehpunkte zwischen den Spiegellinien.',
-      'Beide haben nur 2-zählige Drehpunkte.'],
+      'Beide haben nur 2-zählige Drehpunkte; diese Frage ist mit 2 schon beantwortet.'],
     erklaerung: 'In <i>c</i>2<i>mm</i> liegen einige 2-zählige Drehpunkte auf den Schnittpunkten der Spiegellinien, in <i>p</i>2<i>mg</i> liegt keiner auf einer Spiegellinie. Nach genau dieser Lage fragt das Flussdiagramm, und nur hier: bei höchster Zähligkeit 2, wenn es Spiegel- und Gleitspiegellinien gibt.',
     skript: 'leitfragen', app: '#m=eg&g=c2mm',
     quelle: 'Skript, Abschn. 8.2 und 8.3',
@@ -1855,7 +1855,7 @@ export const BANK = [
       'Zu <i>pm</i> käme man ohne Gleitspiegellinien; der Läuferverband hat welche, entlang der waagrechten Fugen.',
       'Zu <i>pg</i> käme man, wenn man auch die Spiegellinien übersähe.',
       'Zu Gruppen mit 2 im Symbol kommt man nur, wenn man die 2-zähligen Drehpunkte findet.'],
-    erklaerung: 'Ohne Drehpunkte lautet die Antwort auf die erste Leitfrage „keiner“. Spiegellinien gibt es (senkrecht durch die Steinmitten und die senkrechten Fugen, waagrecht durch die Mitten der Reihen), Gleitspiegellinien auch (entlang der waagrechten Fugen): Das führt zu <i>cm</i>. Bemerken kann man den Fehler an den Spiegellinien: Schneiden sich zwei senkrecht, ist der Schnittpunkt ein 2-zähliger Drehpunkt; <i>cm</i> hat nur parallele Spiegellinien.',
+    erklaerung: 'Ohne Drehpunkte lautet die Antwort auf die erste Leitfrage 1 (kein Drehpunkt). Spiegellinien gibt es (senkrecht durch die Steinmitten und die senkrechten Fugen, waagrecht durch die Mitten der Reihen), Gleitspiegellinien auch (entlang der waagrechten Fugen): Das führt zu <i>cm</i>. Bemerken kann man den Fehler an den Spiegellinien: Schneiden sich zwei senkrecht, ist der Schnittpunkt ein 2-zähliger Drehpunkt; <i>cm</i> hat nur parallele Spiegellinien.',
     skript: 'fehler', app: '#m=struktur&v=laeufer',
     quelle: 'Skript, Abschn. 8.5; Abschn. 7.2',
     status: 'entwurf',
@@ -1880,7 +1880,7 @@ export const BANK = [
   },
   {
     id: 'bs-2-05', stufe: 2, kapitel: 8, typ: 'mehrfach', lernziel: LZ.zelleLage,
-    frage: 'Die Bestimmung eines Musters mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) ergibt <i>p</i>4<i>mm</i>. Welche Symmetrieelemente muss man beim Vergleich mit dem Diagramm der International Tables ausserdem im Muster finden?',
+    frage: 'Für ein Muster ergibt sich mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8) <i>p</i>4<i>mm</i>. Welche Symmetrieelemente muss man beim Vergleich mit dem Diagramm der International Tables ausserdem im Muster finden?',
     antworten: [
       'Gleitspiegellinien, diagonal zwischen den diagonalen Spiegellinien',
       '2-zählige Drehpunkte in den Kantenmitten der Zelle',
@@ -1892,7 +1892,7 @@ export const BANK = [
       'Ein Muster mit 4-zähligen Drehpunkten hat keine 3-zähligen; die beiden passen in kein gemeinsames Gitter.',
       'In <i>p</i>4<i>mm</i> geht jede Spiegellinie durch 4-zählige Drehpunkte.',
       'Das Diagramm fragt nur, was nötig ist, um die Gruppe zu erkennen. Gleitspiegellinien und 2-zählige Drehpunkte hat <i>p</i>4<i>mm</i> trotzdem, und ihre Lage gehört zum Ergebnis.'],
-    erklaerung: '<i>p</i>4<i>mm</i> hat ausser den 4-zähligen Drehpunkten und den Spiegellinien auch 2-zählige Drehpunkte in den Kantenmitten der Zelle und Gleitspiegellinien diagonal zwischen den diagonalen Spiegellinien. Nach den Gleitspiegellinien fragt auf diesem Weg keine Leitfrage. Die 2-zähligen Drehpunkte prüft man bei der Leitfrage „Liegt ein Drehpunkt auf keiner Spiegellinie?“ zwar mit; ihre Lage in den Kantenmitten gehört aber erst zum Ergebnis.',
+    erklaerung: '<i>p</i>4<i>mm</i> hat ausser den 4-zähligen Drehpunkten und den Spiegellinien auch 2-zählige Drehpunkte in den Kantenmitten der Zelle und Gleitspiegellinien diagonal zwischen den diagonalen Spiegellinien. Bei höchster Zähligkeit 4 fragt das Flussdiagramm nicht nach Gleitspiegellinien. Die 2-zähligen Drehpunkte prüft man bei der Leitfrage „Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?“ zwar mit; ihre Lage in den Kantenmitten gehört aber erst zum Ergebnis.',
     skript: 'ergebnis', app: '#m=eg&g=p4mm',
     quelle: 'Skript, Abschn. 8.6; International Tables, Vol. A (2006), Part 6',
     status: 'entwurf',

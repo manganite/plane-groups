@@ -265,7 +265,7 @@ export const ABLAEUFE = [
         vermutung: ['Ja, alle', 'Nein, nur ein Teil'], richtig: 0,
         handlung: { text: '<i>p</i>3<i>m</i>1 zeigen', hash: '#m=eg&g=p3m1' },
         beobachtung: 'Alle drei Sorten von 3-zähligen Drehpunkten liegen auf Schnittpunkten von Spiegellinien.',
-        erklaerung: 'Daran unterscheidet man die beiden Gruppen, auch im Flussdiagramm zur Bestimmung (Leitfrage 4). Im Symbol zeigt es die Stelle des <i>m</i>: Die Spiegellinien von <i>p</i>3<i>m</i>1 stehen senkrecht auf den Zellkanten, die von <i>p</i>31<i>m</i> laufen entlang.',
+        erklaerung: 'Daran unterscheidet man die beiden Gruppen, auch im Flussdiagramm zur Bestimmung der Ebenengruppe mit der Leitfrage „Gibt es einen Drehpunkt, der auf keiner Spiegellinie liegt?“ Im Symbol zeigt es die Stelle des <i>m</i>: Die Spiegellinien von <i>p</i>3<i>m</i>1 stehen senkrecht auf den Zellkanten, die von <i>p</i>31<i>m</i> laufen entlang.',
         skript: 'leitfragen',
       },
     ],
