@@ -677,7 +677,8 @@ export const REIHENFOLGE = {
 // Ein Muster ist nur durch die Antworten auf die Leitfragen beschrieben, die das Flussdiagramm (js/bestimmen.js)
 // auf dem Weg zu seiner Gruppe stellt; gesucht ist die Gruppe. Die Antworten jeder Gruppe kommen aus ihren
 // Symmetrieelementen (js/symmetrie.js), wie in tests/bestimmen.test.mjs. Ablenker: die Gruppen, deren eigene
-// Antworten auf diese Fragen am wenigsten abweichen (zuerst gleiche höchste Zähligkeit); der Hinweis nennt
+// Antworten auf diese Fragen am wenigsten abweichen, zuerst die mit gleicher höchster Zähligkeit, dann aus demselben
+// Kristallsystem, dann die mit bzw. ohne Drehpunkte wie die Gruppe; der Hinweis nennt
 // die erste Leitfrage, die sie anders beantworten.
 /** Antworten der Ebenengruppe auf die Leitfragen. @param {string} symbol @returns {{ n: string, m: boolean, g: boolean, nichtAuf: boolean, auf: boolean }} */
 export function leitAntworten(symbol) {
@@ -716,8 +717,6 @@ function beobachtung(f, w) {
     default: return w ? 'Mindestens ein Drehpunkt liegt auf einer Spiegellinie.' : 'Kein Drehpunkt liegt auf einer Spiegellinie.';
   }
 }
-/** Erster Buchstabe klein (Satz nach Doppelpunkt). @param {string} t */
-const klein = (t) => t[0].toLowerCase() + t.slice(1);
 /** @satisfies {Generator} */
 export const LEITFRAGEN_GEN = {
   id: 'leitfragen', kapitel: 8, stufen: [2], status: 'entwurf',
@@ -728,8 +727,13 @@ export const LEITFRAGEN_GEN = {
     /** @param {string} x */
     const abweichend = (x) => { const b = leitAntworten(x); return weg.filter((f) => b[f] !== a[f]); };
     const ab = ALLE.filter((x) => x !== g)
-      .map((x) => ({ x, d: abweichend(x).length, n: leitAntworten(x).n === a.n ? 0 : 1, i: ALLE.indexOf(x) }))
-      .sort((p, q) => p.d - q.d || p.n - q.n || p.i - q.i)
+      .map((x) => {
+        const b = leitAntworten(x);
+        // Rang: gleiche höchste Zähligkeit, gleiches Kristallsystem, Drehpunkte ja/nein wie die Gruppe
+        const r = (b.n === a.n ? 0 : 4) + (ebenengruppe(x).system === ebenengruppe(g).system ? 0 : 2) + ((b.n === '1') === (a.n === '1') ? 0 : 1);
+        return { x, r, d: abweichend(x).length, i: ALLE.indexOf(x) };
+      })
+      .sort((p, q) => p.r - q.r || p.d - q.d || p.i - q.i)
       .slice(0, 3).map((p) => p.x);
     return {
       typ: 'einfach',
@@ -737,7 +741,7 @@ export const LEITFRAGEN_GEN = {
       frage: `Beim Bestimmen eines periodischen Musters mit dem Flussdiagramm ergibt sich: ${weg.map((f) => beobachtung(f, a[f])).join(' ')} Welche Ebenengruppe hat das Muster?`,
       antworten: [g, ...ab].map(S),
       richtig: [0],
-      hinweise: [null, ...ab.map((x) => { const f = abweichend(x)[0]; return `In ${S(x)} gilt dagegen: ${klein(beobachtung(f, leitAntworten(x)[f]))}`; })],
+      hinweise: [null, ...ab.map((x) => { const f = abweichend(x)[0]; return `In ${S(x)} gilt dagegen: ${beobachtung(f, leitAntworten(x)[f])}`; })],
       erklaerung: `Im Flussdiagramm führen diese ${['', '', 'zwei', 'drei', 'vier'][weg.length]} Antworten zu ${S(g)}; weitere Leitfragen stellt es auf diesem Weg nicht. ${S(g)} hat ${MERKMALE[g]}.`,
       skript: 'flussdiagramm', app: `#m=eg&g=${g}`,
       quelle: 'Skript, Abschn. 8.2 und 8.3, Abb. 8.1; Symmetrieelemente aus den Daten der App',

@@ -120,3 +120,43 @@ test('Quiz-Generator „leitfragen“: Beschreibung führt zur richtigen Gruppe,
     });
   }
 });
+
+// Aussagen der handgeschriebenen Quizfragen zu Kap. 8 (js/quiz-bank.js, bs-…), aus den Elementen der Gruppen
+test('Quiz Kap. 8: Aussagen der Fragen bs-… stimmen mit den Elementen', () => {
+  /** Weg durch das Diagramm mit gegebenen Antworten. @param {Record<string, string | boolean>} a */
+  const blatt = (a) => {
+    /** @type {Knoten} */
+    let k = FLUSSDIAGRAMM;
+    while (typeof k !== 'string') k = 'zweige' in k ? k.zweige[/** @type {'1'} */ (a.n)] : (a[k.frage] ? k.ja : k.nein);
+    return k;
+  };
+  // bs-2-03: c2mm (Läuferverband) mit übersehenen Drehpunkten führt zu cm
+  assert.equal(blatt({ ...antworten('c2mm'), n: '1' }), 'cm');
+  // bs-2-02: c2mm und p2mg beantworten alle Leitfragen gleich ausser „Drehpunkt auf m?“
+  const [c, p] = [antworten('c2mm'), antworten('p2mg')];
+  assert.deepEqual(Object.keys(c).filter((f) => c[/** @type {'n'} */ (f)] !== p[/** @type {'n'} */ (f)]), ['auf']);
+  // bs-1-02, bs-1-03: „Drehpunkt nicht auf m?“ trennt p3m1/p31m und p4mm/p4gm
+  assert.equal(antworten('p31m').nichtAuf, true); assert.equal(antworten('p3m1').nichtAuf, false);
+  assert.equal(antworten('p4gm').nichtAuf, true); assert.equal(antworten('p4mm').nichtAuf, false);
+  // bs-1-03: in p4gm liegt der 4-zählige Drehpunkt auf keiner Spiegellinie, die 2-zähligen liegen auf Spiegellinien
+  {
+    const e = elemente(gruppe('p4gm'));
+    const sp = e.linien.filter((l) => l.art === 'spiegel');
+    for (const d of e.drehpunkte) assert.equal(sp.some((l) => aufLinie(d.punkt, l)), d.n === 2, `p4gm ${d.n}@${d.punkt}`);
+  }
+  // bs-2-05: p4mm hat diagonale Gleitspiegellinien und 2-zählige Drehpunkte in den Kantenmitten; jede Spiegellinie geht durch einen 4-zähligen Drehpunkt
+  {
+    const e = elemente(gruppe('p4mm'));
+    assert.ok(e.linien.some((l) => l.art === 'gleit' && Math.abs(Math.abs(l.richtung[0]) - Math.abs(l.richtung[1])) < 1e-9 && l.richtung[0] !== 0));
+    assert.equal(e.drehpunkte.find((d) => Math.hypot(d.punkt[0], d.punkt[1] - 0.5) < 1e-9)?.n, 2);
+    for (const l of e.linien.filter((x) => x.art === 'spiegel')) assert.ok(e.drehpunkte.some((d) => d.n === 4 && aufLinie(d.punkt, l)));
+  }
+  // bs-2-04: p2mg mit Ursprung auf einem 2-zähligen Drehpunkt, Spiegellinien bei x = ¼, ¾ (parallel), Gleitspiegellinien bei y = 0, ½
+  {
+    const e = elemente(gruppe('p2mg'));
+    assert.equal(e.drehpunkte.find((d) => d.punkt[0] === 0 && d.punkt[1] === 0)?.n, 2);
+    assert.deepEqual([...new Set(e.linien.filter((l) => l.art === 'spiegel').map((l) => l.punkt[0]))].sort(), [0.25, 0.75]);
+    assert.ok(e.linien.filter((l) => l.art === 'spiegel').every((l) => l.richtung[0] === 0));
+    assert.deepEqual([...new Set(e.linien.filter((l) => l.art === 'gleit').map((l) => l.punkt[1]))].sort(), [0, 0.5, 1]);
+  }
+});
