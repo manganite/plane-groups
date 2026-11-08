@@ -1769,7 +1769,7 @@ export const BANK = [
     erklaerung: 'Farben gehören zum Muster. Eine Drehung um 60° um die Mitte eines Sechsecks bringt Atome der einen Sorte auf die der anderen; die Mitte ist deshalb nur 3-zählig. Richtig ist <i>p</i>3<i>m</i>1.',
     skript: 'fehler', app: '#m=struktur&v=hbn',
     quelle: 'Skript, Abschn. 8.4 und 8.5, Abb. 8.2b',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'bs-1-05', stufe: 1, kapitel: 8, typ: 'einfach', lernziel: LZ.fehler,
@@ -1787,7 +1787,7 @@ export const BANK = [
     erklaerung: 'Eine Spiegellinie bildet jedes Motiv auf sein Spiegelbild ab, und dieses liegt genau gegenüber. Bei einer Gleitspiegellinie liegt das Spiegelbild um die halbe Gitterperiode entlang der Linie verschoben. Man prüft deshalb an einem einzelnen Motiv. Wer eine Gleitspiegellinie für eine Spiegellinie hält, kommt etwa zu <i>pm</i> statt zu <i>pg</i>.',
     skript: 'fehler', app: '#m=eg&g=pg',
     quelle: 'Skript, Abschn. 8.5',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'bs-1-06', stufe: 1, kapitel: 8, typ: 'einfach', lernziel: LZ.zelleLage,
@@ -1876,7 +1876,7 @@ export const BANK = [
     erklaerung: 'Die International Tables legen den Ursprung von <i>p</i>2<i>mg</i> auf einen 2-zähligen Drehpunkt. Die Spiegellinien liegen dann bei <i>x</i> = ¼ und ¾, die Gleitspiegellinien bei <i>y</i> = 0 und ½. Mit dieser Zelle lässt sich das Muster direkt mit dem Diagramm der Gruppe vergleichen.',
     skript: 'ergebnis', app: '#m=struktur&v=dreieck3',
     quelle: 'Skript, Abschn. 8.6 und 4.5; International Tables, Vol. A (2006), Part 6',
-    status: 'entwurf',
+    status: 'geprüft',
   },
   {
     id: 'bs-2-05', stufe: 2, kapitel: 8, typ: 'mehrfach', lernziel: LZ.zelleLage,
