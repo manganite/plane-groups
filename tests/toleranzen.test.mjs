@@ -3,7 +3,7 @@
 // γ in 0,5°, Lage in 0,001) und Link (b/a auf 0,001, γ auf 0,01°, Lagen auf 10⁻⁶; js/zustand.js). Ein
 // solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage. Ausnahme: Wo eine Abweichung
 // von der speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten), gilt das
-// nur für den Regler, nicht für den Link (offen, PR #124). Rundungsfehler (die Metrik aus cos und sin, 10⁻¹² relativ)
+// nur für den Regler, nicht für den Link (#126). Rundungsfehler (die Metrik aus cos und sin, 10⁻¹² relativ)
 // ergeben das höhere System, ein Abstand von 10⁻⁶ von einer speziellen Lage gilt als auf ihr.
 //
 // Die erwarteten Gruppen sind von Hand hergeleitet (Kommentare), nicht mit dem Code der App gerechnet
@@ -62,7 +62,7 @@ for (const [name, faelle] of /** @type {[string, [number, number, string][]][]} 
   // |2a + b|² = 1 + ε² und a·(2a + b) = ½ − √3 ε/2: schiefwinklig, aber nur um ε² von gleich langen Achsen
   // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), ergeben p2;
   // 1,73 verlangt also eine Toleranz der Metrik unter etwa 4·10⁻⁶. Die Link-Werte 1,732 und 1,733 (ε² ≈ 3·10⁻⁹
-  // bzw. 10⁻⁶) liegen innerhalb der Toleranz und ergeben c2mm statt p2 (offen, PR #124); sie fehlen deshalb hier.
+  // bzw. 10⁻⁶) liegen innerhalb der Toleranz und ergeben c2mm statt p2 (#126); sie fehlen deshalb hier.
   // Mit γ = 150,5° ist |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
   ['schief aufgestellt, hexagonal', [
     [Math.sqrt(3), 150, 'p6mm'],
