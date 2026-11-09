@@ -109,9 +109,26 @@ export function vertreter(g, M, basis) {
 }
 
 /**
+ * Konventionelle Zelle mit derselben Händigkeit wie die gegebene (det > 0). bestimme() wählt unter
+ * gleichwertigen Zellen die, die der gegebenen am nächsten liegt; das kann eine linkshändige sein (z. B.
+ * −a, b). Da metrik() jede Zelle gleich händig darstellt, ergäbe die Umrechnung dann ein Spiegelbild.
+ * Abhilfe ohne Wechsel der Aufstellung, Ursprung fest: a′ → −a′ (schiefwinklig, rechteckig, quadratisch;
+ * die Spiegelung x → −x gehört zum Normalisator dieser Gruppen) bzw. a′ ↔ b′ (hexagonal, γ bleibt 120°).
+ * tests/bahnen.test.mjs prüft, dass die Gruppe danach in der neuen Zelle in der Aufstellung nach ITA steht.
+ * @param {Mat2} Z Spalten: konventionelle a′, b′ in Bruchkoordinaten der gegebenen Zelle
+ * @param {import('./ebenengruppen.js').System} system
+ * @returns {Mat2}
+ */
+export function rechtshaendig(Z, system) {
+  if (Z[0][0] * Z[1][1] - Z[0][1] * Z[1][0] > 0) return Z;
+  return system === 'hexagonal' ? [[Z[0][1], Z[0][0]], [Z[1][1], Z[1][0]]] : [[-Z[0][0], Z[0][1]], [-Z[1][0], Z[1][1]]];
+}
+
+/**
  * Struktur auf die konventionelle Zelle und den Ursprung nach ITA einer Bestimmung r umrechnen
  * (Übernahme der bestimmten Gruppe). Die neue Zelle wird wie jede gegebene Zelle mit |a| = 1 und b
  * waagrecht dargestellt (metrik()); das Bild dreht sich also mit, Motive drehen und skalieren gleich.
+ * Die Zelle wird vorher rechtshändig gemacht (rechtshaendig()), damit das Bild nur gedreht, nicht gespiegelt wird.
  * Ergebnis: neue Metrik und die Motive mit Lagen in der neuen Zelle, ohne Doppelte (ist die gegebene Zelle
  * grösser, fallen Motive zusammen). Noch nicht auf Vertreter reduziert; ist die neue Zelle zentriert und
  * grösser als die gegebene, fehlen die Bilder unter der Zentrierung, bis vertreter() und ausschreiben() sie ergänzen.
@@ -120,10 +137,16 @@ export function vertreter(g, M, basis) {
  */
 export function umrechnen(st, r) {
   const M = metrik(st);
-  const a = kart(M, [r.zelle[0][0], r.zelle[1][0]]); const b = kart(M, [r.zelle[0][1], r.zelle[1][1]]);
+  const Z = rechtshaendig(r.zelle, r.gruppe.system);
+  const a = kart(M, [Z[0][0], Z[1][0]]); const b = kart(M, [Z[0][1], Z[1][1]]);
   const la = Math.hypot(...a); const lb = Math.hypot(...b);
-  const ba = lb / la;
-  const gamma = (Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1]) / (la * lb)))) * 180) / Math.PI;
+  // exakt nach dem System der Gruppe (sonst entscheiden Rundungsfehler, welche der gleichwertigen Zellen die
+  // Bestimmung danach wählt, z. B. γ = 120,00000000000001); sonst auf 1e-9 gerundet
+  const sys = r.gruppe.system;
+  const rund = (/** @type {number} */ x) => Math.round(x * 1e9) / 1e9;
+  const ba = sys === 'quadratisch' || sys === 'hexagonal' ? 1 : rund(lb / la);
+  const gamma = sys === 'hexagonal' ? 120 : sys === 'schiefwinklig'
+    ? rund((Math.acos(Math.max(-1, Math.min(1, (a[0] * b[0] + a[1] * b[1]) / (la * lb)))) * 180) / Math.PI) : 90;
   const M2 = metrik({ ba, gamma: grad(gamma) });
   // T bildet die alten kartesischen Koordinaten auf die neuen ab: T · a = M2.a, T · b = M2.b
   /** @type {Mat2} */
@@ -134,8 +157,9 @@ export function umrechnen(st, r) {
   const T = mal([[M2.a[0], M2.b[0]], [M2.a[1], M2.b[1]]], altInv);
   const s = 1 / la; // Massstab: |a′| wird 1
   /** @type {Mat2} */
-  const Q = [[T[0][0] / s, T[0][1] / s], [T[1][0] / s, T[1][1] / s]]; // Drehung (oder Drehspiegelung)
-  const Zi = (() => { const Z = r.zelle; const dz = Z[0][0] * Z[1][1] - Z[0][1] * Z[1][0]; return [[Z[1][1] / dz, -Z[0][1] / dz], [-Z[1][0] / dz, Z[0][0] / dz]]; })();
+  const Q = [[T[0][0] / s, T[0][1] / s], [T[1][0] / s, T[1][1] / s]]; // Drehung (Zelle rechtshändig)
+  const dz = Z[0][0] * Z[1][1] - Z[0][1] * Z[1][0];
+  const Zi = [[Z[1][1] / dz, -Z[0][1] / dz], [-Z[1][0] / dz, Z[0][0] / dz]];
   /** @type {Basiseintrag[]} */
   const basis = [];
   for (const e of st.basis) {

@@ -3,12 +3,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe, punktAufLage } from '../js/symmetrie.js';
-import { metrik, grad } from '../js/zeichnung.js';
+import { metrik, kart, grad } from '../js/zeichnung.js';
 import { GITTER_START, STRUKTUR_BEREICH } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { MOTIVE, chiral } from '../js/motive.js';
 import { strukturSymmetrie, istGegeben } from '../js/struktur.js';
 import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen } from '../js/bahnen.js';
+
+/** @import { Mat2, Vec2 } from '../lib/common/js/typen.js' */
 
 /** @import { Basiseintrag, Struktur } from '../js/motive.js' */
 /** @import { Bestimmung } from '../js/bestimmung.js' */
@@ -136,6 +138,66 @@ test('Umrechnen von der primitiven auf die zentrierte Zelle: die Vertreter ergä
   const r2 = symmetrie({ ...u, basis: voll });
   assert.equal(r2.symbol, 'c2mm');
   assert.ok(istGegeben(r2));
+});
+
+test('Umrechnen aus anderen Zellen: Gruppe danach nach ITA in der neuen Zelle, Bild nur gedreht, nicht gespiegelt', () => {
+  // Struktur jeder Gruppe (Fähnchen in allgemeiner Lage) in einer anderen Zelle P beschrieben; P darf eine Überzelle sein.
+  // Die neue Darstellung dreht b′ auf die Waagrechte: Winkel der Motive minus Winkel von b′ (von Hand).
+  /** @type {Mat2[]} */
+  const zellen = [[[1, 0], [0, 1]], [[1, 1], [0, 1]], [[1, 0], [1, 1]], [[-1, 0], [0, -1]], [[1, -1], [0, 1]], [[0, 1], [-1, 0]], [[2, 0], [0, 1]], [[1, 0], [0, 2]]];
+  let links = 0; let n = 0;
+  for (const d of EBENENGRUPPEN) {
+    const g = gruppe(d.symbol); const gi = GITTER_START[d.system]; const M = metrik(gi);
+    const bahn = motivBahn(g, M, { motiv: 'fahne', farbe: 0, p: punktAufLage(g, allgemein(g).b, [0.137, 0.291]), winkel: grad(17) });
+    for (const P of zellen) {
+      const A = kart(M, [P[0][0], P[1][0]]); const B = kart(M, [P[0][1], P[1][1]]);
+      const la = Math.hypot(...A); const lb = Math.hypot(...B);
+      const ba = lb / la; const gamma = (Math.acos((A[0] * B[0] + A[1] * B[1]) / (la * lb)) * 180) / Math.PI;
+      if (ba < STRUKTUR_BEREICH.ba[0] || ba > STRUKTUR_BEREICH.ba[1] || gamma < STRUKTUR_BEREICH.gamma[0] || gamma > STRUKTUR_BEREICH.gamma[1]) continue;
+      if (A[0] * B[1] - A[1] * B[0] >= 0) continue; // nur Zellen, die metrik() ohne Spiegelung darstellt
+      const det = P[0][0] * P[1][1] - P[0][1] * P[1][0];
+      /** @param {Vec2} q @returns {Vec2} */
+      const neu = (q) => [(P[1][1] * q[0] - P[0][1] * q[1]) / det, (-P[1][0] * q[0] + P[0][0] * q[1]) / det];
+      const phi = (Math.atan2(B[1], B[0]) * 180) / Math.PI;
+      /** @type {Basiseintrag[]} */
+      const basis = [];
+      for (const e of bahn) for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++) {
+        const x = neu([e.p[0] + i, e.p[1] + j]);
+        if (x.every((v) => v >= -1e-9 && v < 1 - 1e-9)) basis.push({ ...e, p: x, winkel: grad((((Number(e.winkel) - phi) % 360) + 360) % 360) });
+      }
+      const st = { ba, gamma: grad(gamma), basis };
+      const r = symmetrie(st);
+      assert.equal(r.symbol, d.symbol, `${d.symbol} in ${JSON.stringify(P)}`);
+      if (r.zelle[0][0] * r.zelle[1][1] - r.zelle[0][1] * r.zelle[1][0] < 0) links++;
+      const u = umrechnen(st, r);
+      const r2 = symmetrie(u);
+      assert.equal(r2.symbol, d.symbol);
+      assert.ok(istGegeben(r2), `${d.symbol} in ${JSON.stringify(P)}: danach Zelle ${JSON.stringify(r2.zelle)}, Ursprung ${r2.ursprung}`);
+      // dasselbe Fähnchen (das erste) ist nach der Umrechnung so gespiegelt wie vorher
+      assert.equal(Boolean(u.basis[0].spiegel), Boolean(basis[0].spiegel), `${d.symbol} in ${JSON.stringify(P)}: nicht gespiegelt`);
+      n++;
+    }
+  }
+  assert.ok(n >= 80, `${n} Fälle`);
+  assert.ok(links > 0, 'darunter Fälle, in denen die Bestimmung eine linkshändige Zelle liefert');
+});
+
+test('Umrechnen: hexagonale Zelle a, a + b bei γ = 60° (Händigkeit hängt sonst an der Rundung)', () => {
+  // p6, Fähnchen in allgemeiner Lage; dieselbe Struktur in der Zelle a, a + b (γ = 60°)
+  const g = gruppe('p6'); const M = metrik(GITTER_START.hexagonal);
+  const bahn = motivBahn(g, M, { motiv: 'fahne', farbe: 0, p: [0.137, 0.291], winkel: grad(17) });
+  for (const gamma of [60, 60.00000000000001]) {
+    // neue Lagen: x = x′ + y′·(0)… von Hand: a′ = a, b′ = a + b ⇒ x = x′ + y′, y = y′ ⇒ x′ = x − y, y′ = y
+    const B = kart(M, [1, 1]); const phi = (Math.atan2(B[1], B[0]) * 180) / Math.PI;
+    /** @type {Basiseintrag[]} */
+    const basis = bahn.map((e) => ({ ...e, p: /** @type {Vec2} */ ([((e.p[0] - e.p[1]) % 1 + 1) % 1, e.p[1]]), winkel: grad((((Number(e.winkel) - phi) % 360) + 360) % 360) }));
+    const st = { ba: 1, gamma: grad(gamma), basis };
+    const r = symmetrie(st);
+    assert.equal(r.symbol, 'p6');
+    const u = umrechnen(st, r);
+    assert.ok(u.basis.every((e) => !e.spiegel), `γ = ${gamma}: p6 hat keine Spiegelungen, das Bild darf nicht gespiegelt werden`);
+    assert.ok(istGegeben(symmetrie(u)), `γ = ${gamma}`);
+  }
 });
 
 test('Vertreter: Zahl der Bahnen bei bekannten Strukturen', () => {
