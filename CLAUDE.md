@@ -136,6 +136,12 @@ für diese App gilt.
     Umkehroperation; ist ein Bild gewählt, zeigen Winkel und „gespiegelt“ das Bild, und Änderungen gehen ebenso
     über die Umkehroperation an den Vertreter (Wahl beim Umsetzen). Einrasten zuerst auf spezielle Lagen (`lage()`,
     Toleranz in Pixeln wie im Modus „Ebenengruppen“), sonst auf das 1/12-Raster.
+  - **Bedienung** (Wahl beim Umsetzen, #134): eigener Abschnitt „Symmetrie festhalten“ zwischen „Basis“ und „Gitter“.
+    Einschalten hält die bestimmte Gruppe fest; die Gruppenwahl (Knöpfe je Kristallsystem wie im Modus
+    „Ebenengruppen“) wirkt nur bei eingeschaltetem Schalter; „Bestimmte Gruppe übernehmen“ ist nur frei, wenn die
+    Bestimmung abweicht. Grund: Einschalten und Übernehmen tun dasselbe, aber je nur in einem Zustand, also kein
+    zweiter Weg zum selben Ergebnis (Leitfaden Abschn. 5.2). Mit festgehaltener Gruppe sind die Gitterregler
+    gesperrt, die das System festlegt.
   - **Zusammenfallende Bilder** auf einer speziellen Lage: Nur eines bleibt, das Bild der Identität, wie ein Atom
     auf einer speziellen Lage. Passt die eigene Symmetrie des Motivs nicht zur Lagesymmetrie, ergibt die
     Bestimmung deshalb eine niedrigere Gruppe; die Kenndaten nennen die Lage. Verworfen: alle Bilder überlagert
