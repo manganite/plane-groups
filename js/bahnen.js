@@ -7,7 +7,7 @@
 // Spiegelung S an der eigenen y-Achse (x → −x). Das Bild unter einer Operation mit kartesischem
 // Drehanteil C hat die Orientierung C · O.
 
-import { anwenden, mod1, lage } from './symmetrie.js';
+import { anwenden, mod1, lage, gruppe } from './symmetrie.js';
 import { TOL as TOL_BESTIMMUNG } from './bestimmung.js';
 import { metrik, kart, kartMatrix, grad } from './zeichnung.js';
 import { MOTIVE, motivKart, chiral } from './motive.js';
@@ -194,4 +194,15 @@ export function darstellbar(u, bereich) {
   const drin = (x, [lo, hi]) => x >= lo - 1e-9 && x <= hi + 1e-9;
   return drin(u.ba, bereich.ba) && drin(u.gamma, bereich.gamma)
     && u.basis.every((e) => drin(e.groesse ?? MOTIVE[e.motiv].groesse, bereich.groesse));
+}
+
+/**
+ * Struktur zum Zeichnen und Bestimmen: mit festgehaltener Gruppe die Bahnen der Vertreter ausgeschrieben, sonst
+ * unverändert. Das Gitter passt dann zum System der Gruppe (pruefeStruktur, gitterZurGruppe in zustand.js).
+ * @template {{ ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe?: string | null }} S
+ * @param {S} st @returns {S}
+ */
+export function ausgeschrieben(st) {
+  if (!st.festeGruppe) return st;
+  return { ...st, basis: ausschreiben(gruppe(st.festeGruppe), metrik(st), st.basis) };
 }

@@ -6,7 +6,8 @@ import { VORGABEN } from './vorgaben.js';
 import { MOTIVE, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1 } from './symmetrie.js';
-import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
+import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht } from './zustand.js';
+import { ausgeschrieben } from './bahnen.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { dezimal } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, modusTabs } from '../lib/common/js/seite.js';
@@ -44,6 +45,10 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** @type {string | null} */
   let vorher = null; // Symbol vor der letzten Änderung (für den Hinweis in den Kenndaten)
   const st = () => z.struktur;
+  /** Gezeichnete Struktur: mit festgehaltener Symmetrie die Bahnen der Vertreter ausgeschrieben. */
+  const gezeigt = () => ausgeschrieben(z.struktur);
+  /** Ist für ein weiteres Motiv bzw. eine weitere Bahn Platz (BASIS_GRENZE)? */
+  const platz = () => (st().basis.length + 1) * bahnGewicht(st().festeGruppe) <= BASIS_GRENZE;
   /** Moduswahl als Tab-Muster (Leitfaden Abschn. 5.4); entsteht in init(). @type {{ markieren: (id: string) => void } | null} */
   let modi = null;
 
@@ -96,7 +101,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     knopf('s-entfernen').disabled = gewaehlt === null;
     $('s-basis-titel').textContent = gewaehlt !== null ? `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})` : 'Neues Motiv';
     $('s-basis-hint').textContent = werkzeug === 'hinzufuegen'
-      ? (s.basis.length >= BASIS_GRENZE ? `Die Basis ist voll (${BASIS_GRENZE} Motive).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
+      ? (!platz() ? `Die Basis ist voll (höchstens ${BASIS_GRENZE} Motive${s.festeGruppe ? ', jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : ''}).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
       : gewaehlt !== null ? 'Die Einstellungen gelten für das gewählte Motiv. Ziehen verschiebt es; ins Leere tippen hebt die Auswahl auf.'
         : 'Motiv in der Struktur antippen, um es zu wählen und zu ziehen. Mit dem Werkzeug „Hinzufügen“ kommen neue Motive dazu.';
     for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
@@ -134,15 +139,16 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   function zeichnen({ nurA = false } = {}) {
     const f = farben();
     const s = st();
-    const a = strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, gewaehlt, fest);
+    // mit festgehaltener Symmetrie steht die Nummer der Auswahl nicht für ein gezeichnetes Motiv (Markierung folgt mit der Bedienung, #121)
+    const a = strukturTafelA(gezeigt(), { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, s.festeGruppe ? null : gewaehlt, fest);
     ansicht = a.ansicht;
     const r = a.ergebnis;
     if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
     grafik('bild-a').innerHTML = a.svg;
     if (nurA) return;
-    grafik('bild-b').innerHTML = strukturTafelB(s, f, r, z.zoomB).svg;
+    grafik('bild-b').innerHTML = strukturTafelB(gezeigt(), f, r, z.zoomB).svg;
     legende(f, r);
-    $('info').innerHTML = strukturHTML(s, r, vorher, f);
+    $('info').innerHTML = strukturHTML(gezeigt(), r, vorher, f);
   }
 
   // ---------------------------------------------------------------- Zeiger
@@ -187,7 +193,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const q = svgPunkt(e);
     const p = ansicht.vonBild(q);
     if (werkzeug === 'hinzufuegen') {
-      if (st().basis.length >= BASIS_GRENZE) return;
+      if (!platz()) return;
       /** @type {Basiseintrag} */
       const e0 = { motiv: neu.motiv, farbe: neu.farbe, p: raste(p), winkel: neu.winkel };
       if (neu.groesse !== null) e0.groesse = neu.groesse;
@@ -319,7 +325,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
 
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). @param {Farben} f @param {string} tafel */
   function bild(f, tafel) {
-    const s = st();
+    const s = gezeigt();
     if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s), z.zoomB).svg;
     return strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, null, ansicht).svg;
   }

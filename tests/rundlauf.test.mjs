@@ -78,6 +78,17 @@ function beispiele() {
   zs.modus = 'struktur'; zs.struktur = strukturStart('dreieck1');
   zs.struktur.basis = [{ motiv: 'fahne', farbe: 0, p: [0.2, 0.3], winkel: grad(30) }, { motiv: 'fahne', farbe: 0, p: [0.8, 0.3], winkel: grad(150), spiegel: true }];
   out.push(zs);
+  // festgehaltene Symmetrie (#121): Vertreter und Gruppe
+  for (const [v, sg, ba, gamma, basis] of /** @type {[string, string, number, number, import('../js/motive.js').Basiseintrag[]][]} */ ([
+    ['quadratisch', 'p4mm', 1, 90, [{ motiv: 'fahne', farbe: 0, p: [0.1, 0.2], winkel: grad(0) }, { motiv: 'atom', farbe: 1, p: [0.5, 0], winkel: grad(0) }]],
+    ['graphen', 'p6', 1, 120, [{ motiv: 'fahne', farbe: 2, p: [0.15, 0.3], winkel: grad(40), spiegel: true, groesse: 0.2 }]],
+    ['zentriert', 'c2mm', 1.6, 90, [{ motiv: 'dreieck', farbe: 0, p: [0, 0.25], winkel: grad(90) }]],
+    ['schiefwinklig', 'p2', 1.25, 105, [{ motiv: 'w2', farbe: 0, p: [0.5, 0.5], winkel: grad(20) }]],
+  ])) {
+    const zf = startzustand();
+    zf.modus = 'struktur'; zf.struktur = { ...strukturStart(v), festeGruppe: sg, ba, gamma: grad(gamma), basis };
+    out.push(zf);
+  }
   return out;
 }
 
