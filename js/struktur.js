@@ -347,7 +347,7 @@ export function strukturHTML(st, r, vorher, farben) {
     ? `<div class="warumbox"><strong>Geändert: ${symbolHTML(vorher)} → ${symbolHTML(r.symbol)}</strong> (Operationen je Zelle ${gruppe(vorher).ordnung} → ${r.ordnung})</div>` : '';
   const zeilen = st.basis.map((e, k) => {
     const l = lagen[k];
-    return `<tr><td><i class="sw" style="background:${f[(e.farbe ?? 0) % f.length]}"></i> ${MOTIVE[e.motiv].name}</td><td>${lageHTML(MOTIVE[e.motiv].symmetrie)}</td>
+    return `<tr><td><i class="sw" style="background:${f[(e.farbe ?? 0) % f.length]}"></i> ${MOTIVE[e.motiv].name}${e.spiegel ? ' (gespiegelt)' : ''}</td><td>${lageHTML(MOTIVE[e.motiv].symmetrie)}</td>
       <td>${koordText(e.p.map(mod1))}</td><td>${koordText(l.x)}</td>
       <td class="num">${l.zaehligkeit} <span class="wy">${l.buchstabe}</span></td><td>${lageHTML(l.symbol)}</td></tr>`;
   }).join('');

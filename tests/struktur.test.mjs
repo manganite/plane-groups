@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { VORGABEN, vorgabe } from '../js/vorgaben.js';
-import { MOTIVE, motivKart } from '../js/motive.js';
+import { MOTIVE, motivKart, chiral } from '../js/motive.js';
 import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur } from '../js/zustand.js';
 import { metrik, kart } from '../js/zeichnung.js';
@@ -222,6 +222,54 @@ test('Basis als Text: ungültige Einträge fallen weg', () => {
   assert.equal(b[1].groesse, 1, 'Grösse ausserhalb des Bereichs: nächster gültiger Wert (Leitfaden 5.2)');
   assert.equal(b[2].groesse, 0.1);
   assert.equal(basisText([{ motiv: 'atom', farbe: 0, p: [1 / 3, 2 / 3], winkel: grad(0), groesse: 0.045 }]), 'atom,0,1/3,2/3,0');
+});
+
+test('Spiegelbild: genau die chiralen Motive ändern sich, wenn man sie an der eigenen y-Achse spiegelt', () => {
+  for (const [k, d] of Object.entries(MOTIVE)) {
+    // unabhängig vom Code: x → −x bildet die Punkte (mit Art) auf sich ab?
+    const symmetrisch = d.punkte.every(([x, y, a]) => d.punkte.some(([u, v, b]) => a === b && Math.abs(u + x) < 1e-12 && Math.abs(v - y) < 1e-12));
+    assert.equal(chiral(k), !symmetrisch, k);
+  }
+  assert.deepEqual(Object.keys(MOTIVE).filter(chiral), ['fahne', 'w2', 'w3', 'w4', 'w6']);
+  // gespiegelt vor der Drehung: die Fahne zeigt nach −x, gedreht um 90° (im Uhrzeigersinn, y nach unten) nach −y
+  const spitze = (/** @type {Partial<Basiseintrag>} */ e) => motivKart({ motiv: 'fahne', groesse: 1, ...e }).find((q) => q.art === 'f2')?.c;
+  const nah = (/** @type {Vec2 | undefined} */ c, /** @type {Vec2} */ z) => assert.ok(c && Math.hypot(c[0] - z[0], c[1] - z[1]) < 1e-12, `${c} ≠ ${z}`);
+  nah(spitze({}), [0.85, -0.6]);
+  nah(spitze({ spiegel: true }), [-0.85, -0.6]);
+  nah(spitze({ spiegel: true, winkel: grad(90) }), [0.6, -0.85]);
+});
+
+test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm', () => {
+  // pm (ITA): Spiegelung −x, y; a zeigt im Bild nach unten, b nach rechts, also kartesisch diag(1, −1) = Drehung 180° nach x → −x.
+  // Bild eines Fähnchens mit Winkel w: gespiegelt, Winkel 180° − w (von Hand, nicht mit dem Code gerechnet).
+  /** @type {(spiegel: boolean) => Struktur} */
+  const s = (spiegel) => ({ ba: 1.35, gamma: grad(90), basis: [
+    { motiv: 'fahne', farbe: 0, p: [0.2, 0.3], winkel: grad(30) },
+    { motiv: 'fahne', farbe: 0, p: [0.8, 0.3], winkel: grad(150), ...(spiegel ? { spiegel: /** @type {true} */ (true) } : {}) },
+  ] });
+  assert.equal(symmetrie(s(true)).symbol, 'pm');
+  assert.notEqual(symmetrie(s(false)).symbol, 'pm', 'ohne Spiegelung kein Spiegelbild');
+});
+
+test('Spiegelbild im Link: letztes Feld „m“, ältere Links gelten weiter', () => {
+  const b = liesBasis('fahne,0,1/4,0,30,m;fahne,1,1/4,1/2,30,0.2,m;fahne,2,0,0,30;dreieck,0,0,0,0,m;w3,0,0,0,0,0.2;atom,0,0,0,m');
+  assert.deepEqual(b.map((e) => [e.motiv, e.spiegel ?? false, e.groesse ?? null]),
+    [['fahne', true, null], ['fahne', true, 0.2], ['fahne', false, null], ['dreieck', false, null], ['w3', false, 0.2], ['atom', false, null]],
+    'm am Ende: gespiegelt, bei achiralen Motiven ohne Wirkung; „m“ an der Stelle des Winkels ist kein Spiegelbild');
+  assert.equal(basisText(b), 'fahne,0,1/4,0,30,m;fahne,1,1/4,1/2,30,0.2,m;fahne,2,0,0,30;dreieck,0,0,0,0;w3,0,0,0,0,0.2;atom,0,0,0,0');
+  assert.equal(basisText([{ motiv: 'quadrat', farbe: 0, p: [0, 0], winkel: grad(0), spiegel: true }]), 'quadrat,0,0,0,0', 'achiral: kein m');
+});
+
+test('Spiegelbild im Speicher und gegenüber der Vorgabe', () => {
+  const s = /** @type {StrukturZustand} */ (pruefeStruktur({ ba: 1, gamma: 90, basis: [
+    { motiv: 'fahne', p: [0, 0], spiegel: true }, { motiv: 'fahne', p: [0, 0], spiegel: 'ja' }, { motiv: 'fahne', p: [0, 0], spiegel: false }, { motiv: 'atom', p: [0, 0], spiegel: true },
+  ] }));
+  assert.deepEqual(s.basis.map((e) => e.spiegel), [true, undefined, undefined, undefined], 'nur true und nur bei chiralen Motiven');
+  assert.ok(!('spiegel' in s.basis[1]), 'kein Feld spiegel: false');
+  const z = strukturStart('dreieck1');
+  assert.equal(wieVorgabe(z), true);
+  z.basis[0].spiegel = true;
+  assert.equal(wieVorgabe(z), false, 'spiegel zählt beim Vergleich mit der Vorgabe');
 });
 
 test('Struktur aus dem Speicher prüfen', () => {
