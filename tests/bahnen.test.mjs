@@ -208,6 +208,23 @@ test('Vertreter: Zahl der Bahnen bei bekannten Strukturen', () => {
   }
 });
 
+test('Vertreter: fast symmetrische Lagen (innerhalb der Toleranz der Bestimmung) fallen ganz zusammen', () => {
+  // p2mm, Atom fast auf der Spiegellinie x = 0 und sein Bild; dazu ein zweites Atom 5e-5 neben dem Bild eines ersten
+  const R = GITTER_START.rechteckig; const M = metrik(R); const g = gruppe('p2mm');
+  /** @type {Basiseintrag[]} */
+  const basis = [
+    { motiv: 'atom', farbe: 0, p: [0.00004, 0.3], winkel: grad(0) },
+    { motiv: 'atom', farbe: 0, p: [0.99996, 0.7], winkel: grad(0) },
+    { motiv: 'fahne', farbe: 1, p: [0.2, 0.3], winkel: grad(10) },
+    { motiv: 'fahne', farbe: 1, p: [0.80005, 0.3], winkel: grad(170), spiegel: true },
+  ];
+  const vt = vertreter(g, M, basis);
+  assert.equal(vt.length, 2, 'ein Vertreter je Bahn');
+  assert.ok(vt[0].p[0] === 0 && Math.abs(vt[0].p[1] - 0.3) < 1e-12, `auf die Spiegellinie eingerastet: ${vt[0].p}`);
+  assert.equal(ausschreiben(g, M, vt).length, 2 + 4, 'Atom auf der Spiegellinie: 2 Bilder; Fähnchen allgemein: 4');
+  assert.equal(symmetrie({ ...R, basis: ausschreiben(g, M, vt) }).symbol, 'p2mm');
+});
+
 test('Vertreter in einer kleineren Gruppe als der bestimmten: mehr Bahnen, dieselbe Struktur', () => {
   const v = /** @type {import('../js/vorgaben.js').Vorgabe} */ (VORGABEN.find((x) => x.id === 'kagome'));
   const M = metrik(v.gitter);

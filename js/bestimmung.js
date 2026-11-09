@@ -31,7 +31,8 @@ import { gruppe, mod1 } from './symmetrie.js';
  * @typedef {{ symbol: string, gruppe: Ebenengruppe, ordnung: number, system: System, a: Kartesisch<Vec2>, b: Kartesisch<Vec2>, zelle: Mat2, ursprung: Vec2, punkte: Strukturpunkt[], primitiv: number }} Bestimmung
  */
 
-const TOL = 1e-4; // Lage in Bruchteilen der Zelle
+/** Toleranz für Lagen in Bruchteilen der Zelle (auch beim Zusammenfassen zu Vertretern, bahnen.js). */
+export const TOL = 1e-4;
 const TOL_METRIK = 1e-6; // relativ
 
 /** @type {(a: Mat2, b: Mat2) => Mat2} */

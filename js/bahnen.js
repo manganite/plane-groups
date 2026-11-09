@@ -7,7 +7,8 @@
 // Spiegelung S an der eigenen y-Achse (x → −x). Das Bild unter einer Operation mit kartesischem
 // Drehanteil C hat die Orientierung C · O.
 
-import { anwenden, mod1, TOL_LAGE } from './symmetrie.js';
+import { anwenden, mod1, lage, TOL_LAGE } from './symmetrie.js';
+import { TOL as TOL_BESTIMMUNG } from './bestimmung.js';
 import { metrik, kart, kartMatrix, grad } from './zeichnung.js';
 import { MOTIVE, motivKart, chiral } from './motive.js';
 
@@ -82,26 +83,28 @@ export function gleichesMotiv(a, b, tol = TOL_LAGE) {
   if (a.motiv !== b.motiv || (a.farbe ?? 0) !== (b.farbe ?? 0)) return false;
   const ga = a.groesse ?? MOTIVE[a.motiv].groesse; const gb = b.groesse ?? MOTIVE[b.motiv].groesse;
   if (Math.abs(ga - gb) > 1e-9 || abstandMod(a.p, b.p) >= tol) return false;
-  // Punkte relativ zur Mitte, in Einheiten der Motivgrösse verglichen
+  // Punkte relativ zur Mitte (kartesisch, |a| = 1), mit derselben Toleranz wie die Lage, mindestens 1e-6 der Grösse
   const pa = motivKart(a); const pb = motivKart(b);
-  const t = 1e-6 * ga;
+  const t = Math.max(1e-6 * ga, tol);
   return pa.every((x) => pb.some((y) => x.art === y.art && Math.hypot(x.c[0] - y.c[0], x.c[1] - y.c[1]) < t));
 }
 
 /**
  * Vertreter je Bahn (beim Einschalten von „Symmetrie festhalten“): Jedes Motiv wird Vertreter, ausser
- * es ist schon Bild eines früheren Vertreters (gleichesMotiv()). Bei der bestimmten Gruppe einer Struktur
- * bleibt so je Bahn genau ein Motiv.
- * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag[]} basis @returns {Basiseintrag[]}
+ * es ist schon Bild eines früheren Vertreters (gleichesMotiv()). Verglichen wird mit der Toleranz der
+ * Bestimmung, und ein Vertreter rastet mit ihr auf eine spezielle Lage ein: Was die Bestimmung als
+ * symmetrisch erkennt, fällt so ganz zusammen. Bei der bestimmten Gruppe einer Struktur bleibt je Bahn
+ * genau ein Motiv.
+ * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag[]} basis @param {number} [tol] @returns {Basiseintrag[]}
  */
-export function vertreter(g, M, basis) {
+export function vertreter(g, M, basis, tol = TOL_BESTIMMUNG) {
   /** @type {Basiseintrag[]} */
   const out = [];
   /** @type {Basiseintrag[]} */
   const bilder = [];
   for (const e of basis) {
-    if (bilder.some((b) => gleichesMotiv(b, e))) continue;
-    const v = { ...e, p: /** @type {Vec2} */ (e.p.map(mod1)) };
+    if (bilder.some((b) => gleichesMotiv(b, e, tol))) continue;
+    const v = { ...e, p: lage(g, e.p, tol).punkt };
     out.push(v);
     bilder.push(...motivBahn(g, M, v));
   }
