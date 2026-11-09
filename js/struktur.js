@@ -171,8 +171,12 @@ function bindungenSVG(st, A, M, bereich, farbe) {
 /** Ansicht der konventionellen Zelle: Bruchkoordinaten der konventionellen Zelle → Bild. @type {(A: Ansicht, r: Bestimmung) => Ansicht} */
 const konvAnsicht = (A, r) => ({ ...A, zuBild: (x) => A.zuBild(ausKonventionell(r, x)) });
 
-/** Ist die konventionelle Zelle die gegebene (gleiche Achsen, Ursprung bei 0, 0)? @param {Bestimmung} r */
-export const istGegeben = (r) => r.zelle[0][0] === 1 && r.zelle[1][1] === 1 && r.zelle[0][1] === 0 && r.zelle[1][0] === 0
+/**
+ * Ist die konventionelle Zelle die gegebene (gleiche Achsen, Ursprung bei 0, 0)? Mit Toleranz: Bei zentrierten
+ * Gittern entsteht die Zelle aus der primitiven und trägt Rundungsfehler (z. B. 0,9999999999999999).
+ * @param {Bestimmung} r
+ */
+export const istGegeben = (r) => [[1, 0], [0, 1]].every((z, i) => z.every((x, j) => Math.abs(r.zelle[i][j] - x) < 1e-9))
   && Math.abs(r.ursprung[0]) < 1e-9 && Math.abs(r.ursprung[1]) < 1e-9;
 
 /**
