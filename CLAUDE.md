@@ -112,8 +112,8 @@ für diese App gilt.
     soll auch ganz zusammenfallen, statt fast deckungsgleiche Bahnen zu doppeln.
   - **Übernahme der bestimmten Gruppe:** Die festgehaltene Gruppe steht in der gegebenen Zelle in der
     Aufstellung nach ITA. Weicht die konventionelle Zelle oder der Ursprung ab, rechnet die Übernahme die Struktur
-    um (*b*/*a*, γ, Lagen, Winkel und Grösse der Motive). Das Bild dreht sich dabei, weil *b* immer waagrecht liegt;
-    die Kenndaten nennen die Umstellung. Unter den Vorgaben betrifft das `dreieck3`, `fisch` (Ursprung) und
+    um (*b*/*a*, γ, Lagen, Winkel und Grösse der Motive). Mit anderer Zelle dreht sich das Bild, weil *b* immer
+    waagrecht liegt; mit anderem Ursprung verschiebt es sich nur. Die Kenndaten nennen die Umstellung. Unter den Vorgaben betrifft das `dreieck3`, `fisch` (Ursprung) und
     `drittel`, `flecht` (Zelle). Wahl beim Umsetzen: Liefert die Bestimmung eine linkshändige Zelle (z. B. −*a*,
     *b*; je nach Rundung schon bei γ = 60°), wird sie vorher rechtshändig gemacht (*a*′ → −*a*′, hexagonal *a*′ ↔
     *b*′), sonst wäre das Bild gespiegelt; *b*/*a* und γ werden exakt nach dem System gesetzt. Liegen danach Metrik
@@ -141,7 +141,10 @@ für diese App gilt.
     „Ebenengruppen“) wirkt nur bei eingeschaltetem Schalter; „Bestimmte Gruppe übernehmen“ ist nur frei, wenn die
     Bestimmung abweicht. Grund: Einschalten und Übernehmen tun dasselbe, aber je nur in einem Zustand, also kein
     zweiter Weg zum selben Ergebnis (Leitfaden Abschn. 5.2). Mit festgehaltener Gruppe sind die Gitterregler
-    gesperrt, die das System festlegt.
+    gesperrt, die das System festlegt, und von „Metrik setzen“ nur, was nicht ins System passt (in *p*2*mm* bleibt
+    *b* = *a* frei: zufällige Zusatzsymmetrie). Die Wahl einer anderen Gruppe führt die gezeichneten Motive unter
+    ihr wieder auf Vertreter zurück, wie das Einschalten. Liegt ein gewähltes Bild auf einer speziellen Lage, zeigt
+    die Auswahl das dort gezeichnete Bild (Review #134: sonst zeigten die Regler ein unsichtbares Bild).
   - **Zusammenfallende Bilder** auf einer speziellen Lage: Nur eines bleibt, das Bild der Identität, wie ein Atom
     auf einer speziellen Lage. Passt die eigene Symmetrie des Motivs nicht zur Lagesymmetrie, ergibt die
     Bestimmung deshalb eine niedrigere Gruppe; die Kenndaten nennen die Lage. Verworfen: alle Bilder überlagert
