@@ -200,7 +200,7 @@ Strikt geprüft werden alle Dateien in `js/`, `tools/` und `tests/`. Mit den ins
 
 - Skript als PDF: `node tools/skript-pdf.mjs [Ausgabedatei]` (braucht Playwright mit Chromium)
 - Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml` (mit `--entwurf` auch die ungeprüften Fragen)
-- Bedienung von „Symmetrie festhalten“ im Browser prüfen: `node tools/festhalten-pruefen.mjs` (Klicks und Ziehen mit der Maus, Link, Kenndaten, Konsole; braucht Playwright mit Chromium). Vor einem Release und nach Änderungen an `js/struktur-ui.js` oder `js/bahnen.js` laufen lassen.
+- Bedienung von „Symmetrie festhalten“ im Browser prüfen: `node tools/festhalten-pruefen.mjs` (Klicks und Ziehen mit der Maus, Link, Kenndaten, Konsole; braucht Playwright mit Chromium). Läuft auch in der CI (Job `pdf`, der Chromium schon hat); lokal nach Änderungen an `js/struktur-ui.js` oder `js/bahnen.js`.
 - Prüfung und Rückmeldungen zum Quiz: in der gemeinsamen Fragenliste der App-Familie (crystallography-common, `fragenliste/`). Eine Frage wird erst „geprüft“, wenn sie dort fachlich freigegeben ist.
 
 ### Versionen und Releases

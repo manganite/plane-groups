@@ -149,7 +149,8 @@ für diese App gilt.
     Konventionen abfragt und die Bedingung „Motiv auf spezieller Lage braucht deren Lagesymmetrie“ schon Fragen zu
     Kap. 6 prüfen; zwei Experimente: Fähnchen bzw. Windrad 4 auf dem Drehpunkt von *p*4 (`festhalten-lage`), *p*2*mm*
     mit *b* = *a* (`festhalten-metrik`). Die Bedienung prüft ein Browserlauf (`tools/festhalten-pruefen.mjs`), weil
-    die Tests ohne Browser laufen (Leitfaden Abschn. 9).
+    die Tests ohne Browser laufen (Leitfaden Abschn. 9); er läuft in der CI im Job `pdf` mit, der Chromium schon hat
+    (Review #135).
   - **Zusammenfallende Bilder** auf einer speziellen Lage: Nur eines bleibt, das Bild der Identität, wie ein Atom
     auf einer speziellen Lage. Passt die eigene Symmetrie des Motivs nicht zur Lagesymmetrie, ergibt die
     Bestimmung deshalb eine niedrigere Gruppe; die Kenndaten nennen die Lage. Verworfen: alle Bilder überlagert
