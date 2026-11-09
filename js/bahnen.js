@@ -8,6 +8,7 @@
 // Drehanteil C hat die Orientierung C · O.
 
 import { anwenden, mod1, lage, gruppe } from './symmetrie.js';
+import { ebenengruppe } from './ebenengruppen.js';
 import { TOL as TOL_BESTIMMUNG } from './bestimmung.js';
 import { metrik, kart, kartMatrix, grad } from './zeichnung.js';
 import { MOTIVE, motivKart, chiral } from './motive.js';
@@ -59,13 +60,13 @@ export const motivBahn = (g, M, e) => bilderMitOperation(g, M, e).map((b) => b.b
 
 /**
  * Bild eines Motivs unter einer Operation (Lage in [0, 1)²), ohne Prüfung auf Zusammenfallen.
- * @param {Op} op @param {Metrik} M @param {Basiseintrag} e @returns {Basiseintrag}
+ * @param {Op} op @param {Metrik} M @param {Basiseintrag} e @param {string} [name] Symbol der Gruppe, für die Fehlermeldung @returns {Basiseintrag}
  */
-export function bildUnter(op, M, e) {
+export function bildUnter(op, M, e, name = '') {
   const K = kartMatrix(M, op.R);
   // nur, wenn das Gitter zum System der Gruppe passt (sorgt der Aufrufer dafür); sonst wäre K keine Drehung
   if (Math.abs(K[0][0] * K[0][0] + K[1][0] * K[1][0] - 1) > 1e-6 || Math.abs(K[0][0] * K[0][1] + K[1][0] * K[1][1]) > 1e-6) {
-    throw new Error('Gitter passt nicht zur Gruppe');
+    throw new Error(`Gitter passt nicht zur Gruppe${name ? ` ${name}` : ''}`);
   }
   /** @type {Basiseintrag} */
   const bild = { motiv: e.motiv, p: /** @type {Vec2} */ (anwenden(op, e.p).map(mod1)), ...ausOrientierung(mal(K, orientierung(e)), e.motiv) };
@@ -84,7 +85,7 @@ export function bilderMitOperation(g, M, e) {
   g.alle.forEach((op, i) => {
     const p = /** @type {Vec2} */ (anwenden(op, e.p).map(mod1));
     if (out.some((b) => abstandMod(b.bild.p, p) < TOL_BESTIMMUNG)) return;
-    out.push({ bild: bildUnter(op, M, e), op: i });
+    out.push({ bild: bildUnter(op, M, e, g.daten.symbol), op: i });
   });
   return out;
 }
@@ -245,4 +246,70 @@ export function darstellbar(u, bereich) {
 export function ausgeschrieben(st) {
   if (!st.festeGruppe) return st;
   return { ...st, basis: ausschreiben(gruppe(st.festeGruppe), metrik(st), st.basis) };
+}
+
+// ---------------------------------------------------------------- Bedienung (struktur-ui.js), testbar ohne Seite
+
+/**
+ * Operation, unter der das Bild eines Vertreters gezeichnet ist, das an derselben Lage liegt wie sein Bild unter op.
+ * Fallen auf einer speziellen Lage Bilder zusammen, ist nur das erste gezeichnet (motivBahn); eine Auswahl muss
+ * dann dieses zeigen, sonst zeigten die Regler ein unsichtbares Bild.
+ * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e @param {number} op Nummer in g.alle
+ */
+export function sichtbareOp(g, M, e, op) {
+  const p = /** @type {Vec2} */ (anwenden(g.alle[op], e.p).map(mod1));
+  return bilderMitOperation(g, M, e).find((b) => abstandMod(b.bild.p, p) < TOL_BESTIMMUNG)?.op ?? op;
+}
+
+/**
+ * Gitter im System einer Gruppe: die freien Parameter bleiben, die übrigen nach dem System (bei der Wahl einer Gruppe).
+ * @param {{ ba: number, gamma: number }} gi @param {string} sym @returns {{ ba: number, gamma: Grad }}
+ */
+export function gitterImSystem(gi, sym) {
+  const sys = ebenengruppe(sym).system;
+  if (sys === 'schiefwinklig') return { ba: gi.ba, gamma: grad(gi.gamma) };
+  if (sys === 'rechteckig') return { ba: gi.ba, gamma: grad(90) };
+  return { ba: 1, gamma: grad(sys === 'hexagonal' ? 120 : 90) };
+}
+
+/**
+ * Wahl einer Gruppe sym (CLAUDE.md, „Symmetrie festhalten“, Bedienung): die gezeichneten Motive werden unter der
+ * neuen Gruppe auf Vertreter reduziert, wie beim Einschalten; das Gitter folgt dem System. null, wenn die Grenze
+ * überschritten würde.
+ * @param {{ ba: number, gamma: number, basis: Basiseintrag[] }} gezeichnet @param {string} sym @param {number} grenze
+ * @returns {{ ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe: string } | null}
+ */
+export function mitGruppe(gezeichnet, sym, grenze) {
+  const gi = gitterImSystem(gezeichnet, sym);
+  const g = gruppe(sym);
+  const basis = vertreter(g, metrik(gi), gezeichnet.basis);
+  return basis.length * g.ordnung <= grenze ? { ...gi, basis, festeGruppe: sym } : null;
+}
+
+/**
+ * Übernahme der bestimmten Gruppe r (Einschalten und „Bestimmte Gruppe übernehmen“): falls nötig umgerechnet auf
+ * konventionelle Zelle und Ursprung nach ITA, dann je Bahn ein Vertreter. Mit der Umstellung für die Kenndaten
+ * (zelle: Zelle in Vielfachen der vorherigen oder '', ursprung: neuer Ursprung oder null), oder { grund }.
+ * @param {{ ba: number, gamma: Grad, basis: Basiseintrag[] }} gezeichnet @param {Bestimmung | null} r
+ * @param {{ ba: [number, number], gamma: [number, number], groesse: [number, number] }} bereich @param {number} grenze
+ * @returns {{ struktur: { ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe: string }, umstellung: { zelle: Mat2 | null, ursprung: Vec2 | null } } | { grund: string }}
+ */
+export function uebernahmeVon(gezeichnet, r, bereich, grenze) {
+  if (!r) return { grund: 'Die Basis ist leer.' };
+  let u = { ba: gezeichnet.ba, gamma: gezeichnet.gamma, basis: gezeichnet.basis };
+  /** @type {{ zelle: Mat2 | null, ursprung: Vec2 | null }} */
+  const umstellung = { zelle: null, ursprung: null };
+  const Z = rechtshaendig(r.zelle, r.gruppe.system);
+  const gleicheZelle = [[1, 0], [0, 1]].every((z, i) => z.every((x, j) => Math.abs(Z[i][j] - x) < 1e-9));
+  const verschoben = Math.abs(r.ursprung[0]) > 1e-9 || Math.abs(r.ursprung[1]) > 1e-9;
+  if (!gleicheZelle || verschoben) {
+    u = umrechnen(gezeichnet, r);
+    if (!darstellbar(u, bereich)) return { grund: 'Die konventionelle Zelle der bestimmten Gruppe liesse sich mit den Reglern nicht darstellen (Gitter oder Grösse eines Motivs ausserhalb des Bereichs).' };
+    if (!gleicheZelle) umstellung.zelle = Z;
+    if (verschoben) umstellung.ursprung = r.ursprung;
+  }
+  const g = gruppe(r.symbol);
+  const basis = vertreter(g, metrik(u), u.basis);
+  if (basis.length * g.ordnung > grenze) return { grund: `Mit festgehaltener Symmetrie wären es mehr als ${grenze} Motive (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).` };
+  return { struktur: { ba: u.ba, gamma: u.gamma, basis, festeGruppe: r.symbol }, umstellung };
 }

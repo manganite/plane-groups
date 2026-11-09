@@ -7,8 +7,8 @@ import { metrik, kart, grad } from '../js/zeichnung.js';
 import { GITTER_START, STRUKTUR_BEREICH } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { MOTIVE, chiral } from '../js/motive.js';
-import { strukturSymmetrie, istGegeben } from '../js/struktur.js';
-import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar, bilderMitOperation, bildUnter, vertreterVon, passtNichtZurLage } from '../js/bahnen.js';
+import { strukturSymmetrie, istGegeben, festHinweisHTML } from '../js/struktur.js';
+import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar, bilderMitOperation, bildUnter, vertreterVon, passtNichtZurLage, sichtbareOp, mitGruppe, uebernahmeVon } from '../js/bahnen.js';
 import { basisText, liesBasis } from '../js/zustand.js';
 
 /** @import { Mat2, Vec2 } from '../lib/common/js/typen.js' */
@@ -349,4 +349,76 @@ test('passtNichtZurLage: eigene Symmetrie des Motivs gegen die Lagesymmetrie', (
   assert.equal(passtNichtZurLage(gruppe('p4mm'), Q, e('quadrat', [0, 0], 30)), true, 'Quadrat gedreht auf 4mm');
   assert.equal(passtNichtZurLage(gruppe('p4mm'), Q, e('quadrat', [0, 0], 0)), false, 'Quadrat in Achsenlage auf 4mm');
   assert.equal(passtNichtZurLage(gruppe('p4mm'), Q, e('w4', [0.5, 0.5], 0)), true, 'Windrad 4 auf 4mm: Spiegellinien fehlen');
+});
+
+test('sichtbareOp: auf einer speziellen Lage zeigt die Auswahl das gezeichnete Bild', () => {
+  const g = gruppe('p4mm'); const M = metrik(GITTER_START.quadratisch);
+  /** @type {Basiseintrag} */
+  const allg = { motiv: 'fahne', farbe: 0, p: [0.13, 0.29], winkel: grad(30) };
+  for (let op = 0; op < g.alle.length; op++) assert.equal(sichtbareOp(g, M, allg, op), op, 'allgemeine Lage: jedes Bild gezeichnet');
+  // auf ½, ½ (Lage 1b, 4mm) fallen alle Bilder zusammen; gezeichnet ist nur das der Identität
+  /** @type {Basiseintrag} */
+  const speziell = { ...allg, p: [0.5, 0.5] };
+  assert.equal(motivBahn(g, M, speziell).length, 1);
+  for (let op = 0; op < g.alle.length; op++) assert.equal(sichtbareOp(g, M, speziell, op), 0);
+});
+
+test('mitGruppe: gezeichnete Motive unter einer anderen Gruppe auf Vertreter zurückgeführt, Gitter nach dem System', () => {
+  const v = /** @type {import('../js/vorgaben.js').Vorgabe} */ (VORGABEN.find((x) => x.id === 'kagome'));
+  const gez = { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis };
+  const p6 = mitGruppe(gez, 'p6', 48);
+  assert.ok(p6 && p6.basis.length === 1 && p6.festeGruppe === 'p6' && p6.ba === 1 && p6.gamma === 120);
+  assert.equal(mitGruppe(gez, 'p6mm', 11), null, 'eine Bahn × 12 > 11: Grenze');
+  // rechteckig: b/a bleibt, γ = 90°
+  const r = mitGruppe({ ba: 1.3, gamma: grad(100), basis: [{ motiv: 'atom', farbe: 0, p: [0.2, 0.3], winkel: grad(0) }] }, 'pm', 48);
+  assert.deepEqual(r && [r.ba, r.gamma, r.basis.length], [1.3, 90, 1]);
+});
+
+test('uebernahmeVon: Umstellung der Zelle bzw. nur des Ursprungs, Gründe', () => {
+  /** @param {string} id */
+  const von = (id) => {
+    const v = /** @type {import('../js/vorgaben.js').Vorgabe} */ (VORGABEN.find((x) => x.id === id));
+    const gez = { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis };
+    return uebernahmeVon(gez, symmetrie(gez), STRUKTUR_BEREICH, 48);
+  };
+  const d = von('drittel'); const o = von('dreieck3'); const k = von('kagome');
+  assert.ok('struktur' in d && d.umstellung.zelle !== null, 'drittel: andere Zelle');
+  assert.ok('struktur' in o && o.umstellung.zelle === null && o.umstellung.ursprung !== null, 'dreieck3: nur der Ursprung');
+  assert.deepEqual('struktur' in o && o.umstellung.ursprung, [0.25, 0.25]);
+  assert.ok('struktur' in k && k.umstellung.zelle === null && k.umstellung.ursprung === null && k.struktur.festeGruppe === 'p6mm');
+  assert.deepEqual(uebernahmeVon({ ba: 1, gamma: grad(90), basis: [] }, null, STRUKTUR_BEREICH, 48), { grund: 'Die Basis ist leer.' });
+  const kv = /** @type {import('../js/vorgaben.js').Vorgabe} */ (VORGABEN.find((x) => x.id === 'kagome'));
+  const kg = { ba: kv.gitter.ba, gamma: kv.gitter.gamma, basis: kv.basis };
+  assert.ok('grund' in uebernahmeVon(kg, symmetrie(kg), STRUKTUR_BEREICH, 11), 'Grenze');
+});
+
+test('festHinweisHTML: Motiv passt nicht zur Lage, zufällige Zusatzsymmetrie, Umstellung', () => {
+  const R = GITTER_START.rechteckig;
+  // pm, Dreieck auf der Spiegellinie (0, y), um 45° gedreht: eigene Symmetrie m, aber falsch ausgerichtet
+  const st = { ...R, festeGruppe: 'pm', basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(45) }]) };
+  const r = symmetrie({ ...st, basis: ausschreiben(gruppe('pm'), metrik(R), st.basis) });
+  const h = festHinweisHTML(st, r);
+  assert.match(h, /passen nicht zu ihrer Lage/);
+  assert.match(h, /Wyckoff-Lage 1<span class="wy">a<\/span>/);
+  assert.match(h, /so ausgerichtet/);
+  assert.doesNotMatch(h, /hat aber nur/);
+  // p2mm mit b/a = 1: mehr Symmetrie als festgehalten (p4mm)
+  const q = { ba: 1, gamma: grad(90), festeGruppe: 'p2mm', basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'atom', farbe: 0, p: [0, 0], winkel: grad(0) }]) };
+  const rq = symmetrie({ ...q, basis: ausschreiben(gruppe('p2mm'), metrik(q), q.basis) });
+  assert.equal(rq.symbol, 'p4mm');
+  assert.match(festHinweisHTML(q, rq), /mehr Symmetrie als festgehalten/);
+  // Umstellung: Zelle → gedreht; nur Ursprung → verschoben
+  assert.match(festHinweisHTML(q, rq, { zelle: [[1, 1], [-1, 1]], ursprung: null }), /gedreht/);
+  const nurU = festHinweisHTML(q, rq, { zelle: null, ursprung: [0.25, 0.25] });
+  assert.match(nurU, /nur verschoben/); assert.doesNotMatch(nurU, /gedreht/);
+});
+
+test('passtNichtZurLage: hexagonal, Dreieck auf der Lage 3m von p3m1', () => {
+  const g = gruppe('p3m1'); const M = metrik(GITTER_START.hexagonal);
+  /** @param {number} w */
+  const passt = (w) => !passtNichtZurLage(g, M, { motiv: 'dreieck3', farbe: 0, p: [0, 0], winkel: grad(w) });
+  // Die Spiegellinien der Lage 1a liegen 60° auseinander, das Dreieck hat 3m: genau eine von 0° und 30° passt (von Hand)
+  assert.equal([passt(0), passt(30)].filter(Boolean).length, 1);
+  assert.equal(passt(15), false);
+  assert.equal(passt(0), passt(120), 'um 120° gedreht dasselbe');
 });

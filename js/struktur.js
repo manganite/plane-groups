@@ -8,6 +8,7 @@ import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, f2, pt
 import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
+import { passtNichtZurLage } from './bahnen.js';
 import { vektorText } from './warum.js';
 import { koordText, lageHTML, symbolHTML } from './text.js';
 import { schoenfliesHTML } from './symbole.js';
@@ -32,9 +33,19 @@ export const motivFarben = (f) => [f.upper, f.accent2, f.dir[1], f.dir[0]];
 /** Symmetrie der Struktur st = { ba, gamma, basis }: Ergebnis von bestimme() oder null. @param {Struktur} st */
 export function strukturSymmetrie(st) {
   if (!st.basis.length) return null;
+  // Zwischenspeicher: dieselbe Struktur wird je Änderung mehrfach bestimmt (Tafel, Bedienung von „Symmetrie
+  // festhalten“); die Bestimmung ist der teuerste Schritt (CLAUDE.md, „Symmetrie festhalten“, Grenze)
+  const schluessel = JSON.stringify([st.ba, st.gamma, st.basis]);
+  const alt = ZULETZT.find((x) => x.schluessel === schluessel);
+  if (alt) return alt.r;
   const M = metrik(st);
-  return bestimme({ a: M.a, b: M.b, punkte: strukturPunkte(st) });
+  const r = bestimme({ a: M.a, b: M.b, punkte: strukturPunkte(st) });
+  ZULETZT.unshift({ schluessel, r });
+  ZULETZT.length = Math.min(ZULETZT.length, 4);
+  return r;
 }
+/** Zuletzt bestimmte Strukturen (höchstens 4). Das Ergebnis wird nirgends verändert. @type {{ schluessel: string, r: Bestimmung | null }[]} */
+const ZULETZT = [];
 
 /** Bruchkoordinaten (gegebene Zelle) eines Punktes x in der konventionellen Zelle des Ergebnisses. @type {(r: Bestimmung, x: Vec2) => Vec2} */
 export const ausKonventionell = (r, x) => [r.ursprung[0] + r.zelle[0][0] * x[0] + r.zelle[0][1] * x[1], r.ursprung[1] + r.zelle[1][0] * x[0] + r.zelle[1][1] * x[1]];
@@ -334,6 +345,44 @@ export function zellText(z) {
   const gleich = (u, v) => Math.abs(Math.abs(u[0]) - v[0]) < 1e-9 && Math.abs(Math.abs(u[1]) - v[1]) < 1e-9;
   if (gleich(a, [1, 0]) && gleich(b, [0, 1])) return null;
   return `<i>a</i>′ = ${vektorText(a)}, <i>b</i>′ = ${vektorText(b)}`;
+}
+
+/**
+ * Hinweis der Kenndaten mit festgehaltener Gruppe (CLAUDE.md, „Symmetrie festhalten“), HTML. st: Zustand mit den
+ * Vertretern; r: Bestimmung der ausgeschriebenen Struktur; umstellung: nach der Übernahme die neue Zelle in
+ * Vielfachen der vorherigen und der neue Ursprung (sonst null).
+ * Weicht die Bestimmung ab: Motive, deren eigene Symmetrie nicht zur Lage passt (dann fehlt Symmetrie; die bestimmte
+ * Gruppe ist deshalb nicht immer eine Untergruppe, das Gitter kann zugleich Symmetrie hinzufügen), sonst zufällige
+ * Zusatzsymmetrie.
+ * @param {Struktur & { festeGruppe: string | null }} st @param {Bestimmung | null} r
+ * @param {{ zelle: Mat2 | null, ursprung: Vec2 | null } | null} [umstellung]
+ */
+export function festHinweisHTML(st, r, umstellung = null) {
+  if (!st.festeGruppe || !r) return '';
+  const g = gruppe(st.festeGruppe);
+  const M = metrik(st);
+  const fg = symbolHTML(st.festeGruppe);
+  const teile = [];
+  if (umstellung && (umstellung.zelle || umstellung.ursprung)) {
+    const zelle = umstellung.zelle ? zellText(umstellung.zelle) : null;
+    teile.push(`<p class="note">Bei der Übernahme auf die konventionelle Zelle nach ITA umgestellt: ${[
+      zelle ? `${zelle} der vorherigen Zelle` : '',
+      umstellung.ursprung ? `neuer Ursprung bei ${koordText(umstellung.ursprung)} der vorherigen Zelle` : '',
+    ].filter(Boolean).join(', ')}. ${zelle ? 'Das Bild ist dabei gedreht, weil <i>b</i>′ waagrecht liegt.' : 'Das Bild ist dabei nur verschoben.'}</p>`);
+  }
+  const unpassend = st.basis.filter((e) => passtNichtZurLage(g, M, e));
+  if (unpassend.length) {
+    const liste = unpassend.map((e) => {
+      const l = lage(g, e.p, 1e-4);
+      return `<li>${MOTIVE[e.motiv].name}${e.spiegel ? ', gespiegelt' : ''}, eigene Symmetrie ${lageHTML(MOTIVE[e.motiv].symmetrie)}: auf ${koordText(l.punkt)}, Wyckoff-Lage ${l.zaehligkeit}<span class="wy">${l.buchstabe}</span> mit Lagesymmetrie ${lageHTML(l.symbol)}</li>`;
+    }).join('');
+    teile.push(`<div class="warumbox"><strong>Festgehalten ist ${fg}, die Struktur hat ${symbolHTML(r.symbol)}.</strong> Diese Motive passen nicht zu ihrer Lage:<ul>${liste}</ul>Ein Motiv auf einer speziellen Lage muss mindestens deren Lagesymmetrie haben und so ausgerichtet sein, dass seine Symmetrieelemente auf denen der Lage liegen. Sonst fehlt der Struktur diese Symmetrie.</div>`);
+  } else if (r.symbol !== st.festeGruppe) {
+    teile.push(`<div class="warumbox"><strong>Festgehalten ist ${fg}, die Struktur hat aber ${symbolHTML(r.symbol)}.</strong> Sie hat mehr Symmetrie als festgehalten: zufällig, durch das Gitter oder die Lagen der Motive. „Bestimmte Gruppe übernehmen“ hält ${symbolHTML(r.symbol)} fest.</div>`);
+  } else {
+    teile.push(`<p class="note">Symmetrie festgehalten: ${fg}. Jedes Motiv erscheint mit seiner ganzen Bahn.</p>`);
+  }
+  return teile.join('');
 }
 
 /**

@@ -10,12 +10,11 @@ import { VORGABEN } from './vorgaben.js';
 import { MOTIVE, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
-import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
-import { bilderMitOperation, bildUnter, vertreterVon, vertreter, umrechnen, darstellbar, passtNichtZurLage } from './bahnen.js';
-import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie, istGegeben, zellText } from './struktur.js';
-import { EBENENGRUPPEN, SYSTEME } from './ebenengruppen.js';
-import { symbolHTML, lageHTML, koordText } from './text.js';
-import { dezimal } from './text.js';
+import { strukturStart, wieVorgabe, gitterZurGruppe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
+import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, mitGruppe, uebernahmeVon } from './bahnen.js';
+import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie } from './struktur.js';
+import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
+import { symbolHTML, dezimal } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from '../lib/common/js/seite.js';
 
 /** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
@@ -40,8 +39,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** @type {number | null} */
   let gewaehlt = null; // Index des gewählten Motivs in der Basis (mit festgehaltener Gruppe: des Vertreters)
   let gewaehltOp = 0; // mit festgehaltener Gruppe: Nummer der Operation des gewählten Bildes in g.alle
-  /** @type {string} */
-  let umstellung = ''; // Hinweis nach der Übernahme einer Gruppe mit anderer Zelle (bis zur nächsten Übernahme oder Wahl)
+  /** @type {{ zelle: import('../lib/common/js/typen.js').Mat2 | null, ursprung: Vec2 | null } | null} */
+  let umstellung = null; // nach der Übernahme mit anderer Zelle oder anderem Ursprung, für die Kenndaten (bis zur nächsten Übernahme oder Wahl)
   let rasten = true;
   /** @type {Ansicht | null} */
   let ansicht = null; // Ansicht von Tafel A (zuletzt gezeichnet)
@@ -145,6 +144,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     eingabe('s-groesse').value = String(gr);
     $('s-groesse-out').textContent = dezimal(gr, 3);
     knopf('s-entfernen').disabled = gewaehlt === null;
+    knopf('s-entfernen').textContent = s.festeGruppe ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen';
     $('s-basis-titel').textContent = gewaehlt === null ? 'Neues Motiv'
       : s.festeGruppe ? `Gewähltes Motiv (Bahn ${gewaehlt + 1} von ${s.basis.length})` : `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})`;
     $('s-basis-hint').textContent = werkzeug === 'hinzufuegen'
@@ -160,102 +160,87 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-ba-out').textContent = dezimal(s.ba, 2);
     $('s-gamma-out').textContent = `${dezimal(s.gamma, 1)}°`;
     // mit festgehaltener Gruppe folgt das Gitter dem Kristallsystem: nur die freien Parameter (wie im Modus „Ebenengruppen“)
-    const frei = s.festeGruppe ? FREI[systemVon(s.festeGruppe)] : ['ba', 'gamma'];
+    const frei = s.festeGruppe ? FREI[ebenengruppe(s.festeGruppe).system] : ['ba', 'gamma'];
     eingabe('s-ba').disabled = !frei.includes('ba');
     eingabe('s-gamma').disabled = !frei.includes('gamma');
-    $('s-metrik').querySelectorAll('button').forEach((b) => { /** @type {HTMLButtonElement} */ (b).disabled = Boolean(s.festeGruppe); });
-    $('s-gitter-hint').textContent = s.festeGruppe
-      ? `Symmetrie festgehalten (${s.festeGruppe}): Das Gitter folgt dem Kristallsystem (${SYSTEME[systemVon(s.festeGruppe)].name}); frei ist nur, was das System erlaubt.`
+    // „Metrik setzen“: gesperrt nur, was nicht zum System der festgehaltenen Gruppe passt
+    elemente('#s-metrik [data-metrik]', HTMLButtonElement).forEach((b) => { b.disabled = Boolean(s.festeGruppe) && !metrikPasst(b); });
+    $('s-gitter-hint').innerHTML = s.festeGruppe
+      ? `Symmetrie festgehalten (${symbolHTML(s.festeGruppe)}): Das Gitter folgt dem Kristallsystem (${SYSTEME[ebenengruppe(s.festeGruppe).system].name}); gesperrt ist, was das System festlegt.`
       : 'Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.';
     knopf('s-zuruecksetzen').disabled = wieVorgabe(s);
     festAbgleichen();
   }
 
   // ---------------------------------------------------------------- Symmetrie festhalten
-  /** System einer Ebenengruppe. @param {string} sym */
-  const systemVon = (sym) => /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === sym)).system;
-  /**
-   * Gitter im System einer Gruppe: die freien Parameter bleiben (im Bereich der Regler), die übrigen nach dem System.
-   * @param {{ ba: number, gamma: number }} gi @param {string} sym @returns {{ ba: number, gamma: Grad }}
-   */
-  function gitterImSystem(gi, sym) {
-    const sys = systemVon(sym);
-    if (sys === 'schiefwinklig') return { ba: gi.ba, gamma: grad(gi.gamma) };
-    if (sys === 'rechteckig') return { ba: gi.ba, gamma: grad(90) };
-    return { ba: 1, gamma: grad(sys === 'hexagonal' ? 120 : 90) };
-  }
-  /**
-   * Struktur mit festgehaltener Gruppe sym aus den gezeichneten Motiven: Gitter nach dem System, je Bahn ein Vertreter.
-   * null, wenn die Grenze überschritten würde.
-   * @param {string} sym
-   */
-  function mitGruppe(sym) {
-    const gi = gitterImSystem(st(), sym);
-    const g = gruppe(sym);
-    const basis = vertreter(g, metrik(gi), gezeigt().basis);
-    return basis.length * g.ordnung <= BASIS_GRENZE ? { ...gi, basis, festeGruppe: sym } : null;
-  }
-  /**
-   * Übernahme der bestimmten Gruppe: falls nötig umgerechnet auf konventionelle Zelle und Ursprung nach ITA, dann
-   * je Bahn ein Vertreter. Ergebnis mit dem Hinweis zur Umstellung, oder { grund }, wenn es nicht geht.
-   * @returns {{ struktur: { ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe: string }, hinweis: string } | { grund: string }}
-   */
-  function uebernahme() {
-    const s0 = gezeigt();
-    const r = strukturSymmetrie(s0);
-    if (!r) return { grund: 'Die Basis ist leer.' };
-    let u = { ba: s0.ba, gamma: s0.gamma, basis: s0.basis };
-    let hinweis = '';
-    if (!istGegeben(r)) {
-      u = umrechnen(s0, r);
-      if (!darstellbar(u, STRUKTUR_BEREICH)) return { grund: 'Die konventionelle Zelle der bestimmten Gruppe liesse sich mit den Reglern nicht darstellen (Gitter oder Grösse eines Motivs ausserhalb des Bereichs).' };
-      const zelle = zellText(r.zelle);
-      hinweis = `Die Struktur wurde auf die konventionelle Zelle nach ITA umgestellt${zelle ? ` (${zelle} der vorherigen Zelle)` : ''}${Math.hypot(...r.ursprung) > 1e-9 ? `, Ursprung bei ${koordText(r.ursprung)}` : ''}; das Bild ist dabei gedreht.`;
-    }
-    const g = gruppe(r.symbol);
-    const basis = vertreter(g, metrik(u), u.basis);
-    if (basis.length * g.ordnung > BASIS_GRENZE) return { grund: `Mit festgehaltener Symmetrie wären es mehr als ${BASIS_GRENZE} Motive (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).` };
-    return { struktur: { ba: u.ba, gamma: u.gamma, basis, festeGruppe: r.symbol }, hinweis };
-  }
+  /** Passt ein Knopf „Metrik setzen“ zum System der festgehaltenen Gruppe? @param {HTMLElement} b */
+  const metrikPasst = (b) => {
+    const sym = st().festeGruppe;
+    if (!sym) return true;
+    const [ba, gamma] = /** @type {string} */ (b.dataset.metrik).split(',').map(Number);
+    return gitterZurGruppe(ba, gamma, sym) !== null;
+  };
+  /** Übernahme der bestimmten Gruppe (bahnen.js). */
+  const uebernahme = () => { const s0 = gezeigt(); return uebernahmeVon(s0, strukturSymmetrie(s0), STRUKTUR_BEREICH, BASIS_GRENZE); };
+  /** Wahl einer Gruppe (bahnen.js): null, wenn die Grenze überschritten würde. @param {string} sym */
+  const zurGruppe = (sym) => mitGruppe(gezeigt(), sym, BASIS_GRENZE);
   /** Auswahl zurücksetzen (die Nummern der Basis ändern sich). */
   const auswahlAufheben = () => { gewaehlt = null; gewaehltOp = 0; };
 
-  /** Zwischenspeicher für festAbgleichen(): Übernahme und gesperrte Gruppen hängen nur von der Struktur ab. */
-  /** @type {{ schluessel: string, ue: ReturnType<typeof uebernahme> | null, gesperrt: Set<string> } | null} */
+  /**
+   * Zwischenspeicher für festAbgleichen(): Übernahme und gesperrte Gruppen hängen nur von der Struktur ab. Sie
+   * kosten mehrere Reduktionen auf Vertreter; neu gerechnet wird erst, wenn die Struktur einen Moment ruht
+   * (beim Ziehen und an Reglern sonst bei jedem Schritt). Bis dahin gelten die alten Werte; die Knöpfe prüfen beim
+   * Klick ohnehin neu.
+   * @type {{ schluessel: string, ue: ReturnType<typeof uebernahme>, gesperrt: Set<string> } | null}
+   */
   let merker = null;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  let merkerUhr = null;
+  const merkerSchluessel = () => { const s = st(); return JSON.stringify([s.ba, s.gamma, s.basis, s.festeGruppe]); };
+  function merkerRechnen() {
+    const s = st();
+    merker = { schluessel: merkerSchluessel(), ue: uebernahme(),
+      gesperrt: new Set(s.festeGruppe ? EBENENGRUPPEN.map((d) => d.symbol).filter((sym) => sym !== s.festeGruppe && !zurGruppe(sym)) : []) };
+  }
   function festAbgleichen() {
     const s = st();
-    // beim Ziehen nichts neu rechnen (die Bestimmung läuft schon für die Tafel; die Knöpfe ändern sich danach)
-    if (zug) return;
-    const schluessel = JSON.stringify([s.ba, s.gamma, s.basis, s.festeGruppe]);
-    if (merker?.schluessel !== schluessel) {
-      merker = { schluessel, ue: uebernahme(), gesperrt: new Set(s.festeGruppe ? EBENENGRUPPEN.map((d) => d.symbol).filter((sym) => sym !== s.festeGruppe && !mitGruppe(sym)) : []) };
+    if (z.modus !== 'struktur') return;
+    if (!merker) merkerRechnen();
+    else if (merker.schluessel !== merkerSchluessel() && !zug) {
+      if (merkerUhr) clearTimeout(merkerUhr);
+      merkerUhr = setTimeout(() => { merkerUhr = null; if (!zug && z.modus === 'struktur') { merkerRechnen(); festAbgleichen(); } }, 150);
     }
+    const m = /** @type {NonNullable<typeof merker>} */ (merker);
     const an = Boolean(s.festeGruppe);
     eingabe('s-fest').checked = an;
-    const r = strukturSymmetrie(gezeigt());
+    const r = strukturSymmetrie(gezeigt()); // aus dem Zwischenspeicher der Bestimmung (dieselbe wie für die Tafel)
     // Einschalten übernimmt die bestimmte Gruppe; nur möglich, wenn die Übernahme geht
-    const u = an ? null : merker.ue;
-    const einGrund = u && 'grund' in u ? u.grund : '';
-    eingabe('s-fest').disabled = !an && Boolean(einGrund);
-    element('#row-sfest .why').textContent = !an && einGrund ? einGrund : '';
+    const einGrund = !an && 'grund' in m.ue ? m.ue.grund : '';
+    eingabe('s-fest').disabled = Boolean(einGrund);
+    element('#row-sfest .why').textContent = einGrund;
     // Gruppenwahl: nur mit festgehaltener Symmetrie; gesperrt, wo die Grenze überschritten würde
     let grenze = false;
-    elemente('#s-picker .pgb').forEach((b) => {
-      const sym = /** @type {string} */ (/** @type {HTMLElement} */ (b).dataset.g);
-      const gewaehltG = sym === s.festeGruppe;
-      b.setAttribute('aria-pressed', String(gewaehltG));
-      const zuViel = an && merker !== null && merker.gesperrt.has(sym);
+    elemente('#s-picker .pgb', HTMLButtonElement).forEach((b) => {
+      const sym = /** @type {string} */ (b.dataset.g);
+      b.setAttribute('aria-pressed', String(sym === s.festeGruppe));
+      const zuViel = an && m.gesperrt.has(sym);
       if (zuViel) grenze = true;
-      /** @type {HTMLButtonElement} */ (b).disabled = !an || zuViel;
+      b.disabled = !an || zuViel;
     });
     // Übernehmen: nur, wenn die bestimmte Gruppe eine andere ist
-    const anders = an && r && r.symbol !== s.festeGruppe;
-    const ue = anders ? merker.ue : null;
+    const anders = an && r !== null && r.symbol !== s.festeGruppe;
+    const ue = anders ? m.ue : null;
     knopf('s-uebernehmen').disabled = !anders || Boolean(ue && 'grund' in ue);
     knopf('s-uebernehmen').innerHTML = anders && r ? `Bestimmte Gruppe ${symbolHTML(r.symbol)} übernehmen` : 'Bestimmte Gruppe übernehmen';
-    $('s-fest-hint').innerHTML = !an ? 'Einschalten hält die bestimmte Gruppe fest; dann erscheint jedes gesetzte Motiv mit seiner ganzen Bahn.'
-      : [umstellung, ue && 'grund' in ue ? ue.grund : '', grenze ? `Gesperrte Gruppen: mehr als ${BASIS_GRENZE} Motive.` : ''].filter(Boolean).join(' ');
+    // Gründe für gesperrte Knöpfe (Leitfaden Abschn. 5.2)
+    $('s-fest-hint').innerHTML = !an
+      ? 'Einschalten hält die bestimmte Gruppe fest; dann erscheint jedes gesetzte Motiv mit seiner ganzen Bahn. Gruppenwahl und Übernehmen wirken erst danach.'
+      : [
+        !anders ? 'Übernehmen: Die bestimmte Gruppe ist die festgehaltene.' : '',
+        ue && 'grund' in ue ? `Übernehmen gesperrt: ${ue.grund}` : '',
+        grenze ? `Gesperrte Gruppen: mehr als ${BASIS_GRENZE} Motive.` : '',
+      ].filter(Boolean).join(' ');
   }
 
   // ---------------------------------------------------------------- Zeichnen
@@ -293,32 +278,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     if (nurA) return;
     grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB).svg;
     legende(f, r);
-    $('info').innerHTML = strukturHTML(gz, r, vorher, f, festHinweis(r));
-  }
-
-  /**
-   * Hinweis der Kenndaten mit festgehaltener Gruppe (CLAUDE.md, „Symmetrie festhalten“): Weicht die Bestimmung ab,
-   * entweder kleiner (die eigene Symmetrie eines Motivs passt nicht zu seiner Lage) oder grösser (zufällige
-   * Zusatzsymmetrie durch Gitter oder Lagen). Ohne Abweichung: welche Gruppe festgehalten ist.
-   * @param {Bestimmung | null} r @returns {string} HTML
-   */
-  function festHinweis(r) {
-    const s = st(); const g = festG();
-    if (!g || !s.festeGruppe || !r) return '';
-    const M = metrik(s);
-    const fg = symbolHTML(s.festeGruppe);
-    const unpassend = s.basis.filter((e) => passtNichtZurLage(g, M, e));
-    if (unpassend.length) {
-      const liste = unpassend.map((e) => {
-        const l = lage(g, e.p, 1e-4);
-        return `${MOTIVE[e.motiv].name}${e.spiegel ? ' (gespiegelt)' : ''} (eigene Symmetrie ${lageHTML(MOTIVE[e.motiv].symmetrie)}) auf ${koordText(l.punkt)}, Wyckoff-Lage ${l.zaehligkeit} <span class="wy">${l.buchstabe}</span> mit Lagesymmetrie ${lageHTML(l.symbol)}`;
-      }).join('; ');
-      return `<div class="warumbox"><strong>Festgehalten ist ${fg}, die Struktur hat aber nur ${symbolHTML(r.symbol)}.</strong> Die eigene Symmetrie eines Motivs passt nicht zu seiner Lage: ${liste}. Ein Motiv auf einer speziellen Lage muss deren Lagesymmetrie haben, sonst verliert die Struktur diese Symmetrie.</div>`;
-    }
-    if (r.symbol !== s.festeGruppe) {
-      return `<div class="warumbox"><strong>Festgehalten ist ${fg}, die Struktur hat aber ${symbolHTML(r.symbol)}.</strong> Sie hat mehr Symmetrie als festgehalten: zufällig, durch das Gitter oder die Lagen der Motive. „Bestimmte Gruppe übernehmen“ hält ${symbolHTML(r.symbol)} fest.</div>`;
-    }
-    return `<p class="note">Symmetrie festgehalten: ${fg}. Jedes Motiv erscheint mit seiner ganzen Bahn.</p>`;
+    $('info').innerHTML = strukturHTML(gz, r, vorher, f, festHinweisHTML(s, r, umstellung));
   }
 
   // ---------------------------------------------------------------- Zeiger
@@ -407,6 +367,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       const e0 = st().basis[zug.k];
       const v = vertreterVon(g.alle[zug.op], metrik(st()), { ...bildUnter(g.alle[zug.op], metrik(st()), e0), p: ziel });
       e0.p = rasteVertreter(v.p);
+      // auf einer speziellen Lage ist nur ein Bild gezeichnet: die Auswahl zeigt dieses (gezogen wird weiter über zug.op)
+      gewaehltOp = sichtbareOp(g, metrik(st()), e0, zug.op);
     } else st().basis[zug.k].p = raste(ziel);
     if (!rahmen) { rahmen = true; requestAnimationFrame(() => { rahmen = false; if (zug) { abgleichen(); zeichnen({ nurA: true }); } }); }
     return true;
@@ -415,6 +377,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     if (!zug) return false;
     const e = st().basis[zug.k];
     e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
+    const g = festG();
+    if (g) gewaehltOp = sichtbareOp(g, metrik(st()), e, zug.op);
     zug = null; fest = null;
     aktualisieren();
     return true;
@@ -430,13 +394,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (!auswahl('s-vorgabe').value) return;
       const alt = st();
       z.struktur = { ...strukturStart(auswahl('s-vorgabe').value), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
-      auswahlAufheben(); letztes = undefined; vorher = null; umstellung = '';
+      auswahlAufheben(); letztes = undefined; vorher = null; umstellung = null;
       aktualisieren();
     });
     $('s-zuruecksetzen').addEventListener('click', () => {
       const alt = st();
       z.struktur = { ...strukturStart(alt.vorgabe), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
-      auswahlAufheben(); letztes = undefined; vorher = null; umstellung = '';
+      auswahlAufheben(); letztes = undefined; vorher = null; umstellung = null;
       aktualisieren();
     });
     for (const [id, feld] of /** @type {[string, 'elemente' | 'zelle' | 'ae' | 'bindungen'][]} */ ([['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']])) {
@@ -497,7 +461,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     festInit();
     $('s-metrik').addEventListener('click', (ev) => {
       const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (ev.target).closest('[data-metrik]'));
-      if (!b || st().festeGruppe) return;
+      if (!b || !metrikPasst(b)) return;
       const [ba, gamma] = /** @type {string} */ (b.dataset.metrik).split(',').map(Number);
       Object.assign(st(), { ba, gamma });
       aktualisieren();
@@ -517,25 +481,25 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (eingabe('s-fest').checked) {
         const u = uebernahme();
         if ('grund' in u) { eingabe('s-fest').checked = false; aktualisieren(); return; }
-        setzeStruktur(u.struktur); umstellung = u.hinweis;
+        setzeStruktur(u.struktur); umstellung = u.umstellung;
       } else {
         // ausschalten: die Bahnen werden ausgeschrieben, die Struktur bleibt
-        setzeStruktur({ ba: st().ba, gamma: st().gamma, basis: gezeigt().basis, festeGruppe: null }); umstellung = '';
+        setzeStruktur({ ba: st().ba, gamma: st().gamma, basis: gezeigt().basis, festeGruppe: null }); umstellung = null;
       }
       aktualisieren();
     });
     $('s-picker').addEventListener('click', (ev) => {
       const b = /** @type {HTMLButtonElement | null} */ (/** @type {Element} */ (ev.target).closest('.pgb'));
       if (!b || b.disabled || !st().festeGruppe || b.dataset.g === st().festeGruppe) return;
-      const neuS = mitGruppe(/** @type {string} */ (b.dataset.g));
+      const neuS = zurGruppe(/** @type {string} */ (b.dataset.g));
       if (!neuS) return;
-      setzeStruktur(neuS); umstellung = '';
+      setzeStruktur(neuS); umstellung = null;
       aktualisieren();
     });
     $('s-uebernehmen').addEventListener('click', () => {
       const u = uebernahme();
       if ('grund' in u) return;
-      setzeStruktur(u.struktur); umstellung = u.hinweis;
+      setzeStruktur(u.struktur); umstellung = u.umstellung;
       aktualisieren();
     });
     // aus Link oder Speicher festgehalten: Abschnitt aufklappen
@@ -552,7 +516,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     z.modus = 'struktur';
     z.struktur = { ...strukturStart(id), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
     werkzeug = 'verschieben';
-    gewaehlt = k; gewaehltOp = 0; umstellung = '';
+    gewaehlt = k; gewaehltOp = 0; umstellung = null;
   }
   /** Werkzeug über der Struktur setzen. @param {'verschieben' | 'hinzufuegen'} w */
   function werkzeugSetzen(w) { werkzeug = w; if (w === 'hinzufuegen') auswahlAufheben(); }
