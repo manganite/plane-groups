@@ -8,7 +8,7 @@ import { GITTER_START, STRUKTUR_BEREICH } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { MOTIVE, chiral } from '../js/motive.js';
 import { strukturSymmetrie, istGegeben } from '../js/struktur.js';
-import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar } from '../js/bahnen.js';
+import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar, bilderMitOperation, bildUnter, vertreterVon, passtNichtZurLage } from '../js/bahnen.js';
 import { basisText, liesBasis } from '../js/zustand.js';
 
 /** @import { Mat2, Vec2 } from '../lib/common/js/typen.js' */
@@ -318,4 +318,35 @@ test('Motive: Spiegelung nur bei chiralen Motiven im Ergebnis', () => {
     const bahn = motivBahn(g, M, { motiv, farbe: 0, p: [0.13, 0.29], winkel: grad(5) });
     assert.equal(bahn.some((b) => b.spiegel), chiral(motiv), motiv);
   }
+});
+
+test('Bild und Vertreter: vertreterVon kehrt bildUnter um, für alle Operationen aller 17 Gruppen', () => {
+  for (const d of EBENENGRUPPEN) {
+    const g = gruppe(d.symbol); const M = metrik(GITTER_START[d.system]);
+    for (const e of /** @type {Basiseintrag[]} */ ([
+      { motiv: 'fahne', farbe: 1, p: [0.137, 0.291], winkel: grad(17) },
+      { motiv: 'w3', farbe: 0, p: [0.4, 0.05], winkel: grad(200), spiegel: true, groesse: 0.2 },
+    ])) {
+      g.alle.forEach((op) => {
+        const v = vertreterVon(op, M, bildUnter(op, M, e));
+        assert.ok(gleichesMotiv(v, e, 1e-9) && Boolean(v.spiegel) === Boolean(e.spiegel), `${d.symbol}`);
+      });
+      // bilderMitOperation: jedes Bild ist das Bild unter seiner Operation
+      for (const { bild, op } of bilderMitOperation(g, M, e)) assert.ok(gleichesMotiv(bild, bildUnter(g.alle[op], M, e), 1e-9), d.symbol);
+    }
+  }
+});
+
+test('passtNichtZurLage: eigene Symmetrie des Motivs gegen die Lagesymmetrie', () => {
+  const S = metrik(GITTER_START.schiefwinklig); const R = metrik(GITTER_START.rechteckig); const Q = metrik(GITTER_START.quadratisch);
+  /** @type {(motiv: string, p: Vec2, w: number) => Basiseintrag} */
+  const e = (motiv, p, w) => ({ motiv, farbe: 0, p, winkel: grad(w) });
+  assert.equal(passtNichtZurLage(gruppe('p2'), S, e('fahne', [0, 0], 10)), true, 'Fähnchen auf 2-zähligem Punkt');
+  assert.equal(passtNichtZurLage(gruppe('p2'), S, e('w2', [0, 0], 10)), false, 'Windrad 2');
+  assert.equal(passtNichtZurLage(gruppe('p2'), S, e('fahne', [0.2, 0.3], 10)), false, 'allgemeine Lage');
+  assert.equal(passtNichtZurLage(gruppe('pm'), R, e('dreieck', [0, 0.3], 90)), false, 'Spiegellinie des Dreiecks auf der Linie (von Hand, siehe oben)');
+  assert.equal(passtNichtZurLage(gruppe('pm'), R, e('dreieck', [0, 0.3], 45)), true, 'schräg');
+  assert.equal(passtNichtZurLage(gruppe('p4mm'), Q, e('quadrat', [0, 0], 30)), true, 'Quadrat gedreht auf 4mm');
+  assert.equal(passtNichtZurLage(gruppe('p4mm'), Q, e('quadrat', [0, 0], 0)), false, 'Quadrat in Achsenlage auf 4mm');
+  assert.equal(passtNichtZurLage(gruppe('p4mm'), Q, e('w4', [0.5, 0.5], 0)), true, 'Windrad 4 auf 4mm: Spiegellinien fehlen');
 });

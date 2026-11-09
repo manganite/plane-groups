@@ -13,7 +13,7 @@ import { metrik, kart, kartMatrix, grad } from './zeichnung.js';
 import { MOTIVE, motivKart, chiral } from './motive.js';
 
 /** @import { Vec2, Mat2, Grad } from '../lib/common/js/typen.js' */
-/** @import { Gruppe } from './symmetrie.js' */
+/** @import { Gruppe, Op } from './symmetrie.js' */
 /** @import { Metrik } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { Bestimmung } from './bestimmung.js' */
@@ -53,27 +53,67 @@ const abstandMod = (p, q) => Math.max(...[0, 1].map((i) => { const d = p[i] - q[
  * auf derselben Lage zusammen (spezielle Lage, mit der Toleranz der Bestimmung), bleibt nur das erste, also das Bild der Identität
  * (Operationen in der Reihenfolge von g.alle, die Identität zuerst). Das erste Bild ist der Eintrag
  * selbst, mit seiner Lage in [0, 1)². Das Gitter M muss zum System der Gruppe passen, sonst ein Fehler.
- * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e @returns {Basiseintrag[]}
+ * @type {(g: Gruppe, M: Metrik, e: Basiseintrag) => Basiseintrag[]}
  */
-export function motivBahn(g, M, e) {
-  const O = orientierung(e);
-  /** @type {Basiseintrag[]} */
-  const out = [];
-  for (const op of g.alle) {
-    const p = /** @type {Vec2} */ (anwenden(op, e.p).map(mod1));
-    if (out.some((b) => abstandMod(b.p, p) < TOL_BESTIMMUNG)) continue;
-    const K = kartMatrix(M, op.R);
-    // nur, wenn das Gitter zum System der Gruppe passt (sorgt der Aufrufer dafür); sonst wäre K keine Drehung
-    if (Math.abs(K[0][0] * K[0][0] + K[1][0] * K[1][0] - 1) > 1e-6 || Math.abs(K[0][0] * K[0][1] + K[1][0] * K[1][1]) > 1e-6) {
-      throw new Error(`Gitter passt nicht zu ${g.daten.symbol}`);
-    }
-    /** @type {Basiseintrag} */
-    const bild = { motiv: e.motiv, p, ...ausOrientierung(mal(K, O), e.motiv) };
-    if (e.farbe !== undefined) bild.farbe = e.farbe;
-    if (e.groesse !== undefined) bild.groesse = e.groesse;
-    out.push(bild);
+export const motivBahn = (g, M, e) => bilderMitOperation(g, M, e).map((b) => b.bild);
+
+/**
+ * Bild eines Motivs unter einer Operation (Lage in [0, 1)²), ohne Prüfung auf Zusammenfallen.
+ * @param {Op} op @param {Metrik} M @param {Basiseintrag} e @returns {Basiseintrag}
+ */
+export function bildUnter(op, M, e) {
+  const K = kartMatrix(M, op.R);
+  // nur, wenn das Gitter zum System der Gruppe passt (sorgt der Aufrufer dafür); sonst wäre K keine Drehung
+  if (Math.abs(K[0][0] * K[0][0] + K[1][0] * K[1][0] - 1) > 1e-6 || Math.abs(K[0][0] * K[0][1] + K[1][0] * K[1][1]) > 1e-6) {
+    throw new Error('Gitter passt nicht zur Gruppe');
   }
+  /** @type {Basiseintrag} */
+  const bild = { motiv: e.motiv, p: /** @type {Vec2} */ (anwenden(op, e.p).map(mod1)), ...ausOrientierung(mal(K, orientierung(e)), e.motiv) };
+  if (e.farbe !== undefined) bild.farbe = e.farbe;
+  if (e.groesse !== undefined) bild.groesse = e.groesse;
+  return bild;
+}
+
+/**
+ * Wie motivBahn(), mit der Nummer der Operation in g.alle je Bild (zum Ziehen und Bearbeiten eines Bildes).
+ * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e @returns {{ bild: Basiseintrag, op: number }[]}
+ */
+export function bilderMitOperation(g, M, e) {
+  /** @type {{ bild: Basiseintrag, op: number }[]} */
+  const out = [];
+  g.alle.forEach((op, i) => {
+    const p = /** @type {Vec2} */ (anwenden(op, e.p).map(mod1));
+    if (out.some((b) => abstandMod(b.bild.p, p) < TOL_BESTIMMUNG)) return;
+    out.push({ bild: bildUnter(op, M, e), op: i });
+  });
   return out;
+}
+
+/**
+ * Vertreter, dessen Bild unter der Operation op das Motiv b ist (Umkehrung von bildUnter(); Lage in [0, 1)²).
+ * Damit gehen Ziehen und Bearbeiten eines Bildes an den Vertreter (CLAUDE.md, „Symmetrie festhalten“).
+ * @param {Op} op @param {Metrik} M @param {Basiseintrag} b @returns {Basiseintrag}
+ */
+export function vertreterVon(op, M, b) {
+  const d = op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0];
+  /** @type {Op} */
+  const inv = { R: [[op.R[1][1] / d, -op.R[0][1] / d], [-op.R[1][0] / d, op.R[0][0] / d]], t: [0, 0] };
+  const t = [inv.R[0][0] * op.t[0] + inv.R[0][1] * op.t[1], inv.R[1][0] * op.t[0] + inv.R[1][1] * op.t[1]];
+  inv.t = [-t[0], -t[1]];
+  return bildUnter(inv, M, b);
+}
+
+/**
+ * Passt das Motiv eines Vertreters nicht zur Lagesymmetrie? Dann bildet eine Operation seine Lage auf sich ab,
+ * aber das Motiv auf ein anderes (CLAUDE.md, „Zusammenfallende Bilder“); die Bestimmung ergibt eine kleinere Gruppe.
+ * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e
+ */
+export function passtNichtZurLage(g, M, e) {
+  const p = /** @type {Vec2} */ (e.p.map(mod1));
+  return g.alle.some((op) => {
+    const q = /** @type {Vec2} */ (anwenden(op, p).map(mod1));
+    return abstandMod(q, p) < TOL_BESTIMMUNG && !gleichesMotiv(bildUnter(op, M, { ...e, p }), { ...e, p });
+  });
 }
 
 /** Alle Motive der Struktur: die Bahnen der Vertreter nacheinander. @param {Gruppe} g @param {Metrik} M @param {Basiseintrag[]} vertreter */

@@ -155,6 +155,15 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
           <p class="hintline" id="s-basis-hint"></p>
         </div>
       </details>
+      <details class="sect" id="sec-sfest">
+        <summary>Symmetrie festhalten<span class="sumhint">Struktur in gegebener Ebenengruppe aufbauen</span></summary>
+        <div class="stack">
+          <label class="check" id="row-sfest"><input type="checkbox" id="s-fest"><span>Symmetrie festhalten<span class="why"></span></span></label>
+          <div id="s-picker" class="picker" role="group" aria-label="Festgehaltene Ebenengruppe wählen"></div>
+          <button class="resetbtn" id="s-uebernehmen" type="button">Bestimmte Gruppe übernehmen</button>
+          <p class="hintline" id="s-fest-hint"></p>
+        </div>
+      </details>
       <details class="sect" id="sec-sgitter">
         <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
@@ -170,7 +179,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
             <button type="button" data-metrik="1,90"><i>b</i> = <i>a</i>, γ = 90°</button>
             <button type="button" data-metrik="1,120"><i>b</i> = <i>a</i>, γ = 120°</button>
           </div>
-          <p class="hintline">Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.</p>
+          <p class="hintline" id="s-gitter-hint">Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.</p>
         </div>
       </details>
     </div>

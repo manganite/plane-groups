@@ -325,7 +325,7 @@ export function basisLagen(st, r) {
 }
 
 /** Konventionelle Zelle in a, b; null, wenn sie (bis auf Vorzeichen) die gegebene ist. @param {Mat2} z */
-function zellText(z) {
+export function zellText(z) {
   /** @type {Vec2} */
   const a = [z[0][0], z[1][0]];
   /** @type {Vec2} */
@@ -340,8 +340,9 @@ function zellText(z) {
  * Kenndaten (HTML). st: Struktur; r: Ergebnis; vorher: Symbol vor der letzten Änderung (oder
  * null); farben: Motivfarben. Knopf data-zu-eg öffnet die Gruppe im Modus „Ebenengruppen“.
  * @param {Struktur} st @param {Bestimmung | null} r @param {string | null} vorher @param {Farben} farben
+ * @param {string} [hinweis] HTML nach dem Hinweis auf die Änderung (festgehaltene Symmetrie, struktur-ui.js)
  */
-export function strukturHTML(st, r, vorher, farben) {
+export function strukturHTML(st, r, vorher, farben, hinweis = '') {
   if (!r) return '<p>Die Basis ist leer: Mit „Hinzufügen“ ein Motiv in die Struktur setzen.</p>';
   const d = r.gruppe;
   const f = motivFarben(farben);
@@ -360,7 +361,7 @@ export function strukturHTML(st, r, vorher, farben) {
       <div class="hm-big">${symbolHTML(r.symbol)}</div>
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button></span></div>
     </div>
-    ${aenderung}
+    ${aenderung}${hinweis}
     <dl class="facts">
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
       <div><dt>Punktgruppe</dt><dd>${symbolHTML(d.punktgruppe)} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
