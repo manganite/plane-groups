@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
+- **Link-Adresse für festgehaltene Symmetrie** (#121, Vorbereitung von „Symmetrie festhalten“): `sg=<Symbol>` hält im Modus „Gitter und Basis“ eine Ebenengruppe fest; `basis=` enthält dann je Bahn einen Vertreter, und die App zeigt die ganzen Bahnen. Ungültige Angaben (unbekanntes Symbol, ohne `basis=`, Gitter passt nicht zum Kristallsystem) ergeben die Vorgabe ohne festgehaltene Symmetrie. Höchstens 48 Motive, je Vertreter mit der Zähligkeit der allgemeinen Lage gezählt. Die Bedienung folgt.
 - **Motive spiegeln** (#121, erster Schritt von „Symmetrie festhalten“): Im Modus „Gitter und Basis“ lassen sich Fähnchen und Windräder mit „Gespiegelt“ als Spiegelbild setzen (gespiegelt vor der Drehung, beim Fähnchen an der Stange). So lassen sich Muster mit Spiegel- und Gleitspiegellinien auch aus chiralen Motiven bauen. Bei den übrigen Motiven ist der Schalter gesperrt, weil ihr Spiegelbild dasselbe Motiv ist. Die Kenndaten nennen gespiegelte Motive. Link-Adresse: optionales letztes Feld `m` je Motiv in `basis=`; ältere Links gelten unverändert.
 
 ### Behoben

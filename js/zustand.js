@@ -7,14 +7,16 @@ import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
 import { MOTIVE, chiral } from './motive.js';
 import { grad, STRICH_GRENZE } from './zeichnung.js';
+import { gruppe } from './symmetrie.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { System } from './ebenengruppen.js' */
 /**
- * Struktur im Modus „Gitter und Basis“ mit den Schaltern ihrer Tafeln.
- * @typedef {Gitter & { vorgabe: string, basis: Basiseintrag[], elemente: boolean, zelle: boolean, ae: boolean, bindungen: boolean }} StrukturZustand
+ * Struktur im Modus „Gitter und Basis“ mit den Schaltern ihrer Tafeln. festeGruppe: festgehaltene Ebenengruppe
+ * („Symmetrie festhalten“, #121) oder null; dann ist basis je Bahn ein Vertreter (bahnen.js), sonst alle Motive.
+ * @typedef {Gitter & { vorgabe: string, basis: Basiseintrag[], festeGruppe: string | null, elemente: boolean, zelle: boolean, ae: boolean, bindungen: boolean }} StrukturZustand
  */
 /**
  * Zustand der App (Felder siehe startzustand()).
@@ -98,11 +100,37 @@ const kopie = (x) => JSON.parse(JSON.stringify(x));
 /** Struktur im Modus „Gitter und Basis“ aus einer Vorgabe (vorgaben.js). @param {string} [id] @returns {StrukturZustand} */
 export function strukturStart(id = STRUKTUR_START) {
   const v = /** @type {import('./vorgaben.js').Vorgabe} */ (vorgabe(id) ?? vorgabe(STRUKTUR_START)); // STRUKTUR_START gibt es
-  return { vorgabe: v.id, ba: v.gitter.ba, gamma: v.gitter.gamma, basis: kopie(v.basis), elemente: true, zelle: true, ae: false, bindungen: true };
+  return { vorgabe: v.id, ba: v.gitter.ba, gamma: v.gitter.gamma, basis: kopie(v.basis), festeGruppe: null, elemente: true, zelle: true, ae: false, bindungen: true };
+}
+
+/**
+ * Gewicht eines Eintrags für BASIS_GRENZE: 1, mit festgehaltener Symmetrie die Zähligkeit der allgemeinen Lage, wo der
+ * Vertreter auch liegt (CLAUDE.md, „Symmetrie festhalten“, Grenze).
+ * @param {string | null} festeGruppe
+ */
+export const bahnGewicht = (festeGruppe) => (festeGruppe ? gruppe(festeGruppe).ordnung : 1);
+
+/**
+ * Gitter passend zum System einer festgehaltenen Gruppe: mit den exakten Werten des Systems, oder null, wenn es
+ * nicht passt. „Passt“ heisst innerhalb der Genauigkeit des Links (b/a auf 0,0005, γ auf 0,005°).
+ * @param {number} ba @param {number} gamma @param {string} symbol
+ * @returns {Gitter | null}
+ */
+export function gitterZurGruppe(ba, gamma, symbol) {
+  const sys = systemVon(symbol);
+  /** @type {(x: number, y: number, t: number) => boolean} */
+  const nah = (x, y, t) => Math.abs(x - y) <= t;
+  if (sys === 'schiefwinklig') return { ba, gamma: grad(gamma) };
+  if (!nah(gamma, sys === 'hexagonal' ? 120 : 90, 0.005)) return null;
+  if (sys === 'rechteckig') return { ba, gamma: grad(90) };
+  if (!nah(ba, 1, 0.0005)) return null;
+  return { ba: 1, gamma: grad(sys === 'hexagonal' ? 120 : 90) };
 }
 /** Gleicht die Struktur (Gitter und Basis) noch ihrer Vorgabe? @param {StrukturZustand} st */
 export function wieVorgabe(st) {
   const v = vorgabe(st.vorgabe);
+  // mit festgehaltener Symmetrie sind es Vertreter, nicht die Motive der Vorgabe
+  if (st.festeGruppe) return false;
   if (!v || Math.abs(v.gitter.ba - st.ba) > 1e-9 || Math.abs(v.gitter.gamma - st.gamma) > 1e-9 || v.basis.length !== st.basis.length) return false;
   return v.basis.every((e, i) => {
     const f = st.basis[i];
@@ -351,11 +379,25 @@ export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(N
 export function pruefeStruktur(st) {
   if (!istObjekt(st) || !Array.isArray(st.basis)) return null;
   // wie im Link (hashLesen): fehlt ba oder γ oder ist keine Zahl, gilt 1 bzw. 90°
-  const ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba) ?? 1; const gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma) ?? 90;
+  let ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba) ?? 1; let gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma) ?? 90;
+  const { vorgabe } = st;
+  const anzeige = { elemente: st.elemente !== false, zelle: st.zelle !== false, ae: st.ae === true, bindungen: st.bindungen !== false };
+  const vonVorgabe = typeof vorgabe === 'string' && VORGABEN.some((v) => v.id === vorgabe) ? vorgabe : STRUKTUR_START;
+  // festgehaltene Gruppe: unbekannt oder Gitter passt nicht zum System → Struktur der Vorgabe, nicht festgehalten
+  // (nicht umdeuten: die Vertreter gelten nie als ganze Basis; Leitfaden Abschn. 5.2)
+  const fg = st.festeGruppe ?? null;
+  /** @type {string | null} */
+  let festeGruppe = null;
+  if (fg !== null) {
+    const g = typeof fg === 'string' && SYMBOLE.has(fg) ? gitterZurGruppe(ba, gamma, fg) : null;
+    if (!g) return { ...strukturStart(vonVorgabe), ...anzeige };
+    festeGruppe = /** @type {string} */ (fg); ba = g.ba; gamma = g.gamma;
+  }
+  const gewicht = bahnGewicht(festeGruppe);
   /** @type {Basiseintrag[]} */
   const basis = [];
   for (const e of /** @type {unknown[]} */ (st.basis)) {
-    if (basis.length >= BASIS_GRENZE) break;
+    if ((basis.length + 1) * gewicht > BASIS_GRENZE) break;
     if (!istObjekt(e)) continue;
     const { motiv, p } = e, farbe = e.farbe ?? 0, winkel = e.winkel ?? 0;
     const groesse = e.groesse === undefined ? undefined : begrenzt(e.groesse, STRUKTUR_BEREICH.groesse);
@@ -366,11 +408,7 @@ export function pruefeStruktur(st) {
     const spiegel = e.spiegel === true && chiral(motiv);
     basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(umlauf(winkel)), ...(groesse === undefined ? {} : { groesse }), ...(spiegel ? { spiegel: true } : {}) });
   }
-  const { vorgabe } = st;
-  return {
-    vorgabe: typeof vorgabe === 'string' && VORGABEN.some((v) => v.id === vorgabe) ? vorgabe : STRUKTUR_START, ba, gamma: grad(gamma), basis,
-    elemente: st.elemente !== false, zelle: st.zelle !== false, ae: st.ae === true, bindungen: st.bindungen !== false,
-  };
+  return { vorgabe: vonVorgabe, ba, gamma: grad(gamma), basis, festeGruppe, ...anzeige };
 }
 
 /** @type {[string, StrukturSchalterfeld][]} */
@@ -384,6 +422,7 @@ const STRUKTUR_SCHALTER = [['sel', 'elemente'], ['szelle', 'zelle'], ['sae', 'ae
 function strukturHash(z, q) {
   const st = z.struktur; const s0 = strukturStart();
   q.set('v', st.vorgabe);
+  if (st.festeGruppe) q.set('sg', st.festeGruppe);
   if (!wieVorgabe(st)) {
     q.set('ba', kurz(st.ba, 3));
     q.set('gamma', kurz(st.gamma, 2));
@@ -448,6 +487,8 @@ function hashLesen(z, hash) {
       st.basis = liesBasis(/** @type {string} */ (q.get('basis')));
       st.ba = zahlBegrenzt(q.get('ba'), ...STRUKTUR_BEREICH.ba) ?? 1;
       st.gamma = grad(zahlBegrenzt(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? 90);
+      // festgehaltene Gruppe nur zusammen mit basis=; geprüft wird sie in pruefeStruktur (über zustandPruefen)
+      if (q.has('sg')) st.festeGruppe = /** @type {string} */ (q.get('sg'));
     }
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
     z.struktur = st;

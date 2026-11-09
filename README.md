@@ -117,11 +117,14 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `v` | Vorgabe, von der die Struktur ausgeht (Ziel von „Zurücksetzen“); von der App immer geschrieben, fehlt es (ältere Links), gilt `dreieck1` | Kennung aus `js/vorgaben.js`, z. B. `graphen`, `a33434`, `asi-pinwheel`; **`dreieck1`** |
 | `ba`, `gamma` | Gitter, wenn Gitter oder Basis von der Vorgabe abweichen | 0.5–2 bzw. 60–150 |
 | `basis` | Basis, wenn verändert: Motive durch `;` getrennt, je `motiv,farbe,x,y,winkel[,grösse][,m]`; `m`: gespiegelt (vor der Drehung, nur bei Fähnchen und Windrädern; ältere Links ohne `m` gelten weiter) | z. B. `atom,0,1/3,2/3,0;atom,1,2/3,1/3,0` (h-BN), `fahne,0,1/5,3/10,30;fahne,0,4/5,3/10,150,m` (*pm*); Motive wie in `js/motive.js`, Farbe `0`–`3`, Winkel in Grad |
+| `sg` | festgehaltene Ebenengruppe („Symmetrie festhalten“): `basis` enthält dann je Bahn einen Vertreter, die App schreibt die Bahnen aus; nur zusammen mit `basis`, das Gitter muss zum Kristallsystem passen (auf 0.0005 bzw. 0.005°), sonst gilt die Vorgabe `v` ohne festgehaltene Symmetrie; höchstens 48 Motive ausgeschrieben (je Vertreter die Zähligkeit der allgemeinen Lage) | Symbol, z. B. `p4mm`; **fehlt** (nicht festgehalten). Beispiel: `v=quadratisch&sg=p4mm&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0` (acht Fähnchen) |
 | `sel` | Symmetrieelemente | `0`, **`1`** |
 | `szelle` | konventionelle Zelle | `0`, **`1`** |
 | `sae` | asymmetrische Einheit | **`0`**, `1` |
 | `sbind` | Bindungen zwischen nächsten Nachbarn | `0`, **`1`** |
 | `zoom` | Vergrösserung des Musters | 0.5–3, **1** |
+
+Bekannte Grenze: Eine ältere Fassung der App (z. B. noch aus dem Offline-Speicher) kennt `sg` nicht und zeigt von einem solchen Link nur die Vertreter.
 
 
 ## Konventionen

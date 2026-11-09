@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { startzustand, hashVon, hashAnwenden, ausSpeicher, speicherStand, strukturStart } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { grad } from '../js/zeichnung.js';
+import { ausgeschrieben } from '../js/bahnen.js';
 
 /** @import { Zustand } from '../js/zustand.js' */
 
@@ -14,6 +15,14 @@ const SYMBOLE = ['p1', 'p2', 'pm', 'pg', 'cm', 'p2mm', 'p2mg', 'p2gg', 'c2mm', '
 const FEST = { rechteckig: { gamma: 90 }, quadratisch: { ba: 1, gamma: 90 }, hexagonal: { ba: 1, gamma: 120 } };
 const BEREICH = { ba: [0.6, 1.6], gamma: [95, 125] };
 const SCHIEF = ['p1', 'p2']; // schiefwinklig: dort ist nichts zu brechen
+// System und Zähligkeit der allgemeinen Lage je Gruppe (ITA Vol. A, Part 6), für „Symmetrie festhalten“
+/** @type {Record<string, [string, number]>} */
+const ALLGEMEIN = {
+  p1: ['schiefwinklig', 1], p2: ['schiefwinklig', 2], pm: ['rechteckig', 2], pg: ['rechteckig', 2], cm: ['rechteckig', 4],
+  p2mm: ['rechteckig', 4], p2mg: ['rechteckig', 4], p2gg: ['rechteckig', 4], c2mm: ['rechteckig', 8], p4: ['quadratisch', 4],
+  p4mm: ['quadratisch', 8], p4gm: ['quadratisch', 8], p3: ['hexagonal', 3], p3m1: ['hexagonal', 6], p31m: ['hexagonal', 6],
+  p6: ['hexagonal', 6], p6mm: ['hexagonal', 12],
+};
 
 /** Neu laden: Speicher wie im Browser (JSON), dann der Link, wie main.js. @param {Zustand} z @param {string} [hash] */
 const neuLaden = (z, hash) => {
@@ -43,6 +52,16 @@ function pruefeGueltig(z) {
   assert.ok(!(z.zeichnen && z.radieren), 'zeichnen und radieren');
   assert.ok(VORGABEN.some((v) => v.id === z.struktur.vorgabe), `struktur.vorgabe ${z.struktur.vorgabe}`);
   assert.ok(Array.isArray(z.struktur.basis) && z.struktur.basis.length > 0, 'struktur.basis');
+  // festgehaltene Gruppe: keine oder eine der 17, Gitter nach dem System, Grenze 48 nach Zähligkeit, zeichnen ohne Fehler
+  const sg = z.struktur.festeGruppe;
+  assert.ok(sg === null || SYMBOLE.includes(sg), `festeGruppe ${sg}`);
+  if (sg) {
+    const [sys, n] = ALLGEMEIN[sg];
+    const fest = /** @type {Record<string, Record<string, number>>} */ (FEST)[sys] ?? {};
+    for (const k of /** @type {const} */ (['ba', 'gamma'])) if (fest[k] !== undefined) assert.equal(z.struktur[k], fest[k], `${sg}: ${k}`);
+    assert.ok(z.struktur.basis.length * n <= 48, `${sg}: ${z.struktur.basis.length} Vertreter`);
+    assert.doesNotThrow(() => ausgeschrieben(z.struktur), sg);
+  }
   assert.deepEqual(Object.keys(z).sort(), Object.keys(startzustand()).sort(), 'nur die Felder des Zustands');
   assert.equal(typeof hashVon(z), 'string');
 }
@@ -78,6 +97,17 @@ function beispiele() {
   zs.modus = 'struktur'; zs.struktur = strukturStart('dreieck1');
   zs.struktur.basis = [{ motiv: 'fahne', farbe: 0, p: [0.2, 0.3], winkel: grad(30) }, { motiv: 'fahne', farbe: 0, p: [0.8, 0.3], winkel: grad(150), spiegel: true }];
   out.push(zs);
+  // festgehaltene Symmetrie (#121): Vertreter und Gruppe
+  for (const [v, sg, ba, gamma, basis] of /** @type {[string, string, number, number, import('../js/motive.js').Basiseintrag[]][]} */ ([
+    ['quadratisch', 'p4mm', 1, 90, [{ motiv: 'fahne', farbe: 0, p: [0.1, 0.2], winkel: grad(0) }, { motiv: 'atom', farbe: 1, p: [0.5, 0], winkel: grad(0) }]],
+    ['graphen', 'p6', 1, 120, [{ motiv: 'fahne', farbe: 2, p: [0.15, 0.3], winkel: grad(40), spiegel: true, groesse: 0.2 }]],
+    ['zentriert', 'c2mm', 1.6, 90, [{ motiv: 'dreieck', farbe: 0, p: [0, 0.25], winkel: grad(90) }]],
+    ['schiefwinklig', 'p2', 1.25, 105, [{ motiv: 'w2', farbe: 0, p: [0.5, 0.5], winkel: grad(20) }]],
+  ])) {
+    const zf = startzustand();
+    zf.modus = 'struktur'; zf.struktur = { ...strukturStart(v), festeGruppe: sg, ba, gamma: grad(gamma), basis };
+    out.push(zf);
+  }
   return out;
 }
 
@@ -107,6 +137,11 @@ test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne
     { v: 1, z: { gruppe: '<b>', modus: 'tafel', punkt: [1, 'a'], gitter: { schiefwinklig: { ba: 'gross', gamma: NaN }, rechteckig: { ba: 9, gamma: 45 }, hexagonal: { ba: 2, gamma: 90 } }, schritt: 999, aufbau: -3, zoomB: 'x', objGroesse: 50, frei: 'nein', aeTeile: [7, -1, 'a'], striche: [[1, 2]], struktur: { vorgabe: 'gibtsnicht' } } },
     { v: 1, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>', zeichnen: true, radieren: true, brechen: 'ja' } },
     { v: 1, z: { gitter: { quadratisch: { ba: 1.3, gamma: 100 } } } }, // Werte, die das System nicht zulässt
+    // festgehaltene Gruppe: falsche Art, unbekannt, Gitter passt nicht zum System, zu viele Vertreter
+    ...[5, 'p7', '<b>', true].map((festeGruppe) => ({ v: 1, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } })),
+    { v: 1, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe: 'p6', basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
+    { v: 1, z: { modus: 'struktur', struktur: { ba: 1.3, gamma: 90, festeGruppe: 'p4mm', basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
+    { v: 1, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe: 'p4mm', basis: Array.from({ length: 9 }, (_, i) => ({ motiv: 'atom', p: [i / 10, 0.3] })) } } },
   ];
   for (const s of staende) {
     const z = ausSpeicher(JSON.parse(JSON.stringify(s) ?? 'null'));
@@ -167,6 +202,22 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   const wl = startzustand(); hashAnwenden(wl, '#m=struktur&v=quadratisch&basis=fahne,0,0,0,800;fahne,0,0,0,-1000;fahne,0,0,0,-45;fahne,0,0,0,360');
   assert.deepEqual(wl.struktur.basis.map((e) => e.winkel), [80, 80, 315, 0]);
   assert.equal(hashVon(neuLaden(ws, hashVon(ws))), hashVon(ws));
+  // festgehaltene Gruppe: ungültig → Vorgabe, nicht festgehalten; Grenze kappt am Ende; Gitter in der Genauigkeit des Links
+  const fs = (/** @type {Record<string, unknown>} */ st) => speicher({ modus: 'struktur', struktur: { vorgabe: 'quadratisch', ...st } }).struktur;
+  const fgl = (/** @type {string} */ h) => { const z = startzustand(); hashAnwenden(z, `#m=struktur&v=quadratisch&${h}`); return z.struktur; };
+  const atom = { motiv: 'atom', farbe: 0, winkel: 0 };
+  for (const [st, h] of /** @type {[Record<string, unknown>, string][]} */ ([
+    [{ ba: 1, gamma: 90, festeGruppe: 'p7', basis: [{ ...atom, p: [0.1, 0.2] }] }, 'sg=p7&ba=1&gamma=90&basis=atom,0,1/10,1/5,0'],
+    [{ ba: 1.3, gamma: 90, festeGruppe: 'p4mm', basis: [{ ...atom, p: [0.1, 0.2] }] }, 'sg=p4mm&ba=1.3&gamma=90&basis=atom,0,1/10,1/5,0'],
+  ])) {
+    const a = fs(st); const b = fgl(h);
+    assert.deepEqual([a.festeGruppe, a.basis, b.festeGruppe, b.basis], [null, strukturStart('quadratisch').basis, null, strukturStart('quadratisch').basis], h);
+  }
+  // p4mm: 7 Vertreter × 8 > 48 → 6 in beiden Wegen; b/a = 1,0004 liegt in der Genauigkeit des Links → exakt 1
+  const sieben = Array.from({ length: 7 }, (_, i) => ({ ...atom, p: [(i + 1) / 20, 0.3] }));
+  const ks = fs({ ba: 1.0004, gamma: 90, festeGruppe: 'p4mm', basis: sieben });
+  const kl = fgl(`sg=p4mm&ba=1.0004&gamma=90&basis=${sieben.map((e) => `atom,0,${e.p[0]},0.3,0`).join(';')}`);
+  assert.deepEqual([ks.festeGruppe, ks.basis.length, ks.ba, kl.festeGruppe, kl.basis.length, kl.ba], ['p4mm', 6, 1, 'p4mm', 6, 1]);
   // ohne ba oder γ: 1 bzw. 90° in beiden Wegen
   const ohne = speicher({ modus: 'struktur', struktur: { basis: [] } }).struktur;
   const ohneL = startzustand(); hashAnwenden(ohneL, '#m=struktur&v=quadratisch&basis=');

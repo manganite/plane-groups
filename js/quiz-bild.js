@@ -7,6 +7,7 @@
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB } from './zeichnung.js';
 import { strukturTafelA, strukturTafelB } from './struktur.js';
+import { ausgeschrieben } from './bahnen.js';
 import { dreieck3m, punktgruppe, kachel } from './skizzen.js';
 
 /** @import { Farben } from './zeichnung.js' */
@@ -68,7 +69,7 @@ export function bildInhalt(angabe, f, opt = {}) {
   const z = startzustand();
   if (!hashAnwenden(z, hash)) return null;
   if (z.modus === 'struktur') {
-    const st = z.struktur;
+    const st = ausgeschrieben(z.struktur); // mit festgehaltener Gruppe (sg=) die Bahnen ausgeschrieben, wie in der App
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false, k: gross ?? K_FRAGE }, f);
     return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
   }
