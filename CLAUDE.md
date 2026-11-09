@@ -85,9 +85,9 @@ für diese App gilt.
   - **Bestimmen** (zentrales Lernziel der Vorlesung): kein eigener Modus, sondern Skript und geführte
     Bestimmung (#38). Die Signatur nach Conway bestimmen nur im Skript (#85); in den Kenndaten bleibt sie.
   - **Struktur in gegebener Gruppe aufbauen** (Thomas, 9.11.2026; #121): im Modus „Gitter und Basis“ als
-    Schalter „Symmetrie festhalten“, nicht als mehrere Objekte im Modus „Ebenengruppen“. Gründe: zwei Wege
-    zum selben Ergebnis vermeiden (Leitfaden Abschn. 5.2); Motive mit Eigensymmetrie und Atomsorten gibt es
-    nur in „Gitter und Basis“. Priorität hoch, weil eng mit der Vorlesung verbunden.
+    Schalter „Symmetrie festhalten“, nicht als Ausbau von „Ebenengruppen“ auf mehrere Objekte. Gründe: zwei
+    Wege zum selben Ergebnis vermeiden (Leitfaden Abschn. 5.2); Motive mit eigener Symmetrie und Atomsorten
+    gibt es nur in „Gitter und Basis“.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
