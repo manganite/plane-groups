@@ -161,6 +161,7 @@ Bekannte Grenze: Eine ältere Fassung der App (z. B. noch aus dem Offline-Speich
 | `quiz.html`, `js/quiz.js`, `js/quiz-kapitel.js` | Quiz: Ablauf aus `lib/common/`, Kapitel und Speicher dieser App |
 | `js/quiz-bank.js`, `js/quiz-gen.js`, `js/quiz-bild.js` | Handgeschriebene Fragen (mit Quelle und Prüfstatus), Generatoren für erzeugte Fragen, Bilder aus der App |
 | `tools/moodle-export.mjs`, `tools/skript-pdf.mjs` | Moodle-Export und PDF des Skripts |
+| `tools/festhalten-pruefen.mjs` | Browserlauf für „Symmetrie festhalten“ (Bedienung mit der Maus) |
 | `tools/quiz-quelle.mjs` | Fragen und Bilder für die gemeinsame Fragenliste der App-Familie (crystallography-common, `fragenliste/`) |
 | `js/version.js`, `sw.js` | Versionsnummer, Service Worker für den Offline-Betrieb |
 | `manifest.webmanifest`, `icons/` | Favicon und Homescreen-Icons |
@@ -199,6 +200,7 @@ Strikt geprüft werden alle Dateien in `js/`, `tools/` und `tests/`. Mit den ins
 
 - Skript als PDF: `node tools/skript-pdf.mjs [Ausgabedatei]` (braucht Playwright mit Chromium)
 - Quiz für Moodle: `node tools/moodle-export.mjs quiz.xml` (mit `--entwurf` auch die ungeprüften Fragen)
+- Bedienung von „Symmetrie festhalten“ im Browser prüfen: `node tools/festhalten-pruefen.mjs` (Klicks und Ziehen mit der Maus, Link, Kenndaten, Konsole; braucht Playwright mit Chromium). Vor einem Release und nach Änderungen an `js/struktur-ui.js` oder `js/bahnen.js` laufen lassen.
 - Prüfung und Rückmeldungen zum Quiz: in der gemeinsamen Fragenliste der App-Familie (crystallography-common, `fragenliste/`). Eine Frage wird erst „geprüft“, wenn sie dort fachlich freigegeben ist.
 
 ### Versionen und Releases
