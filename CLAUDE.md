@@ -90,36 +90,52 @@ für diese App gilt.
     gibt es nur in „Gitter und Basis“.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
-  Umfang“):
+  Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des
+  PR #127 dazukam:
   - **Spiegelbilder:** Ein Basiseintrag hat neben `winkel` das Feld `spiegel` (Spiegelung an der eigenen
     *y*-Achse des Motivs, vor der Drehung). So ist jede Orientierung darstellbar, auch die Bilder chiraler Motive
     (Fähnchen, Windräder) unter Spiegel- und Gleitspiegellinien. Alle achiralen Motive sind zu dieser Achse
     symmetrisch (Test); bei ihnen entfällt das Feld, und der Schalter „gespiegelt“ ist gesperrt. Er wirkt auch
-    ohne festgehaltene Symmetrie. Im Link ein optionales letztes Feld `m` (`motiv,farbe,x,y,winkel[,grösse][,m]`),
-    damit alte Links unverändert gelten.
-  - **Gespeichert** wird je Bahn ein Vertreter und die Gruppe (Link `sg=<Symbol>`, Speicher `fest`), nicht alle
-    Motive: Nur so bleibt eine Bahn beim Ziehen über eine spezielle Lage zusammen (dort fallen Bilder zusammen
-    und trennen sich wieder). Ohne `sg` bedeutet `basis=` wie bisher alle Motive. Beim Einschalten wird jedes Motiv
-    Vertreter; Motive, die schon Bild eines früheren sind (gleiches Motiv, Farbe, Lage, Orientierung), gehen darin
-    auf, bei der bestimmten Gruppe also alle bis auf die Vertreter. Ausschalten schreibt die Bahnen aus. Das Gitter
-    folgt dem System der Gruppe, im Bereich der Regler von „Gitter und Basis“; so kann zufällige Zusatzsymmetrie
-    entstehen (z. B. *p*2*mm* mit *b*/*a* = 1 → *p*4*mm*). Passt das Gitter aus Link oder Speicher nicht zum System,
-    gilt für die Struktur der Startwert (erst zusammen ungültig, Leitfaden Abschn. 5.2); ein unbekanntes Symbol
-    heisst: nicht festgehalten.
+    ohne festgehaltene Symmetrie. Im Link ein optionales letztes Feld `m` in `basis=`, damit alte Links unverändert
+    gelten. Wechselt ein gespiegeltes Motiv zu einem achiralen, entfällt das Feld (Wahl beim Umsetzen): Anders als
+    bei einem Schalter, der nur ruht (Leitfaden Abschn. 5.2), gibt es dann nichts, was ruhen könnte, denn das
+    Spiegelbild ist dasselbe Motiv.
+  - **Gespeichert** wird je Bahn ein Vertreter und die Gruppe (Link `sg=<Symbol>`, Speicher `festeGruppe`), nicht
+    alle Motive: Nur so bleibt eine Bahn beim Ziehen über eine spezielle Lage zusammen (dort fallen Bilder zusammen
+    und trennen sich wieder). Ohne `sg` bedeutet `basis=` wie bisher alle Motive. Ausschalten schreibt die Bahnen
+    aus. Das Gitter folgt dem System der Gruppe, im Bereich der Regler von „Gitter und Basis“; so kann zufällige
+    Zusatzsymmetrie entstehen (z. B. *p*2*mm* mit *b*/*a* = 1 → *p*4*mm*).
+  - **Einschalten:** zuerst gegebenenfalls die Übernahme (nächster Punkt), dann wird jedes Motiv Vertreter; Motive,
+    die schon Bild eines früheren sind (gleiches Motiv, Farbe, Grösse, Lage, Orientierung), gehen darin auf, bei der
+    bestimmten Gruppe also alle bis auf die Vertreter. Verglichen wird mit der Toleranz der Bestimmung, und die
+    Vertreter rasten dabei auf spezielle Lagen ein (Wahl beim Umsetzen): Was die Bestimmung als symmetrisch erkennt,
+    soll auch ganz zusammenfallen, statt fast deckungsgleiche Bahnen zu doppeln.
   - **Übernahme der bestimmten Gruppe:** Die festgehaltene Gruppe steht in der gegebenen Zelle in der
     Aufstellung nach ITA. Weicht die konventionelle Zelle oder der Ursprung ab, rechnet die Übernahme die Struktur
     um (*b*/*a*, γ, Lagen, Winkel und Grösse der Motive). Das Bild dreht sich dabei, weil *b* immer waagrecht liegt;
-    die Kenndaten nennen die Umstellung. Liegt die neue Metrik ausserhalb der Regler, ist die Übernahme gesperrt.
-    Unter den Vorgaben betrifft das `dreieck3`, `fisch` (Ursprung) und `drittel`, `flecht` (Zelle).
+    die Kenndaten nennen die Umstellung. Unter den Vorgaben betrifft das `dreieck3`, `fisch` (Ursprung) und
+    `drittel`, `flecht` (Zelle). Wahl beim Umsetzen: Liefert die Bestimmung eine linkshändige Zelle (z. B. −*a*,
+    *b*; je nach Rundung schon bei γ = 60°), wird sie vorher rechtshändig gemacht (*a*′ → −*a*′, hexagonal *a*′ ↔
+    *b*′), sonst wäre das Bild gespiegelt; *b*/*a* und γ werden exakt nach dem System gesetzt. Liegen danach Metrik
+    oder Grösse eines Motivs ausserhalb der Regler, ist die Übernahme gesperrt.
   - **Grenze:** `BASIS_GRENZE` = 48 gilt für die ausgeschriebenen Motive. Ein Vertreter zählt mit der Zähligkeit
     der allgemeinen Lage, wo er auch liegt (*p*6*mm*: 4 Vertreter, *c*2*mm*: 6). Gründe: Die Bestimmung läuft bei
     jedem Bild des Ziehens und kostete bei 48 Windrädern 6 etwa 0,1 s, bei 96 etwa 0,36 s (gemessen 9.11.2026, Cloud);
-    und Ziehen von einer speziellen Lage weg kann die Grenze so nie überschreiten.
-  - **Orientierung der Bilder:** Drehanteil der Operation kartesisch (`kartMatrix`) auf die Lage des Vertreters
-    angewendet; gespiegelt, wenn die Determinante negativ ist, Winkel aus der ersten Spalte. Motiv, Farbe, Grösse und
-    Winkel gelten für die ganze Bahn; Ziehen an einem Bild verschiebt den Vertreter über die Umkehroperation.
-    Einrasten zuerst auf spezielle Lagen (`lage()`, Toleranz in Pixeln wie im Modus „Ebenengruppen“), sonst auf das
-    1/12-Raster.
+    und Ziehen von einer speziellen Lage weg kann die Grenze so nie überschreiten. Wahl beim Umsetzen: Einschalten
+    und Wahl einer Gruppe sind gesperrt (mit Grund), solange die Grenze damit überschritten würde; beim Lesen aus
+    Link und Speicher fallen überzählige Vertreter am Ende weg, wie heute überzählige Motive.
+  - **Ungültig aus Link oder Speicher** (Wahl beim Umsetzen, Leitfaden Abschn. 5.2: nicht umdeuten): unbekanntes
+    Symbol, `sg` ohne `basis=` oder ein Gitter, das nicht zum System der Gruppe passt, ergeben die Struktur der
+    Vorgabe `v`, nicht festgehalten. Die Vertreter gelten nie als ganze Basis. „Passt“ heisst: innerhalb der
+    Genauigkeit des Links (*b*/*a* auf 0,0005, γ auf 0,005°); dann gilt der exakte Wert des Systems. Mit
+    festgehaltener Symmetrie gleicht die Struktur nie ihrer Vorgabe, der Link enthält also immer `basis=`.
+  - **Orientierung der Bilder:** Drehanteil *K* der Operation kartesisch (`kartMatrix`): *D*(*w*′) *S*^*s*′ =
+    *K* *D*(*w*) *S*^*s* mit der Drehung *D* und der Spiegelung *S* an der eigenen *y*-Achse, also *s*′ = *s* XOR
+    (det *K* < 0); *w*′ aus dem Bild der *y*-Achse des Motivs (zweite Spalte), die *S* festlässt. Motiv, Farbe,
+    Grösse und Winkel gelten für die ganze Bahn. Ziehen an einem Bild verschiebt den Vertreter über die
+    Umkehroperation; ist ein Bild gewählt, zeigen Winkel und „gespiegelt“ das Bild, und Änderungen gehen ebenso
+    über die Umkehroperation an den Vertreter (Wahl beim Umsetzen). Einrasten zuerst auf spezielle Lagen (`lage()`,
+    Toleranz in Pixeln wie im Modus „Ebenengruppen“), sonst auf das 1/12-Raster.
   - **Zusammenfallende Bilder** auf einer speziellen Lage: Nur eines bleibt, das Bild der Identität, wie ein Atom
     auf einer speziellen Lage. Passt die eigene Symmetrie des Motivs nicht zur Lagesymmetrie, ergibt die
     Bestimmung deshalb eine niedrigere Gruppe; die Kenndaten nennen die Lage. Verworfen: alle Bilder überlagert
