@@ -17,6 +17,7 @@ export const TIPS = {
   's-motiv': 'Form des Motivs, in Klammern seine eigene Symmetrie (Punktgruppe). Gilt für das gewählte Motiv oder für das nächste neue.',
   's-farbe': 'Atomsorte: Motive verschiedener Farbe sind verschieden und werden nie aufeinander abgebildet.',
   's-winkel': 'Drehung des Motivs im Uhrzeigersinn, ab der Richtung von b.',
+  's-spiegel': 'Spiegelbild des Motivs; gespiegelt wird vor der Drehung (beim Fähnchen an der Stange). Wirkt nur bei Motiven ohne eigene Spiegellinie (Fähnchen, Windräder); die übrigen sehen gespiegelt gleich aus.',
   's-groesse': 'Grösse des Motivs (in Einheiten von a).',
   's-entfernen': 'Das gewählte Motiv aus der Basis entfernen.',
   's-einrasten': 'Beim Ziehen springen die Koordinaten auf Vielfache von 1/12 (darunter ½, ⅓, ¼), die Drehung auf Vielfache von 15°.',
@@ -66,7 +67,7 @@ export const TIPS = {
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
   { heading: '#ctl-struktur > h2', intro: 'Eine Struktur ist Gitter plus Basis. Die App bestimmt aus beiden die Ebenengruppe und zeigt sie mit konventioneller Zelle und Symmetrieelementen.', ids: ['s-vorgabe', 's-zuruecksetzen', 's-elemente', 's-zelle', 's-ae', 's-bindungen', 's-zoom'] },
-  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Werkzeuge über der Struktur: „Wählen und ziehen“ und „Hinzufügen“.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 's-motiv', 's-farbe', 's-winkel', 's-groesse', 's-entfernen', 's-einrasten'] },
+  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Werkzeuge über der Struktur: „Wählen und ziehen“ und „Hinzufügen“.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 's-motiv', 's-farbe', 's-winkel', 's-spiegel', 's-groesse', 's-entfernen', 's-einrasten'] },
   { heading: '#sec-sgitter > summary', intro: 'Gitter der gegebenen Zelle; anders als im Modus „Ebenengruppen“ ohne Bindung an ein Kristallsystem.', ids: ['s-ba', 's-gamma', 's-metrik'] },
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'seg-ornament', 'opt-einrasten', 'opt-orbit'] },
   { heading: '#sec-zeichnen > summary', intro: 'Was tut eine Ebenengruppe? Zeichnen Sie etwas: Die Gruppe macht daraus ein Muster.', ids: ['werkzeug-zeichnen', 'werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen', 'opt-fuell'] },

@@ -73,6 +73,11 @@ function beispiele() {
   const z = startzustand();
   z.modus = 'struktur'; z.struktur = strukturStart('graphen'); z.struktur.ba = 1.3; z.struktur.basis.pop();
   out.push(z);
+  // gespiegelte Motive (Link-Feld m)
+  const zs = startzustand();
+  zs.modus = 'struktur'; zs.struktur = strukturStart('dreieck1');
+  zs.struktur.basis = [{ motiv: 'fahne', farbe: 0, p: [0.2, 0.3], winkel: grad(30) }, { motiv: 'fahne', farbe: 0, p: [0.8, 0.3], winkel: grad(150), spiegel: true }];
+  out.push(zs);
   return out;
 }
 

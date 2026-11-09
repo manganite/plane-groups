@@ -3,7 +3,7 @@
 // das gewählte Motiv gelten nur in dieser Sitzung.
 
 import { VORGABEN } from './vorgaben.js';
-import { MOTIVE } from './motive.js';
+import { MOTIVE, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1 } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE } from './zustand.js';
@@ -16,7 +16,7 @@ import { $, eingabe, auswahl, knopf, grafik, element, modusTabs } from '../lib/c
 /** @import { Ansicht, Farben } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { Bestimmung } from './bestimmung.js' */
-/** Vorlage für „Hinzufügen“ (groesse null: Grösse des Motivs). @typedef {{ motiv: string, farbe: number, winkel: Grad, groesse: number | null }} Vorlage */
+/** Vorlage für „Hinzufügen“ (groesse null: Grösse des Motivs). @typedef {{ motiv: string, farbe: number, winkel: Grad, groesse: number | null, spiegel?: true }} Vorlage */
 
 const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
 
@@ -85,6 +85,11 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const winkel = ((e.winkel ?? 0) % 360 + 360) % 360;
     eingabe('s-winkel').value = String(winkel);
     $('s-winkel-out').textContent = `${dezimal(winkel, 1, { kuerzen: true })}°`;
+    // gespiegelt: nur bei chiralen Motiven, sonst gesperrt (das Spiegelbild wäre dasselbe Motiv)
+    const spiegelbar = chiral(e.motiv);
+    eingabe('s-spiegel').checked = Boolean(e.spiegel);
+    eingabe('s-spiegel').disabled = !spiegelbar;
+    element('#row-spiegel .why').textContent = spiegelbar ? '' : 'nur bei Motiven ohne Spiegellinie (Fähnchen, Windräder)';
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
     eingabe('s-groesse').value = String(gr);
     $('s-groesse-out').textContent = dezimal(gr, 3);
@@ -186,6 +191,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       /** @type {Basiseintrag} */
       const e0 = { motiv: neu.motiv, farbe: neu.farbe, p: raste(p), winkel: neu.winkel };
       if (neu.groesse !== null) e0.groesse = neu.groesse;
+      if (neu.spiegel) e0.spiegel = true;
       st().basis.push(e0);
       gewaehlt = st().basis.length - 1;
       zug = { k: gewaehlt, versatz: [0, 0] };
@@ -245,13 +251,19 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-werkzeug-hinzufuegen').addEventListener('click', () => {
       werkzeug = werkzeug === 'hinzufuegen' ? 'verschieben' : 'hinzufuegen';
       // die Vorlage übernimmt das gewählte Motiv
-      if (werkzeug === 'hinzufuegen' && gewaehlt !== null) { const e = st().basis[gewaehlt]; neu = { motiv: e.motiv, farbe: e.farbe ?? 0, winkel: e.winkel ?? grad(0), groesse: e.groesse ?? null }; gewaehlt = null; }
+      if (werkzeug === 'hinzufuegen' && gewaehlt !== null) {
+        const e = st().basis[gewaehlt];
+        neu = { motiv: e.motiv, farbe: e.farbe ?? 0, winkel: e.winkel ?? grad(0), groesse: e.groesse ?? null, ...(e.spiegel ? { spiegel: /** @type {true} */ (true) } : {}) };
+        gewaehlt = null;
+      }
       aktualisieren();
     });
     $('s-motiv').addEventListener('change', () => {
       const e = ziel();
       e.motiv = auswahl('s-motiv').value;
       if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
+      // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Symmetrie festhalten“)
+      if (!chiral(e.motiv)) delete e.spiegel;
       aktualisieren();
     });
     $('s-farbe').addEventListener('click', (ev) => {
@@ -264,6 +276,11 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       let w = Number(eingabe('s-winkel').value);
       if (rasten) { const r = Math.round(w / 15) * 15; if (Math.abs(w - r) < 2.5) w = r; }
       ziel().winkel = grad(w % 360);
+      aktualisieren();
+    });
+    $('s-spiegel').addEventListener('change', () => {
+      const e = ziel();
+      if (eingabe('s-spiegel').checked && chiral(e.motiv)) e.spiegel = true; else delete e.spiegel;
       aktualisieren();
     });
     $('s-groesse').addEventListener('input', () => { ziel().groesse = Number(eingabe('s-groesse').value); aktualisieren(); });

@@ -14,8 +14,9 @@ import { metrik, bruchVon } from './zeichnung.js';
  */
 /**
  * Eintrag der Basis: Motiv an der Lage p (Bruchkoordinaten), gedreht um winkel (Grad), mit
- * eigener Grösse und Farbe (Nummer).
- * @typedef {{ motiv: string, p: Vec2, winkel?: Grad, groesse?: number, farbe?: number }} Basiseintrag
+ * eigener Grösse und Farbe (Nummer). spiegel: an der eigenen y-Achse gespiegelt, vor der Drehung;
+ * nur bei chiralen Motiven (chiral()), sonst fehlt das Feld (die übrigen sind zu dieser Achse symmetrisch).
+ * @typedef {{ motiv: string, p: Vec2, winkel?: Grad, groesse?: number, farbe?: number, spiegel?: true }} Basiseintrag
  */
 /** Struktur im Modus „Gitter und Basis“. @typedef {import('./zeichnung.js').Gitter & { basis: Basiseintrag[], bindungen?: boolean }} Struktur */
 
@@ -64,12 +65,23 @@ export const MOTIVE = {
   ziegel: { name: 'Ziegel', symmetrie: '2mm', groesse: 0.12, deckkraft: 0.45, punkte: [[1, 0.9 / 1.9, 'e'], [-1, 0.9 / 1.9, 'e'], [-1, -0.9 / 1.9, 'e'], [1, -0.9 / 1.9, 'e']], form: 'polygon' },
 };
 
-/** Lokale Punkte eines Basiseintrags, gedreht und skaliert (kartesisch). @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse'>} e @returns {{ c: Kartesisch<Vec2>, art: string }[]} */
+/**
+ * Chirales Motiv: seine eigene Symmetrie hat keine Spiegellinie, das Spiegelbild ist ein anderes Motiv
+ * (Fähnchen, Windräder). Nur bei ihnen wirkt „gespiegelt“.
+ * @param {string} motiv
+ */
+export const chiral = (motiv) => !MOTIVE[motiv].symmetrie.includes('m');
+
+/**
+ * Lokale Punkte eines Basiseintrags, gespiegelt (an der eigenen y-Achse, x → −x), gedreht und skaliert (kartesisch).
+ * @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse' | 'spiegel'>} e @returns {{ c: Kartesisch<Vec2>, art: string }[]}
+ */
 export function motivKart(e) {
   const d = MOTIVE[e.motiv];
   const s = e.groesse ?? d.groesse;
   const c = Math.cos(rad(e.winkel ?? 0)); const n = Math.sin(rad(e.winkel ?? 0));
-  return d.punkte.map(([u, v, art]) => ({ c: /** @type {Kartesisch<Vec2>} */ ([s * (c * u - n * v), s * (n * u + c * v)]), art }));
+  const sx = e.spiegel ? -1 : 1;
+  return d.punkte.map(([u0, v, art]) => { const u = sx * u0; return { c: /** @type {Kartesisch<Vec2>} */ ([s * (c * u - n * v), s * (n * u + c * v)]), art }; });
 }
 
 /**
