@@ -1,9 +1,10 @@
 // Toleranzen der Symmetriebestimmung (js/bestimmung.js, #120): Fälle knapp neben einer speziellen Metrik
 // oder Lage. Die kleinsten Unterschiede, die man eingeben kann, sind Regler (b/a in Schritten von 0,01,
 // γ in 0,5°, Lage in 0,001) und Link (b/a auf 0,001, γ auf 0,01°, Lagen auf 10⁻⁶; js/zustand.js). Ein
-// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage. Rundungsfehler (die Metrik aus
-// cos und sin, 10⁻¹² relativ) ergeben das höhere System, ein Abstand von 10⁻⁶ von einer speziellen Lage gilt
-// als auf ihr.
+// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage. Ausnahme: Wo eine Abweichung
+// von der speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten), gilt das
+// nur für den Regler, nicht für den Link (offen, PR #124). Rundungsfehler (die Metrik aus cos und sin, 10⁻¹² relativ)
+// ergeben das höhere System, ein Abstand von 10⁻⁶ von einer speziellen Lage gilt als auf ihr.
 //
 // Die erwarteten Gruppen sind von Hand hergeleitet (Kommentare), nicht mit dem Code der App gerechnet
 // (Leitfaden Abschn. 9). Die Gitter entstehen wie in der App mit metrik() (|a| = 1, |b| = b/a, Winkel γ).
@@ -57,11 +58,15 @@ for (const [name, faelle] of /** @type {[string, [number, number, string][]][]} 
     [2.01, 60, 'p2'], [1.99, 60, 'p2'], [2, 60.5, 'p2'], [2, 59.5, 'p2'], [2, 60.01, 'p2'],
   ]],
   // b/a = √3, γ = 150°: |a + b|² = 1 + 3 + 2√3 cos 150° = 1 und a·(a + b) = 1 − 3/2 = −½, also a, a + b
-  // gleich lang unter 120°: hexagonal. Mit b/a = 1,74 ist |a + b|² = 1,0138, a·(a + b) = −0,507; mit
-  // γ = 150,5° |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
+  // gleich lang unter 120°: hexagonal. Mit b/a = √3 + ε ist die reduzierte Basis a, 2a + b mit
+  // |2a + b|² = 1 + ε² und a·(2a + b) = ½ − √3 ε/2: schiefwinklig, aber nur um ε² von gleich langen Achsen
+  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), ergeben p2;
+  // 1,73 verlangt also eine Toleranz der Metrik unter etwa 4·10⁻⁶. Die Link-Werte 1,732 und 1,733 (ε² ≈ 3·10⁻⁹
+  // bzw. 10⁻⁶) liegen innerhalb der Toleranz und ergeben c2mm statt p2 (offen, PR #124); sie fehlen deshalb hier.
+  // Mit γ = 150,5° ist |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
   ['schief aufgestellt, hexagonal', [
     [Math.sqrt(3), 150, 'p6mm'],
-    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'],
+    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
   ]],
 ])) {
   test(`Metrik knapp neben einer speziellen (${name}): niedrigeres System, genau auf dem Wert das höhere`, () => {
@@ -86,7 +91,8 @@ test('Lage knapp neben einem Drehpunkt (schiefe Zelle, b/a = 2, γ = 150°)', ()
   // ≈ 1,07 und a·(2a + b) = 2 − √3 ≈ 0,27 (nicht gleich lang, nicht senkrecht, nicht rhombisch). Holoedrie p2 mit Drehpunkten auf (0, 0), (½, 0), (0, ½), (½, ½). Eine Drehung, die A
   // festhält, hat ihren Punkt c auf dem halben Gitter (2c ganzzahlig); sie bildet B auf 2c − B ab, das ist B
   // (modulo Gitter) nur, wenn 2B ganzzahlig ist. Also p2 genau dann, wenn B auf einem Drehpunkt liegt, sonst p1.
-  // TOL in Bruchkoordinaten entspricht entlang a (|a| = 1) halb so langen Strecken wie entlang b (|b| = 2).
+  // Abweichung entlang a (|a| = 1) und entlang b (|b| = 2). Die Abstände liegen weit genug von TOL entfernt, dass
+  // die Tests nicht unterscheiden, ob TOL in Bruchkoordinaten oder als Länge gilt; sie sichern die Grössenordnung.
   /** @param {Vec2} b */
   const mitB = (b) => symbol(2, 150, [{ p: [0, 0], art: 'A' }, { p: b, art: 'B' }]);
   for (const [b, erwartet] of /** @type {[Vec2, string][]} */ ([
@@ -155,12 +161,28 @@ test('Skalierung: a und b mit einem gemeinsamen Faktor ergeben dieselbe Gruppe, 
       const mal = (v) => /** @type {Kartesisch<Vec2>} */ ([f * v[0], f * v[1]]);
       const r = /** @type {Bestimmung} */ (bestimme({ a: mal(M.a), b: mal(M.b), punkte }));
       assert.equal(r?.symbol, d.symbol, `${d.symbol}, Faktor ${f}`);
-      // Zelle bis auf Rundungsfehler (die Einträge sind nicht exakt ganzzahlig)
+      // Zelle bis auf Rundungsfehler (die Einträge sind nicht immer exakt ganzzahlig, #125)
       assert.ok(r.zelle.every((z, i) => z.every((x, j) => Math.abs(x - r0.zelle[i][j]) < 1e-9)), `${d.symbol}, Faktor ${f}: Zelle ${JSON.stringify(r.zelle)}`);
       assert.ok(r.ursprung.every((x, i) => Math.abs(x - r0.ursprung[i]) < 1e-9), `${d.symbol}, Faktor ${f}: Ursprung`);
       for (const k of /** @type {const} */ (['a', 'b'])) {
         assert.ok(r[k].every((x, i) => Math.abs(x - f * r0[k][i]) < 1e-9 * Math.max(1, f)), `${d.symbol}, Faktor ${f}: ${k}`);
       }
+    }
+  }
+});
+
+test('Skalierung des Gitters allein: ein Punkt je Zelle behält die Holoedrie', () => {
+  // Die Toleranz der Metrik muss relativ zur Grösse der Zelle wirken: Mit einer absoluten Toleranz würde ein
+  // kleines Gitter zu viel Symmetrie zeigen, ein grosses zu wenig. Die Holoedrien der Startgitter der App:
+  // schiefwinklig p2, rechteckig p2mm, quadratisch p4mm, hexagonal p6mm.
+  for (const [sys, erwartet] of /** @type {[keyof typeof GITTER_START, string][]} */ ([
+    ['schiefwinklig', 'p2'], ['rechteckig', 'p2mm'], ['quadratisch', 'p4mm'], ['hexagonal', 'p6mm'],
+  ])) {
+    const M = metrik(GITTER_START[sys]);
+    for (const f of [1e3, 1e-3, 7.3]) {
+      /** @param {Kartesisch<Vec2>} v */
+      const mal = (v) => /** @type {Kartesisch<Vec2>} */ ([f * v[0], f * v[1]]);
+      assert.equal(bestimme({ a: mal(M.a), b: mal(M.b), punkte: EIN_PUNKT })?.symbol, erwartet, `${sys}, Faktor ${f}`);
     }
   }
 });
