@@ -7,7 +7,7 @@
 // Spiegelung S an der eigenen y-Achse (x → −x). Das Bild unter einer Operation mit kartesischem
 // Drehanteil C hat die Orientierung C · O.
 
-import { anwenden, mod1, lage, TOL_LAGE } from './symmetrie.js';
+import { anwenden, mod1, lage } from './symmetrie.js';
 import { TOL as TOL_BESTIMMUNG } from './bestimmung.js';
 import { metrik, kart, kartMatrix, grad } from './zeichnung.js';
 import { MOTIVE, motivKart, chiral } from './motive.js';
@@ -50,9 +50,9 @@ const abstandMod = (p, q) => Math.max(...[0, 1].map((i) => { const d = p[i] - q[
 
 /**
  * Bahn eines Motivs: seine Bilder unter den Operationen der Gruppe, Lagen in [0, 1)². Fallen Bilder
- * auf derselben Lage zusammen (spezielle Lage), bleibt nur das erste, also das Bild der Identität
+ * auf derselben Lage zusammen (spezielle Lage, mit der Toleranz der Bestimmung), bleibt nur das erste, also das Bild der Identität
  * (Operationen in der Reihenfolge von g.alle, die Identität zuerst). Das erste Bild ist der Eintrag
- * selbst, mit seiner Lage in [0, 1)².
+ * selbst, mit seiner Lage in [0, 1)². Das Gitter M muss zum System der Gruppe passen, sonst ein Fehler.
  * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e @returns {Basiseintrag[]}
  */
 export function motivBahn(g, M, e) {
@@ -61,9 +61,14 @@ export function motivBahn(g, M, e) {
   const out = [];
   for (const op of g.alle) {
     const p = /** @type {Vec2} */ (anwenden(op, e.p).map(mod1));
-    if (out.some((b) => abstandMod(b.p, p) < TOL_LAGE)) continue;
+    if (out.some((b) => abstandMod(b.p, p) < TOL_BESTIMMUNG)) continue;
+    const K = kartMatrix(M, op.R);
+    // nur, wenn das Gitter zum System der Gruppe passt (sorgt der Aufrufer dafür); sonst wäre K keine Drehung
+    if (Math.abs(K[0][0] * K[0][0] + K[1][0] * K[1][0] - 1) > 1e-6 || Math.abs(K[0][0] * K[0][1] + K[1][0] * K[1][1]) > 1e-6) {
+      throw new Error(`Gitter passt nicht zu ${g.daten.symbol}`);
+    }
     /** @type {Basiseintrag} */
-    const bild = { motiv: e.motiv, p, ...ausOrientierung(mal(kartMatrix(M, op.R), O), e.motiv) };
+    const bild = { motiv: e.motiv, p, ...ausOrientierung(mal(K, O), e.motiv) };
     if (e.farbe !== undefined) bild.farbe = e.farbe;
     if (e.groesse !== undefined) bild.groesse = e.groesse;
     out.push(bild);
@@ -79,7 +84,7 @@ export const ausschreiben = (g, M, vertreter) => vertreter.flatMap((e) => motivB
  * (die eigene Symmetrie zählt: ein um 90° gedrehtes Quadrat ist dasselbe).
  * @param {Basiseintrag} a @param {Basiseintrag} b @param {number} [tol]
  */
-export function gleichesMotiv(a, b, tol = TOL_LAGE) {
+export function gleichesMotiv(a, b, tol = TOL_BESTIMMUNG) {
   if (a.motiv !== b.motiv || (a.farbe ?? 0) !== (b.farbe ?? 0)) return false;
   const ga = a.groesse ?? MOTIVE[a.motiv].groesse; const gb = b.groesse ?? MOTIVE[b.motiv].groesse;
   if (Math.abs(ga - gb) > 1e-9 || abstandMod(a.p, b.p) >= tol) return false;
@@ -173,7 +178,20 @@ export function umrechnen(st, r) {
     const neu = { motiv: e.motiv, p, ...ausOrientierung(mal(Q, orientierung(e)), e.motiv), groesse: (e.groesse ?? MOTIVE[e.motiv].groesse) * s };
     if (e.farbe !== undefined) neu.farbe = e.farbe;
     // ist die gegebene Zelle eine Überzelle der konventionellen, fallen Motive modulo des neuen Gitters zusammen
-    if (!basis.some((x) => gleichesMotiv(x, neu))) basis.push(neu);
+    if (!basis.some((x) => gleichesMotiv(x, neu, TOL_BESTIMMUNG))) basis.push(neu);
   }
   return { ba, gamma: grad(gamma), basis };
+}
+
+/**
+ * Lässt sich eine umgerechnete Struktur mit den Reglern von „Gitter und Basis“ darstellen? Sonst ist die
+ * Übernahme gesperrt (CLAUDE.md, „Symmetrie festhalten“): Metrik und Grösse jedes Motivs im Bereich.
+ * @param {{ ba: number, gamma: number, basis: Basiseintrag[] }} u
+ * @param {{ ba: [number, number], gamma: [number, number], groesse: [number, number] }} bereich (STRUKTUR_BEREICH)
+ */
+export function darstellbar(u, bereich) {
+  /** @type {(x: number, b: [number, number]) => boolean} */
+  const drin = (x, [lo, hi]) => x >= lo - 1e-9 && x <= hi + 1e-9;
+  return drin(u.ba, bereich.ba) && drin(u.gamma, bereich.gamma)
+    && u.basis.every((e) => drin(e.groesse ?? MOTIVE[e.motiv].groesse, bereich.groesse));
 }

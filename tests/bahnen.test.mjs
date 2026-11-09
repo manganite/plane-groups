@@ -8,7 +8,8 @@ import { GITTER_START, STRUKTUR_BEREICH } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { MOTIVE, chiral } from '../js/motive.js';
 import { strukturSymmetrie, istGegeben } from '../js/struktur.js';
-import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen } from '../js/bahnen.js';
+import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar } from '../js/bahnen.js';
+import { basisText, liesBasis } from '../js/zustand.js';
 
 /** @import { Mat2, Vec2 } from '../lib/common/js/typen.js' */
 
@@ -99,6 +100,15 @@ test('Bilder eines gedrehten, gespiegelten Fähnchens in p4: Winkel um je 90° w
   assert.ok(bahn.every((b) => b.spiegel && b.farbe === 2 && b.groesse === 0.2), 'Drehungen erhalten Spiegelung, Farbe und Grösse');
 });
 
+/**
+ * Zahl der Bahnen der umgerechneten Vorgaben, von Hand: Dreiecksbeispiel Stufe 3 (p2mg) ein Dreieck auf einer
+ * Spiegellinie (2c), Fischgrät (p2gg) ein Ziegel in allgemeiner Lage (4c), um ein Drittel versetzt (p2) ein Ziegel
+ * auf einem Drehpunkt in der kleineren Zelle, Flechtverband (p4gm) zwei Ziegel je konventioneller Zelle verschiedener
+ * Richtung auf den Spiegellinien (4c), eine Bahn.
+ * @type {Record<string, number>}
+ */
+const BAHNEN = { dreieck3: 1, fisch: 1, drittel: 1, flecht: 1 };
+
 test('Vertreter: aus jeder Vorgabe, umgerechnet auf die konventionelle Zelle, je Bahn ein Motiv; ausgeschrieben dieselbe Struktur', () => {
   const geaendert = [];
   for (const v of VORGABEN) {
@@ -113,11 +123,11 @@ test('Vertreter: aus jeder Vorgabe, umgerechnet auf die konventionelle Zelle, je
     const r2 = symmetrie(u);
     assert.equal(r2.symbol, v.erwartet, v.id);
     assert.ok(istGegeben(r2), `${v.id}: Zelle ${JSON.stringify(r2.zelle)}, Ursprung ${r2.ursprung}`);
-    // je Bahn ein Vertreter (Zahl der Bahnen von Hand: nächster Test)
+    // je Bahn ein Vertreter (Zahl der Bahnen von Hand: unten und im Test „Zahl der Bahnen“)
     const g = gruppe(v.erwartet); const M = metrik(u);
     const vt = vertreter(g, M, u.basis);
     assert.ok(gleicheMengen(ausschreiben(g, M, vt), u.basis), `${v.id}: ausgeschrieben wie vorher`);
-    assert.ok(vt.length <= u.basis.length, v.id);
+    if (BAHNEN[v.id] !== undefined) assert.equal(vt.length, BAHNEN[v.id], `${v.id}: Bahnen`);
   }
   assert.deepEqual(geaendert.sort(), ['dreieck3', 'drittel', 'fisch', 'flecht'], 'Vorgaben mit anderer Zelle oder anderem Ursprung');
 });
@@ -131,7 +141,7 @@ test('Umrechnen von der primitiven auf die zentrierte Zelle: die Vertreter ergä
   assert.equal(r.symbol, 'c2mm');
   assert.equal(istGegeben(r), false);
   const u = umrechnen(st, r);
-  assert.ok(Math.abs(u.gamma - 90) < 1e-9 && Math.abs(u.ba - 1.35) < 1e-9 || Math.abs(u.ba - 1 / 1.35) < 1e-9, `${u.ba}, ${u.gamma}`);
+  assert.ok(Math.abs(u.gamma - 90) < 1e-9 && (Math.abs(u.ba - 1.35) < 1e-9 || Math.abs(u.ba - 1 / 1.35) < 1e-9), `${u.ba}, ${u.gamma}`);
   const M = metrik(u);
   const voll = ausschreiben(gruppe('c2mm'), M, vertreter(gruppe('c2mm'), M, u.basis));
   assert.equal(voll.length, 2, 'zwei Atome in der zentrierten Zelle');
@@ -197,6 +207,73 @@ test('Umrechnen: hexagonale Zelle a, a + b bei γ = 60° (Händigkeit hängt son
     const u = umrechnen(st, r);
     assert.ok(u.basis.every((e) => !e.spiegel), `γ = ${gamma}: p6 hat keine Spiegelungen, das Bild darf nicht gespiegelt werden`);
     assert.ok(istGegeben(symmetrie(u)), `γ = ${gamma}`);
+  }
+});
+
+test('Umrechnen: rechteckige Gruppen mit vertauschten Achsen (Bestimmung liefert oft eine linkshändige Zelle)', () => {
+  // Struktur in der Standardaufstellung (b/a = 1/q > 1), dann mit vertauschten Achsen beschrieben: Lagen (x, y) → (y, x),
+  // b/a = q < 1. Das ist das Spiegelbild an der Diagonalen (von Hand): Motive mit K = [[0, 1], [1, 0]] umorientiert,
+  // Grösse mit q skaliert (die neue Länge |a| ist die alte |b|).
+  /** @type {Mat2} */
+  const K = [[0, 1], [1, 0]];
+  /** @type {(A: Mat2, B: Mat2) => Mat2} */
+  const mal = (A, B) => [[A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1] + A[0][1] * B[1][1]], [A[1][0] * B[0][0] + A[1][1] * B[1][0], A[1][0] * B[0][1] + A[1][1] * B[1][1]]];
+  let links = 0;
+  for (const s of ['pm', 'pg', 'cm', 'p2mm', 'p2mg', 'p2gg', 'c2mm']) {
+    const g = gruppe(s);
+    for (const q of [0.5, 0.62, 0.741, 0.9]) {
+      const M0 = metrik({ ba: 1 / q, gamma: grad(90) });
+      const standard = motivBahn(g, M0, { motiv: 'fahne', farbe: 0, groesse: 0.1, p: punktAufLage(g, allgemein(g).b, [0.137, 0.291]), winkel: grad(17) });
+      const gi = { ba: q, gamma: grad(90) };
+      /** @type {Basiseintrag[]} */
+      const bahn = standard.map((e) => ({ motiv: e.motiv, farbe: e.farbe, p: /** @type {Vec2} */ ([e.p[1], e.p[0]]), groesse: 0.1 * q, ...ausOrientierung(mal(K, orientierung(e)), e.motiv) }));
+      const r = symmetrie({ ...gi, basis: bahn });
+      assert.equal(r.symbol, s);
+      if (r.zelle[0][0] * r.zelle[1][1] - r.zelle[0][1] * r.zelle[1][0] < 0) links++;
+      const u = umrechnen({ ...gi, basis: bahn }, r);
+      // dasselbe erste Fähnchen ist danach so gespiegelt wie vorher
+      assert.equal(Boolean(u.basis[0].spiegel), Boolean(bahn[0].spiegel), `${s} ${q}`);
+      assert.ok(istGegeben(symmetrie(u)), `${s} ${q}`);
+    }
+  }
+  assert.ok(links > 0, 'darunter linkshändige Zellen der Bestimmung');
+});
+
+test('Vertreter nach einem Link: auf 6 Stellen gerundete Koordinaten fallen zusammen', () => {
+  // Koordinaten ohne kleinen Nenner; die Link-Adresse rundet (koordText), Bilder wie x − y weichen dann um ~1e-6 ab
+  for (const s of ['p3', 'p6', 'p3m1', 'p31m', 'p6mm', 'p4gm']) {
+    const g = gruppe(s); const gi = GITTER_START[g.daten.system]; const M = metrik(gi);
+    const bahn = motivBahn(g, M, { motiv: 'fahne', farbe: 0, p: [0.1234567, 0.2987654], winkel: grad(17) });
+    const gelesen = liesBasis(basisText(bahn));
+    assert.equal(vertreter(g, M, gelesen).length, 1, s);
+    assert.equal(ausschreiben(g, M, vertreter(g, M, gelesen)).length, bahn.length, s);
+  }
+});
+
+test('Toleranzen: Bahn und Bestimmung gleich (ein Fähnchen 2e-6 neben dem Drehpunkt bleibt ein Bild)', () => {
+  const S = GITTER_START.schiefwinklig;
+  const f = motivBahn(gruppe('p2'), metrik(S), { motiv: 'fahne', farbe: 0, p: [2e-6, 0], winkel: grad(10) });
+  assert.equal(f.length, 1);
+  assert.equal(symmetrie({ ...S, basis: f }).symbol, 'p1');
+});
+
+test('Bahn: Gitter passt nicht zum System → Fehler statt falscher Orientierung', () => {
+  assert.throws(() => motivBahn(gruppe('p4'), metrik(GITTER_START.rechteckig), { motiv: 'fahne', farbe: 0, p: [0.1, 0.2], winkel: grad(0) }), /passt nicht/);
+});
+
+test('darstellbar: Metrik und Grösse im Bereich der Regler', () => {
+  const B = { ba: STRUKTUR_BEREICH.ba, gamma: STRUKTUR_BEREICH.gamma, groesse: STRUKTUR_BEREICH.groesse };
+  /** @type {Basiseintrag} */
+  const e = { motiv: 'ziegel', farbe: 0, p: [0, 0], winkel: grad(0) };
+  assert.equal(darstellbar({ ba: 1, gamma: 90, basis: [e] }, B), true);
+  assert.equal(darstellbar({ ba: 2.5, gamma: 90, basis: [e] }, B), false, 'b/a zu gross');
+  assert.equal(darstellbar({ ba: 1, gamma: 40, basis: [e] }, B), false, 'γ zu klein');
+  assert.equal(darstellbar({ ba: 1, gamma: 90, basis: [{ ...e, groesse: 1.2 }] }, B), false, 'Motiv zu gross');
+  assert.equal(darstellbar({ ba: 1, gamma: 90, basis: [{ ...e, groesse: 0.01 }] }, B), false, 'Motiv zu klein');
+  // umgerechnete Vorgaben sind alle darstellbar
+  for (const v of VORGABEN) {
+    const st = { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis };
+    assert.ok(darstellbar(umrechnen(st, symmetrie(st)), B), v.id);
   }
 });
 
