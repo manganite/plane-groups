@@ -72,6 +72,9 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Skript als PDF
         run: node tools/skript-pdf.mjs skript.pdf
+      # Browserlauf für „Symmetrie festhalten“ (Bedienung mit der Maus); hier, weil der Job Chromium schon hat
+      - name: Bedienung „Symmetrie festhalten“
+        run: node tools/festhalten-pruefen.mjs
       - name: PDF als Artefakt
         uses: actions/upload-artifact@v4
         with:

@@ -145,6 +145,12 @@ für diese App gilt.
     *b* = *a* frei: zufällige Zusatzsymmetrie). Die Wahl einer anderen Gruppe führt die gezeichneten Motive unter
     ihr wieder auf Vertreter zurück, wie das Einschalten. Liegt ein gewähltes Bild auf einer speziellen Lage, zeigt
     die Auswahl das dort gezeichnete Bild (Review #134: sonst zeigten die Regler ein unsichtbares Bild).
+  - **Hilfen** (Thomas, 9.11.2026): vorerst keine Quizfragen zu „Symmetrie festhalten“, weil das Quiz allgemeine
+    Konventionen abfragt und die Bedingung „Motiv auf spezieller Lage braucht deren Lagesymmetrie“ schon Fragen zu
+    Kap. 6 prüfen; zwei Experimente: Fähnchen bzw. Windrad 4 auf dem Drehpunkt von *p*4 (`festhalten-lage`), *p*2*mm*
+    mit *b* = *a* (`festhalten-metrik`). Die Bedienung prüft ein Browserlauf (`tools/festhalten-pruefen.mjs`), weil
+    die Tests ohne Browser laufen (Leitfaden Abschn. 9); er läuft in der CI im Job `pdf` mit, der Chromium schon hat
+    (Review #135).
   - **Zusammenfallende Bilder** auf einer speziellen Lage: Nur eines bleibt, das Bild der Identität, wie ein Atom
     auf einer speziellen Lage. Passt die eigene Symmetrie des Motivs nicht zur Lagesymmetrie, ergibt die
     Bestimmung deshalb eine niedrigere Gruppe; die Kenndaten nennen die Lage. Verworfen: alle Bilder überlagert

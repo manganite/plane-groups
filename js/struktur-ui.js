@@ -203,9 +203,15 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     merker = { schluessel: merkerSchluessel(), ue: uebernahme(),
       gesperrt: new Set(s.festeGruppe ? EBENENGRUPPEN.map((d) => d.symbol).filter((sym) => sym !== s.festeGruppe && !zurGruppe(sym)) : []) };
   }
+  /** War beim letzten Abgleich eine Gruppe festgehalten? (Abschnitt aufklappen, wenn eine dazukommt) */
+  let warFest = false;
   function festAbgleichen() {
     const s = st();
     if (z.modus !== 'struktur') return;
+    // kommt eine festgehaltene Gruppe dazu (auch über eine Adresse in der laufenden App, z. B. Erste Schritte oder
+    // Experimente), den Abschnitt aufklappen, damit Schalter und Gruppenwahl zu sehen sind (Review #135)
+    if (s.festeGruppe && !warFest) /** @type {HTMLDetailsElement} */ ($('sec-sfest')).open = true;
+    warFest = Boolean(s.festeGruppe);
     if (!merker) merkerRechnen();
     else if (merker.schluessel !== merkerSchluessel() && !zug) {
       if (merkerUhr) clearTimeout(merkerUhr);
