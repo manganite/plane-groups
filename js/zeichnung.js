@@ -1100,11 +1100,13 @@ function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
   const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
   /** @type {Op} */
   const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
-  // Weg einer Operation: Zwischenbild blass, Teilwege mit Pfeil, Buchstabe auf halber Länge
-  /** @param {Weg} w @param {string} farbe @param {string} name */
-  const wegSVGvon = (w, farbe, name) => {
+  // Weg einer Operation: Zwischenbild blass, Teilwege mit Pfeil, Buchstabe auf halber Länge. Abgeblendet (blass)
+  // wird nur der Weg; der Buchstabe bleibt lesbar (Kontrast, Leitfaden Abschn. 5.4, #114).
+  /** @param {Weg} w @param {string} farbe @param {string} name @param {boolean} [blass] */
+  const wegSVGvon = (w, farbe, name, blass = false) => {
     const bild = w.teile.map((t) => t.map(A.zuBild));
-    return `<g class="weg weg-${name.toLowerCase()}">${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
+    const weg = `${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}`;
+    return `<g class="weg weg-${name.toLowerCase()}">${blass ? `<g opacity="0.35">${weg}</g>` : weg}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
   };
   // Nummer einer Stelle, links oberhalb des Fähnchens
   /** @param {Vec2} p @param {string} text @param {string} farbe */
@@ -1113,10 +1115,8 @@ function erklaerungSVG(g, M, A, d, phase, farben, form, n) {
     return `<g class="stelle"><circle cx="${f2(x)}" cy="${f2(y)}" r="8.5" fill="${farbe}"/><text x="${f2(x)}" y="${f2(y + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="700" fill="${farben.paper}" text-anchor="middle" dominant-baseline="middle">${text}</text></g>`;
   };
   // in der Gesamtansicht treten die Wege von B und A hinter den Weg unter C zurück
-  /** @param {string} svg */
-  const blass = (svg) => (phase >= 3 ? `<g opacity="0.35">${svg}</g>` : svg);
-  if (phase >= 1 && !d.erzeugende) teile.push(blass(wegSVGvon(d.wege.B, fB, 'B')));
-  if (phase >= 2 && !d.erzeugende) teile.push(blass(wegSVGvon(d.wege.A, fA, 'A')));
+  if (phase >= 1 && !d.erzeugende) teile.push(wegSVGvon(d.wege.B, fB, 'B', phase >= 3));
+  if (phase >= 2 && !d.erzeugende) teile.push(wegSVGvon(d.wege.A, fA, 'A', phase >= 3));
   if (phase >= 3) teile.push(wegSVGvon(d.wege.C, fC, 'C'));
   // Fähnchen und Stellen
   teile.push(fahne(s, id, farben.ink));
@@ -1151,20 +1151,21 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
   const id = { R: [[1, 0], [0, 1]], t: [0, 0] };
   /** @param {Vec2} p @param {Op} op @param {string} farbe */
   const fahne = (p, op, farbe) => objektSVG(form, A.zuBild(p), kartMatrix(M, op.R), op.R[0][0] * op.R[1][1] - op.R[0][1] * op.R[1][0] > 0, farbe, farben.paper, 1.15);
-  /** @param {Weg} w @param {string} farbe @param {string} name @param {string} klasse */
-  const wegSVGvon = (w, farbe, name, klasse) => {
+  // abgeblendet (blass) wird nur der Weg, nicht der Buchstabe (wie in erklaerungSVG)
+  /** @param {Weg} w @param {string} farbe @param {string} name @param {string} klasse @param {boolean} [blass] */
+  const wegSVGvon = (w, farbe, name, klasse, blass = false) => {
     const bild = w.teile.map((t) => t.map(A.zuBild));
-    return `<g class="weg weg-${klasse}">${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
+    const weg = `${w.zwischen ? `<g opacity="0.45">${fahne(w.zwischen.p, w.zwischen.op, farbe)}</g>` : ''}${bild.map((t) => wegSVG(t, farbe)).join('')}`;
+    return `<g class="weg weg-${klasse}">${blass ? `<g opacity="0.35">${weg}</g>` : weg}${wegMarke(bild, farbe, farben.paper, name)}</g>`;
   };
   /** @param {Vec2} p @param {string} text @param {string} farbe */
   const nummer = (p, text, farbe) => {
     const q = A.zuBild(p); const x = q[0] - 22; const y = q[1] - 20;
     return `<g class="stelle"><circle cx="${f2(x)}" cy="${f2(y)}" r="8.5" fill="${farbe}"/><text x="${f2(x)}" y="${f2(y + 0.5)}" font-family="IBM Plex Sans, sans-serif" font-size="11" font-weight="700" fill="${farben.paper}" text-anchor="middle" dominant-baseline="middle">${text}</text></g>`;
   };
-  /** @param {string} svg */
-  const blass = (svg) => (phase >= 3 ? `<g opacity="0.35">${svg}</g>` : svg);
-  if (phase >= 1) teile.push(blass(wegSVGvon(d.wege.V, fV, 'V', 'v')));
-  if (phase >= 2) { teile.push(blass(wegSVGvon(d.wege.T0, fT, 't', 't'))); teile.push(blass(wegSVGvon(d.wege.T1, fT, 't', 't'))); }
+  const abblenden = phase >= 3;
+  if (phase >= 1) teile.push(wegSVGvon(d.wege.V, fV, 'V', 'v', abblenden));
+  if (phase >= 2) { teile.push(wegSVGvon(d.wege.T0, fT, 't', 't', abblenden)); teile.push(wegSVGvon(d.wege.T1, fT, 't', 't', abblenden)); }
   if (phase >= 3) teile.push(wegSVGvon(d.wege.C, fC, 'C', 'c'));
   teile.push(fahne(s0, id, farben.ink));
   const q0 = A.zuBild(s0);

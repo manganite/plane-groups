@@ -137,8 +137,9 @@ function zellenSkizze(fig, f) {
     const q = e.map((p) => A.zuBild(p));
     svg.push(`<polygon points="${q.map(pt).join(' ')}" fill="${z.farbe}" fill-opacity="0.16" stroke="${z.farbe}" stroke-width="2.4" stroke-linejoin="round"/>`);
     const m = A.zuBild([z.o[0] + (z.a[0] + z.b[0]) / 2, z.o[1] + (z.a[1] + z.b[1]) / 2]);
-    // Name nicht auf einen Gitterpunkt (Zelle IV hat einen in der Mitte)
-    svg.push(text([m[0], m[1] + (z.name === 'IV' ? -22 : 0)], z.name, `${SANS} font-weight="600" font-size="19" fill="${z.farbe}" text-anchor="middle" dominant-baseline="middle"`));
+    // Name nicht auf einen Gitterpunkt (Zelle IV hat einen in der Mitte); Hof in der Papierfarbe, weil die Farbe
+    // auf der Tönung der Zelle 4,5 : 1 verfehlt (Leitfaden Abschn. 5.4, #114)
+    svg.push(text([m[0], m[1] + (z.name === 'IV' ? -22 : 0)], z.name, `${SANS} font-weight="600" font-size="19" fill="${z.farbe}" stroke="${f.paper}" stroke-width="5" stroke-linejoin="round" paint-order="stroke" text-anchor="middle" dominant-baseline="middle"`));
   }
   svg.push(punkte(A, -1, 6, f));
   return svg.join('');
