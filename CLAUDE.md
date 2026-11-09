@@ -91,7 +91,7 @@ für diese App gilt.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
   Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des
-  PR #127 dazukam:
+  PR #127 dazukam (von Thomas bestätigt, 9.11.2026):
   - **Spiegelbilder:** Ein Basiseintrag hat neben `winkel` das Feld `spiegel` (Spiegelung an der eigenen
     *y*-Achse des Motivs, vor der Drehung). So ist jede Orientierung darstellbar, auch die Bilder chiraler Motive
     (Fähnchen, Windräder) unter Spiegel- und Gleitspiegellinien. Alle achiralen Motive sind zu dieser Achse
