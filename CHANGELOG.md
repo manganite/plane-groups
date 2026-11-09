@@ -9,6 +9,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 ### Geändert
 
 - **Kontraste in Abbildungen** (#114, Leitfaden Abschn. 5.4): Beschriftungen erreichen 4,5 : 1, hell und dunkel. Die Achsennamen *a*, *b*, *a*′, *b*′ im Modus „Gitter und Basis“ haben einen Hof in der Papierfarbe und bleiben auf Motiven lesbar (Skript Abb. 7.4, 7.7, 8.4). In „Herkunft der Elemente“ werden in der Gesamtansicht nur die Wege der beiden Teiloperationen abgeblendet, nicht mehr ihre Buchstaben (Skript Abb. 4.6, 4.7b). Im Skript haben die Namen der Zellen in Abb. 1.3 einen Hof.
+- **Gemeinsame Grundlage** auf crystallography-common v0.16.0: Hinweise für Maus oder Touch richten sich nach dem zuletzt benutzten Gerät, das ⓘ erscheint ab dem ersten Tippen (crystallography-common#114); die Liste der Experimente ist etwas weiter eingerückt (Platz für zweistellige Nummern). Die Gliederung der Experimente nach Kapiteln (crystallography-common#107) und die Prüfung der Tooltips stehen bereit, sind hier aber noch nicht eingeschaltet.
 
 ### Behoben
 
