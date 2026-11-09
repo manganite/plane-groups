@@ -136,7 +136,7 @@ für diese App gilt.
     Umkehroperation; ist ein Bild gewählt, zeigen Winkel und „gespiegelt“ das Bild, und Änderungen gehen ebenso
     über die Umkehroperation an den Vertreter (Wahl beim Umsetzen). Einrasten zuerst auf spezielle Lagen (`lage()`,
     Toleranz in Pixeln wie im Modus „Ebenengruppen“), sonst auf das 1/12-Raster.
-  - **Bedienung** (Wahl beim Umsetzen, #134): eigener Abschnitt „Symmetrie festhalten“ zwischen „Basis“ und „Gitter“.
+  - **Bedienung** (Wahl beim Umsetzen, #134; von Thomas bestätigt, 9.11.2026): eigener Abschnitt „Symmetrie festhalten“ zwischen „Basis“ und „Gitter“.
     Einschalten hält die bestimmte Gruppe fest; die Gruppenwahl (Knöpfe je Kristallsystem wie im Modus
     „Ebenengruppen“) wirkt nur bei eingeschaltetem Schalter; „Bestimmte Gruppe übernehmen“ ist nur frei, wenn die
     Bestimmung abweicht. Grund: Einschalten und Übernehmen tun dasselbe, aber je nur in einem Zustand, also kein
