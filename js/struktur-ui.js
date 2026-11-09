@@ -284,15 +284,16 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   function zeichnen({ nurA = false } = {}) {
     const f = farben();
     const s = st();
-    const a = strukturTafelA(gezeigt(), { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, gewaehltGezeichnet(), fest);
+    const gz = gezeigt(); // Bahnen einmal ausschreiben, für beide Tafeln und die Kenndaten
+    const a = strukturTafelA(gz, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, gewaehltGezeichnet(), fest);
     ansicht = a.ansicht;
     const r = a.ergebnis;
     if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
     grafik('bild-a').innerHTML = a.svg;
     if (nurA) return;
-    grafik('bild-b').innerHTML = strukturTafelB(gezeigt(), f, r, z.zoomB).svg;
+    grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB).svg;
     legende(f, r);
-    $('info').innerHTML = strukturHTML(gezeigt(), r, vorher, f, festHinweis(r));
+    $('info').innerHTML = strukturHTML(gz, r, vorher, f, festHinweis(r));
   }
 
   /**
