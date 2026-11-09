@@ -239,7 +239,7 @@ test('Spiegelbild: genau die chiralen Motive ändern sich, wenn man sie an der e
   nah(spitze({ spiegel: true, winkel: grad(90) }), [0.6, -0.85]);
 });
 
-test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm', () => {
+test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm, ein Windrad und sein Bild unter (−x, y + ½) pg', () => {
   // pm (ITA): Spiegelung −x, y; a zeigt im Bild nach unten, b nach rechts, also kartesisch diag(1, −1) = Drehung 180° nach x → −x.
   // Bild eines Fähnchens mit Winkel w: gespiegelt, Winkel 180° − w (von Hand, nicht mit dem Code gerechnet).
   /** @type {(spiegel: boolean) => Struktur} */
@@ -249,6 +249,13 @@ test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm', () => {
   ] });
   assert.equal(symmetrie(s(true)).symbol, 'pm');
   assert.notEqual(symmetrie(s(false)).symbol, 'pm', 'ohne Spiegelung kein Spiegelbild');
+  // pg (ITA): Gleitspiegelung −x, y + ½; dasselbe Bild wie oben, um ½ in b verschoben; mit einem Windrad 3 (Polygon)
+  /** @type {Struktur} */
+  const g = { ba: 1.35, gamma: grad(90), basis: [
+    { motiv: 'w3', farbe: 0, p: [0.2, 0.3], winkel: grad(10) },
+    { motiv: 'w3', farbe: 0, p: [0.8, 0.8], winkel: grad(170), spiegel: true },
+  ] };
+  assert.equal(symmetrie(g).symbol, 'pg');
 });
 
 test('Spiegelbild im Link: letztes Feld „m“, ältere Links gelten weiter', () => {
