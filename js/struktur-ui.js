@@ -6,7 +6,8 @@ import { VORGABEN } from './vorgaben.js';
 import { MOTIVE, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1 } from './symmetrie.js';
-import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht } from './zustand.js';
+import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
+import { EBENENGRUPPEN, SYSTEME } from './ebenengruppen.js';
 import { ausgeschrieben } from './bahnen.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { dezimal } from './text.js';
@@ -47,6 +48,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   const st = () => z.struktur;
   /** Gezeichnete Struktur: mit festgehaltener Symmetrie die Bahnen der Vertreter ausgeschrieben. */
   const gezeigt = () => ausgeschrieben(z.struktur);
+  /** Kristallsystem einer Ebenengruppe. @param {string} sym */
+  const systemVon = (sym) => /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === sym)).system;
   /** Ist für ein weiteres Motiv bzw. eine weitere Bahn Platz (BASIS_GRENZE)? */
   const platz = () => (st().basis.length + 1) * bahnGewicht(st().festeGruppe) <= BASIS_GRENZE;
   /** Moduswahl als Tab-Muster (Leitfaden Abschn. 5.4); entsteht in init(). @type {{ markieren: (id: string) => void } | null} */
@@ -110,6 +113,14 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     $('s-ba-out').textContent = dezimal(s.ba, 2);
     $('s-gamma-out').textContent = `${dezimal(s.gamma, 1)}°`;
+    // mit festgehaltener Gruppe folgt das Gitter dem Kristallsystem: nur die freien Parameter (wie im Modus „Ebenengruppen“)
+    const frei = s.festeGruppe ? FREI[systemVon(s.festeGruppe)] : ['ba', 'gamma'];
+    eingabe('s-ba').disabled = !frei.includes('ba');
+    eingabe('s-gamma').disabled = !frei.includes('gamma');
+    $('s-metrik').querySelectorAll('button').forEach((b) => { /** @type {HTMLButtonElement} */ (b).disabled = Boolean(s.festeGruppe); });
+    $('s-gitter-hint').textContent = s.festeGruppe
+      ? `Symmetrie festgehalten (${s.festeGruppe}): Das Gitter folgt dem Kristallsystem (${SYSTEME[systemVon(s.festeGruppe)].name}); frei ist nur, was das System erlaubt.`
+      : 'Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.';
     knopf('s-zuruecksetzen').disabled = wieVorgabe(s);
   }
 
@@ -139,16 +150,17 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   function zeichnen({ nurA = false } = {}) {
     const f = farben();
     const s = st();
+    const g = gezeigt(); // Bahnen einmal ausschreiben, für beide Tafeln und die Kenndaten
     // mit festgehaltener Symmetrie steht die Nummer der Auswahl nicht für ein gezeichnetes Motiv (Markierung folgt mit der Bedienung, #121)
-    const a = strukturTafelA(gezeigt(), { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, s.festeGruppe ? null : gewaehlt, fest);
+    const a = strukturTafelA(g, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, s.festeGruppe ? null : gewaehlt, fest);
     ansicht = a.ansicht;
     const r = a.ergebnis;
     if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
     grafik('bild-a').innerHTML = a.svg;
     if (nurA) return;
-    grafik('bild-b').innerHTML = strukturTafelB(gezeigt(), f, r, z.zoomB).svg;
+    grafik('bild-b').innerHTML = strukturTafelB(g, f, r, z.zoomB).svg;
     legende(f, r);
-    $('info').innerHTML = strukturHTML(gezeigt(), r, vorher, f);
+    $('info').innerHTML = strukturHTML(g, r, vorher, f);
   }
 
   // ---------------------------------------------------------------- Zeiger

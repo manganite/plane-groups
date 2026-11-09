@@ -104,12 +104,10 @@ export function strukturStart(id = STRUKTUR_START) {
 }
 
 /**
- * Gewicht der Basis für BASIS_GRENZE: ohne festgehaltene Symmetrie die Zahl der Motive, mit ihr je Vertreter die
- * Zähligkeit der allgemeinen Lage, wo er auch liegt (CLAUDE.md, „Symmetrie festhalten“, Grenze).
- * @param {Basiseintrag[]} basis @param {string | null} festeGruppe
+ * Gewicht eines Eintrags für BASIS_GRENZE: 1, mit festgehaltener Symmetrie die Zähligkeit der allgemeinen Lage, wo der
+ * Vertreter auch liegt (CLAUDE.md, „Symmetrie festhalten“, Grenze).
+ * @param {string | null} festeGruppe
  */
-export const basisGewicht = (basis, festeGruppe) => basis.length * bahnGewicht(festeGruppe);
-/** Gewicht eines Eintrags: 1 oder die Zähligkeit der allgemeinen Lage der festgehaltenen Gruppe. @param {string | null} festeGruppe */
 export const bahnGewicht = (festeGruppe) => (festeGruppe ? gruppe(festeGruppe).ordnung : 1);
 
 /**
