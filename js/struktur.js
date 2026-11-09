@@ -175,8 +175,12 @@ const konvAnsicht = (A, r) => ({ ...A, zuBild: (x) => A.zuBild(ausKonventionell(
 export const istGegeben = (r) => r.zelle[0][0] === 1 && r.zelle[1][1] === 1 && r.zelle[0][1] === 0 && r.zelle[1][0] === 0
   && Math.abs(r.ursprung[0]) < 1e-9 && Math.abs(r.ursprung[1]) < 1e-9;
 
-/** Beschriftung der Achsen einer Zelle (Ansicht Az der Zelle): ausserhalb, an den Kantenmitten. @param {Ansicht} Az @param {[string, string]} namen @param {string} farbe @param {string} groesse */
-function achsenSVG(Az, namen, farbe, groesse) {
+/**
+ * Beschriftung der Achsen einer Zelle (Ansicht Az der Zelle): ausserhalb, an den Kantenmitten. Ein Hof in der
+ * Papierfarbe hält sie lesbar, wo sie auf Motiven liegen (Kontrast, Leitfaden Abschn. 5.4, #114).
+ * @param {Ansicht} Az @param {[string, string]} namen @param {string} farbe @param {string} papier @param {string} groesse
+ */
+function achsenSVG(Az, namen, farbe, papier, groesse) {
   const m = Az.zuBild([0.5, 0.5]);
   /** @param {Vec2} p @param {string} text */
   const marke = (p, text) => {
@@ -184,7 +188,7 @@ function achsenSVG(Az, namen, farbe, groesse) {
     return `<text x="${f2(q[0] + (14 * v[0]) / l)}" y="${f2(q[1] + (14 * v[1]) / l)}">${text}</text>`;
   };
   const o = Az.zuBild([0, 0]);
-  return `<g font-family="Source Serif 4, serif" font-style="italic" font-size="${groesse}" fill="${farbe}" text-anchor="middle" dominant-baseline="middle">${marke([0.36, 0], namen[0])}${marke([0, 0.36], namen[1])}</g>`
+  return `<g font-family="Source Serif 4, serif" font-style="italic" font-size="${groesse}" fill="${farbe}" stroke="${papier}" stroke-width="${f2(Number(groesse) / 4)}" stroke-linejoin="round" paint-order="stroke" text-anchor="middle" dominant-baseline="middle">${marke([0.36, 0], namen[0])}${marke([0, 0.36], namen[1])}</g>`
     + `<circle cx="${f2(o[0])}" cy="${f2(o[1])}" r="2.6" fill="${farbe}"/>`;
 }
 
@@ -241,8 +245,8 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   // Achsen: gegebene Zelle a, b; konventionelle a′, b′ (nur wenn verschieden)
   // Beschriftung der Achsen wie in Tafel A der Ebenengruppen (zeichnung.js): wächst mit der Symbolgrösse k
   const schrift = f2(19 * Math.min(anzeige.k ?? 1, 1.4));
-  teile.push(achsenSVG(A, ['a', 'b'], gegeben || !anzeige.zelle ? farben.accent : farben.muted, schrift));
-  if (r && !gegeben && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, schrift));
+  teile.push(achsenSVG(A, ['a', 'b'], gegeben || !anzeige.zelle ? farben.accent : farben.muted, farben.paper, schrift));
+  if (r && !gegeben && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, farben.paper, schrift));
   return { svg: teile.join(''), ansicht: A, ergebnis: r };
 }
 

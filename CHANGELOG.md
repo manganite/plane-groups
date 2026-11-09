@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Kontraste in Abbildungen** (#114, Leitfaden Abschn. 5.4): Beschriftungen erreichen 4,5 : 1, hell und dunkel. Die Achsennamen *a*, *b*, *a*′, *b*′ im Modus „Gitter und Basis“ haben einen Hof in der Papierfarbe und bleiben auf Motiven lesbar (Skript Abb. 7.3, 7.4, 7.7). In „Herkunft der Elemente“ werden in der Gesamtansicht nur die Wege der beiden Teiloperationen abgeblendet, nicht mehr ihre Buchstaben (Skript Abb. 4.6). Im Skript haben die Namen der Zellen in Abb. 1.3 einen Hof.
+
 ## [1.2.0] - 2026-11-08
 
 Hilfeseite mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente; Abschnitt „Experimente“ mit festen und erzeugten Lernexperimenten, Stand wie im Quiz; Skript Kap. 8 „Ebenengruppen bestimmen“ mit Quizfragen, Signatur nach Conway als eigenes Kapitel 9; Gleitspiegelung im Skript genauer; Quiz nach der Gegenprüfung; Moduswahl mit der Tastatur; eine Prüfung für Link und Speicher; Ansage von Symbolen für Screenreader und Kontraste nach WCAG 2.2; gemeinsame Grundlage v0.15.0.
