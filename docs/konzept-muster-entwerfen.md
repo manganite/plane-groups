@@ -45,10 +45,10 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
    | Mit Spiegelsymmetrie | Dreieck (*m*), Ziegel und Insel (2*mm*), gleichseitiges Dreieck (3*m*), Quadrat (4*mm*), Sechseck (6*mm*) |
 
    Grund der Gliederung: Ein Motiv auf einer speziellen Lage braucht deren Lagesymmetrie; die Zeilen zeigen, welches
-   Motiv wohin passt. Dieselbe Auswahl ersetzt das Menü in „Gitter und Basis“, damit beide Modi gleich aussehen; damit
-   ist #104 erledigt. Zugänglichkeit (Leitfaden Abschn. 5.4): jeder Knopf mit `aria-label` (Name und Eigensymmetrie), jede
+   Motiv wohin passt. Dieselbe Auswahl ersetzt das Menü in „Gitter und Basis“, damit beide Modi gleich aussehen (dort ohne
+   den Kreis mit Komma, Abschn. 3.3); damit ist #104 erledigt. Zugänglichkeit (Leitfaden Abschn. 5.4): jeder Knopf mit `aria-label` (Name und Eigensymmetrie), jede
    Zeile beschriftet wie die Gruppenwahl (`aria-labelledby`), Touch-Ziele mindestens 40 px; auf Touch-Geräten nennt das ⓘ
-   die Eigensymmetrie. Zum Kreis mit Komma Abschn. 6.
+   die Eigensymmetrie.
 2. **„Darstellung“ in allen drei Modi:** Nach Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete,
    Vergrösserung des Musters. Heute gibt es den Abschnitt nur in „Ebenengruppen“; in „Gitter und Basis“ steht die
    Vergrösserung unter „Anzeigen“ (`s-zoom`, dasselbe Feld `zoomB` wie `v-zoom`) und zieht in „Darstellung“ um.
@@ -63,7 +63,7 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
    Dauerhaft: auch die Daten in `js/ebenengruppen.js` entfallen, dazu `verletzt` und `strukturfaktor` in
    `js/symmetrie.js`, `bedingungHTML` in `js/text.js` und ihre Tests (`tests/ebenengruppen.test.mjs`,
    `tests/text.test.mjs`).
-7. **Zeichnen und Motive** lassen sich in einem Muster kombinieren. Wie Striche in die Kenndaten eingehen: Abschn. 6.
+7. **Zeichnen und Motive** lassen sich in einem Muster kombinieren.
 8. **Ornamente** (Blatt, Tropfen, Ranke) verlassen „Ebenengruppen“ und werden Motive in „Muster entwerfen“. Als Form des
    Objekts bleiben in „Ebenengruppen“ Fähnchen und Kreis mit Komma.
 9. **Lupe in allen drei Modi**, als Schalter in der Werkzeugleiste von Tafel A wie heute in „Ebenengruppen“ (Leitfaden
@@ -77,11 +77,23 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
     ist einstellbar und gibt einem schiefwinkligen Gitter die Metrik eines zentriert-rechteckigen, einem rechteckigen die
     eines quadratischen, mit γ = 120° die eines hexagonalen. In „Ebenengruppen“ ist die Gruppe gewählt, nicht bestimmt;
     sie bleibt dieselbe, nur die Metrik ist zufällig höher. Auch abseits von *b*/*a* = 1 lag höhere Metrik im alten
-    Bereich (z. B. *b*/*a* = 1,6, γ ≈ 108,2°: *a* ⊥ *a* + 2*b*). Im neuen Modus ist das gewollt (Experiment
-    `festhalten-metrik`). Mit dem grösseren Bereich ist die schiefwinklige Zelle nicht immer reduziert (z. B. *b*/*a* = 2,
+    Bereich (z. B. *b*/*a* = 1,6, γ ≈ 108,2°: *a* ⊥ *a* + 2*b*). In „Gitter und Basis“ zeigt das das Experiment
+    `festhalten-metrik`. Mit dem grösseren Bereich ist die schiefwinklige Zelle nicht immer reduziert (z. B. *b*/*a* = 2,
     γ = 150°); auch das ist gewollt.
 13. **Tapete:** ohne Zelle, Symmetrieelemente, Gitter und asymmetrische Einheit, Motive in ihren gewählten Farben, ohne
     eigene Farbe für Spiegelbilder.
+14. **Gruppe und Zelle bleiben fest, wie in VESTA** (Thomas, 11.11.2026): Man wählt die Gruppe und setzt Motive und
+    Striche; jedes erscheint mit allen Operationen der Gruppe. Die Gruppe ändert sich nur, wenn man eine andere wählt, die
+    Zelle nur im Rahmen des Kristallsystems. Bilder, die exakt zusammenfallen (gleiches Motiv, Lage, Orientierung), zeichnet
+    die App einmal: Ein Atom oder ein Windrad 4 auf einem 4-zähligen Drehpunkt bleibt ein Motiv. Hat ein Motiv die
+    Lagesymmetrie nicht, überlagern sich seine Bilder (ein Fähnchen auf dem Drehpunkt: vier Fähnchen), und das Muster
+    behält die gewählte Symmetrie. Es gibt im Modus keine Bestimmung der Symmetrie; was ein Muster tatsächlich für eine
+    Symmetrie hat, ist Thema von „Gitter und Basis“. Grund: So erwartet man es vom Bau einer Struktur in gegebener Gruppe
+    (VESTA: die Raumgruppe wählt man, sie ändert sich nur durch eigene Wahl; doppelte Atome entfernt man dort von Hand,
+    hier fasst die App exakt zusammenfallende Bilder selbst zusammen). Im bisherigen „Symmetrie festhalten“ blieb auf
+    einer speziellen Lage nur ein Bild stehen, und die Kenndaten nannten dann eine andere Gruppe und Zelle; das entfällt.
+    Damit ist auch eine Wahl zwischen „Ornament“ und „Kristallstruktur“ unnötig: Ein Atom hat immer die volle
+    Lagesymmetrie, für Atome ergeben beide Sichten dasselbe.
 
 ## 3. Die drei Modi im Einzelnen
 
@@ -112,22 +124,25 @@ entwerfen“.
   Schalter „Symmetrie festhalten“ gibt es nicht mehr.
 - **Motive:** gebündelte Auswahl (Abschn. 2, Punkt 1). Jedes gesetzte Motiv ist Vertreter seiner Bahn; die Bilder entstehen
   durch alle Operationen der Gruppe. Drehen, Spiegeln (chirale Motive), Grösse, Farbe, Entfernen, Einrasten auf spezielle
-  Lagen: wie heute mit festgehaltener Symmetrie (`CLAUDE.md`, „Symmetrie festhalten“; die Rechnungen aus #121 bleiben).
-  Liegt ein Motiv auf einer speziellen Lage, deren Lagesymmetrie es nicht hat, nennen die Kenndaten die tatsächliche
-  Gruppe des Musters (wie heute). Ornamente und Kreis mit Komma sind heute keine Motive (keine Punkte für die
-  Bestimmung, keine Angabe der eigenen Symmetrie); die Ornamente werden dazu ausgebaut (#104), zum Kreis mit Komma
-  Abschn. 6.
+  Lagen: wie heute mit festgehaltener Symmetrie (`CLAUDE.md`, „Symmetrie festhalten“; Vertreter und Bahnen, Orientierung
+  der Bilder und Einrasten aus #121 bleiben). Zusammenfallende Bilder nach Abschn. 2, Punkt 14 statt „nur das Bild der
+  Identität“. Ornamente und Kreis mit Komma werden Motive (Bild und Eigensymmetrie; Punkte für die Bestimmung brauchen
+  sie nur in „Gitter und Basis“, #104). Der Kreis mit Komma ist das Zeichen der ITA: Er dreht sich nicht mit, die Drehung
+  hat für ihn deshalb keinen Regler; in „Gitter und Basis“ gibt es ihn nicht, weil die Bestimmung um ihn Drehsymmetrie
+  fände, die das gemeinte Objekt nicht hat.
 - **Zeichnen:** „Selbst zeichnen“ aus „Ebenengruppen“ (Striche, die alle Operationen vervielfachen; Rückgängig, Alles
   löschen) als weiteres Gestaltungsmittel, mit Motiven kombinierbar.
 - **Werkzeuge über Tafel A:** „Wählen und ziehen“, „Hinzufügen“, Zeichnen, Radieren; sie schliessen sich aus (Leitfaden
   Abschn. 5.2). Dazu die Lupe als Schalter.
-- **Gitter:** b/a und γ im Kristallsystem der Gruppe (Abschn. 2, Punkte 3 und 12); zufällige Zusatzsymmetrie bleibt
-  möglich (*p*2*mm* mit *b* = *a*, Experiment `festhalten-metrik`).
+- **Gitter:** b/a und γ im Kristallsystem der Gruppe (Abschn. 2, Punkte 3 und 12).
 - **Darstellung** (gemeinsam).
-- **Kenndaten:** gewählte Gruppe, tatsächliche Gruppe des Musters (wenn verschieden: warum), Zahl der Motive.
+- **Kenndaten wie eine Atomliste:** gewählte Gruppe; je Motiv seine Lage (Wyckoff-Lage, Zähligkeit, Lagesymmetrie) und
+  die Zahl seiner Bilder je Zelle; überlagern sich Bilder, weil dem Motiv die Lagesymmetrie fehlt, steht das dabei (in
+  einem Kristall wäre das Fehlordnung).
 - **Übergang aus „Gitter und Basis“:** heute „Bestimmte Gruppe übernehmen“. Neu in „Gitter und Basis“ ein Knopf
   „In ‚Muster entwerfen‘ weiterbearbeiten“, der die Struktur mit der bestimmten Gruppe (umgerechnet in die Aufstellung
-  nach ITA, wie heute) in den neuen Modus übernimmt. Er ersetzt den bisherigen Entwurf; das sagt sein Tooltip.
+  nach ITA, wie heute) einmal in den neuen Modus übernimmt; ab dann bleiben Gruppe und Zelle fest. Er ersetzt den
+  bisherigen Entwurf; das sagt sein Tooltip.
 
 ### 3.4 Gemeinsam: „Darstellung“
 
@@ -157,8 +172,11 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
   `js/zustand.js` und `js/zeichnung.js` ohne Ornamente; `brechen` entfällt; Zustandsversion steigt; alles in `zustandPruefen`
   und `tests/rundlauf.test.mjs`.
 - **Erste Schritte und Experimente:** In „Gitter und Basis“ entfällt Schritt 3 „Symmetrie festhalten“ (Link mit `sg=p4`)
-  samt dem Hinweis im letzten Schritt. „Muster entwerfen“ bekommt eigene Erste Schritte (3–4). Die Experimente
-  `festhalten-lage` (braucht das Windrad 4) und `festhalten-metrik` ziehen in den neuen Modus. Tooltips (`TIPS`),
+  samt dem Hinweis im letzten Schritt. „Muster entwerfen“ bekommt eigene Erste Schritte (3–4). Das Experiment
+  `festhalten-lage` (braucht das Windrad 4) zieht in den neuen Modus, mit neuer Auflösung: Das Fähnchen auf dem
+  Drehpunkt erscheint vierfach überlagert, das Windrad 4 einmal. `festhalten-metrik` (*p*2*mm* mit *b* = *a* ergibt
+  *p*4*mm*) braucht die Bestimmung und bleibt in „Gitter und Basis“, mit einer Vorgabe aus Atomen in rechteckiger Zelle
+  statt mit festgehaltener Gruppe. Neu liegt nahe: dasselbe Motiv auf allgemeiner und auf spezieller Lage. Tooltips (`TIPS`),
   Hilfeseite (`js/hilfe-daten.js`: Liste der Modi; Bilder neu erzeugen).
 - **Skript:** Abbildungen und Kästen „In der App“ zu Zeichnen, Füllen (Abb. 6.5, Kasten in Kap. 6), Tapete und Ornamenten
   (die elf Abbildungen mit `m=eg&form=blatt|tropfen|ranke`, u. a. Abb. 7.1b/c, 7.2a–c, 8.2f, 8.4f und die drei zu Conway
@@ -194,23 +212,9 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
 2. Abbau: „Symmetrie brechen“ in „Ebenengruppen“, Auslöschungen samt Daten und Kasten in Kap. 6, Altlasten nach
    crystallography-common#126; ein Gitterbereich für alle Modi.
 3. „Darstellung“ in allen Modi, mit Füllen; Lupe in allen Modi.
-4. Neuer Modus mit Gruppenwahl, gebündelter Motivauswahl (auch in „Gitter und Basis“, schliesst #104), Ornamenten als
-   Motiven, Gitter; „Symmetrie festhalten“ aus „Gitter und Basis“ entfernen; Übergang; Ornamente aus „Ebenengruppen“ samt
+4. Neuer Modus mit Gruppenwahl, gebündelter Motivauswahl (auch in „Gitter und Basis“, schliesst #104), Ornamenten und
+   Kreis mit Komma als Motiven, Regel für zusammenfallende Bilder (Abschn. 2, Punkt 14), Gitter; „Symmetrie festhalten“ aus „Gitter und Basis“ entfernen; Übergang; Ornamente aus „Ebenengruppen“ samt
    Skript (Vorgabe mit Ranken für Kap. 8, Umbau von `js/skript.js`) und Quiz; Experimente und Erste Schritte dazu.
 5. Zeichnen in den neuen Modus.
 6. Hilfebilder, Vorschau, Durchsicht des Skripts.
 7. Release (MINOR, Hinweis: alte Links gelten nicht mehr).
-
-## 6. Offen (aus dem Review, an Thomas)
-
-1. **Kreis mit Komma als Motiv:** Er ist das Zeichen der ITA für ein Objekt in allgemeiner Lage: Der Kreis dreht sich
-   nicht mit, das Komma zeigt nur die Händigkeit (`objektSVG` in `js/zeichnung.js`). Als Motiv hätte er sichtbar die
-   Eigensymmetrie ∞ (alle Drehungen), und die Bestimmung fände um ihn Drehsymmetrie, die das gemeinte Objekt nicht hat.
-   Möglich: (a) kein Motiv, er bleibt Form des Objekts in „Ebenengruppen“; (b) Motiv, dessen Drehung unsichtbar bleibt und
-   für das die Bestimmung unsichtbare Punkte ohne Symmetrie nimmt.
-2. **Striche und die Bestimmung:** Die Bestimmung arbeitet mit den Punkten der Motive. Striche entstehen mit allen
-   Operationen der Gruppe, haben also mindestens deren Symmetrie; sie können aber Symmetrie zerstören, die die Motive
-   allein hätten (z. B. *p*2*mm* mit *b* = *a* und Atomen: die Motive ergeben *p*4*mm*, ein schräger Strich nicht).
-   Möglich: (a) die Kenndaten nennen die Gruppe der Motive und sagen, dass Striche nicht berücksichtigt sind; (b) Punkte
-   entlang der Striche gehen in die Bestimmung ein (mehr Rechenzeit, Grenze wie `BASIS_GRENZE` nötig).
-

@@ -96,7 +96,9 @@ für diese App gilt.
     entfallen). Motive nach Eigensymmetrie gebündelt (ohne, nur Dreh-, mit Spiegelsymmetrie), weil ein Motiv auf einer
     speziellen Lage deren Lagesymmetrie braucht; die Ornamente werden Motive. Ein Gitterbereich für alle Modi, weil der
     engere in „Ebenengruppen“ höhere Metrik ohnehin nicht ausschloss (*b*/*a* = 1 war einstellbar). Lupe und Füllen der
-    asymmetrischen Einheit in allen Modi. Alle Entscheidungen mit Gründen im Konzept. Wird umgesetzt;
+    asymmetrischen Einheit in allen Modi. Gruppe und Zelle bleiben im neuen Modus fest wie in VESTA (Thomas, 11.11.2026):
+    alle Bilder jedes Motivs und Strichs, exakt zusammenfallende einmal, sonst überlagert; keine Bestimmung der
+    Symmetrie. Das ersetzt die Regel „Zusammenfallende Bilder“ unten. Alle Entscheidungen mit Gründen im Konzept. Wird umgesetzt;
     bis dahin beschreiben die Punkte unten den heutigen Stand.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
