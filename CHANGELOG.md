@@ -14,6 +14,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Behoben
 
+- **CI, Deploy und Release ohne apt** (crystallography-common#128): Der Browser für das Skript-PDF wird ohne `--with-deps` installiert, also ohne Systempakete über `apt`; am 11.11.2026 scheiterten die Jobs mehrfach, weil der Runner die Paketquellen von Ubuntu nicht erreichte. Alle Zeichen des Skripts ausserhalb der eigenen Schriften deckt die Schrift DejaVu des Runners ab (geprüft in der CI).
 - **Zentrierte Gitter in „Gitter und Basis“:** Ist die gegebene Zelle schon die konventionelle, zeigt die Struktur keine zweite Zelle *a*′, *b*′ mehr, auch wenn die Bestimmung sie wegen Rundungsfehlern als 0,9999999999999999-faches liefert (bei *cm* und *c*2*mm* aus selbst gebauten Strukturen).
 
 ### Geändert
