@@ -84,10 +84,16 @@ für diese App gilt.
     ein abgerundetes, geschlossenes Paket mit schon vielen Funktionen ist.
   - **Bestimmen** (zentrales Lernziel der Vorlesung): kein eigener Modus, sondern Skript und geführte
     Bestimmung (#38). Die Signatur nach Conway bestimmen nur im Skript (#85); in den Kenndaten bleibt sie.
-  - **Struktur in gegebener Gruppe aufbauen** (Thomas, 9.11.2026; #121): im Modus „Gitter und Basis“ als
-    Schalter „Symmetrie festhalten“, nicht als Ausbau von „Ebenengruppen“ auf mehrere Objekte. Gründe: zwei
-    Wege zum selben Ergebnis vermeiden (Leitfaden Abschn. 5.2); Motive mit eigener Symmetrie und Atomsorten
-    gibt es nur in „Gitter und Basis“.
+  - **Struktur in gegebener Gruppe aufbauen** (Thomas, 9.11.2026; #121): zuerst im Modus „Gitter und Basis“ als
+    Schalter „Symmetrie festhalten“. **Überholt am 11.11.2026** durch den dritten Modus (nächster Punkt).
+  - **Dritter Modus „Muster entwerfen“** (Thomas, 9. und 11.11.2026, #136; Konzept `docs/konzept-muster-entwerfen.md`):
+    Zeichnen, Tapete und „Symmetrie festhalten“ gehören zusammen (bei gegebener Symmetrie ein eigenes Muster
+    gestalten) und passten nur bedingt zu den Modi, in denen sie standen; jeder Modus hat jetzt eine Frage:
+    verstehen (Ebenengruppen), analysieren (Gitter und Basis), gestalten (Muster entwerfen). Dazu: „Darstellung“ in
+    allen drei Modi gleich; „Symmetrie brechen“ nur noch in „Gitter und Basis“, wo es um Symmetriebruch geht, in den
+    anderen Modi nur symmetrieerhaltende Änderungen des Gitters; die Auslöschungen entfallen in den Kenndaten, weil
+    sie in die Beugungs-App gehören (crystallography-common#73) und hier mehr verwirren als helfen. Wird umgesetzt;
+    bis dahin beschreiben die Punkte unten den heutigen Stand.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
   Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des
@@ -279,6 +285,6 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
 
 ## Konzept
 
-`docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) mit Statuskopf. Es bleibt das Konzept für
+`docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) mit Statuskopf. Dazu `docs/konzept-muster-entwerfen.md` (dritter Modus, #136). Es bleibt das Konzept für
 die offenen Teile („Bestimmen“, Erweiterungen); neue Entwurfsentscheidungen kommen dort hinzu,
 der Fortschritt steht in Issues und PRs.
