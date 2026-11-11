@@ -1,4 +1,4 @@
-# Konzept: dritter Modus „Muster entwerfen“ (Entwurf)
+# Konzept: dritter Modus „Muster entwerfen“
 
 > **Status:** von Thomas freigegeben (11.11.2026), wird umgesetzt. Planung und Fortschritt in #136, Reihenfolge im Fahrplan
 > crystallography-common#74. Nach der Umsetzung bekommt dieses Dokument einen Statuskopf und wird nicht mehr nachgeführt.
@@ -45,7 +45,10 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
    | Mit Spiegelsymmetrie | Dreieck (*m*), Ziegel und Insel (2*mm*), gleichseitiges Dreieck (3*m*), Quadrat (4*mm*), Sechseck (6*mm*) |
 
    Grund der Gliederung: Ein Motiv auf einer speziellen Lage braucht deren Lagesymmetrie; die Zeilen zeigen, welches
-   Motiv wohin passt. Dieselbe Auswahl ersetzt das Menü in „Gitter und Basis“, damit beide Modi gleich aussehen.
+   Motiv wohin passt. Dieselbe Auswahl ersetzt das Menü in „Gitter und Basis“, damit beide Modi gleich aussehen; damit
+   ist #104 erledigt. Zugänglichkeit (Leitfaden Abschn. 5.4): jeder Knopf mit `aria-label` (Name und Eigensymmetrie), jede
+   Zeile beschriftet wie die Gruppenwahl (`aria-labelledby`), Touch-Ziele mindestens 40 px; auf Touch-Geräten nennt das ⓘ
+   die Eigensymmetrie. Zum Kreis mit Komma Abschn. 6.
 2. **„Darstellung“ in allen drei Modi:** Nach Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete,
    Vergrösserung des Musters. Heute gibt es den Abschnitt nur in „Ebenengruppen“; in „Gitter und Basis“ steht die
    Vergrösserung unter „Anzeigen“ (`s-zoom`, dasselbe Feld `zoomB` wie `v-zoom`) und zieht in „Darstellung“ um.
@@ -57,19 +60,26 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
 5. **Name „Muster entwerfen“**, passend zur Tafel B „Muster“.
 6. **Auslöschungen entfallen** in den Kenndaten von „Ebenengruppen“ (Spalte der Wyckoff-Tabelle und Abschnitt
    „Auslöschungen“): Sie gehören in die Beugungs-App (crystallography-common#73) und verwirren hier mehr, als sie helfen.
-   Dauerhaft: auch die Daten in `js/ebenengruppen.js` und ihr Test entfallen.
-7. **Zeichnen und Motive** lassen sich in einem Muster kombinieren.
+   Dauerhaft: auch die Daten in `js/ebenengruppen.js` entfallen, dazu `verletzt` und `strukturfaktor` in
+   `js/symmetrie.js`, `bedingungHTML` in `js/text.js` und ihre Tests (`tests/ebenengruppen.test.mjs`,
+   `tests/text.test.mjs`).
+7. **Zeichnen und Motive** lassen sich in einem Muster kombinieren. Wie Striche in die Kenndaten eingehen: Abschn. 6.
 8. **Ornamente** (Blatt, Tropfen, Ranke) verlassen „Ebenengruppen“ und werden Motive in „Muster entwerfen“. Als Form des
    Objekts bleiben in „Ebenengruppen“ Fähnchen und Kreis mit Komma.
-9. **Lupe in allen drei Modi**, als Knopf in der Werkzeugleiste von Tafel A (wie Zone und Winkel in stereography): Sie
-   hilft auch, Motive in einer Zelle mit vielen Elementen genau zu setzen.
+9. **Lupe in allen drei Modi**, als Schalter in der Werkzeugleiste von Tafel A wie heute in „Ebenengruppen“ (Leitfaden
+   Abschn. 5.2: ein Schalter, kein Werkzeug): Sie hilft auch, Motive in einer Zelle mit vielen Elementen genau zu setzen.
+   Mitte: in „Ebenengruppen“ wie heute das Objekt, sonst das gewählte Motiv, ohne Wahl die Mitte der Zelle; während des
+   Ziehens oder Zeichnens bleibt der Ausschnitt stehen (wie heute).
 10. **Übergang** aus „Gitter und Basis“ als Knopf (Abschn. 3.3).
 11. **Füllen der asymmetrischen Einheit** zieht in „Darstellung“ und wirkt damit überall, wo es eine Gruppe gibt.
-12. **Ein Gitterbereich für alle Modi:** *b*/*a* 0,5–2, γ 60–150° (heute nur in „Gitter und Basis“). Der engere Bereich
+12. **Ein Gitterbereich für alle Modi:** *b*/*a* 0,5–2, γ 60–150° (heute in „Gitter und Basis“ und beim Brechen). Der engere Bereich
     in „Ebenengruppen“ (0,6–1,6 und 95–125°, „so dass keine höhere Symmetrie entsteht“) hielt das nicht ein: *b*/*a* = 1
     ist einstellbar und gibt einem schiefwinkligen Gitter die Metrik eines zentriert-rechteckigen, einem rechteckigen die
     eines quadratischen, mit γ = 120° die eines hexagonalen. In „Ebenengruppen“ ist die Gruppe gewählt, nicht bestimmt;
-    sie bleibt dieselbe, nur die Metrik ist zufällig höher. Im neuen Modus ist das gewollt (Experiment `festhalten-metrik`).
+    sie bleibt dieselbe, nur die Metrik ist zufällig höher. Auch abseits von *b*/*a* = 1 lag höhere Metrik im alten
+    Bereich (z. B. *b*/*a* = 1,6, γ ≈ 108,2°: *a* ⊥ *a* + 2*b*). Im neuen Modus ist das gewollt (Experiment
+    `festhalten-metrik`). Mit dem grösseren Bereich ist die schiefwinklige Zelle nicht immer reduziert (z. B. *b*/*a* = 2,
+    γ = 150°); auch das ist gewollt.
 13. **Tapete:** ohne Zelle, Symmetrieelemente, Gitter und asymmetrische Einheit, Motive in ihren gewählten Farben, ohne
     eigene Farbe für Spiegelbilder.
 
@@ -105,7 +115,8 @@ entwerfen“.
   Lagen: wie heute mit festgehaltener Symmetrie (`CLAUDE.md`, „Symmetrie festhalten“; die Rechnungen aus #121 bleiben).
   Liegt ein Motiv auf einer speziellen Lage, deren Lagesymmetrie es nicht hat, nennen die Kenndaten die tatsächliche
   Gruppe des Musters (wie heute). Ornamente und Kreis mit Komma sind heute keine Motive (keine Punkte für die
-  Bestimmung, keine Angabe der eigenen Symmetrie); sie werden dazu ausgebaut (Ort der Ornamente: #104).
+  Bestimmung, keine Angabe der eigenen Symmetrie); die Ornamente werden dazu ausgebaut (#104), zum Kreis mit Komma
+  Abschn. 6.
 - **Zeichnen:** „Selbst zeichnen“ aus „Ebenengruppen“ (Striche, die alle Operationen vervielfachen; Rückgängig, Alles
   löschen) als weiteres Gestaltungsmittel, mit Motiven kombinierbar.
 - **Werkzeuge über Tafel A:** „Wählen und ziehen“, „Hinzufügen“, Zeichnen, Radieren; sie schliessen sich aus (Leitfaden
@@ -116,20 +127,20 @@ entwerfen“.
 - **Kenndaten:** gewählte Gruppe, tatsächliche Gruppe des Musters (wenn verschieden: warum), Zahl der Motive.
 - **Übergang aus „Gitter und Basis“:** heute „Bestimmte Gruppe übernehmen“. Neu in „Gitter und Basis“ ein Knopf
   „In ‚Muster entwerfen‘ weiterbearbeiten“, der die Struktur mit der bestimmten Gruppe (umgerechnet in die Aufstellung
-  nach ITA, wie heute) in den neuen Modus übernimmt.
+  nach ITA, wie heute) in den neuen Modus übernimmt. Er ersetzt den bisherigen Entwurf; das sagt sein Tooltip.
 
 ### 3.4 Gemeinsam: „Darstellung“
 
 Ein Abschnitt, in allen drei Modi an derselben Stelle (unten in der Seitenleiste, vor „Alle Einstellungen
 zurücksetzen“). Heute wirken die Punkte nur in „Ebenengruppen“: In „Gitter und Basis“ zeichnet Tafel A ohne Färbung nach
 Blickrichtung (`farben: false` in `js/struktur-ui.js`), und Tafel B kennt weder Tapete noch Färbung (`js/struktur.js`).
-Sie kommen dort also neu dazu, ebenso das Füllen der asymmetrischen Einheit (bisher unter „Anzeigen“ in „Ebenengruppen“).
+Sie kommen dort also neu dazu, ebenso das Füllen der asymmetrischen Einheit (bisher im Abschnitt „Selbst zeichnen“ in
+„Ebenengruppen“).
 „Muster als Tapete“ nach Abschn. 2, Punkt 13: Einfarbig würde die Sorten verwischen, und das Muster zeigte dann mehr
 Symmetrie als die Struktur (vgl. Experiment `farbe`).
 
-Beim Umsetzen zu klären: In „Gitter und Basis“ ist die Zelle der bestimmten Gruppe nicht immer die gegebene (Abschn. 3.3,
-Übernahme). Wo die asymmetrische Einheit dann nicht darstellbar ist, wird „Füllen“ dort gesperrt, mit Grund (Leitfaden
-Abschn. 5.2).
+In „Gitter und Basis“ wirkt das Füllen auf die asymmetrische Einheit der bestimmten Gruppe, die Tafel A dort schon heute
+in deren konventioneller Zelle zeichnet (`s-ae`).
 
 ## 4. Was mitgeht
 
@@ -142,7 +153,8 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
   („ältere Links“), Spiegelfeld `m` in `basis=` („ältere Links ohne `m` gelten weiter“), Grenze für ältere Fassungen
   ohne `sg` (Liste im Review von crystallography-common#127).
 - **Link und Speicher:** neuer Modus `m=entwurf` (nicht `muster`, weil „Muster“ im Code schon die Tafel B bezeichnet);
-  `sg=` und die Vertreter in `basis=` nur noch dort; `brechen` entfällt; Zustandsversion steigt; alles in `zustandPruefen`
+  die Gruppe dort mit `g=` wie in „Ebenengruppen“ (statt `sg=`), die Vertreter in `basis=` nur noch dort; `FORMEN` in
+  `js/zustand.js` und `js/zeichnung.js` ohne Ornamente; `brechen` entfällt; Zustandsversion steigt; alles in `zustandPruefen`
   und `tests/rundlauf.test.mjs`.
 - **Erste Schritte und Experimente:** In „Gitter und Basis“ entfällt Schritt 3 „Symmetrie festhalten“ (Link mit `sg=p4`)
   samt dem Hinweis im letzten Schritt. „Muster entwerfen“ bekommt eigene Erste Schritte (3–4). Die Experimente
@@ -151,29 +163,54 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
 - **Skript:** Abbildungen und Kästen „In der App“ zu Zeichnen, Füllen (Abb. 6.5, Kasten in Kap. 6), Tapete und Ornamenten
   (die elf Abbildungen mit `m=eg&form=blatt|tropfen|ranke`, u. a. Abb. 7.1b/c, 7.2a–c, 8.2f, 8.4f und die drei zu Conway
   in Kap. 9; Kasten in Kap. 7), Symmetriebruch, „Symmetrie festhalten“ (Kasten in Kap. 6) und Auslöschungen (Kasten in
-  Kap. 6). Die Abbildungen mit Ornament wechseln auf `m=entwurf`, im PR, der den Modus einführt; erst dort verlassen die
-  Ornamente „Ebenengruppen“. Abb. 7.1 vergleicht Fähnchen und Ornament an derselben Stelle; beides sind dann Motive. Die Beschreibung der ITA-Seite (Kap. 6, „Reflection conditions“)
+  Kap. 6; der Kasten zur Spalte „Auslöschungen“ ändert sich schon mit dem Abbau). Die Abbildungen mit Ornament wechseln im
+  PR, der den Modus einführt; erst dort verlassen die Ornamente „Ebenengruppen“:
+  - Kap. 8, Beispiel f (Abb. 8.2f, 8.3f, 8.4f): auf eine Vorgabe mit Ranken (*p*6) in „Gitter und Basis“, wie in #104
+    geplant. Dann laufen alle sechs Beispiele über denselben Modus, und die Abbildung verrät die Gruppe nicht, die das
+    Kapitel bestimmen lässt.
+  - Kap. 7 (Abb. 7.1b/c, 7.2a–c) und Kap. 9 (Abb. 9.1, drei Varianten): auf `m=entwurf`. Abb. 7.1a bleibt in
+    „Ebenengruppen“ (Spiegelbilder orange); die Unterschrift von Abb. 7.1 („alles in einer Farbe“) wird nachgeführt.
+  - Der Code des Skripts hängt am Renderer von „Ebenengruppen“: `conwaySkizze` in `js/skript.js` (rechnet mit der Lage
+    des Objekts), `tapeteElemente` und `nurZelle` von `tafelB` (Abb. 8.3f, 8.4f). Er wird für die neuen Ziele umgebaut. Die Beschreibung der ITA-Seite (Kap. 6, „Reflection conditions“)
   bleibt, weil sie ITA erklärt, mit Hinweis auf die Beugung.
-- **Quiz:** App-Links und Bildangaben prüfen (die Frage mit `B#m=eg&…form=blatt&tap=1…` wechselt auf den neuen Modus); `js/quiz-bild.js`, Moodle-Export und
-  Fragenliste, falls ein Bild den neuen Modus braucht. Keine neuen Fragen.
+- **Quiz:** App-Links und Bildangaben prüfen. Die Frage mit `B#m=eg&…form=blatt&tap=1…` wechselt auf den neuen Modus;
+  dafür braucht `js/quiz-bild.js` ein Bild der Tafel B des neuen Modus, ebenso Moodle-Export und Fragenliste. Keine neuen
+  Fragen.
 - **Tests und Werkzeuge:** `tests/zeichnen.test.mjs`, die Tests zu „Symmetrie brechen“ und zu den Auslöschungen,
   `tests/zustand.test.mjs`, `tools/festhalten-pruefen.mjs` (Browserlauf im CI-Job `pdf`), Offline-Liste in `sw.js`.
 - **README:** Funktionen, Link-Tabelle (`m`, `form`, `tap`, `lupe`, `fuell`, `brechen`, `sg`, `basis`, Bereiche von `ba`
-  und `gamma`), Aufbau, Tests, Quellen (Auslöschungen).
+  und `gamma`), Aufbau, Tests, Quellen (Auslöschungen), „Eigene Festlegungen“ unter Konventionen (Bereiche der
+  Gitterregler, Farbe der Spiegelbilder).
 - **`CLAUDE.md` der App:** „Erklärungen im Symmetriegerüst“ (`erklaerend`: Zeichnen, Radieren, Füllen, Lupe), „Herkunft
   der Elemente“, „Grösse des Objekts im Gitter“, „Symmetrie festhalten“, „Zahlen aus Link und Speicher“ (Brechen),
-  Präfixe; Escher #86 und zweifarbige Muster #40 bekommen ihren Ort im neuen Modus.
+  Präfixe, „Daten getrennt vom Code“ (Ort der Ornamente, #104) und Fallstricke (Ornamente); Escher #86 und zweifarbige
+  Muster #40 bekommen ihren Ort im neuen Modus. Dazu der Kommentar zur Zahl der Experimente je Modus in
+  `js/hilfetexte.js`.
 - **Befunde:** #125, #126 (Toleranzen der Bestimmung) im Zuge des Umbaus.
 
 ## 5. Reihenfolge der Umsetzung (je ein PR)
 
 1. Dieses Konzept und die Entscheidungen in `CLAUDE.md`.
-2. Abbau: „Symmetrie brechen“ in „Ebenengruppen“, Auslöschungen samt Daten, Altlasten nach crystallography-common#126;
-   ein Gitterbereich für alle Modi.
+2. Abbau: „Symmetrie brechen“ in „Ebenengruppen“, Auslöschungen samt Daten und Kasten in Kap. 6, Altlasten nach
+   crystallography-common#126; ein Gitterbereich für alle Modi.
 3. „Darstellung“ in allen Modi, mit Füllen; Lupe in allen Modi.
-4. Neuer Modus mit Gruppenwahl, gebündelter Motivauswahl (auch in „Gitter und Basis“), Ornamenten und Kreis mit Komma als
+4. Neuer Modus mit Gruppenwahl, gebündelter Motivauswahl (auch in „Gitter und Basis“, schliesst #104), Ornamenten als
    Motiven, Gitter; „Symmetrie festhalten“ aus „Gitter und Basis“ entfernen; Übergang; Ornamente aus „Ebenengruppen“ samt
-   Skript- und Quizlinks; Experimente und Erste Schritte dazu.
+   Skript (Vorgabe mit Ranken für Kap. 8, Umbau von `js/skript.js`) und Quiz; Experimente und Erste Schritte dazu.
 5. Zeichnen in den neuen Modus.
 6. Hilfebilder, Vorschau, Durchsicht des Skripts.
 7. Release (MINOR, Hinweis: alte Links gelten nicht mehr).
+
+## 6. Offen (aus dem Review, an Thomas)
+
+1. **Kreis mit Komma als Motiv:** Er ist das Zeichen der ITA für ein Objekt in allgemeiner Lage: Der Kreis dreht sich
+   nicht mit, das Komma zeigt nur die Händigkeit (`objektSVG` in `js/zeichnung.js`). Als Motiv hätte er sichtbar die
+   Eigensymmetrie ∞ (alle Drehungen), und die Bestimmung fände um ihn Drehsymmetrie, die das gemeinte Objekt nicht hat.
+   Möglich: (a) kein Motiv, er bleibt Form des Objekts in „Ebenengruppen“; (b) Motiv, dessen Drehung unsichtbar bleibt und
+   für das die Bestimmung unsichtbare Punkte ohne Symmetrie nimmt.
+2. **Striche und die Bestimmung:** Die Bestimmung arbeitet mit den Punkten der Motive. Striche entstehen mit allen
+   Operationen der Gruppe, haben also mindestens deren Symmetrie; sie können aber Symmetrie zerstören, die die Motive
+   allein hätten (z. B. *p*2*mm* mit *b* = *a* und Atomen: die Motive ergeben *p*4*mm*, ein schräger Strich nicht).
+   Möglich: (a) die Kenndaten nennen die Gruppe der Motive und sagen, dass Striche nicht berücksichtigt sind; (b) Punkte
+   entlang der Striche gehen in die Bestimmung ein (mehr Rechenzeit, Grenze wie `BASIS_GRENZE` nötig).
+
