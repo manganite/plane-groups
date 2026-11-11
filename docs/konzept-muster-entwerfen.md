@@ -33,14 +33,14 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
 
 ## 2. Entscheidungen (Thomas, 11.11.2026)
 
-1. **Motive nach Eigensymmetrie gebündelt:** Die Liste wird mit Ornamenten, Fähnchen, Kreis mit Komma und Windrädern zu
+1. **Motive nach Eigensymmetrie gebündelt:** Die Liste wird mit Ornamenten, Fähnchen und Windrädern zu
    lang für ein flaches Menü. Deshalb je Gruppe eine Zeile mit kleinen Bildern der Motive (Knöpfe wie die Gruppenwahl je
    Kristallsystem), Tooltip mit Name und Eigensymmetrie:
 
    | Zeile | Motive |
    |---|---|
    | Atom | Kreis |
-   | Ohne Eigensymmetrie | Fähnchen, Blatt, Tropfen, Ranke; Kreis mit Komma offen (Abschn. 6) |
+   | Ohne Eigensymmetrie | Fähnchen, Blatt, Tropfen, Ranke |
    | Nur Drehsymmetrie | Windrad 2, 3, 4, 6 |
    | Mit Spiegelsymmetrie | Dreieck (*m*), Ziegel und Insel (2*mm*), gleichseitiges Dreieck (3*m*), Quadrat (4*mm*), Sechseck (6*mm*) |
 
@@ -90,7 +90,13 @@ App verlinkt auf `plane-groups/#m=…` (stereography und crystallography-common 
     Atom oder ein Windrad 4 auf einem 4-zähligen Drehpunkt bleibt ein Motiv. Hat ein Motiv die Lagesymmetrie in seiner
     Ausrichtung nicht, überlagern sich seine Bilder (ein Fähnchen auf dem Drehpunkt: vier Fähnchen; ein um 10° gedrehtes
     Quadrat auf einer Lage 4*mm*: zwei Quadrate), und das Muster behält die gewählte Symmetrie. Striche erscheinen mit
-    allen Operationen, in einer Farbe ohne eigene Farbe für Spiegelbilder, wie die Motive. Es gibt im Modus keine Bestimmung der Symmetrie; was ein Muster tatsächlich für eine
+    allen Operationen; sie bekommen dieselbe Farbwahl wie die Motive (Thomas, 12.11.2026), und ihre Spiegelbilder keine
+    eigene Farbe.
+15. **Kreis mit Komma kein Motiv** (Thomas, 12.11.2026): Er ist das Zeichen der ITA für ein Objekt ohne Eigensymmetrie;
+    der Kreis dreht sich nicht mit, das Komma zeigt nur, ob ein Bild ein Spiegelbild ist (`objektSVG` in
+    `js/zeichnung.js`). Als Motiv lägen auf einem 4-zähligen Drehpunkt vier gleich aussehende Kreise übereinander, auf
+    einer Spiegellinie ein Kreis mit und einer ohne Komma. Er bleibt Form des Objekts in „Ebenengruppen“, wo die ITA ihn
+    verwendet. Es gibt im Modus keine Bestimmung der Symmetrie; was ein Muster tatsächlich für eine
     Symmetrie hat, ist Thema von „Gitter und Basis“. Grund: So erwartet man es vom Bau einer Struktur in gegebener Gruppe
     (VESTA: Die Raumgruppe wählt man selbst; sie ändert sich nur durch eigene Wahl oder „Remove symmetry“, VESTA-Handbuch,
     Kap. 6). Im bisherigen „Symmetrie festhalten“ blieb auf einer speziellen Lage nur ein Bild stehen, und die Kenndaten
@@ -143,7 +149,8 @@ entwerfen“.
 - **Grenze:** `BASIS_GRENZE` und die Zählung je Vertreter mit der Zähligkeit der allgemeinen Lage bleiben. Der Grund ist
   jetzt das Zeichnen und der Vergleich zusammenfallender Bilder bei jedem Bild des Ziehens, nicht mehr die Bestimmung.
 - **Zeichnen:** „Selbst zeichnen“ aus „Ebenengruppen“ (Striche, die alle Operationen vervielfachen; Rückgängig, Alles
-  löschen) als weiteres Gestaltungsmittel, mit Motiven kombinierbar.
+  löschen) als weiteres Gestaltungsmittel, mit Motiven kombinierbar. Jeder Strich hat eine Farbe aus derselben Farbwahl
+  wie die Motive (Abschn. 2, Punkt 14); die Farbe gehört damit in Link und Speicher der Zeichnung.
 - **Werkzeuge über Tafel A:** „Wählen und ziehen“, „Hinzufügen“, Zeichnen, Radieren; sie schliessen sich aus (Leitfaden
   Abschn. 5.2). Dazu die Lupe als Schalter.
 - **Gitter:** b/a und γ im Kristallsystem der Gruppe (Abschn. 2, Punkte 3 und 12).
@@ -236,13 +243,3 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
 5. Zeichnen in den neuen Modus.
 6. Hilfebilder, Vorschau, Durchsicht des Skripts.
 7. Release (MINOR, Hinweis: alte Links gelten nicht mehr).
-
-## 6. Offen an Thomas
-
-1. **Kreis mit Komma als Motiv?** Er ist das Zeichen der ITA für ein Objekt ohne Eigensymmetrie: Der Kreis dreht sich
-   nicht mit, das Komma zeigt nur, ob das Bild ein Spiegelbild ist (`objektSVG` in `js/zeichnung.js`). Als Motiv
-   ergäbe das auf speziellen Lagen ein unklares Bild: Auf einem 4-zähligen Drehpunkt lägen vier gleich aussehende Kreise
-   übereinander (die Kenndaten meldeten „überlagert“, zu sehen wäre ein Kreis), auf einer Spiegellinie ein Kreis mit und
-   einer ohne Komma. Gäbe man ihm runde Punkte, verhielte er sich wie ein Atom (∞*m*), anders als das Zeichen meint.
-   Vorschlag: kein Motiv; er bleibt Form des Objekts in „Ebenengruppen“, wo die ITA ihn verwendet.
-

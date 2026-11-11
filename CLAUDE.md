@@ -98,7 +98,8 @@ für diese App gilt.
     engere in „Ebenengruppen“ höhere Metrik ohnehin nicht ausschloss (*b*/*a* = 1 war einstellbar). Lupe und Füllen der
     asymmetrischen Einheit in allen Modi. Gruppe und Zelle bleiben im neuen Modus fest wie in VESTA (Thomas, 11.11.2026):
     alle Bilder jedes Motivs und Strichs; zusammenfallende Bilder eines Motivs einmal, sonst überlagert; keine
-    Bestimmung der Symmetrie. Das ersetzt u. a. die Regel „Zusammenfallende Bilder“ und die Begründung der Grenze unten. Alle Entscheidungen mit Gründen im Konzept. Wird umgesetzt;
+    Bestimmung der Symmetrie; Striche mit derselben Farbwahl wie die Motive; der Kreis mit Komma bleibt Form des Objekts
+    in „Ebenengruppen“, kein Motiv. Das ersetzt u. a. die Regel „Zusammenfallende Bilder“ und die Begründung der Grenze unten. Alle Entscheidungen mit Gründen im Konzept. Wird umgesetzt;
     bis dahin beschreiben die Punkte unten den heutigen Stand.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
