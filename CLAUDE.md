@@ -87,8 +87,8 @@ für diese App gilt.
   - **Struktur in gegebener Gruppe aufbauen** (Thomas, 9.11.2026; #121): zuerst im Modus „Gitter und Basis“ als
     Schalter „Symmetrie festhalten“. **Überholt am 11.11.2026** durch den dritten Modus (nächster Punkt).
   - **Dritter Modus „Muster entwerfen“** (Thomas, 9. und 11.11.2026, #136; Konzept `docs/konzept-muster-entwerfen.md`):
-    Zeichnen, Tapete und „Symmetrie festhalten“ gehören zusammen (bei gegebener Symmetrie ein eigenes Muster
-    gestalten) und passten nur bedingt zu den Modi, in denen sie standen; jeder Modus hat jetzt eine Frage:
+    Zeichnen und „Symmetrie festhalten“ gehören zusammen (bei gegebener Symmetrie ein eigenes Muster gestalten)
+    und passten nur bedingt zu den Modi, in denen sie standen; jeder Modus hat jetzt eine Frage:
     verstehen (Ebenengruppen), analysieren (Gitter und Basis), gestalten (Muster entwerfen). Dazu: „Darstellung“ in
     allen drei Modi gleich; „Symmetrie brechen“ nur noch in „Gitter und Basis“, wo es um Symmetriebruch geht, in den
     anderen Modi nur symmetrieerhaltende Änderungen des Gitters; die Auslöschungen entfallen in den Kenndaten, weil
@@ -285,6 +285,6 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
 
 ## Konzept
 
-`docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) mit Statuskopf. Dazu `docs/konzept-muster-entwerfen.md` (dritter Modus, #136). Es bleibt das Konzept für
+`docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) mit Statuskopf. Es bleibt das Konzept für
 die offenen Teile („Bestimmen“, Erweiterungen); neue Entwurfsentscheidungen kommen dort hinzu,
-der Fortschritt steht in Issues und PRs.
+der Fortschritt steht in Issues und PRs. Den dritten Modus beschreibt `docs/konzept-muster-entwerfen.md` (#136).
