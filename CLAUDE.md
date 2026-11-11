@@ -92,7 +92,11 @@ für diese App gilt.
     verstehen (Ebenengruppen), analysieren (Gitter und Basis), gestalten (Muster entwerfen). Dazu: „Darstellung“ in
     allen drei Modi gleich; „Symmetrie brechen“ nur noch in „Gitter und Basis“, wo es um Symmetriebruch geht, in den
     anderen Modi nur symmetrieerhaltende Änderungen des Gitters; die Auslöschungen entfallen in den Kenndaten, weil
-    sie in die Beugungs-App gehören (crystallography-common#73) und hier mehr verwirren als helfen. Wird umgesetzt;
+    sie in die Beugungs-App gehören (crystallography-common#73) und hier mehr verwirren als helfen (auch die Daten
+    entfallen). Motive nach Eigensymmetrie gebündelt (ohne, nur Dreh-, mit Spiegelsymmetrie), weil ein Motiv auf einer
+    speziellen Lage deren Lagesymmetrie braucht; die Ornamente werden Motive. Ein Gitterbereich für alle Modi, weil der
+    engere in „Ebenengruppen“ höhere Metrik ohnehin nicht ausschloss (*b*/*a* = 1 war einstellbar). Lupe und Füllen der
+    asymmetrischen Einheit in allen Modi. Alle Entscheidungen mit Gründen im Konzept. Wird umgesetzt;
     bis dahin beschreiben die Punkte unten den heutigen Stand.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
