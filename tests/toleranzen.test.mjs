@@ -1,10 +1,10 @@
 // Toleranzen der Symmetriebestimmung (js/bestimmung.js, #120): Fälle knapp neben einer speziellen Metrik
 // oder Lage. Die kleinsten Unterschiede, die man eingeben kann, sind Regler (b/a in Schritten von 0,01,
 // γ in 0,5°, Lage in 0,001) und Link (b/a auf 0,001, γ auf 0,01°, Lagen auf 10⁻⁶; js/zustand.js). Ein
-// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage. Ausnahme: Wo eine Abweichung
-// von der speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten), gilt das
-// nur für den Regler, nicht für den Link (#126). Rundungsfehler (die Metrik aus cos und sin, 10⁻¹² relativ)
-// ergeben das höhere System, ein Abstand von 10⁻⁶ von einer speziellen Lage gilt als auf ihr.
+// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage, auch wo eine Abweichung von der
+// speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten, #126). Rundungsfehler
+// (die Metrik aus cos und sin, 10⁻¹² relativ) ergeben das höhere System, ein Abstand von 10⁻⁶ von einer
+// speziellen Lage gilt als auf ihr, auch in einer Überstruktur (gegebene Zelle grösser als die kleinste).
 //
 // Die erwarteten Gruppen sind von Hand hergeleitet (Kommentare), nicht mit dem Code der App gerechnet
 // (Leitfaden Abschn. 9). Die Gitter entstehen wie in der App mit metrik() (|a| = 1, |b| = b/a, Winkel γ).
@@ -17,7 +17,7 @@ import { metrik, grad } from '../js/zeichnung.js';
 import { GITTER_START } from '../js/zustand.js';
 import { strukturSymmetrie, basisLagen, istGegeben } from '../js/struktur.js';
 
-/** @import { Vec2, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Vec2, Mat2, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Bestimmung, Strukturpunkt } from '../js/bestimmung.js' */
 /** @import { Basiseintrag, Struktur } from '../js/motive.js' */
 
@@ -60,13 +60,20 @@ for (const [name, faelle] of /** @type {[string, [number, number, string][]][]} 
   // b/a = √3, γ = 150°: |a + b|² = 1 + 3 + 2√3 cos 150° = 1 und a·(a + b) = 1 − 3/2 = −½, also a, a + b
   // gleich lang unter 120°: hexagonal. Mit b/a = √3 + ε ist die reduzierte Basis a, 2a + b mit
   // |2a + b|² = 1 + ε² und a·(2a + b) = ½ − √3 ε/2: schiefwinklig, aber nur um ε² von gleich langen Achsen
-  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), ergeben p2;
-  // 1,73 verlangt also eine Toleranz der Metrik unter etwa 4·10⁻⁶. Die Link-Werte 1,732 und 1,733 (ε² ≈ 3·10⁻⁹
-  // bzw. 10⁻⁶) liegen innerhalb der Toleranz und ergeben c2mm statt p2 (#126); sie fehlen deshalb hier.
+  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), und die Link-Werte
+  // 1,732 und 1,733 (ε² = 2,6·10⁻⁹ bzw. 9,0·10⁻⁷) ergeben p2. Für 1,732 muss die Toleranz der Metrik also unter
+  // 2,6·10⁻⁹ liegen (#126: mit 10⁻⁶ ergaben 1,732 und 1,733 c2mm).
   // Mit γ = 150,5° ist |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
+  // b/a = 1,24, γ = 66,22°: |b − a|² − |b|² = 1 − 2 · 1,24 · cos 66,22° ≈ −2,1·10⁻⁷. Gleich lang wären b und b − a
+  // (rhombisch) bei γ = arccos(1/2,48) = 66,220005…°; der Link-Wert liegt linear daneben, nur zufällig sehr nah. Mit einer
+  // Toleranz der Metrik von 10⁻⁶ ergab er c2mm; schiefwinklig ist richtig (wie 1,6, 71,79° mit 2,3·10⁻⁶).
+  ['knapp neben rhombisch (Link)', [
+    [1.24, 66.22, 'p2'], [1.6, 71.79, 'p2'],
+  ]],
   ['schief aufgestellt, hexagonal', [
     [Math.sqrt(3), 150, 'p6mm'],
-    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
+    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [1.732, 150, 'p2'], [1.733, 150, 'p2'],
+    [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
   ]],
 ])) {
   test(`Metrik knapp neben einer speziellen (${name}): niedrigeres System, genau auf dem Wert das höhere`, () => {
@@ -198,5 +205,75 @@ test('Zelle mit Rundungsfehlern gilt als die gegebene (c2mm in der Standardaufst
     assert.equal(r.symbol, 'c2mm', String(q));
     assert.ok(r.zelle.every((z, i) => z.every((x, j) => Math.abs(x - (i === j ? 1 : 0)) < 1e-12)), `${q}: Zelle ${JSON.stringify(r.zelle)}`);
     assert.ok(istGegeben(r), `${q}: gegebene Zelle`);
+  }
+});
+
+// --------------------------------------------------------------------------- Überstruktur
+// Die gegebene Zelle ist ein Vielfaches der kleinsten; die Lagen stehen wie im Link auf 6 Stellen (#126). Die
+// Translationen tragen dann Abweichungen von etwa 10⁻⁶ und dürfen weder die Metrik der kleinsten Zelle noch den
+// Ursprung verfälschen.
+
+/** @param {number} x */
+const sechsStellen = (x) => Math.round(x * 1e6) / 1e6;
+
+test('Überstruktur mit Lagen auf 6 Stellen: kleinste Zelle mit der richtigen Metrik', () => {
+  // a = b = 1, γ = 120°, Atome bei y = 0, 1/3, 2/3: kleinste Zelle a, u = b/3 (|u|² = 1/9, a·u = −1/6). Reduziert
+  // u, v = a + u mit |v|² = 1 + 1/9 − 1/3 = 7/9 und u·v = −1/6 + 1/9 = −1/18 = −|u|²/2: rhombisch, c2mm.
+  // a = b = 1, γ = 120°, Atome bei y = k/6: u = b/6 (|u|² = 1/36, a·u = −1/12), v = a + 3u mit u·v = −1/12 + 3/36 = 0
+  // und |v|² = 1 + 9/36 − 1/2 = 3/4 ≠ |u|²: rechteckig, p2mm.
+  for (const [n, erwartet] of /** @type {[number, string][]} */ ([[3, 'c2mm'], [6, 'p2mm']])) {
+    const punkte = Array.from({ length: n }, (_, k) => /** @type {Strukturpunkt} */ ({ p: [0, sechsStellen(k / n)], art: 'A' }));
+    assert.equal(symbol(1, 120, punkte), erwartet, `y = k/${n}`);
+  }
+});
+
+test('Überstruktur jeder Ebenengruppe mit Lagen auf 6 Stellen: dieselbe Gruppe, Zelle und Ursprung wie die Struktur selbst', () => {
+  // Die Struktur ist dieselbe wie in der Standardaufstellung (Ursprung 0, 0), nur die gegebene Zelle S (Spalten a′, b′ in
+  // Bruchkoordinaten der Standardzelle) ist grösser, auch schief. Erwartet, von Hand: dieselbe Gruppe; die konventionelle
+  // Zelle spannt dasselbe Gitter auf wie die Standardzelle, also S⁻¹ in der gegebenen Zelle bis auf eine ganzzahlige Matrix
+  // mit Determinante ±1 (hexagonal ist auch eine andere Basis desselben Gitters erlaubt); der Ursprung ist ein Gitterpunkt.
+  // Motiv aus drei Punkten verschiedener Art in allgemeiner Lage wie oben.
+  /** @type {Mat2[]} */
+  const zellen = [[[2, 0], [0, 1]], [[1, 0], [0, 3]], [[2, 0], [0, 2]], [[1, 0], [0, 6]], [[3, 0], [0, 2]], [[2, 1], [0, 1]], [[1, -1], [1, 1]]];
+  /** @param {Mat2} m @param {Vec2} v @returns {Vec2} */
+  const mv = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1], m[1][0] * v[0] + m[1][1] * v[1]];
+  /** @param {Mat2} m @returns {Mat2} */
+  const invers = (m) => { const dt = m[0][0] * m[1][1] - m[0][1] * m[1][0]; return [[m[1][1] / dt, -m[0][1] / dt], [-m[1][0] / dt, m[0][0] / dt]]; };
+  /** @param {number} x */
+  const ganzzahlig = (x) => Math.abs(x - Math.round(x)) < 1e-6;
+  for (const d of EBENENGRUPPEN) {
+    const g = gruppe(d.symbol);
+    const M = metrik(GITTER_START[d.system]);
+    for (const S of zellen) {
+      const n = Math.round(Math.abs(S[0][0] * S[1][1] - S[0][1] * S[1][0]));
+      const Si = invers(S);
+      // Gitterpunkte der Standardzelle in der gegebenen: alle k·(1, 0) + l·(0, 1) mit Bruchkoordinaten in [0, 1)
+      /** @type {Vec2[]} */
+      const versatz = [];
+      for (let k = -6; k <= 6; k++) for (let l = -6; l <= 6; l++) {
+        const w = /** @type {Vec2} */ (mv(Si, [k, l]).map((x) => x - Math.floor(x + 1e-12)));
+        if (!versatz.some((u) => Math.abs(u[0] - w[0]) < 1e-9 && Math.abs(u[1] - w[1]) < 1e-9)) versatz.push(w);
+      }
+      assert.equal(versatz.length, n, `${JSON.stringify(S)}: ${n} Gitterpunkte je gegebener Zelle`);
+      /** @type {Strukturpunkt[]} */
+      const punkte = [];
+      for (const op of g.alle) {
+        for (const [dp, art] of /** @type {[Vec2, string][]} */ ([[[0, 0], 'A'], [[0.031, 0.007], 'B'], [[-0.004, 0.043], 'C']])) {
+          const p = mv(Si, anwenden(op, [0.083 + dp[0], 0.417 + dp[1]]));
+          for (const w of versatz) punkte.push({ p: /** @type {Vec2} */ ([p[0] + w[0], p[1] + w[1]].map(sechsStellen)), art });
+        }
+      }
+      /** @param {Vec2} f */
+      const kart = (f) => /** @type {Kartesisch<Vec2>} */ ([f[0] * M.a[0] + f[1] * M.b[0], f[0] * M.a[1] + f[1] * M.b[1]]);
+      const r = bestimme({ a: kart([S[0][0], S[1][0]]), b: kart([S[0][1], S[1][1]]), punkte });
+      const fall = `${d.symbol} in ${JSON.stringify(S)}`;
+      assert.equal(r?.symbol, d.symbol, fall);
+      const Z = /** @type {Bestimmung} */ (r).zelle;
+      // Standardzelle in der konventionellen: Z⁻¹ · S⁻¹ ganzzahlig mit Determinante ±1
+      const Zi = invers(Z);
+      const U = [0, 1].map((k) => [0, 1].map((l) => Zi[k][0] * Si[0][l] + Zi[k][1] * Si[1][l]));
+      assert.ok(U.flat().every(ganzzahlig) && Math.abs(Math.abs(U[0][0] * U[1][1] - U[0][1] * U[1][0]) - 1) < 1e-6, `${fall}: Zelle ${JSON.stringify(Z)}`);
+      assert.ok(mv(Zi, /** @type {Bestimmung} */ (r).ursprung).every((x) => Math.abs(x - Math.round(x)) < 1e-4), `${fall}: Ursprung ${/** @type {Bestimmung} */ (r).ursprung}`);
+    }
   }
 });

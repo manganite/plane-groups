@@ -339,6 +339,11 @@ für diese App gilt.
 
 - **Lokale Tests mit HTML-Fragmenten** laufen im Quirks-Modus; Fehler wie `<table>` in `<p>` zeigen sich
   erst im Standards-Modus.
+- **Toleranzen der Bestimmung** (`js/bestimmung.js`, #126): Lagen mit `TOL` = 10⁻⁴, die Metrik mit 10⁻⁹ relativ (nur
+  Rundungsfehler). Eine grössere Toleranz der Metrik überdeckt Abweichungen, die nur quadratisch wirken (*b*/*a* = 1,732 bei
+  γ = 150° liegt 2,6·10⁻⁹ neben einem rhombischen Gitter). Dafür werden die Translationen der kleinsten Zelle auf
+  Vielfache von 1/*N* gerundet, und der Ursprung gilt bis `TOL` als lösbar; sonst trügen Lagen aus dem Link (6 Stellen)
+  ihre Abweichung in Metrik und Ursprung einer Überstruktur. `tests/toleranzen.test.mjs` sichert beides.
 - **Ornamente** (z. B. „Blatt“) haben keine eigene Symmetrie (chiral; `ORNAMENTE` in `js/zeichnung.js`); es gibt sie nur als Motive (`motive.js`).
 - **Bücher, bekannte Fehler:**
   - Hoffmann Abb. 4.27 (cF(110)): richtig ist primitiv-rechteckig *a*/√2 × *a* (so auch sein Text S. 150).

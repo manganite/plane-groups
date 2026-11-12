@@ -14,6 +14,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 ### Behoben
 
 - **Motivauswahl:** Der Knopf des Fähnchens zeigte nur die Stange; jetzt sitzt jedes Motiv mit der Mitte seines Umrisses im Feld (#136).
+- **Bestimmung bei Gittern knapp neben einem speziellen** (#126): Link-Werte, deren Gitter weniger als 10⁻⁶ neben einem speziellen liegt, ergaben das höhere System, z. B. *b*/*a* = 1,732, γ = 150° *c*2*mm* statt *p*2 (dort wirkt die Abweichung nur quadratisch); im Raster des Links sind es 43 Werte. Die Toleranz der Metrik fängt jetzt nur noch Rundungsfehler auf (10⁻⁹ statt 10⁻⁶). Mit dem Regler waren die Fälle nicht erreichbar.
+- **Überstrukturen mit Lagen aus dem Link** (#126): Ist die gegebene Zelle grösser als die kleinste und stehen die Lagen auf 6 Stellen (Link), ergab die Bestimmung oft eine zu niedrige Gruppe oder keine. Die Translationen der kleinsten Zelle werden jetzt gerundet, der Ursprung bis zur Toleranz der Lagen gesucht.
 - **Zelle mit Rundungsfehlern** (#125): Der Fehler war schon mit 1.3.0 behoben (dort unter „Zentrierte Gitter“); neu ist ein Test mit den Fällen aus dem Issue.
 
 ## [1.3.0] - 2026-11-12
