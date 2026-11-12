@@ -10,7 +10,7 @@ import { metrik, bruchVon } from './zeichnung.js';
 /** @import { Vec2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
 /**
  * Motiv (siehe MOTIVE).
- * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'ellipse' | 'kreis' | 'fahne', deckkraft?: number }} Motiv
+ * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'stab' | 'kreis' | 'fahne', deckkraft?: number }} Motiv
  */
 /**
  * Eintrag der Basis: Motiv an der Lage p (Bruchkoordinaten), gedreht um winkel (Grad), mit
@@ -42,7 +42,7 @@ const vieleck = (n, start = -90) => Array.from({ length: n }, (_, k) => [...pola
 
 /**
  * Motive: name, symmetrie (Punktgruppe der Ebene), groesse (Standard, kartesisch bei |a| = 1),
- * punkte (lokal, mit Art), form ('polygon' | 'ellipse' | 'kreis' | 'fahne'), deckkraft (Füllung, Standard 0,9).
+ * punkte (lokal, mit Art), form ('polygon' | 'stab' | 'kreis' | 'fahne'), deckkraft (Füllung, Standard 0,9).
  * @type {Record<string, Motiv>}
  */
 export const MOTIVE = {
@@ -53,7 +53,9 @@ export const MOTIVE = {
   },
   w2: { name: 'Windrad 2', symmetrie: '2', groesse: 0.1, punkte: windrad(2), form: 'polygon' },
   dreieck: { name: 'Dreieck (gleichschenklig)', symmetrie: 'm', groesse: 0.12, punkte: [[0, -1, 's'], [0.7, 0.6, 'e'], [-0.7, 0.6, 'e']], form: 'polygon' },
-  insel: { name: 'Insel (länglich)', symmetrie: '2mm', groesse: 0.15, punkte: [[1, 0, 'e'], [0, 0.32, 's'], [-1, 0, 'e'], [0, -0.32, 's']], form: 'ellipse' },
+  // Insel: abgerundetes Stäbchen wie die Nanomagnete künstlicher Spin-Eis- und Toroidal-Gitter (Länge : Breite
+  // etwa 3 : 1, vgl. Lehmann 2022, Abb. 6.2: 450 × 150 nm²); Punkte an den Enden und Seiten wie bisher
+  insel: { name: 'Insel (länglich)', symmetrie: '2mm', groesse: 0.15, punkte: [[1, 0, 'e'], [0, 0.32, 's'], [-1, 0, 'e'], [0, -0.32, 's']], form: 'stab' },
   w3: { name: 'Windrad 3', symmetrie: '3', groesse: 0.1, punkte: windrad(3), form: 'polygon' },
   dreieck3: { name: 'Dreieck (gleichseitig)', symmetrie: '3m', groesse: 0.1, punkte: vieleck(3), form: 'polygon' },
   w4: { name: 'Windrad 4', symmetrie: '4', groesse: 0.1, punkte: windrad(4), form: 'polygon' },
