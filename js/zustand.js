@@ -1,6 +1,6 @@
 // Zustand der App und seine Link-Adresse (#m=eg&g=p4gm&x=0.12&y=0.31 …).
-// Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps): Format im README,
-// stabil, durch tests/zustand.test.mjs abgesichert. Geschrieben wird nur, was vom Startzustand
+// Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps): Format im README, durch
+// tests/zustand.test.mjs abgesichert; solange die App in Entwicklung ist, darf es sich ändern (Leitfaden Abschn. 8). Geschrieben wird nur, was vom Startzustand
 // abweicht; ein Link stellt genau diese Ansicht her.
 
 import { EBENENGRUPPEN } from './ebenengruppen.js';

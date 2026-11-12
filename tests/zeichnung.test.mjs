@@ -207,7 +207,7 @@ test('Objekt im Gitter: in Tafel A und B (Muster) im selben Verhältnis zur Zell
   }
 });
 
-test('Objekt im Muster so gross wie bis v1.0.1 (0,8 · k · Vergrösserung · Grösse Bildpunkte je Bildpunkt)', () => {
+test('Objekt im Muster: 0,8 · k · Vergrösserung · Grösse Bildpunkte je Bildpunkt', () => {
   for (const g of ['p4', 'p2mm', 'p1', 'p6', 'p2gg']) for (const zoomB of [0.5, 1, 1.76]) for (const og of [0.5, 1, 2.65]) for (const k of [1, 1.15]) {
     const z = { ...startzustand(), gruppe: g, zoomB, objGroesse: og };
     const { ansicht: A } = tafelB(g, z, FARBEN, { k });

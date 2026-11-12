@@ -280,8 +280,8 @@ const MUSTER_BREITE = 4.4;
  * Grösse des Objekts im Gitter: Länge (in Einheiten der längeren Zellkante) je Bildpunkt der
  * Zeichnung des Objekts bei Massstab 1. Das Objekt ist damit wie eine Zeichnung und die Motive der
  * Basis im Gitter festgelegt und steht in beiden Tafeln, bei 2 × 2 Zellen und in der Lupe im selben
- * Verhältnis zur Zelle (bis v1.0.1 in Bildpunkten, im Muster 2- bis 3-mal grösser als im Gerüst). Wert:
- * Grösse im Muster wie bis dahin (0,8 Bildpunkte je Bildpunkt bei 500 Bildpunkten für MUSTER_BREITE).
+ * Verhältnis zur Zelle. Wert: im Muster bei Vergrösserung 1 und Massstab 1 sind es 0,8 Bildpunkte je Bildpunkt der
+ * Zeichnung (500 Bildpunkte für MUSTER_BREITE).
  */
 const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 
@@ -1136,9 +1136,7 @@ export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle 
   /** @type {Box} */
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
-  // = objektMassstab(M, A, og, k), hier in der Form bis v1.0.1, damit das Muster bytegleich bleibt (ohne
-  // Rundung über A.s; Test „Objekt im Muster so gross wie bis v1.0.1“)
-  const massObjekt = 0.8 * k * zoom * (z.objGroesse ?? 1);
+  const massObjekt = objektMassstab(M, A, z.objGroesse ?? 1, k);
   // Bruchkoordinaten der Ecken des Ausschnitts: ganzzahliger Bereich, der ihn abdeckt, erweitert um
   // die Grösse des Objekts (ein Objekt mit Fuss ausserhalb kann ins Bild ragen)
   const r = (REICHWEITE * massObjekt) / A.s;
