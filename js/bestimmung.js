@@ -277,7 +277,8 @@ export function bestimme(st) {
   if (!arten0.length) return null;
   // 1. Translationen und kleinste Zelle
   // Die N Translationen bilden eine Gruppe der Ordnung N modulo Gitter; jede ist deshalb ein Vielfaches von 1/N. Gerundet
-  // tragen sie die Abweichung der Lagen (bis TOL, aus dem Link 10⁻⁶) nicht in die Metrik der kleinsten Zelle (#126).
+  // tragen sie die Abweichung der Lagen (bis TOL, aus dem Link 10⁻⁶) nicht in die Metrik der kleinsten Zelle (#126). Die
+  // Rundung trifft, solange N · TOL < ½ (N ist höchstens die Zahl der Punkte der seltensten Art, in der App einige Dutzend).
   const T1 = translationenZu(arten0, [[1, 0], [0, 1]]);
   const T = T1.map((t) => /** @type {Vec2} */ (t.map((x) => mod1(Math.round(x * T1.length) / T1.length))));
   const P = reduziere(primitiveZelle(T, G0), G0);

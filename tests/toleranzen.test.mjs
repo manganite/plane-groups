@@ -17,7 +17,7 @@ import { metrik, grad } from '../js/zeichnung.js';
 import { GITTER_START } from '../js/zustand.js';
 import { strukturSymmetrie, basisLagen, istGegeben } from '../js/struktur.js';
 
-/** @import { Vec2, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Vec2, Mat2, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Bestimmung, Strukturpunkt } from '../js/bestimmung.js' */
 /** @import { Basiseintrag, Struktur } from '../js/motive.js' */
 
@@ -64,6 +64,12 @@ for (const [name, faelle] of /** @type {[string, [number, number, string][]][]} 
   // 1,732 und 1,733 (ε² = 2,6·10⁻⁹ bzw. 9,0·10⁻⁷) ergeben p2. Für 1,732 muss die Toleranz der Metrik also unter
   // 2,6·10⁻⁹ liegen (#126: mit 10⁻⁶ ergaben 1,732 und 1,733 c2mm).
   // Mit γ = 150,5° ist |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
+  // b/a = 1,24, γ = 66,22°: |b − a|² − |b|² = 1 − 2 · 1,24 · cos 66,22° ≈ −2,1·10⁻⁷. Gleich lang wären b und b − a
+  // (rhombisch) bei γ = arccos(1/2,48) = 66,220005…°; der Link-Wert liegt linear daneben, nur zufällig sehr nah. Mit einer
+  // Toleranz der Metrik von 10⁻⁶ ergab er c2mm; schiefwinklig ist richtig (wie 1,6, 71,79° mit 2,3·10⁻⁶).
+  ['knapp neben rhombisch (Link)', [
+    [1.24, 66.22, 'p2'], [1.6, 71.79, 'p2'],
+  ]],
   ['schief aufgestellt, hexagonal', [
     [Math.sqrt(3), 150, 'p6mm'],
     [1.74, 150, 'p2'], [1.73, 150, 'p2'], [1.732, 150, 'p2'], [1.733, 150, 'p2'],
@@ -221,29 +227,53 @@ test('Überstruktur mit Lagen auf 6 Stellen: kleinste Zelle mit der richtigen Me
   }
 });
 
-test('Überstruktur jeder Ebenengruppe mit Lagen auf 6 Stellen: dieselbe Gruppe, Zelle und Ursprung wie mit exakten Lagen', () => {
-  // Die Struktur ist dieselbe, nur die gegebene Zelle ist i × j-mal so gross: Die Gruppe bleibt; ihr Symbol hängt nicht
-  // von der Wahl der gegebenen Zelle ab. Motiv aus drei Punkten verschiedener Art in allgemeiner Lage wie oben.
+test('Überstruktur jeder Ebenengruppe mit Lagen auf 6 Stellen: dieselbe Gruppe, Zelle und Ursprung wie die Struktur selbst', () => {
+  // Die Struktur ist dieselbe wie in der Standardaufstellung (Ursprung 0, 0), nur die gegebene Zelle S (Spalten a′, b′ in
+  // Bruchkoordinaten der Standardzelle) ist grösser, auch schief. Erwartet, von Hand: dieselbe Gruppe; die konventionelle
+  // Zelle spannt dasselbe Gitter auf wie die Standardzelle, also S⁻¹ in der gegebenen Zelle bis auf eine ganzzahlige Matrix
+  // mit Determinante ±1 (hexagonal ist auch eine andere Basis desselben Gitters erlaubt); der Ursprung ist ein Gitterpunkt.
+  // Motiv aus drei Punkten verschiedener Art in allgemeiner Lage wie oben.
+  /** @type {Mat2[]} */
+  const zellen = [[[2, 0], [0, 1]], [[1, 0], [0, 3]], [[2, 0], [0, 2]], [[1, 0], [0, 6]], [[3, 0], [0, 2]], [[2, 1], [0, 1]], [[1, -1], [1, 1]]];
+  /** @param {Mat2} m @param {Vec2} v @returns {Vec2} */
+  const mv = (m, v) => [m[0][0] * v[0] + m[0][1] * v[1], m[1][0] * v[0] + m[1][1] * v[1]];
+  /** @param {Mat2} m @returns {Mat2} */
+  const invers = (m) => { const dt = m[0][0] * m[1][1] - m[0][1] * m[1][0]; return [[m[1][1] / dt, -m[0][1] / dt], [-m[1][0] / dt, m[0][0] / dt]]; };
+  /** @param {number} x */
+  const ganzzahlig = (x) => Math.abs(x - Math.round(x)) < 1e-6;
   for (const d of EBENENGRUPPEN) {
     const g = gruppe(d.symbol);
     const M = metrik(GITTER_START[d.system]);
-    for (const [i, j] of [[2, 1], [1, 3], [2, 2], [1, 6], [3, 2]]) {
+    for (const S of zellen) {
+      const n = Math.round(Math.abs(S[0][0] * S[1][1] - S[0][1] * S[1][0]));
+      const Si = invers(S);
+      // Gitterpunkte der Standardzelle in der gegebenen: alle k·(1, 0) + l·(0, 1) mit Bruchkoordinaten in [0, 1)
+      /** @type {Vec2[]} */
+      const versatz = [];
+      for (let k = -6; k <= 6; k++) for (let l = -6; l <= 6; l++) {
+        const w = /** @type {Vec2} */ (mv(Si, [k, l]).map((x) => x - Math.floor(x + 1e-12)));
+        if (!versatz.some((u) => Math.abs(u[0] - w[0]) < 1e-9 && Math.abs(u[1] - w[1]) < 1e-9)) versatz.push(w);
+      }
+      assert.equal(versatz.length, n, `${JSON.stringify(S)}: ${n} Gitterpunkte je gegebener Zelle`);
       /** @type {Strukturpunkt[]} */
       const punkte = [];
       for (const op of g.alle) {
         for (const [dp, art] of /** @type {[Vec2, string][]} */ ([[[0, 0], 'A'], [[0.031, 0.007], 'B'], [[-0.004, 0.043], 'C']])) {
-          const p = anwenden(op, [0.083 + dp[0], 0.417 + dp[1]]);
-          for (let u = 0; u < i; u++) for (let v = 0; v < j; v++) punkte.push({ p: [(p[0] + u) / i, (p[1] + v) / j], art });
+          const p = mv(Si, anwenden(op, [0.083 + dp[0], 0.417 + dp[1]]));
+          for (const w of versatz) punkte.push({ p: /** @type {Vec2} */ ([p[0] + w[0], p[1] + w[1]].map(sechsStellen)), art });
         }
       }
-      /** @param {Kartesisch<Vec2>} w @param {number} f */
-      const mal = (w, f) => /** @type {Kartesisch<Vec2>} */ ([f * w[0], f * w[1]]);
-      const exakt = /** @type {Bestimmung} */ (bestimme({ a: mal(M.a, i), b: mal(M.b, j), punkte }));
-      const r = bestimme({ a: mal(M.a, i), b: mal(M.b, j), punkte: punkte.map((q) => ({ p: /** @type {Vec2} */ (q.p.map(sechsStellen)), art: q.art })) });
-      assert.equal(exakt.symbol, d.symbol, `${d.symbol}, ${i} × ${j}, exakt`);
-      assert.equal(r?.symbol, d.symbol, `${d.symbol}, ${i} × ${j}`);
-      assert.ok(r && r.zelle.every((z, k) => z.every((x, l) => Math.abs(x - exakt.zelle[k][l]) < 1e-9)), `${d.symbol}, ${i} × ${j}: Zelle`);
-      assert.ok(r && r.ursprung.every((x, k) => Math.abs(x - exakt.ursprung[k]) < 1e-4), `${d.symbol}, ${i} × ${j}: Ursprung`);
+      /** @param {Vec2} f */
+      const kart = (f) => /** @type {Kartesisch<Vec2>} */ ([f[0] * M.a[0] + f[1] * M.b[0], f[0] * M.a[1] + f[1] * M.b[1]]);
+      const r = bestimme({ a: kart([S[0][0], S[1][0]]), b: kart([S[0][1], S[1][1]]), punkte });
+      const fall = `${d.symbol} in ${JSON.stringify(S)}`;
+      assert.equal(r?.symbol, d.symbol, fall);
+      const Z = /** @type {Bestimmung} */ (r).zelle;
+      // Standardzelle in der konventionellen: Z⁻¹ · S⁻¹ ganzzahlig mit Determinante ±1
+      const Zi = invers(Z);
+      const U = [0, 1].map((k) => [0, 1].map((l) => Zi[k][0] * Si[0][l] + Zi[k][1] * Si[1][l]));
+      assert.ok(U.flat().every(ganzzahlig) && Math.abs(Math.abs(U[0][0] * U[1][1] - U[0][1] * U[1][0]) - 1) < 1e-6, `${fall}: Zelle ${JSON.stringify(Z)}`);
+      assert.ok(mv(Zi, /** @type {Bestimmung} */ (r).ursprung).every((x) => Math.abs(x - Math.round(x)) < 1e-4), `${fall}: Ursprung ${/** @type {Bestimmung} */ (r).ursprung}`);
     }
   }
 });
