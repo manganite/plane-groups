@@ -150,7 +150,7 @@ entwerfen“.
   jetzt das Zeichnen und der Vergleich zusammenfallender Bilder bei jedem Bild des Ziehens, nicht mehr die Bestimmung.
 - **Zeichnen:** „Selbst zeichnen“ aus „Ebenengruppen“ (Striche, die alle Operationen vervielfachen; Rückgängig, Alles
   löschen) als weiteres Gestaltungsmittel, mit Motiven kombinierbar. Jeder Strich hat eine Farbe aus derselben Farbwahl
-  wie die Motive (Abschn. 2, Punkt 14); die Farbe gehört damit in Link und Speicher der Zeichnung.
+  wie die Motive (Abschn. 2, Punkt 14); die Farbe gehört damit in den Speicher der Zeichnung (nicht in den Link; Entscheidung beim Umsetzen, Schritt 5, `CLAUDE.md`).
 - **Werkzeuge über Tafel A:** „Wählen und ziehen“, „Hinzufügen“, Zeichnen, Radieren; sie schliessen sich aus (Leitfaden
   Abschn. 5.2). Dazu die Lupe als Schalter.
 - **Gitter:** b/a und γ im Kristallsystem der Gruppe (Abschn. 2, Punkte 3 und 12).

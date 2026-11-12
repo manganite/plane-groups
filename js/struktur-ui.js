@@ -281,7 +281,6 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       !grund && alt ? `Ersetzt den bisherigen Entwurf (${alt} ${alt === 1 ? 'Bahn' : 'Bahnen'} in ${symbolHTML(en().gruppe)}).` : '',
     ].filter(Boolean).join(' ');
   }
-  /** „Muster entwerfen“: Gruppenwahl; gesperrt, wo die Grenze überschritten würde (mit Grund). */
   /** Werkzeuge Zeichnen und Radieren, Rückgängig, Alles löschen und der Hinweis (nur im Entwurf). */
   function strichAbgleichen() {
     const n = en().striche.length;
@@ -291,10 +290,11 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('zeichnen-hint').textContent = werkzeug === 'radieren'
       ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
       : werkzeug === 'zeichnen'
-        ? `Im Entwurf ziehen: Jeder Strich erscheint mit allen ${gruppe(en().gruppe).ordnung} Operationen der Gruppe je Zelle, auch im Muster, in der Farbe der gewählten Atomsorte; Spiegelbilder haben dieselbe Farbe.${punkteGezeichnet() >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
+        ? `Im Entwurf ziehen: Jeder Strich erscheint mit allen ${gruppe(en().gruppe).ordnung} Operationen der Gruppe je Zelle, auch im Muster, in der Farbe der gewählten Atomsorte; Spiegelbilder haben dieselbe Farbe.${punkteGezeichnet() >= STRICH_GRENZE - 50 ? ' Die Zeichnung ist fast voll; „Rückgängig“ oder „Alles löschen“ schafft Platz, Radieren ist dann eingeschränkt.' : ''}`
         : 'Werkzeug „Zeichnen“ über dem Entwurf wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster. Striche und Motive lassen sich kombinieren.';
   }
 
+  /** „Muster entwerfen“: Gruppenwahl; gesperrt, wo die Grenze überschritten würde (mit Grund). */
   function gruppeAbgleichen() {
     let grenze = false;
     elemente('#e-picker .pgb', HTMLButtonElement).forEach((b) => {
@@ -454,7 +454,9 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     radierStelle = q;
     const g = gruppe(en().gruppe); const M = metrik(en());
     const p = A.vonBild(q);
-    en().striche = en().striche.flatMap((st) => radieren([st.punkte], g, M, p, RADIER_PX / A.s).map((punkte) => ({ punkte, farbe: st.farbe })));
+    const radiert = en().striche.flatMap((st) => radieren([st.punkte], g, M, p, RADIER_PX / A.s).map((punkte) => ({ punkte, farbe: st.farbe })));
+    // Jeder Schnitt fügt Randpunkte hinzu: über der Grenze würde der Speicher beim Laden die ältesten Striche verwerfen, also nicht radieren
+    if (radiert.reduce((n, st) => n + st.punkte.length, 0) <= STRICH_GRENZE) en().striche = radiert;
   }
   /** Tafel A beim Zeichnen oder Radieren mit dem nächsten Bild neu zeichnen (das Muster folgt am Ende des Strichs). */
   function nachziehen() {

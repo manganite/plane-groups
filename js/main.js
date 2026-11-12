@@ -179,7 +179,7 @@ function auswahlAbgleichen() {
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
 /** „Herkunft der Elemente“ wirkt: gewählt und mit Symmetrieelementen (ohne diese ruht es, bleibt aber gewählt). */
 const herkunftAktiv = () => z.herkunft && z.elemente;
-/** Grund, wenn Zeichnen, Radieren, Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
+/** Grund, wenn Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
 const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
 function bedienungAbgleichen() {
   eingabe('opt-elemente').checked = z.elemente;
@@ -234,8 +234,8 @@ function bedienungAbgleichen() {
   eingabe('opt-herkunft').disabled = !z.elemente;
   element('#row-herkunft .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
   document.body.classList.toggle('herkunft', herkunftAktiv());
-  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): Werkzeuge Zeichnen und Radieren aus,
-  // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
+  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): die Lupe ruht (bleibt gewählt) und kommt
+  // beim Verlassen zurück
   const ruhig = z.modus === 'eg' && erklaerend(z);
   knopf('werkzeug-lupe').disabled = ruhig;
   $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
@@ -289,7 +289,7 @@ let ansichtA = null;
 let massObjektA = 1;
 /**
  * Ausschnitt der Lupe: folgt dem Objekt, bleibt aber ganz stehen (Mitte und Grösse), solange
- * gezogen, gezeichnet oder radiert wird, damit der Zeiger und das Bild zusammenpassen.
+ * gezogen wird, damit der Zeiger und das Bild zusammenpassen.
  */
 /** @type {Box | null} */
 let lupeBox = null;
@@ -315,7 +315,7 @@ function zeichnen() {
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
   // unbekanntes Element (z. B. aus einem alten Link): verwerfen und die Bedienung neu abgleichen, die es
-  // sonst noch als laufende Erklärung zählt (Sperren von Zeichnen, Radieren, Füllen und Lupe)
+  // sonst noch als laufende Erklärung zählt (Sperren von Füllen und Lupe)
   if (z.erkl && !erklaerung) { z.erkl = null; aktualisieren(); }
   grafik('bild-a').innerHTML = a.svg;
   grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
@@ -366,7 +366,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
-  if (erklaerend(z)) items.push(`<span class="lg hint">Zeichnen, Radieren und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
+  if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
   if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
@@ -824,7 +824,7 @@ function init() {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
   // Ist eine Erklärung aus Speicher oder Link aktiv, ihren Abschnitt aufklappen: Sie sperrt
-  // Zeichnen, Radieren, Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
+  // Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
   if (z.modus === 'eg' && (z.herkunft || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
   if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;
   aktualisieren();

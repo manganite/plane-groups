@@ -423,7 +423,8 @@ export function pruefeStriche(striche) {
     const farbe = Number(st.farbe);
     out.push({ punkte: st.punkte.map((p) => /** @type {Vec2} */ ([p[0], p[1]])), farbe: Number.isInteger(farbe) && farbe >= 0 && farbe < 4 ? farbe : 0 });
   }
-  while (out.flat().reduce((n, st) => n + st.punkte.length, 0) > STRICH_GRENZE) out.shift();
+  let n = out.reduce((s, st) => s + st.punkte.length, 0);
+  while (n > STRICH_GRENZE) n -= /** @type {Strich} */ (out.shift()).punkte.length;
   return out;
 }
 

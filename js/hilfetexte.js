@@ -30,7 +30,7 @@ export const TIPS = {
   's-metrik': 'Gitter auf quadratische oder hexagonale Metrik setzen (nur in „Gitter und Basis“).',
   'copy-link': 'Link auf genau diese Ansicht in die Zwischenablage kopieren.',
   'opt-elemente': 'Drehpunkte, Spiegellinien (durchgezogen) und Gleitspiegellinien (gestrichelt) der Elementarzelle, mit den Symbolen der International Tables.',
-  'opt-objekt': 'Ein Objekt ohne eigene Symmetrie in allgemeiner Lage. Alle Operationen der Gruppe wirken darauf; das Ausgangsobjekt ist gestrichelt umkreist. Ausgeschaltet zeigt auch das Muster nur das selbst Gezeichnete.',
+  'opt-objekt': 'Ein Objekt ohne eigene Symmetrie in allgemeiner Lage. Alle Operationen der Gruppe wirken darauf; das Ausgangsobjekt ist gestrichelt umkreist.',
   'opt-ae': 'Kleinster Teil der Elementarzelle, aus dem die Operationen die ganze Zelle lückenlos erzeugen (nach International Tables).',
   'opt-zellen': 'Vier Elementarzellen statt einer: zeigt, wie sich die Symmetrieelemente mit dem Gitter wiederholen.',
   'seg-form': 'Fähnchen oder Kreis mit Komma wie in den International Tables. Das Komma bzw. die Fahne auf der anderen Seite kennzeichnet das Spiegelbild.',
