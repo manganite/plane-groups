@@ -6,6 +6,16 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Gleichschenkliges Dreieck schmaler** (#136, Wunsch von Thomas, 12.11.2026): Die Spitze ist jetzt etwa 28° statt 47°, damit sich das Motiv in der Auswahl klar vom gleichseitigen Dreieck unterscheidet. Betroffen sind alle Bilder mit diesem Dreieck: Dreiecksbeispiel (Skript Abb. 1.6, 4.8, 8.2a–8.4a, Quizbilder dazu, Hilfebilder), Abb. 3.1 und 3.6. Link-Adresse und Bestimmung bleiben gleich (die Punkte liegen weiter symmetrisch zur eigenen Spiegellinie).
+- **Hinweis beim Übergang in „Muster entwerfen“:** Er warnt jetzt auch, wenn der bisherige Entwurf nur Striche hat (die Übernahme ersetzt sie).
+
+### Behoben
+
+- **Motivauswahl:** Der Knopf des Fähnchens zeigte nur die Stange; jetzt sitzt jedes Motiv mit der Mitte seines Umrisses im Feld (#136).
+- **Zelle mit Rundungsfehlern** (#125): Der Fehler war schon mit 1.3.0 behoben (dort unter „Zentrierte Gitter“); neu ist ein Test mit den Fällen aus dem Issue.
+
 ## [1.3.0] - 2026-11-12
 
 Hinweis: Mit diesem Release ändern sich Link-Adressen und gespeicherte Stände (Bruch, MINOR): **alte Links gelten nicht mehr** (Näheres unter „Geändert“). Link und Speicher sind in der Entwicklung nicht stabil.

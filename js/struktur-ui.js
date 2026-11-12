@@ -278,11 +278,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const grund = 'grund' in m.ue ? m.ue.grund : '';
     knopf('s-weiter').disabled = Boolean(grund) || !r;
     knopf('s-weiter').innerHTML = r ? `In „Muster entwerfen“ weiterbearbeiten (${symbolHTML(r.symbol)})` : 'In „Muster entwerfen“ weiterbearbeiten';
-    const alt = en().basis.length;
+    // der bisherige Entwurf geht verloren, auch wenn er nur Striche hat
+    const alt = en().basis.length; const striche = en().striche.length;
+    const inhalt = [alt ? `${alt} ${alt === 1 ? 'Bahn' : 'Bahnen'}` : '', striche ? `${striche} ${striche === 1 ? 'Strich' : 'Striche'}` : ''].filter(Boolean).join(' und ');
     $('s-weiter-hint').innerHTML = [
       'Übernimmt die Struktur mit der bestimmten Gruppe in den Modus „Muster entwerfen“; dort bleiben Gruppe und Zelle fest. Einen Weg zurück gibt es nicht.',
       grund ? `Gesperrt: ${grund}` : '',
-      !grund && alt ? `Ersetzt den bisherigen Entwurf (${alt} ${alt === 1 ? 'Bahn' : 'Bahnen'} in ${symbolHTML(en().gruppe)}).` : '',
+      !grund && inhalt ? `Ersetzt den bisherigen Entwurf (${inhalt} in ${symbolHTML(en().gruppe)}).` : '',
     ].filter(Boolean).join(' ');
   }
   /** Werkzeuge Zeichnen und Radieren, Rückgängig, Alles löschen und der Hinweis (nur im Entwurf). */

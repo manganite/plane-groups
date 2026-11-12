@@ -15,7 +15,7 @@ import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe, anwenden } from '../js/symmetrie.js';
 import { metrik, grad } from '../js/zeichnung.js';
 import { GITTER_START } from '../js/zustand.js';
-import { strukturSymmetrie, basisLagen } from '../js/struktur.js';
+import { strukturSymmetrie, basisLagen, istGegeben } from '../js/struktur.js';
 
 /** @import { Vec2, Kartesisch } from '../lib/common/js/typen.js' */
 /** @import { Bestimmung, Strukturpunkt } from '../js/bestimmung.js' */
@@ -184,5 +184,19 @@ test('Skalierung des Gitters allein: ein Punkt je Zelle behält die Holoedrie', 
       const mal = (v) => /** @type {Kartesisch<Vec2>} */ ([f * v[0], f * v[1]]);
       assert.equal(bestimme({ a: mal(M.a), b: mal(M.b), punkte: EIN_PUNKT })?.symbol, erwartet, `${sys}, Faktor ${f}`);
     }
+  }
+});
+
+test('Zelle mit Rundungsfehlern gilt als die gegebene (c2mm in der Standardaufstellung, #125)', () => {
+  // Atome auf der Bahn eines allgemeinen Punkts von c2mm, Gitter wie beim Start der App: Die Gruppe ist c2mm, die
+  // konventionelle Zelle die gegebene. bestimme() liefert hier eine Zelle wie [[1, 0], [0, 0,9999999999999999]] oder [[1, 5,6·10⁻¹⁷], [0, 1]]; mit
+  // exaktem Vergleich zeichnete Tafel A zusätzlich a′, b′ über a, b.
+  const g = gruppe('c2mm');
+  const M = metrik(GITTER_START.rechteckig);
+  for (const q of /** @type {Vec2[]} */ ([[0.137, 0.291], [0.083, 0.417]])) {
+    const r = /** @type {Bestimmung} */ (bestimme({ a: M.a, b: M.b, punkte: g.alle.map((op) => ({ p: anwenden(op, q), art: 'A' })) }));
+    assert.equal(r.symbol, 'c2mm', String(q));
+    assert.ok(r.zelle.every((z, i) => z.every((x, j) => Math.abs(x - (i === j ? 1 : 0)) < 1e-12)), `${q}: Zelle ${JSON.stringify(r.zelle)}`);
+    assert.ok(istGegeben(r), `${q}: gegebene Zelle`);
   }
 });
