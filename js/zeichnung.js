@@ -270,7 +270,7 @@ export function aufbauElemente(g, n, schritt) {
 /** Fähnchen in Bildpunkten, Fuss im Ursprung: Stange nach oben, Fahne nach rechts. */
 /** @type {{ stange: Vec2[], fahne: Vec2[] }} */
 const FAHNE = { stange: [[0, 0], [0, -22]], fahne: [[0, -22], [11, -17], [0, -12]] };
-/** Grösste Ausdehnung eines Objekts (Fähnchen, Komma) vom Fusspunkt, in Bildpunkten bei Massstab 1. */
+/** Grösste Ausdehnung eines Objekts vom Fusspunkt, in Bildpunkten bei Massstab 1 (aus der Zeit der Ornamente als Form, bleibt, damit sich die Ansicht nicht ändert). */
 const REICHWEITE = 30;
 /** Umriss aller Formen des Objekts ungedreht, Fuss im Ursprung, in Bildpunkten bei Massstab 1: [x0, y0, x1, y1] (Treffer beim Ziehen). */
 export const OBJEKT_UMRISS = /** @type {const} */ ([-10, -27, 20, 4]);
@@ -344,8 +344,8 @@ export function bilder(g, p, lo, hi, rand = 0.08) {
 }
 
 /**
- * Ornamentmotive für das Muster (Konzept §3.6): selbst gezeichnet, ohne eigene Symmetrie (chiral),
- * damit Spiegelbilder sichtbar bleiben. Pfade in Bildpunkten wie das Fähnchen, Fuss im Ursprung;
+ * Pfade der Ornamentmotive (motive.js; Konzept §3.6): selbst gezeichnet, ohne eigene Symmetrie (chiral),
+ * damit Spiegelbilder sichtbar bleiben. Pfade in Bildpunkten wie das Fähnchen, Fuss im Ursprung (als Motiv liegt die Mitte auf der Lage, ornamentMitte);
  * je Teil [Befehle, Art]: 'fill' gefüllt, 'stroke' Linie, 'loch' gefüllt in der Papierfarbe.
  * Befehle: [Buchstabe, ...Punkte] mit M, L, Q, C, Z.
  * @type {Record<string, [[string, ...Vec2[]][], 'stroke' | 'fill' | 'ader' | 'loch'][]>}
