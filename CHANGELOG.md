@@ -8,6 +8,15 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **Seitenleiste und Tafel** (crystallography-common#130, Entscheidung Thomas, 12.11.2026): Die Seitenleiste sagt, was da ist; über Tafel A steht, was man auf der Zeichnung tut. Am Laptop ist die Seitenleiste in „Gitter und Basis“ 1188 statt 1515 px hoch, in „Muster entwerfen“ 1227 statt 1799 px, mit eingeklappter „Basis“ 739 bzw. 778 px.
+  - **Werkzeugleiste in Tafel A als Symbole:** Wählen und ziehen (Pfeil), Hinzufügen (+), Zeichnen (Stift), Radieren (Radiergummi); daneben die Handlungen Rückgängig, „Gewähltes Motiv entfernen“, „Alle Motive löschen“ und im Entwurf „Alle Striche löschen“; Einrasten (Magnet) und Lupe als Schalter neben dem Titel, in allen Modi. Der Abschnitt „Zeichnen“ und die Knöpfe „Entfernen“ und „Einrasten“ in der Seitenleiste entfallen, ebenso „Einrasten auf spezielle Lagen“ unter „Weitere Optionen“.
+  - **Rückgängig für Motive und Striche:** je Modus ein Verlauf (bis 50 Schritte, nur für die Sitzung) für Hinzufügen, Ziehen, Entfernen, Löschen, Eigenschaften eines Motivs, Strich und Radieren; Gruppe, Gitter und Anzeigen gehören nicht dazu. Neue Vorgabe, Übernahme, ein Link und die Wahl einer Gruppe im Entwurf beginnen einen neuen Verlauf. Bisher nahm „Rückgängig“ nur Striche zurück, ohne Verlauf (nach dem Neuladen) den letzten Strich.
+  - **Neu „Alle Motive löschen“** (Wunsch Thomas), „Alles löschen“ heisst jetzt „Alle Striche löschen“.
+  - **Einrasten** ist ein Schalter für alle Modi; `rast` steht jetzt auch im Link von „Gitter und Basis“ und „Muster entwerfen“ (bisher galt dort Einrasten nur für die Sitzung). Alte Links bleiben gültig.
+  - **Motivauswahl als Raster** mit bis zu 6 Knöpfen je Zeile, der Name jeder Zeile als kleine Überschrift darüber.
+  - **„Gespiegelt“ und „Mit Fuge“ fehlen**, wo das Motiv die Eigenschaft nicht hat, statt gesperrt mit Begründung.
+  - **Anleitungstexte** aus der Seitenleiste in die ⓘ-Erklärungen und die Legende von Tafel A; in der Seitenleiste bleiben nur Hinweise zum Zustand (z. B. gesperrte Gruppen, gesperrte Gitterregler). Die Tooltips der Tafel sind kürzer.
+  - **Export als ein Knopf mit Menü** („Export ▾“: Kopieren (PNG), SVG-Datei speichern, PNG-Datei speichern) über beiden Tafeln.
 - **Gemeinsame Grundlage** auf crystallography-common v0.18.0: Leitfaden „Seitenleiste und Tafel“ (#130), Export als Knopf mit Menü, Knöpfe als Symbol; aus v0.17.0 der Leitfaden „Entwicklung vor Stabilität“, `CHROMIUM_PFAD` statt `KONTRASTE_CHROME` (auch in `tools/entwurf-pruefen.mjs`).
 
 - **Gleichschenkliges Dreieck schmaler** (#136, Wunsch von Thomas, 12.11.2026): Die Spitze ist jetzt etwa 28° statt 47°, damit sich das Motiv in der Auswahl klar vom gleichseitigen Dreieck unterscheidet. Betroffen sind alle Bilder mit diesem Dreieck: Dreiecksbeispiel (Skript Abb. 1.6, 4.8, 8.2a–8.4a, Quizbilder dazu, Hilfebilder), Abb. 3.1 und 3.6. Link-Adresse und Bestimmung bleiben gleich (die Punkte liegen weiter symmetrisch zur eigenen Spiegellinie).

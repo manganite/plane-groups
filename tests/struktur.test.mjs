@@ -484,15 +484,15 @@ test('Tafel B: Symmetrieelemente in den Farben der Blickrichtung nur auf Wunsch'
   assert.ok(!FARBEN.dir.some((c) => grau.includes(c)));
 });
 
-test('Link: „Darstellung“ und Lupe gelten in beiden Modi, mit denselben Schlüsseln', () => {
+test('Link: „Darstellung“, Lupe und Einrasten gelten in allen Modi, mit denselben Schlüsseln', () => {
   const z = startzustand();
-  hashAnwenden(z, '#m=struktur&v=graphen&farb=0&mel=1&tap=1&fuell=1&lupe=1&zoom=2');
-  assert.deepEqual([z.farben, z.musterElemente, z.tapete, z.aeFuell, z.lupe, z.zoomB], [false, true, true, true, true, 2]);
+  hashAnwenden(z, '#m=struktur&v=graphen&farb=0&mel=1&tap=1&fuell=1&lupe=1&rast=0&zoom=2');
+  assert.deepEqual([z.farben, z.musterElemente, z.tapete, z.aeFuell, z.lupe, z.einrasten, z.zoomB], [false, true, true, true, true, false, 2]);
   const h = hashVon(z);
-  for (const k of ['farb=0', 'mel=1', 'tap=1', 'fuell=1', 'lupe=1', 'zoom=2']) assert.ok(h.includes(k), `${k} in ${h}`);
-  // Schalter nur von „Ebenengruppen“ stehen nicht im Link des anderen Modus
-  z.elemente = false; z.objekt = false; z.ae = true; z.orbit = true; z.einrasten = false;
-  assert.ok(!/[&#](el|obj|ae|orbit|rast)=/.test(hashVon(z)), hashVon(z));
+  for (const k of ['farb=0', 'mel=1', 'tap=1', 'fuell=1', 'lupe=1', 'rast=0', 'zoom=2']) assert.ok(h.includes(k), `${k} in ${h}`);
+  // Schalter nur von „Ebenengruppen“ stehen nicht im Link des anderen Modus; Einrasten ist seit #130 gemeinsam
+  z.elemente = false; z.objekt = false; z.ae = true; z.orbit = true;
+  assert.ok(!/[&#](el|obj|ae|orbit)=/.test(hashVon(z)), hashVon(z));
   // Startwerte bleiben aus dem Link
   const z0 = startzustand(); z0.modus = 'struktur';
   assert.equal(hashVon(z0), `#m=struktur&v=${z0.struktur.vorgabe}`);

@@ -2,7 +2,7 @@
 
 import { initHelp } from '../lib/common/js/help.js';
 import { ablaufKarte } from '../lib/common/js/ablauf.js';
-import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik } from '../lib/common/js/seite.js';
+import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik, exportMenue, herunterladen, inZwischenablage } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE } from './hilfetexte.js';
 import { EXPERIMENTE } from './hilfe-daten.js';
 import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
@@ -136,31 +136,14 @@ async function bildPNG(svgText) {
   /** @type {CanvasRenderingContext2D} */ (cv.getContext('2d')).drawImage(img, 0, 0, px, px);
   return new Promise((res, rej) => cv.toBlob((b) => (b ? res(b) : rej(new Error('PNG fehlgeschlagen'))), 'image/png'));
 }
+/** Export je Tafel als ein Knopf mit Menü (lib/common/js/seite.js, Leitfaden Abschn. 4). Das Bild entsteht beim Klick, damit es die Ansicht dann zeigt. */
 function exportKnoepfe() {
-  /** @param {HTMLElement} btn */
-  const melden = (btn) => {
-    const zurueck = btn.dataset.label || (btn.dataset.label = btn.textContent);
-    return (/** @type {string} */ text) => { btn.textContent = text; setTimeout(() => { btn.textContent = zurueck; }, 1600); };
-  };
-  /** @param {Blob} blob @param {string} name */
-  const laden = (blob, name) => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  };
   for (const t of ['a', 'b']) {
-    // Kopieren: Blob als Promise übergeben, Safari verlangt den Aufruf noch in der Klick-Behandlung
-    $(`kopieren-${t}`).addEventListener('click', async () => {
-      const sag = melden($(`kopieren-${t}`));
-      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': bildPNG(bildSVG(t)) })]); sag('Kopiert'); } catch { sag('Nicht möglich'); }
-    });
-    $(`svg-${t}`).addEventListener('click', () => laden(new Blob([bildSVG(t)], { type: 'image/svg+xml' }), `${bildName(t)}.svg`));
-    $(`png-${t}`).addEventListener('click', async () => {
-      const svg = bildSVG(t); const name = `${bildName(t)}.png`;
-      try { laden(await bildPNG(svg), name); } catch { melden($(`png-${t}`))('Nicht möglich'); }
-    });
+    exportMenue(knopf(`export-${t}`), [
+      { text: 'Kopieren (PNG)', tun: () => { const svg = bildSVG(t); return inZwischenablage(() => bildPNG(svg)); }, erfolg: 'Kopiert' },
+      { text: 'SVG-Datei speichern', tun: () => herunterladen(new Blob([bildSVG(t)], { type: 'image/svg+xml' }), `${bildName(t)}.svg`) },
+      { text: 'PNG-Datei speichern', tun: async () => { const svg = bildSVG(t); const name = `${bildName(t)}.png`; herunterladen(await bildPNG(svg), name); } },
+    ]);
   }
 }
 
@@ -186,9 +169,9 @@ function bedienungAbgleichen() {
   eingabe('opt-objekt').checked = z.objekt;
   eingabe('opt-ae').checked = z.ae;
   eingabe('opt-zellen').checked = z.zellen === 2;
-  eingabe('opt-einrasten').checked = z.einrasten;
-  eingabe('opt-einrasten').disabled = !z.objekt;
-  element('#row-einrasten .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
+  // Einrasten: Schalter in Tafel A für alle Modi (#130); in „Ebenengruppen“ ruht er ohne Objekt (Grund in der Legende)
+  $('werkzeug-einrasten').setAttribute('aria-pressed', String(z.einrasten));
+  knopf('werkzeug-einrasten').disabled = z.modus === 'eg' && !z.objekt;
   eingabe('opt-orbit').checked = z.orbit;
   eingabe('opt-orbit').disabled = !z.objekt;
   element('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
@@ -367,6 +350,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
   if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
+  if (!z.objekt) items.push('<span class="lg hint">Einrasten nur mit „Objekt in allgemeiner Lage“</span>');
   if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
@@ -685,7 +669,6 @@ function init() {
   bindeSchalter('opt-elemente', 'elemente');
   bindeSchalter('opt-objekt', 'objekt');
   bindeSchalter('opt-ae', 'ae');
-  bindeSchalter('opt-einrasten', 'einrasten');
   bindeSchalter('opt-orbit', 'orbit');
   bindeSchalter('v-farben', 'farben');
   bindeSchalter('v-muster-el', 'musterElemente');

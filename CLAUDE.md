@@ -106,7 +106,7 @@ für diese App gilt.
       konventioneller Zelle (`aeFuellung` in `js/zeichnung.js`, dieselbe Rechnung wie in „Ebenengruppen“; der Bereich der
       Bilder folgt aus dem Bild, `konvBereich` in `js/struktur.js`), in Tafel A und im Muster. Ohne Motive gibt es keine
       bestimmte Gruppe: Der Schalter ist gesperrt, mit Grund, bleibt aber gewählt (Leitfaden Abschn. 5.2).
-    - **Lupe:** ein Schalter in eigener Gruppe über Tafel A, in allen Modi dieselbe Rechnung (`lupeAusschnitt` in
+    - **Lupe:** ein Schalter (Symbol) über Tafel A neben Einrasten, in allen Modi dieselbe Rechnung (`lupeAusschnitt` in
       `js/zeichnung.js`). Mitte: in „Ebenengruppen“ das Objekt, sonst das gewählte, gezeichnete Motiv, ohne Wahl die Mitte der
       gegebenen Zelle. Beim Ziehen und Zeichnen bleibt der Ausschnitt stehen (`fest`) und folgt erst beim Loslassen; tippt
       man ins Leere, springt die Ansicht zur Mitte der Zelle. Sie ruht nur in den Erklärungen von „Ebenengruppen“
@@ -119,7 +119,8 @@ für diese App gilt.
     wohin passt. Die Knöpfe zeigen ein kleines Bild (`motivSymbol` in `js/struktur.js`, auf die Mitte des Rechtecks um seine
     Punkte gesetzt, damit auch das Fähnchen mit dem Fuss auf der Lage ganz im Feld liegt; Farbe der gewählten Atomsorte über
     `--mf`), mindestens 40 px; Name und Punktgruppe im Tooltip und im `aria-label`, die Zeile als `aria-labelledby`, das ⓘ
-    nennt die Zeilen. `s-motiv` ist eine Gruppe von Knöpfen.
+    nennt die Zeilen. `s-motiv` ist eine Gruppe von Knöpfen: je Zeile ein Raster mit bis zu 6 Knöpfen, der Name der Zeile als
+    kleine Überschrift darüber (#130; vorher eine linke Spalte, die nur 3 Knöpfe je Zeile liess).
   - **Gleichschenkliges Dreieck** schmal (Spitze etwa 28°; Test: höchstens 40°), damit es als Bild klar vom gleichseitigen
     zu unterscheiden ist (Thomas, 12.11.2026).
   - **Ornamente** (Blatt, Tropfen, Ranke) gibt es nur als Motive; als Form des Objekts in „Ebenengruppen“ bleiben Fähnchen und
@@ -139,8 +140,8 @@ für diese App gilt.
     in mehreren Modi vorkommen, folgen dem Grundsatz.
   - **Spiegelbilder:** Ein Basiseintrag hat neben `winkel` das Feld `spiegel` (Spiegelung an der eigenen *y*-Achse des Motivs,
     vor der Drehung), damit jede Orientierung darstellbar ist, auch die Bilder chiraler Motive unter Spiegel- und
-    Gleitspiegellinien. Achirale Motive sind zu dieser Achse symmetrisch (Test); bei ihnen entfällt das Feld, der Schalter
-    „gespiegelt“ ist gesperrt. Im Link ein optionales letztes Feld `m` in `basis=`. Wechselt ein gespiegeltes Motiv zu einem
+    Gleitspiegellinien. Achirale Motive sind zu dieser Achse symmetrisch (Test); bei ihnen entfällt das Feld, und der Schalter
+    „Gespiegelt“ fehlt (Leitfaden Abschn. 5.2, #130; ebenso „Mit Fuge“ ausser beim Ziegel). Im Link ein optionales letztes Feld `m` in `basis=`. Wechselt ein gespiegeltes Motiv zu einem
     achiralen, entfällt das Feld (es gibt dann nichts, was ruhen könnte, Leitfaden Abschn. 5.2).
   - **Ziegel mit und ohne Fuge** (Thomas, 12.11.2026): Der Ziegel ist ein Rechteck 2 : 1, Grösse = halbe Länge, ohne Fuge
     lückenlos; der Schalter „Mit Fuge“ (`fuge` am Basiseintrag, `Motiv.fuge` mit den Faktoren 0,95 und 0,9 für die lokalen
@@ -224,10 +225,9 @@ für diese App gilt.
     - **Zeichnung:** `strichSVG` (`js/struktur.js`) vervielfältigt jeden Strich mit allen Operationen der gewählten Gruppe
       (`kopien`, `js/zeichnung.js`), unter den Motiven in Tafel A und B, auch als Tapete; Breite 2,6 (A, mit `k` bis 1,4) bzw. 2.
       Radieren wirkt je Strich (`radieren` auf einem Strich), die Teile behalten die Farbe.
-    - **Bedienung:** Die Farbe ist die des Bereichs „Neues Motiv“ (`neu.farbe`). Abschnitt „Zeichnen“ (offen) mit Hinweis,
-      „Rückgängig“ (Verlauf der Striche bis 50 Schritte, nur im Speicher; ohne Verlauf der letzte Strich) und „Alles löschen“.
-      „Radieren“ ist gesperrt, solange es keine Striche gibt, bleibt aber gewählt. Wechsel in einen anderen Modus wählt das
-      Werkzeug ab.
+    - **Bedienung:** Die Farbe ist die des Bereichs „Neues Motiv“ (`neu.farbe`). Werkzeuge, „Rückgängig“ und „Alle Striche
+      löschen“ in der Werkzeugleiste von Tafel A (#130, nächster Punkt). „Radieren“ ist gesperrt, solange es keine Striche
+      gibt, bleibt aber gewählt. Wechsel in einen anderen Modus wählt das Werkzeug ab.
   - **Bedienung:** Reiter „Muster entwerfen“; Karte mit Gruppenwahl (Knöpfe je Kristallsystem wie in „Ebenengruppen“),
     „Symmetrieelemente“ und „Asymmetrische Einheit“; darunter wie in „Gitter und Basis“ Basis und Gitter (Karte `nur-bau`)
     sowie „Darstellung“. Ein leerer Entwurf wählt das Werkzeug „Hinzufügen“ von selbst (auch beim Öffnen eines Links).
@@ -244,6 +244,28 @@ für diese App gilt.
     Schmetterling wirkt. Abb. 7.1a bleibt in „Ebenengruppen“. `appTafel` und das Quizbild zeichnen die Tapete im Entwurf ohne
     Zelle (`zelle: !z.tapete`); die Skizze `conway` baut auf dem Entwurf auf (`ausgeschrieben`, `festeBestimmung`, Elemente
     über der Tapete). Die Quizfrage `tk-1-02` zeigt Abb. 7.1b.
+- **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1): Die
+  Seitenleiste sagt, was da ist, Tafel A trägt, was man auf der Zeichnung tut. Gemessen am Laptop (1440 × 900, etwa 880 px
+  Platz) war die Seitenleiste 963 / 1515 / 1799 px hoch (Ebenengruppen / Gitter und Basis / Muster entwerfen), danach
+  947 / 1188 / 1227 px, mit eingeklappter „Basis“ 739 und 778 px.
+  - **Werkzeugleiste als Symbole** (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole): Pfeil (Wählen und ziehen),
+    + (Hinzufügen), Stift, Radiergummi; dann die Handlungen Rückgängig, „Gewähltes Motiv entfernen“ (×), „Alle Motive
+    löschen“ und „Alle Striche löschen“ (Papierkorb mit Dreieck bzw. Strich); Einrasten (Magnet) und Lupe als Schalter neben
+    dem Titel, in allen Modi (Thomas). Name im `aria-label`, Erklärung im Tooltip und im ⓘ von „Basis“ (Touch). Mit Text
+    passte die Leiste bei 530 px Tafelbreite nicht (Skizzen in der Sitzung). Kopf von Tafel A: Titel, Schalter, Export in
+    einer Zeile, darunter in den Modi mit Basis die Leiste (`.leiste`); der Untertitel bricht um, bevor der Export eine eigene
+    Zeile braucht (iPad).
+  - **Rückgängig** (Thomas: für Motive und Striche; in beiden Modi mit Basis): je Modus ein Verlauf von Basis und Strichen,
+    ein Schritt je abgeschlossener Handlung, bis 50, nur für die Sitzung (`verlaeufe`, `beginnen`, `abschliessen` in
+    `js/struktur-ui.js`); Gruppe, Gitter und Anzeigen gehören nicht dazu (Seitenleiste). Wahl beim Umsetzen: Ein Verlauf
+    gehört zu einem Zustandsobjekt; Vorgabe, „Vorgabe wiederherstellen“, Übernahme und ein Link ersetzen es und beginnen
+    einen neuen, die Wahl einer Gruppe im Entwurf leert ihn, weil die Grenze der Bilder von der Gruppe abhängt und ein
+    alter Stand sie überschreiten könnte. Der frühere Rückfall „ohne Verlauf der letzte Strich“ entfällt.
+  - **Zwei Löschknöpfe** (Thomas): „Alle Motive löschen“ (beide Modi) und „Alle Striche löschen“ (Entwurf).
+  - **Einrasten** ist ein Zustand für alle Modi (`z.einrasten`, Link `rast` jetzt in `GEMEINSAME_SCHALTER`; Wahl beim
+    Umsetzen, wie die Lupe). In „Ebenengruppen“ ruht es ohne Objekt; der Grund steht in der Legende.
+  - **Hinweise in der Seitenleiste** nur zum Zustand (`.hintline:empty` blendet leere aus): gesperrte Gruppen, gesperrte
+    Gitterregler, Grund und Folge von „Weiterbearbeiten“. Was ein Tippen auf die Zeichnung tut, sagt die Legende.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
