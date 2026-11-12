@@ -350,7 +350,7 @@ export function bilder(g, p, lo, hi, rand = 0.08) {
  * Befehle: [Buchstabe, ...Punkte] mit M, L, Q, C, Z.
  * @type {Record<string, [[string, ...Vec2[]][], 'stroke' | 'fill' | 'ader' | 'loch'][]>}
  */
-const ORNAMENTE = {
+export const ORNAMENTE = {
   blatt: [
     [[['M', [0, 0]], ['Q', [1, -6], [4, -9]]], 'stroke'],
     [[['M', [4, -9]], ['C', [-1, -15], [3, -23], [13, -26]], ['C', [14, -17], [11, -11], [4, -9]], ['Z']], 'fill'],
@@ -365,6 +365,34 @@ const ORNAMENTE = {
     [[['M', [3, -10]], ['C', [-4, -11], [-6, -17], [-3, -21]], ['C', [1, -18], [3, -14], [3, -10]], ['Z']], 'fill'],
   ],
 };
+/** Länge einer Einheit der lokalen Koordinaten eines Ornaments als Motiv (motive.js) in Bildpunkten der Pfade. */
+export const ORNAMENT_EINHEIT = 13;
+
+/**
+ * Mitte eines Ornaments (Mitte des Rechtecks um alle Punkte seiner Pfade, in Bildpunkten der Pfade): Als Motiv
+ * liegt sie auf der Lage, um sie dreht sich das Motiv (der Fuss im Ursprung wäre für die Drehung ungünstig).
+ * @param {string} form @returns {Vec2}
+ */
+export function ornamentMitte(form) {
+  const ps = ORNAMENTE[form].flatMap(([befehle]) => befehle.flatMap(([, ...v]) => v));
+  const x = ps.map((q) => q[0]); const y = ps.map((q) => q[1]);
+  return [(Math.min(...x) + Math.max(...x)) / 2, (Math.min(...y) + Math.max(...y)) / 2];
+}
+
+/**
+ * Ornament als SVG; T bildet einen Punkt der Pfade auf das Bild ab, massstab: Bildpunkte je Bildpunkt des Pfades
+ * (für die Linienstärken).
+ * @param {string} form @param {(v: Vec2) => Vec2} T @param {string} farbe @param {string} papier @param {number} massstab
+ */
+export function ornamentSVG(form, T, farbe, papier, massstab) {
+  return ORNAMENTE[form].map(([befehle, art]) => {
+    const d = befehle.map(([c, ...ps]) => c + ps.map((v) => pt(T(v))).join(' ')).join('');
+    if (art === 'stroke') return `<path d="${d}" fill="none" stroke="${farbe}" stroke-width="${f2(2.2 * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (art === 'ader') return `<path d="${d}" fill="none" stroke="${papier}" stroke-width="${f2(0.9 * massstab)}" stroke-linecap="round" stroke-opacity="0.8"/>`;
+    return `<path d="${d}" fill="${art === 'loch' ? papier : farbe}" fill-opacity="${art === 'loch' ? 1 : 0.9}" stroke="${art === 'loch' ? papier : farbe}" stroke-width="${f2(0.8 * massstab)}" stroke-linejoin="round"/>`;
+  }).join('');
+}
+
 /** Formen des Objekts: Fähnchen, Kreis mit Komma (ITA) und die Ornamente. */
 export const FORMEN = ['fahne', 'komma', ...Object.keys(ORNAMENTE)];
 
@@ -375,14 +403,7 @@ export const FORMEN = ['fahne', 'komma', ...Object.keys(ORNAMENTE)];
 export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) {
   /** @param {Vec2} v @returns {Vec2} */
   const T = (v) => [q[0] + massstab * (Mc[0][0] * v[0] + Mc[0][1] * v[1]), q[1] + massstab * (Mc[1][0] * v[0] + Mc[1][1] * v[1])];
-  if (ORNAMENTE[form]) {
-    return ORNAMENTE[form].map(([befehle, art]) => {
-      const d = befehle.map(([c, ...ps]) => c + ps.map((v) => pt(T(v))).join(' ')).join('');
-      if (art === 'stroke') return `<path d="${d}" fill="none" stroke="${farbe}" stroke-width="${f2(2.2 * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`;
-      if (art === 'ader') return `<path d="${d}" fill="none" stroke="${papier}" stroke-width="${f2(0.9 * massstab)}" stroke-linecap="round" stroke-opacity="0.8"/>`;
-      return `<path d="${d}" fill="${art === 'loch' ? papier : farbe}" fill-opacity="${art === 'loch' ? 1 : 0.9}" stroke="${art === 'loch' ? papier : farbe}" stroke-width="${f2(0.8 * massstab)}" stroke-linejoin="round"/>`;
-    }).join('');
-  }
+  if (ORNAMENTE[form]) return ornamentSVG(form, T, farbe, papier, massstab);
   if (form === 'komma') {
     const r = 7 * massstab;
     const komma = eigentlich ? '' : (() => {

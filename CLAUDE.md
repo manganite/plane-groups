@@ -135,6 +135,28 @@ für diese App gilt.
       Ausschnitt stehen (die schon vorhandene eingefrorene Ansicht `fest`) und folgt erst beim Loslassen. Tippt man ins
       Leere, springt die Ansicht zur Mitte der Zelle (Wahl aufgehoben, wie in der Konzeptregel). Die Lupe ruht dort nie:
       Erklärungen (`erklaerend`) gibt es nur in „Ebenengruppen“ und gelten nur dort (`z.modus === 'eg'`).
+  **Schritt 4 in drei PRs** (Thomas, 12.11.2026; Grund: ein PR mit neuem Modus, Umbau von Skript und Quiz wäre zu gross zum
+  Prüfen): **4a** Ornamente als Motive und gebündelte Motivauswahl (kein Bruch von Link und Speicher); **4b** der Modus
+  `entwurf` mit Gruppenwahl, Regel für zusammenfallende Bilder, Kenndaten, Übergang; „Symmetrie festhalten“ entfällt (Bruch,
+  Zustandsversion steigt); **4c** Ornamente aus „Ebenengruppen“ entfernen, Skript, Quiz, Experimente, Erste Schritte.
+  **4a umgesetzt am 12.11.2026** (#104). Wahl beim Umsetzen:
+    - **Ornamente als Motive** `blatt`, `tropfen`, `ranke` (`MOTIVE` in `js/motive.js`, Form `ornament`): dieselben Pfade wie
+      die Form des Objekts in „Ebenengruppen“ (`ORNAMENTE` in `js/zeichnung.js`, gezeichnet von `ornamentSVG`). Das Motiv
+      liegt auf der Mitte des Rechtecks um die Pfadpunkte (`ornamentMitte`), nicht auf dem Fuss: Um die Mitte dreht es sich
+      und lässt sich greifen wie die übrigen Motive. Eine lokale Einheit sind `ORNAMENT_EINHEIT` = 13 Bildpunkte der Pfade
+      (das Ornament ist etwa zwei Einheiten hoch wie das Fähnchen), die Standardgrösse 0,1 wie beim Fähnchen.
+    - **Kennzeichnende Punkte:** je Ornament 4 oder 5 Punkte seiner Pfade (Fuss, Spitze, Ansatz …), jeder mit eigener Art
+      (`o0`, `o1` …). Eine Symmetrie müsste jeden Punkt auf sich selbst abbilden, und das tut bei drei Punkten, die nicht auf
+      einer Geraden liegen, nur die Identität; so täuschen sie keine Symmetrie vor. Der Test prüft Art, Lage und, dass jedes
+      Ornament allein, gedreht und gespiegelt, in verschiedenen Gittern *p*1 ergibt.
+    - **Motivauswahl:** `MOTIVZEILEN` (Daten, `js/motive.js`) ordnet die Motive den vier Zeilen zu (Atom; ohne Eigensymmetrie;
+      nur Drehsymmetrie; mit Spiegelsymmetrie), ein Test prüft die Zeilen gegen `symmetrie`. Die Knöpfe zeigen ein kleines
+      Bild (`motivSymbol` in `js/struktur.js`, in der Farbe der gewählten Atomsorte über die CSS-Variable `--mf`), mindestens
+      40 px; Name und Punktgruppe stehen im Tooltip und im `aria-label`, die Zeile als `aria-labelledby`, das ⓘ nennt die
+      Zeilen. Das Menü `s-motiv` ist jetzt eine Gruppe von Knöpfen mit derselben Kennung.
+    - **Ornamente bleiben vorerst Form des Objekts** in „Ebenengruppen“ (bis 4c); die Skriptabbildungen ändern sich in 4a
+      nicht. Die Gruppenwahl im Modus „Muster entwerfen“ kommt in 4b; die gebündelte Auswahl gilt dort mit denselben
+      Bausteinen.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
   Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des

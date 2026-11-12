@@ -4,17 +4,17 @@
 // Symmetrieelementen und asymmetrischer Einheit der gefundenen Gruppe, Tafel B einen grösseren
 // Ausschnitt.
 
-import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, lupeAusschnitt, f2, pt } from './zeichnung.js';
+import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, lupeAusschnitt, ornamentSVG, ornamentMitte, ORNAMENT_EINHEIT, f2, pt } from './zeichnung.js';
 import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
-import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
+import { MOTIVE, motivKart, lokalKart, strukturPunkte } from './motive.js';
 import { passtNichtZurLage } from './bahnen.js';
 import { vektorText } from './herkunft-text.js';
 import { koordText, lageHTML, symbolHTML } from './text.js';
 import { schoenfliesHTML } from './symbole.js';
 import { SYSTEME, BRAVAIS } from './ebenengruppen.js';
 
-/** @import { Vec2, Mat2, Kartesisch } from '../lib/common/js/typen.js' */
+/** @import { Vec2, Mat2, Kartesisch, Grad } from '../lib/common/js/typen.js' */
 /** @import { Metrik, Ansicht, Farben } from './zeichnung.js' */
 /** @import { Basiseintrag, Struktur } from './motive.js' */
 /** @import { Bestimmung } from './bestimmung.js' */
@@ -88,6 +88,10 @@ export function motivSVG(e, p, A, M, farbe, papier, { auswahl = false } = {}) {
   else if (d.form === 'fahne') {
     svg = `<line x1="${f2(q[0][0])}" y1="${f2(q[0][1])}" x2="${f2(q[1][0])}" y2="${f2(q[1][1])}" stroke="${farbe}" stroke-width="2.4" stroke-linecap="round"/>`
       + `<polygon points="${[q[1], q[2], q[3]].map(pt).join(' ')}" fill="${farbe}"/>`;
+  } else if (d.form === 'ornament') {
+    // Pfade des Ornaments: Bildpunkte um dessen Mitte, in lokale Einheiten, dann wie die Punkte des Motivs
+    const [mx, my] = ornamentMitte(/** @type {string} */ (d.ornament));
+    svg = ornamentSVG(/** @type {string} */ (d.ornament), ([x, y]) => bild(lokalKart(e, [(x - mx) / ORNAMENT_EINHEIT, (y - my) / ORNAMENT_EINHEIT])), farbe, papier, s / ORNAMENT_EINHEIT);
   } else if (d.form === 'stab') {
     // Abgerundetes Stäbchen durch die Endpunkte (lokal ±1, 0) und die Seiten (0, ±0,32): Halbkreise mit Radius 0,32
     // um (±0,68, 0), dazwischen gerade Seiten
@@ -104,6 +108,22 @@ export function motivSVG(e, p, A, M, farbe, papier, { auswahl = false } = {}) {
   if (auswahl) svg += `<circle cx="${f2(mitte[0])}" cy="${f2(mitte[1])}" r="${f2(Math.max(14, s * 1.35))}" fill="none" stroke="${farbe}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`;
   return svg;
 }
+
+/**
+ * Kleines Bild eines Motivs für die Motivauswahl (quadratisch, Seitenlänge SYMBOL px), in der Grösse so, dass jedes
+ * Motiv das Feld füllt; die Farben dürfen CSS-Variablen sein.
+ * @param {string} motiv @param {string} farbe @param {string} papier
+ */
+export function motivSymbol(motiv, farbe, papier) {
+  const M = metrik({ ba: 1, gamma: /** @type {Grad} */ (90) });
+  const A = ansicht(M, [0, 0, 1, 1], SYMBOL, 0);
+  const mitte = /** @type {Vec2} */ ([0.5, 0.5]);
+  // das Atom ist ein Kreis mit Radius groesse · s, die übrigen Motive reichen etwa eine Einheit weit
+  const groesse = MOTIVE[motiv].form === 'kreis' ? 0.2 : 0.4;
+  return `<svg class="motivsym" width="${SYMBOL}" height="${SYMBOL}" viewBox="0 0 ${SYMBOL} ${SYMBOL}" aria-hidden="true" focusable="false">${motivSVG({ motiv, p: mitte, groesse }, mitte, A, M, farbe, papier)}</svg>`;
+}
+/** Seitenlänge des Symbols eines Motivs in der Auswahl, in Bildpunkten. */
+const SYMBOL = 30;
 
 /** Bereich der Bruchkoordinaten (gegebene Zelle), den das Bild der Ansicht A zeigt, mit Rand. @param {Ansicht} A @returns {Bereich} */
 function bildBereich(A, rand = 0.3) {
