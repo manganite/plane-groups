@@ -150,6 +150,10 @@ für diese App gilt.
       um 1 Einheit nach oben verschoben, die Stange ragt 2 Einheiten nach oben). Gespeicherte Strukturen mit Fähnchen
       verschieben sich dadurch um eine Einheit (0,1 der Zelle bei Standardgrösse): Bedeutung der Lage geändert, Format
       gleich, `SPEICHER_VERSION` bleibt bis 4b (dort steigt sie ohnehin). Die Auswahl- und Greifzone liegt um den Fuss.
+    - **Grundsatz Aufpunkt** (Thomas, 12.11.2026): Gleiche Objekte haben in allen Modi denselben Aufpunkt (Lage, Drehpunkt), sonst
+      ist das Verhalten für Nutzer intransparent. Fähnchen: Fuss in beiden Modi. Ornamente: Fuss als Form des Objekts in
+      „Ebenengruppen“, Mitte als Motiv; das gilt nur, bis die Ornamente in 4c „Ebenengruppen“ verlassen (danach gibt es sie
+      nur noch als Motive mit der Mitte als Aufpunkt). Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
     - **Kennzeichnende Punkte:** je Ornament 4 oder 5 Punkte auf seinen Pfaden (Fuss, Spitze, Ansatz, Mitte eines Bézier-Abschnitts; nicht dessen
       Kontrollpunkte, ein Test misst den Abstand), jeder mit eigener Art
       (`o0`, `o1` …). Eine Symmetrie müsste jeden Punkt auf sich selbst abbilden, und das tut bei drei Punkten, die nicht auf
