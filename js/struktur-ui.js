@@ -68,8 +68,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   let ansicht = null; // Ansicht von Tafel A (zuletzt gezeichnet)
   /** @type {Ansicht | null} */
   let fest = null; // eingefrorene Ansicht während des Ziehens
-  /** @type {{ k: number, op: number, versatz: Vec2 } | null} */
-  let zug = null; // { k, op, versatz }
+  /** @type {{ k: number, op: number, versatz: Vec2, bewegt?: boolean } | null} */
+  let zug = null; // { k, op, versatz }; bewegt: gezogen oder neu gesetzt
   /** @type {string | undefined} */
   let letztes; // Symbol der letzten Zeichnung
   /** @type {string | null} */
@@ -258,8 +258,14 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     if (v.von !== bau()) { v.von = bau(); v.schritte = []; }
     return v.schritte;
   };
-  /** Basis und Striche des Modus als Text (für Vergleich und Wiederherstellen). */
-  const stand = () => JSON.stringify({ basis: bau().basis, striche: istEntwurf() ? en().striche : [] });
+  /**
+   * Basis und Striche des Modus als Text (für Vergleich und Wiederherstellen), die Felder eines Motivs sortiert: aendern()
+   * baut einen Eintrag im Entwurf neu auf, eine Änderung ohne Wirkung wäre sonst ein Schritt (Review PR #158).
+   */
+  const stand = () => JSON.stringify({
+    basis: bau().basis.map((e) => Object.fromEntries(Object.entries(e).sort(([a], [b]) => (a < b ? -1 : 1)))),
+    striche: istEntwurf() ? en().striche : [],
+  });
   /** Eine Handlung beginnt: Stand davor merken (einmal, auch wenn ein Regler viele Schritte meldet). */
   const beginnen = () => { if (!offen) { verlauf(); offen = { stand: stand(), von: bau() }; } };
   /** Die Handlung ist abgeschlossen: hat sich etwas geändert, ist der Stand davor ein Schritt im Verlauf. */
@@ -358,7 +364,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     items.push(zeichnet() ? `<span class="lg hint">${werkzeug === 'zeichnen' ? 'Ziehen: Strich zeichnen' : 'Über Striche ziehen: radieren'}${voll ? '; die Zeichnung ist fast voll' : ''}</span>`
       : werkzeug === 'hinzufuegen'
       ? (platz() ? '<span class="lg hint"><span class="only-fine">Stelle anklicken: neues Motiv</span><span class="only-coarse">Stelle antippen: neues Motiv</span></span>'
-        : `<span class="lg hint">Die Basis ist voll (höchstens ${BASIS_GRENZE} Bilder)</span>`)
+        : `<span class="lg hint">Die Basis ist voll (höchstens ${BASIS_GRENZE} ${istEntwurf() ? 'Bilder; jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : 'Motive'})</span>`)
       : `<span class="lg hint">${gewaehlt !== null ? (istEntwurf() ? 'Ziehen verschiebt die ganze Bahn' : 'Ziehen verschiebt das Motiv') : 'Motiv wählen und ziehen'}</span>`);
     $('legend').innerHTML = items.join('');
   }
@@ -459,7 +465,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (neu.fuge && hatFuge(neu.motiv)) e0.fuge = true;
       bau().basis.push(e0);
       gewaehlt = bau().basis.length - 1; gewaehltOp = 0;
-      zug = { k: gewaehlt, op: 0, versatz: [0, 0] };
+      zug = { k: gewaehlt, op: 0, versatz: [0, 0], bewegt: true };
     } else {
       const t = treffer(q);
       if (!t) { auswahlAufheben(); aktualisieren(); return; }
@@ -498,6 +504,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     if (radierStelle) { radierenAn(svgPunkt(e)); nachziehen(); return true; }
     if (!zug) return false;
+    zug.bewegt = true;
     const p = /** @type {Ansicht} */ (fest).vonBild(svgPunkt(e)); // beim Ziehen eingefroren
     /** @type {Vec2} */
     const ziel = [p[0] + zug.versatz[0], p[1] + zug.versatz[1]];
@@ -527,7 +534,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     if (!zug) return false;
     const e = bau().basis[zug.k];
-    e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
+    // in die Zelle, aber nur nach einer Bewegung: ein Klick zum Wählen ändert nichts (Lagen der Vorgaben liegen auch ausserhalb)
+    if (zug.bewegt) e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
     const g = festG();
     if (g) gewaehltOp = sichtbareOp(g, metrik(bau()), e, zug.op);
     zug = null; fest = null;
@@ -577,6 +585,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       bau().basis = s.basis;
       if (istEntwurf()) en().striche = s.striche;
       auswahlAufheben();
+      if (istEntwurf() && !en().basis.length && !zeichnet()) werkzeug = 'hinzufuegen'; // wie „Entfernen“ des letzten Motivs
       aktualisieren();
     });
     $('motive-loeschen').addEventListener('click', () => {
@@ -614,9 +623,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       handlung(() => aendern((e) => { e.farbe = Number(b.dataset.farbe); }));
       aktualisieren();
     });
+    let winkelMitZeiger = false;
+    $('s-winkel').addEventListener('pointerdown', () => { winkelMitZeiger = true; });
+    $('s-winkel').addEventListener('keydown', () => { winkelMitZeiger = false; });
     $('s-winkel').addEventListener('input', () => {
       let w = Number(eingabe('s-winkel').value);
-      if (z.einrasten) { const r = Math.round(w / 15) * 15; if (Math.abs(w - r) < 2.5) w = r; }
+      // Einrasten auf 15° nur beim Ziehen mit dem Zeiger: Pfeiltasten (±1°) sprängen sonst zurück (Leitfaden 5.4, Review PR #158)
+      if (z.einrasten && winkelMitZeiger) { const r = Math.round(w / 15) * 15; if (Math.abs(w - r) < 2.5) w = r; }
       beginnen(); // ein Schritt im Verlauf je Bewegung des Reglers (bis change)
       aendern((e) => { e.winkel = grad(w % 360); });
       aktualisieren();

@@ -8,6 +8,7 @@
 // ein anderes Chromium mit CHROMIUM_PFAD=<Pfad>. Ende mit Code 1, wenn eine Prüfung scheitert.
 
 import { createRequire } from 'node:module';
+import { vorgabe } from '../js/vorgaben.js';
 import { fileURLToPath } from 'node:url';
 import { server } from './common/server.mjs';
 
@@ -192,6 +193,26 @@ try {
   pruefe(await page.locator('#s-spiegel').isHidden() && await page.locator('#s-fuge').isHidden(), 'Quadrat: „Gespiegelt“ und „Mit Fuge“ fehlen');
   await page.locator('#s-motiv [data-motiv="fahne"]').click(); await page.waitForTimeout(200);
   pruefe(await page.locator('#s-spiegel').isVisible() && await page.locator('#s-fuge').isHidden(), 'Fähnchen: „Gespiegelt“ da, „Mit Fuge“ fehlt');
+  // Keine Schritte ohne Wirkung (Review PR #158): Klick zum Wählen bei Lagen ausserhalb der Zelle, dieselbe Farbe nochmals
+  await oeffnen('#m=struktur&v=a488');
+  await page.locator('#s-werkzeug-verschieben').click();
+  // ein Motiv, dessen Lage in der Vorgabe ausserhalb der Zelle liegt, an seinem Bild in der Zelle antippen
+  const aussen = vorgabe('a488')?.basis.find((b) => b.p.some((v) => v < 0 || v >= 1));
+  const lageAussen = aussen ? aussen.p.map((v) => v - Math.floor(v)) : null;
+  pruefe(lageAussen !== null, 'a488 hat eine Lage ausserhalb der Zelle (Voraussetzung)');
+  if (lageAussen) { const t = await bildschirm(/** @type {[number, number]} */ (lageAussen)); await page.mouse.click(t.x, t.y); await page.waitForTimeout(250); }
+  pruefe((await text('#s-basis-titel')).startsWith('Gewähltes Motiv'), `Klick wählt ein Motiv (${await text('#s-basis-titel')})`);
+  pruefe(await page.locator('#rueckgaengig').isDisabled() && !(await adresse()).includes('basis='), 'Klick zum Wählen: kein Schritt, die Vorgabe bleibt');
+  await oeffnen('#m=entwurf&g=p4gm&basis=fahne,0,0.2,0.3,30');
+  await page.locator('#s-werkzeug-verschieben').click();
+  const f1 = await bildschirm([0.2, 0.3]); await page.mouse.click(f1.x, f1.y); await page.waitForTimeout(250);
+  await page.locator('#s-farbe button[data-farbe="0"]').click(); await page.waitForTimeout(200);
+  pruefe(await page.locator('#rueckgaengig').isDisabled(), 'Dieselbe Farbe nochmals: kein Schritt');
+  // Drehung per Tastatur trotz Einrasten
+  await page.locator('#s-winkel').focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(200);
+  pruefe(await page.locator('#s-winkel').inputValue() !== '30', `Drehung per Tastatur mit Einrasten (${await page.locator('#s-winkel').inputValue()}°)`);
   // Export als Knopf mit Menü
   await page.locator('#export-b').click(); await page.waitForTimeout(150);
   pruefe(await page.locator('#export-b-menue [role="menuitem"]').count() === 3 && await page.locator('#export-b-menue').isVisible(), 'Export-Menü der Tafel B mit drei Einträgen');

@@ -94,7 +94,7 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `zellen` | Zellen im Symmetriegerüst | **`1`**, `2` (2 × 2) |
 | `form` | Form des Objekts | **`fahne`**, `komma` (Kreis mit Komma wie ITA) |
 | `og` | Grösse des Objekts (Faktor; im Gitter, in beiden Tafeln im selben Verhältnis zur Zelle) | 0.5–3, **1** |
-| `rast` | Einrasten (in allen Modi): auf spezielle Lagen, in „Gitter und Basis“ und im Entwurf auch auf Zwölftel der Zelle und 15° | `0`, **`1`** |
+| `rast` | Einrasten beim Ziehen (in allen Modi): auf spezielle Lagen („Ebenengruppen“, „Muster entwerfen“), auf Zwölftel der Zelle und 15° („Gitter und Basis“, „Muster entwerfen“) | `0`, **`1`** |
 | `orbit` | Bilder rund um die Zelle (wie ITA) | **`0`**, `1` |
 | `fuell` | asymmetrische Einheit gefüllt und vervielfältigt (in allen Modi) | **`0`**, `1` |
 | `farb` | nach Blickrichtung färben (in allen Modi) | `0`, **`1`** |

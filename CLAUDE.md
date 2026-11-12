@@ -95,8 +95,9 @@ für diese App gilt.
   - **„Darstellung“ gleich in allen Modi:** eigene Karte unten in der Seitenleiste (Nach Blickrichtung färben,
     Symmetrieelemente im Muster, Muster als Tapete, Asymmetrische Einheit füllen, Vergrösserung des Musters), dieselben Felder
     im Zustand (`farben`, `musterElemente`, `tapete`, `aeFuell`, `lupe`, `zoomB`) und Schlüssel im Link (`farb`, `mel`, `tap`,
-    `fuell`, `lupe`, `zoom`; `GEMEINSAME_SCHALTER` in `js/zustand.js`). Die Schalter nur von „Ebenengruppen“ (`el`, `obj`,
-    `ae`, `rast`, `orbit`) stehen nicht im Link der anderen Modi. Wahl beim Umsetzen:
+    `fuell`, `lupe`, `zoom`; `GEMEINSAME_SCHALTER` in `js/zustand.js`), dazu Einrasten (`einrasten`, `rast`; seit #130,
+    Abschnitt „Seitenleiste und Tafel“). Die Schalter nur von „Ebenengruppen“ (`el`, `obj`, `ae`, `orbit`) stehen nicht im
+    Link der anderen Modi. Wahl beim Umsetzen:
     - **Farben:** Der Startwert `farb=1` gilt in allen Modi. Abbildungen im Skript und im Quiz geben `farben: false`
       ausdrücklich an.
     - **Tapete:** ohne konventionelle Zelle und ohne Symmetrieelemente (sie sperrt „Symmetrieelemente im Muster“, das gewählt
@@ -249,18 +250,23 @@ für diese App gilt.
   Platz) war die Seitenleiste 963 / 1515 / 1799 px hoch (Ebenengruppen / Gitter und Basis / Muster entwerfen), danach
   947 / 1188 / 1227 px, mit eingeklappter „Basis“ 739 und 778 px.
   - **Werkzeugleiste als Symbole** (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole): Pfeil (Wählen und ziehen),
-    + (Hinzufügen), Stift, Radiergummi; dann die Handlungen Rückgängig, „Gewähltes Motiv entfernen“ (×), „Alle Motive
+    + (Hinzufügen), Stift, Radiergummi; dann die Handlungen Rückgängig, „Gewähltes Motiv entfernen“ (× im gestrichelten Rahmen), „Alle Motive
     löschen“ und „Alle Striche löschen“ (Papierkorb mit Dreieck bzw. Strich); Einrasten (Magnet) und Lupe als Schalter neben
     dem Titel, in allen Modi (Thomas). Name im `aria-label`, Erklärung im Tooltip und im ⓘ von „Basis“ (Touch). Mit Text
     passte die Leiste bei 530 px Tafelbreite nicht (Skizzen in der Sitzung). Kopf von Tafel A: Titel, Schalter, Export in
     einer Zeile, darunter in den Modi mit Basis die Leiste (`.leiste`); der Untertitel bricht um, bevor der Export eine eigene
-    Zeile braucht (iPad).
+    Zeile braucht (iPad). Auf dem iPad quer bei 1024 px bricht die Leiste mit Touch-Zielen von 40 px in zwei Zeilen um
+    (Kopf etwa 150 px; Review PR #158); eine Zeile ginge nur mit kleineren Zielen.
   - **Rückgängig** (Thomas: für Motive und Striche; in beiden Modi mit Basis): je Modus ein Verlauf von Basis und Strichen,
     ein Schritt je abgeschlossener Handlung, bis 50, nur für die Sitzung (`verlaeufe`, `beginnen`, `abschliessen` in
     `js/struktur-ui.js`); Gruppe, Gitter und Anzeigen gehören nicht dazu (Seitenleiste). Wahl beim Umsetzen: Ein Verlauf
     gehört zu einem Zustandsobjekt; Vorgabe, „Vorgabe wiederherstellen“, Übernahme und ein Link ersetzen es und beginnen
     einen neuen, die Wahl einer Gruppe im Entwurf leert ihn, weil die Grenze der Bilder von der Gruppe abhängt und ein
-    alter Stand sie überschreiten könnte. Der frühere Rückfall „ohne Verlauf der letzte Strich“ entfällt.
+    alter Stand sie überschreiten könnte (das ⓘ sagt es; auch die Striche verlieren damit ihren Verlauf). Der frühere
+    Rückfall „ohne Verlauf der letzte Strich“ entfällt. Kanonischer Stand (Felder sortiert), damit eine Änderung ohne Wirkung
+    kein Schritt ist; ein Klick zum Wählen rückt eine Lage nicht in die Zelle (nur nach Bewegung), weil Vorgaben Lagen
+    ausserhalb haben. Pfeiltasten an einem Regler ergeben je Taste einen Schritt. Einrasten auf 15° am Drehregler nur mit dem
+    Zeiger, sonst kämen die Pfeiltasten (±1°) nicht vom Fleck (Leitfaden Abschn. 5.4).
   - **Zwei Löschknöpfe** (Thomas): „Alle Motive löschen“ (beide Modi) und „Alle Striche löschen“ (Entwurf).
   - **Einrasten** ist ein Zustand für alle Modi (`z.einrasten`, Link `rast` jetzt in `GEMEINSAME_SCHALTER`; Wahl beim
     Umsetzen, wie die Lupe). In „Ebenengruppen“ ruht es ohne Objekt; der Grund steht in der Legende.
