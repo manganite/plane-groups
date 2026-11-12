@@ -611,7 +611,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       handlung(() => aendern((e) => {
         e.motiv = /** @type {string} */ (b.dataset.motiv);
         if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
-        // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Muster entwerfen“)
+        // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Motive“)
         if (!chiral(e.motiv)) delete e.spiegel;
         if (!hatFuge(e.motiv)) delete e.fuge; // ohne Fuge-Motiv gibt es nichts, was ruhen könnte
       }));
