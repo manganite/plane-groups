@@ -18,7 +18,7 @@ export const TIPS = {
   's-farbe': 'Atomsorte: Motive verschiedener Farbe sind verschieden und werden nie aufeinander abgebildet.',
   's-winkel': 'Drehung des Motivs im Uhrzeigersinn, ab der Richtung von b.',
   's-spiegel': 'Spiegelbild des Motivs; gespiegelt wird vor der Drehung (beim Fähnchen an der Stange). Wirkt nur bei Motiven ohne eigene Spiegellinie (Fähnchen, Ornamente, Windräder); die übrigen sehen gespiegelt gleich aus.',
-  's-groesse': 'Grösse des Motivs (in Einheiten von a).',
+  's-groesse': 'Grösse des Motivs (in Einheiten von a), von 0,02 bis 1. Der Regler ist logarithmisch: Der Bereich der Atome (etwa 0,05 bis 0,2) liegt in der Mitte und lässt sich fein einstellen.',
   'e-picker': 'Ebenengruppe des Entwurfs wählen. Die Motive bleiben erhalten, ihre Bilder entstehen unter der neuen Gruppe neu; das Gitter bleibt, wenn es zum Kristallsystem passt, sonst gilt dessen Startgitter. Gesperrt sind Gruppen, mit denen es mehr als 48 Bilder würden.',
   'e-elemente': 'Symmetrieelemente der gewählten Gruppe über dem Entwurf.',
   'e-ae': 'Asymmetrische Einheit der gewählten Gruppe.',

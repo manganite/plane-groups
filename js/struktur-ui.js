@@ -11,7 +11,7 @@ import { VORGABEN } from './vorgaben.js';
 import { MOTIVE, MOTIVZEILEN, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad, radieren, vereinfachen, STRICH_GRENZE } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
-import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
+import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, groesseVonRegler, reglerVonGroesse, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
 import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, gruppeWechseln, uebernahmeVon } from './bahnen.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, entwurfHTML, festeBestimmung, motivFarben, strukturSymmetrie, istGegeben, motivSymbol } from './struktur.js';
 import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
@@ -207,7 +207,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     eingabe('s-spiegel').disabled = !spiegelbar;
     element('#row-spiegel .why').textContent = spiegelbar ? '' : 'nur bei Motiven ohne Spiegellinie (Fähnchen, Ornamente, Windräder)';
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
-    eingabe('s-groesse').value = String(gr);
+    eingabe('s-groesse').value = String(reglerVonGroesse(gr));
     $('s-groesse-out').textContent = dezimal(gr, 3);
     knopf('s-entfernen').disabled = gewaehlt === null;
     knopf('s-entfernen').textContent = istEntwurf() ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen';
@@ -586,7 +586,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       aendern((e) => { if (eingabe('s-spiegel').checked && chiral(e.motiv)) e.spiegel = true; else delete e.spiegel; });
       aktualisieren();
     });
-    $('s-groesse').addEventListener('input', () => { aendern((e) => { e.groesse = Number(eingabe('s-groesse').value); }); aktualisieren(); });
+    $('s-groesse').addEventListener('input', () => { aendern((e) => { e.groesse = groesseVonRegler(Number(eingabe('s-groesse').value)); }); aktualisieren(); });
     $('s-entfernen').addEventListener('click', () => {
       if (gewaehlt === null) return;
       bau().basis.splice(gewaehlt, 1);
