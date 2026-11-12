@@ -1,4 +1,4 @@
-// Rechenkern der Ebenengruppen: Operationen, Verknüpfung, Symmetrieelemente, Lagen, Auslöschungen.
+// Rechenkern der Ebenengruppen: Operationen, Verknüpfung, Symmetrieelemente, Lagen.
 //
 // Eine Operation ist { R, t } mit der Matrix R (2×2, ganzzahlig) und der Translation t, beide in
 // Bruchkoordinaten: x' = R·x + t. Verknüpfung „a ∘ b“ heisst: zuerst b, dann a.
@@ -8,7 +8,7 @@
 import { ebenengruppe, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
-/** @import { Ebenengruppe, Wyckoff, Bedingung } from './ebenengruppen.js' */
+/** @import { Ebenengruppe, Wyckoff } from './ebenengruppen.js' */
 /** Operation x' = R·x + t (Bruchkoordinaten). @typedef {{ R: Mat2, t: Vec2 }} Op */
 /**
  * Art einer Operation (art()).
@@ -623,40 +623,4 @@ export function punktAufLage(g, b, p) {
     if (lage(g, r).buchstabe === b) return r;
   }
   throw new Error(`kein Punkt auf ${b} in ${g.daten.symbol} gefunden`);
-}
-
-// ---------------------------------------------------------------------------------------------
-// Auslöschungen
-// ---------------------------------------------------------------------------------------------
-
-/**
- * Strukturfaktor (komplex) einer Punktmenge mit gleichen Streuern für den Reflex hk.
- * @param {readonly Vec2[]} punkte
- * @param {number} h
- * @param {number} k
- * @returns {Vec2} Real- und Imaginärteil
- */
-export function strukturfaktor(punkte, h, k) {
-  let re = 0; let im = 0;
-  for (const [x, y] of punkte) { const phi = 2 * Math.PI * (h * x + k * y); re += Math.cos(phi); im += Math.sin(phi); }
-  return [re, im];
-}
-
-/**
- * Bedingungen [Klasse, Bedingung] auf hk anwenden: true, wenn der Reflex ausgelöscht ist.
- * @param {readonly Bedingung[]} bedingungen
- * @param {number} h
- * @param {number} k
- */
-export function verletzt(bedingungen, h, k) {
-  /** @param {number} v */
-  const gerade = (v) => v % 2 === 0;
-  for (const [klasse, bed] of bedingungen) {
-    if (klasse === 'h0' && k !== 0) continue;
-    if (klasse === '0k' && h !== 0) continue;
-    const wert = { 'h=2n': h, 'k=2n': k, 'h+k=2n': h + k }[bed];
-    if (wert === undefined) throw new Error(`unbekannte Bedingung: ${bed}`);
-    if (!gerade(wert)) return true;
-  }
-  return false;
 }

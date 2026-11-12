@@ -9,23 +9,22 @@ import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, gebrochen, radieren, metrik as metrikVon, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, radieren, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
-import { erklaerungHTML, elementName } from './warum.js';
-import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, FREI_BEREICH, wieVorgabe, ausSpeicher, speicherStand, introGesehen } from './zustand.js';
+import { erklaerungHTML, elementName } from './herkunft-text.js';
+import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, wieVorgabe, ausSpeicher, speicherStand, introGesehen } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
-import { koordHTML, opHTML, lageHTML, symbolHTML, bedingungHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
+import { koordHTML, opHTML, lageHTML, symbolHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
 import { schoenfliesHTML, CONWAY, CONWAY_HINWEIS } from './symbole.js';
-import { brechAnalyse, brechHTML } from './brechen.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter, Farben, Ansicht, Box, Erklaerung, SichtbarerDrehpunkt, SichtbareLinie } from './zeichnung.js' */
 /** @import { Gruppe } from './symmetrie.js' */
 /** @import { Ebenengruppe, System } from './ebenengruppen.js' */
 /** @import { Schalterfeld } from './zustand.js' */
-/** @import { Elementangabe } from './warum.js' */
+/** @import { Elementangabe } from './herkunft-text.js' */
 
 // Elemente der Seite (index.html) über die geprüften Helfer aus lib/common/js/seite.js
 // ($, eingabe, knopf, element, elemente, grafik)
@@ -178,8 +177,8 @@ function auswahlAbgleichen() {
 
 // ------------------------------------------------------------------ Bedienelemente abgleichen
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
-/** „Herkunft der Elemente“ wirkt: gewählt, mit Symmetrieelementen, nicht beim Brechen der Symmetrie (dort ruht es, bleibt aber gewählt). */
-const herkunftAktiv = () => z.warum && z.elemente && !z.brechen;
+/** „Herkunft der Elemente“ wirkt: gewählt und mit Symmetrieelementen (ohne diese ruht es, bleibt aber gewählt). */
+const herkunftAktiv = () => z.herkunft && z.elemente;
 /** Grund, wenn Zeichnen, Radieren, Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
 const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
 function bedienungAbgleichen() {
@@ -216,7 +215,7 @@ function bedienungAbgleichen() {
   eingabe('opt-schritt').checked = z.schritt > 0;
   // „Herkunft der Elemente“ (eingeschaltet oder mit gezeigtem Element) überdeckt „Schritt für Schritt“
   // (schrittWirkt in zeichnung.js): Es ruht, gesperrt und gewählt, bis sie ausgeschaltet ist (Leitfaden 5.2)
-  const schrittRuht = !z.brechen && (herkunftAktiv() || !!z.erkl);
+  const schrittRuht = herkunftAktiv() || !!z.erkl;
   eingabe('opt-schritt').disabled = !z.objekt || schrittRuht;
   element('#row-schritt .why').textContent = !z.objekt ? 'nur mit „Objekt in allgemeiner Lage“'
     : schrittRuht ? (herkunftAktiv() ? 'ruht, solange „Herkunft der Elemente“ eingeschaltet ist' : 'ruht, solange die Herkunft eines Elements gezeigt wird („Schliessen“ in der Erklärung)') : '';
@@ -230,11 +229,11 @@ function bedienungAbgleichen() {
   $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
     : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
       : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.`;
-  // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt (Zustand z.warum, Link warum=1)
-  eingabe('opt-warum').checked = z.warum;
-  eingabe('opt-warum').disabled = !z.elemente;
-  element('#row-warum .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
-  document.body.classList.toggle('warum', herkunftAktiv());
+  // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt (Zustand z.herkunft, Link herkunft=1)
+  eingabe('opt-herkunft').checked = z.herkunft;
+  eingabe('opt-herkunft').disabled = !z.elemente;
+  element('#row-herkunft .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
+  document.body.classList.toggle('herkunft', herkunftAktiv());
   // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): Werkzeuge Zeichnen und Radieren aus,
   // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
   const ruhig = erklaerend(z);
@@ -281,32 +280,20 @@ function bedienungAbgleichen() {
   $('v-zoom-out').textContent = `${dezimal(z.zoomB, 2)} ×`;
   $('obj-why').textContent = z.objekt ? '' : 'Nur mit „Objekt in allgemeiner Lage“.';
   knopf('reset-objekt').disabled = !z.objekt;
-  // Gitter
+  // Gitter: die freien Parameter des Systems, im Bereich GITTER_BEREICH
   const sys = systemJetzt();
-  // ohne Bindung (Symmetrie brechen) dieselben Regler mit grösserem Bereich und der freien Metrik
-  const gi = z.brechen ? z.frei : z.gitter[sys];
+  const gi = z.gitter[sys];
   for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
-    const [lo, hi] = z.brechen ? FREI_BEREICH[k] : GITTER_BEREICH[k];
+    const [lo, hi] = GITTER_BEREICH[k];
     eingabe(`lat-${k}`).min = String(lo); eingabe(`lat-${k}`).max = String(hi);
     eingabe(`lat-${k}`).value = String(gi[k]);
-    eingabe(`lat-${k}`).disabled = !z.brechen && !FREI[sys].includes(k);
+    eingabe(`lat-${k}`).disabled = !FREI[sys].includes(k);
     $(`lat-${k}-out`).textContent = k === 'ba' ? dezimal(gi.ba, 2) : `${dezimal(gi.gamma, 1)}°`;
   }
-  eingabe('opt-brechen').checked = z.brechen;
-  eingabe('opt-brechen').disabled = sys === 'schiefwinklig' && !z.brechen;
-  element('#row-brechen .why').textContent = sys === 'schiefwinklig' ? 'im schiefwinkligen System ist das Gitter schon frei' : '';
   const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
-  $('lat-why').textContent = z.brechen
-    ? 'Ohne Bindung: Die Objekte behalten ihre Lage in Bruchkoordinaten, es ändern sich nur Längen und Winkel. Die Kenndaten zeigen, welche Symmetrie bleibt. „Herkunft der Elemente“, Aufbau, Schritte und asymmetrische Einheit beziehen sich auf die ursprüngliche Gruppe und ruhen so lange.'
-    : `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.`.trim();
-  $('reset-gitter').textContent = z.brechen ? 'Zurück zur Metrik des Systems' : 'Gitter zurücksetzen';
-  knopf('reset-gitter').disabled = !z.brechen && FREI[sys].length === 0;
-  // beim freien Gitter ruhen die Bedienelemente, die sich auf die ursprüngliche Gruppe beziehen
-  if (z.brechen) {
-    for (const id of ['opt-aufbau', 'aufbau-schritt', 'opt-schritt', 'schritt-regler', 'opt-ae', 'opt-fuell', 'opt-warum']) eingabe(id).disabled = true;
-    for (const id of ['aufbau-vor', 'aufbau-zurueck', 'schritt-vor', 'schritt-zurueck', 'schritt-abspielen']) knopf(id).disabled = true;
-    for (const id of ['#row-warum', '#row-aufbau', '#row-schritt', '#row-fuell']) element(`${id} .why`).textContent = 'ruht ohne Bindung an das Kristallsystem';
-  }
+  const zufall = FREI[sys].length ? ' Bei besonderen Werten (z. B. b = a) kann die Metrik zufällig höher sein; die Gruppe bleibt die gewählte.' : '';
+  $('lat-why').textContent = `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.${zufall}`.trim();
+  knopf('reset-gitter').disabled = FREI[sys].length === 0;
 }
 
 // ------------------------------------------------------------------ Zeichnen
@@ -354,10 +341,9 @@ function zeichnen() {
 /** @param {Farben} f */
 function legende(f) {
   const g = gruppeVon(z.gruppe);
-  const bruch = z.brechen ? brechAnalyse(g, z.frei) : null;
   const sys = g.daten.system;
   const items = [];
-  const el = elementeImBereich(bruch ? gebrochen(g, z.frei).H : g, 1); // beim Brechen nur die Restsymmetrie
+  const el = elementeImBereich(g, 1);
   /** @param {number} pos */
   const farbe = (pos) => (z.farben ? f.dir[pos - 1] : f.ink);
   if (z.elemente) {
@@ -368,16 +354,14 @@ function legende(f) {
     const linie = (dash) => `<svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.ink}" stroke-width="${dash ? 2 : 2.8}" ${dash ? 'stroke-dasharray="6 4"' : 'stroke-linecap="round"'}/></svg>`;
     if (arten.has('spiegel')) items.push(`<span class="lg">${linie(false)}Spiegellinie</span>`);
     if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
-    if (z.farben && sys !== 'schiefwinklig' && !(bruch && bruch.weg.length)) {
+    if (z.farben && sys !== 'schiefwinklig') {
       const positionen = new Set(el.linien.map((l) => blickrichtung(sys, l.normale)));
       for (const pos of [2, 3]) {
         if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i><span>Normale ∥ ${SYMMETRIERICHTUNGEN[sys][pos - 2].map(richtungHTML).join(', ')}</span></span>`);
       }
     }
   }
-  if (z.objekt && bruch && bruch.bahnen > 1) {
-    items.push('<span class="lg"><em>Farben der Objekte: Bahnen der Restsymmetrie</em></span>');
-  } else if (z.objekt) {
+  if (z.objekt) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);
     if (g.alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
   }
@@ -462,7 +446,7 @@ function kenndaten() {
   const schrittAn = schrittWirkt({ ...z, erkl: erklaerung ? z.erkl : null });
   const sd = schrittAn ? schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt) : null;
   const aktuell = sd && !sd.translationen ? sd.k - 1 : -1;
-  const schrittbox = sd ? `<div class="warumbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
+  const schrittbox = sd ? `<div class="erklaerbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
   /** @param {string[]} texte @param {string[]} ops @param {string} [z0] @param {number} [versatz] */
   const opsZeilen = (texte, ops, z0, versatz = 0) => ops.map((op, i) => `<tr${i + versatz === aktuell ? ' class="aktiv"' : ''}><td class="num">(${i + 1})</td><td>${koordHTML(d.ops[i])}${z0 ? ` + (${z0})` : ''}</td><td>${opHTML(texte[i])}</td></tr>`).join('');
   const opsTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Nr.</th><th>Koordinaten</th><th>Symmetrieoperation</th></tr></thead><tbody>
@@ -470,15 +454,11 @@ function kenndaten() {
     ${zentriert ? `<tr class="zent"><td colspan="3">für (½, ½)+</td></tr>${opsZeilen(/** @type {string[]} */ (d.zentrText), d.ops, '½, ½', d.ops.length)}` : ''}</tbody></table></div>`;
   // Wyckoff-Lagen
   const wyZeilen = d.wyckoff.map((w) => {
-    const extra = d.bedingungen[w.b];
-    const bed = w === d.wyckoff[0]
-      ? (d.bedingungen.allgemein.length ? d.bedingungen.allgemein.map(bedingungHTML).join('<br>') : 'keine')
-      : (extra ? extra.map(bedingungHTML).join('<br>') : '<span class="muted">keine weiteren</span>');
     return `<tr${w.b === l.buchstabe && z.objekt ? ' class="aktiv"' : ''}><td class="num">${w.n} <span class="wy">${w.b}</span></td><td>${lageHTML(w.sym)}</td>
-      <td><div class="koords">${w.koord.map(koordHTML).join('')}</div></td><td>${bed}</td>
+      <td><div class="koords">${w.koord.map(koordHTML).join('')}</div></td>
       <td><button class="setzen" type="button" data-wy="${w.b}" ${z.objekt ? '' : 'disabled'} title="Objekt auf diese Lage setzen">setzen</button></td></tr>`;
   }).join('');
-  const wyTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Zähligkeit, Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th>Koordinaten${zentriert ? ' (0, 0)+ (½, ½)+' : ''}</th><th>Auslöschungen</th><th></th></tr></thead><tbody>${wyZeilen}</tbody></table></div>`;
+  const wyTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Zähligkeit, Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th>Koordinaten${zentriert ? ' (0, 0)+ (½, ½)+' : ''}</th><th></th></tr></thead><tbody>${wyZeilen}</tbody></table></div>`;
   const pgLink = `<a href="${stereoLink(d).replace(/&/g, '&amp;')}" target="_blank" rel="noopener" title="${stereoHinweis(d)}">${symbolHTML(d.punktgruppe)}</a>`;
   const fokus = fokusMerken();
   $('info').innerHTML = `
@@ -486,9 +466,8 @@ function kenndaten() {
       <div class="hm-big">${symbolHTML(d.symbol)}</div>
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>International Tables, Vol. A, S. ${d.seite}${d.nr === 17 ? '–109' : ''}</span></div>
     </div>
-    ${erklaerung ? `<div class="warumbox" id="warumbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
-    : herkunftAktiv() ? `<div class="warumbox" id="warumbox"><h3>Herkunft der Elemente</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
-    ${z.brechen ? `<div class="warumbox brechbox" id="brechbox">${brechHTML(d, z.frei, brechAnalyse(g, z.frei))}</div>` : ''}
+    ${erklaerung ? `<div class="erklaerbox" id="erklaerbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
+    : herkunftAktiv() ? `<div class="erklaerbox" id="erklaerbox"><h3>Herkunft der Elemente</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
     ${schrittbox}
     ${erklaerung ? '' : lagebox}
     <dl class="facts">
@@ -504,8 +483,6 @@ function kenndaten() {
     <div class="cols">
       <div><h3>Symmetrieoperationen</h3>${opsTab}
         <p class="note">Erzeugende: ${d.erzeugende.length ? d.erzeugende.map((i) => `(${i})`).join(', ') : 'nur'} ${d.erzeugende.length ? 'und die' : 'die'} Gittertranslationen <i>t</i>(1, 0), <i>t</i>(0, 1)${zentriert ? ' sowie <i>t</i>(½, ½)' : ''}.</p></div>
-      <div><h3>Auslöschungen</h3><p>${d.bedingungen.allgemein.length ? `Allgemein: ${d.bedingungen.allgemein.map(bedingungHTML).join('; ')}` : 'Keine allgemeinen Auslöschungen.'}</p>
-        ${d.bedingungen.allgemein.length ? `<p class="note">Reflexe <i>hk</i>, die eine Bedingung verletzen, fehlen im Beugungsbild; Ursache ist ${zentriert ? 'die Zentrierung' : 'die Gleitspiegellinie'}.</p>` : ''}</div>
     </div>
     <h3>Lagen (Wyckoff-Lagen)</h3>${wyTab}
     <details class="explain"><summary>Erläuterungen</summary>
@@ -674,9 +651,7 @@ function radierenAn(e) {
   const q = svgPunkt(e);
   radierStelle = q;
   const g = gruppeVon(z.gruppe);
-  const M = z.brechen ? metrikVon(z.frei) : metrikVon(z.gitter[systemJetzt()]);
-  const H = z.brechen ? gebrochen(g, z.frei).H : g;
-  z.striche = radieren(z.striche, H, M, A.vonBild(q), RADIER_PX / A.s);
+  z.striche = radieren(z.striche, g, metrik(z.gitter[systemJetzt()]), A.vonBild(q), RADIER_PX / A.s);
   zeichneA();
 }
 /** @param {PointerEvent} e */
@@ -789,9 +764,6 @@ function init() {
     if (!b) return;
     if (z.gruppe !== b.dataset.g) { z.erkl = null; z.aeTeile = []; stoppeSchritte(); if (z.schritt > 0) z.schritt = 1; } // Abspielen rechnet mit der Zahl der Schritte der alten Gruppe
     z.gruppe = /** @type {string} */ (b.dataset.g); // jeder Knopf trägt data-g
-    // im schiefwinkligen System ist nichts zu brechen (wie in zustandPruefen): dort aus, sonst die Metrik des Systems
-    if (z.brechen && systemJetzt() === 'schiefwinklig') z.brechen = false;
-    if (z.brechen) z.frei = { ...z.gitter[systemJetzt()] };
     aktualisieren();
   });
   bindeSchalter('opt-elemente', 'elemente');
@@ -821,12 +793,12 @@ function init() {
   for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
     $(`lat-${k}`).addEventListener('input', () => {
       const v = Number(eingabe(`lat-${k}`).value);
-      if (z.brechen) z.frei = { ...z.frei, [k]: v }; else z.gitter[systemJetzt()][k] = grad(v); // grad() kennzeichnet nur
+      z.gitter[systemJetzt()][k] = grad(v); // grad() kennzeichnet nur
       aktualisieren();
     });
   }
-  // zurücksetzen: Startmetrik des Systems, mit Bindung
-  $('reset-gitter').addEventListener('click', () => { const s = systemJetzt(); z.brechen = false; z.gitter[s] = { ...GITTER_START[s] }; aktualisieren(); });
+  // zurücksetzen: Startmetrik des Systems
+  $('reset-gitter').addEventListener('click', () => { const s = systemJetzt(); z.gitter[s] = { ...GITTER_START[s] }; aktualisieren(); });
   // Alle Einträge „ebenen-…“ im Speicher ausser denen des Quiz löschen, ohne Hash neu laden (Leitfaden Abschn. 5.2)
   $('reset-alles').addEventListener('click', () => alleEinstellungenZuruecksetzen('ebenen'));
   $('info').addEventListener('click', (e) => {
@@ -836,7 +808,7 @@ function init() {
     // Kenndaten „Gitter und Basis“: die gefundene Gruppe im Modus „Ebenengruppen“ öffnen
     const eg = naechstes('[data-zu-eg]');
     if (eg) {
-      z.modus = 'eg'; z.gruppe = /** @type {string} */ (eg.dataset.zuEg); z.brechen = false; z.erkl = null; z.aeTeile = []; z.schritt = 0;
+      z.modus = 'eg'; z.gruppe = /** @type {string} */ (eg.dataset.zuEg); z.erkl = null; z.aeTeile = []; z.schritt = 0;
       aktualisieren(); window.scrollTo({ top: 0 }); return;
     }
     const b = naechstes('.setzen');
@@ -860,20 +832,6 @@ function init() {
     const wahl = naechstes('[data-erkl]');
     if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); stoppeSchritte(); abspielen(); }
   });
-  $('opt-brechen').addEventListener('change', () => {
-    const s = systemJetzt();
-    z.brechen = eingabe('opt-brechen').checked;
-    if (z.brechen) {
-      z.frei = { ...z.gitter[s] };
-      z.erkl = null; z.aufbau = 0; z.schritt = 0; z.aeTeile = []; stoppeSchritte(); clearTimeout(ablauf); phase = 3;
-    } else {
-      // Bindung wieder an: die nächste Metrik des Systems (freie Parameter behalten, im Bereich)
-      const g0 = { ...GITTER_START[s] };
-      for (const k of FREI[s]) g0[k] = grad(Math.min(Math.max(z.frei[k], GITTER_BEREICH[k][0]), GITTER_BEREICH[k][1])); // grad() kennzeichnet nur
-      z.gitter[s] = g0;
-    }
-    aktualisieren();
-  });
   $('werkzeug-zeichnen').addEventListener('click', () => {
     z.zeichnen = !z.zeichnen;
     if (z.zeichnen) { z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
@@ -889,10 +847,10 @@ function init() {
   $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = /** @type {Vec2[][]} */ (verlauf.pop()); else z.striche.pop(); aktualisieren(); });
   $('zeichnen-loeschen').addEventListener('click', () => { merken(); z.striche = []; aktualisieren(); });
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
-  $('opt-warum').addEventListener('change', () => {
-    z.warum = eingabe('opt-warum').checked;
-    if (z.warum) { stoppeSchritte(); z.zeichnen = false; z.radieren = false; }
-    if (!z.warum) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
+  $('opt-herkunft').addEventListener('change', () => {
+    z.herkunft = eingabe('opt-herkunft').checked;
+    if (z.herkunft) { stoppeSchritte(); z.zeichnen = false; z.radieren = false; }
+    if (!z.herkunft) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });
   $('opt-aufbau').addEventListener('change', () => { z.aufbau = eingabe('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
@@ -962,7 +920,7 @@ function init() {
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
   // Ist eine Erklärung aus Speicher oder Link aktiv, ihren Abschnitt aufklappen: Sie sperrt
   // Zeichnen, Radieren, Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
-  if (z.modus === 'eg' && (z.warum || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
+  if (z.modus === 'eg' && (z.herkunft || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
   if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;
   aktualisieren();
 }

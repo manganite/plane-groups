@@ -289,19 +289,19 @@ const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
  * Eine Erklärung im Symmetriegerüst ist aktiv: „Schritt für Schritt“, „Aufbau aus Erzeugenden“ oder
  * „Herkunft der Elemente“. Dann zeigt Tafel A das Objekt in fester Grösse (wie die Fähnchen der
  * Erklärungen), die eigene Zeichnung nicht, und die Lupe ruht; sie wird nur zum Zeichnen, Radieren und
- * Setzen des Objekts gebraucht. Beim Brechen der Symmetrie ruhen die Erklärungen selbst.
- * @param {Pick<Zustand, 'brechen' | 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'warum' | 'erkl'>} z
+ * Setzen des Objekts gebraucht.
+ * @param {Pick<Zustand, 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'herkunft' | 'erkl'>} z
  */
-export const erklaerend = (z) => !z.brechen && ((z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.warum && z.elemente) || !!z.erkl);
+export const erklaerend = (z) => (z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.herkunft && z.elemente) || !!z.erkl;
 
 /**
- * „Schritt für Schritt“ wirkt: eingeschaltet, mit Objekt, ohne Brechen der Symmetrie, ohne eingeschaltete
+ * „Schritt für Schritt“ wirkt: eingeschaltet, mit Objekt, ohne eingeschaltete
  * „Herkunft der Elemente“ und ohne gezeigte Herkunft eines Elements (sie überdecken es; dann ruht es,
  * main.js). Aufrufer übergeben in erkl nur ein gültiges Element, ein unbekanntes aus einem alten Link
  * zählt nicht.
- * @param {Pick<Zustand, 'schritt' | 'objekt' | 'erkl' | 'brechen' | 'warum' | 'elemente'>} z
+ * @param {Pick<Zustand, 'schritt' | 'objekt' | 'erkl' | 'herkunft' | 'elemente'>} z
  */
-export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !z.brechen && !(z.warum && z.elemente);
+export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !(z.herkunft && z.elemente);
 
 /**
  * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter
@@ -399,8 +399,8 @@ export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) 
 }
 
 /**
- * Bilder des Objekts als SVG. farbeVon(bild): eigene Farbe je Bild (z. B. nach Bahnen der
- * Restsymmetrie beim Brechen), sonst nach Händigkeit.
+ * Bilder des Objekts als SVG. farbeVon(bild): eigene Farbe je Bild (z. B. einfarbig bei der Tapete), sonst nach
+ * Händigkeit.
  * @param {Gruppe} g @param {Metrik} M @param {Ansicht} A @param {Vec2} p @param {number} lo @param {number} hi
  * @param {string} form @param {Farben} farben @param {number} massstab @param {number} [rand]
  * @param {((b: Bild) => string) | null} [farbeVon] @param {boolean} [nurSichtbar]
@@ -464,58 +464,6 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
   }
   teile.push('</g>');
   return teile.join('');
-}
-
-// ---------------------------------------------------------------------------------------------
-// Symmetrie brechen: Gitter ohne die Bindung des Kristallsystems
-// ---------------------------------------------------------------------------------------------
-
-/**
- * Die Operationen von g, die bei der freien Metrik frei = { ba, gamma } bleiben: genau die, deren
- * Matrix die Metrik erhält (die Lagen der Objekte ändern sich nicht, nur Abstände und Winkel).
- * Ergebnis: { M, H (Untergruppe wie gruppe(): alle, ordnung, zentr, daten), bleibt, weg }.
- * @param {Gruppe} g
- * @param {Gitter} frei
- * @returns {{ M: Metrik, H: Gruppe, bleibt: Op[], weg: Op[], bahn: number[], bahnen: number }}
- */
-export function gebrochen(g, frei) {
-  const M = metrik(frei);
-  /** @type {Mat2} */
-  const G = [[M.a[0] ** 2 + M.a[1] ** 2, M.a[0] * M.b[0] + M.a[1] * M.b[1]], [0, M.b[0] ** 2 + M.b[1] ** 2]];
-  G[1][0] = G[0][1];
-  const s = Math.max(G[0][0], G[1][1]);
-  /** @param {Mat2} R */
-  const erhaelt = (R) => [0, 1].every((i) => [0, 1].every((j) => {
-    let h = 0;
-    for (let k = 0; k < 2; k++) for (let l = 0; l < 2; l++) h += R[k][i] * G[k][l] * R[l][j];
-    return Math.abs(h - G[i][j]) < 1e-6 * s;
-  }));
-  const bleibt = g.alle.filter((op) => erhaelt(op.R));
-  const weg = g.alle.filter((op) => !erhaelt(op.R));
-  // Bahnen der Restgruppe H: Die Bilder unter o₁ und o₂ sind gleichwertig, wenn o₂ ∘ o₁⁻¹ in H
-  // liegt (modulo Gitter). bahn[i]: Nummer der Bahn des Bildes unter g.alle[i].
-  /** @param {Op} op */
-  const inH = (op) => bleibt.some((h) => h.R.every((z, i) => z.every((w, j) => w === op.R[i][j])) && [0, 1].every((i) => { const d = h.t[i] - op.t[i]; return Math.abs(d - Math.round(d)) < 1e-6; }));
-  /** @type {number[]} */
-  const bahn = [];
-  /** @type {Op[]} */
-  const vertreter = [];
-  for (const [i, o] of g.alle.entries()) {
-    const k = vertreter.findIndex((v) => inH(verknuepfen(o, invers(v))));
-    if (k >= 0) bahn[i] = k; else { bahn[i] = vertreter.length; vertreter.push(o); }
-  }
-  return { M, H: { ...g, alle: bleibt, ordnung: bleibt.length }, bleibt, weg, bahn, bahnen: vertreter.length };
-}
-
-/** Farben der Bahnen beim Brechen: die erste wie bisher, dann gut unterscheidbare. @param {Farben} farben */
-export const bahnFarben = (farben) => [farben.upper, farben.accent2, farben.dir[0], farben.dir[1], farben.dir[2], farben.fc3];
-
-/** Motiv ohne eigene Symmetrie (drei Punkte verschiedener Art), vervielfältigt mit g. @param {Gruppe} g @param {Vec2} [p] @returns {{ p: Vec2, art: string }[]} */
-export function motivBahn(g, p = [0.137, 0.291]) {
-  const motiv = [{ d: [0, 0], art: 'A' }, { d: [0.031, 0.007], art: 'B' }, { d: [-0.004, 0.043], art: 'C' }];
-  const out = [];
-  for (const op of g.alle) for (const m of motiv) out.push({ p: anwenden(op, [p[0] + m.d[0], p[1] + m.d[1]]), art: m.art });
-  return out;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -779,17 +727,6 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
 }
 
 /**
- * Farbe je Bild nach der Bahn der Restsymmetrie, nur wenn das Objekt in mehrere Bahnen zerfällt.
- * @param {ReturnType<typeof gebrochen> | null} brechen @param {Farben} farben
- * @returns {((b: Bild) => string) | null}
- */
-function bahnFarbe(brechen, farben) {
-  if (!brechen || brechen.bahnen < 2) return null;
-  const f = bahnFarben(farben);
-  return (b) => f[brechen.bahn[b.index] % f.length];
-}
-
-/**
  * Tafel A: Symmetriegerüst. Elementarzelle (oder 2 × 2 Zellen) mit den Symmetrieelementen,
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
  * Ergebnis: { svg (Inhalt des <svg>), ansicht }.
@@ -809,11 +746,9 @@ export const LUPE = 2;
 export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupeBox = null } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
-  const brechen = z.brechen ? gebrochen(g, z.frei) : null;
-  const M = brechen ? brechen.M : metrik(z.gitter[sys]);
+  const M = metrik(z.gitter[sys]);
   const n = z.zellen;
-  // beim freien Gitter gelten Erklärung, Aufbau, Schritte und asymmetrische Einheit nicht
-  const erkl = z.erkl && !brechen ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
+  const erkl = z.erkl ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
@@ -843,7 +778,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // grösser: rand / s + p ≥ Reichweite mit s = (520 − 2 rand) / (D + 2 p). Unabhängig von der Lage des
   // Objekts, damit sich die Ansicht beim Ziehen nicht ändert; während einer Erklärung (Objekt in
   // fester Grösse) kein Rand für das Objekt. Grenzen: Bilder knapp ausserhalb der Zelle (Rand von bilder()) können
-  // angeschnitten werden, wie Zeichnungen; beim Brechen der Symmetrie verzerrte Bilder auch weiter.
+  // angeschnitten werden, wie Zeichnungen.
   if (z.objekt && !ruhig) {
     const reichweite = REICHWEITE * OBJEKT_LAENGE * Math.max(Math.hypot(...M.a), Math.hypot(...M.b)) * (z.objGroesse ?? 1);
     const u = randOhneLupe / (520 - 2 * randOhneLupe); const D = Math.max(box[2] - box[0], box[3] - box[1]);
@@ -870,15 +805,15 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Objekt im Gitter (objektMassstab), während einer Erklärung fest wie bei „Schritt für Schritt“ (k: Skript, Quiz)
   const massObjekt = ruhig ? k : objektMassstab(M, A, z.objGroesse ?? 1);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
-  if (z.ae && !brechen) {
+  if (z.ae) {
     const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
     teile.push(`<polygon class="ae" points="${ecken}" fill="${farben.crystal}" fill-opacity="0.55" stroke="${farben.accent}" stroke-width="1.6" stroke-dasharray="5 3"/>`);
   }
-  if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben));
+  if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben));
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
     teile.push(`<polygon points="${zellPoly(A, i, j)}" fill="none" stroke="${farben.muted}" stroke-width="1.2"/>`);
   }
-  if (!ruhig) teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, -1, n + 1, farben));
+  if (!ruhig) teile.push(zeichnungSVG(g, A, z, -1, n + 1, farben));
   // Achsen: a und b am Ursprung beschriftet
   const o = A.zuBild([0, 0]);
   const pa = A.zuBild([n * 0.5, 0]); const pb = A.zuBild([0, n * 0.5]);
@@ -888,17 +823,13 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   const lb = aus(pb, [M.b[1], -M.b[0]]); // über der b-Kante
   teile.push(`<g font-family="Source Serif 4, serif" font-style="italic" font-size="${f2(19 * Math.min(k, 1.4))}" fill="${farben.muted}" text-anchor="middle" dominant-baseline="middle"><text x="${f2(la[0])}" y="${f2(la[1])}">a</text><text x="${f2(lb[0])}" y="${f2(lb[1])}">b</text></g>`);
   teile.push(`<circle cx="${f2(o[0])}" cy="${f2(o[1])}" r="2.6" fill="${farben.muted}"/>`);
-  if (z.elemente && brechen) {
-    // nur die verbleibenden Elemente (wie in der Stereo-App); nach Blickrichtung gefärbt nur,
-    // solange die Gruppe bleibt (sonst andere Gruppe, andere Aufstellung)
-    teile.push(elementeSVG(g, elementeImBereich(brechen.H, n), A, farben, z.farben && !brechen.weg.length, { k }));
-  } else if (z.elemente) {
+  if (z.elemente) {
     const el = z.aufbau > 0 ? aufbauElemente(g, n, z.aufbau) : elementeImBereich(g, n);
     teile.push(elementeSVG(g, el, A, farben, z.farben, { gedimmt: !!erkl, k }));
   }
-  if (z.aeTeile?.length && !brechen) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
+  if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben, 'grenzen'));
   if (schritt) teile.push(schrittSVG(g, M, A, s0, schritt, n, z.form, farben));
-  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, massObjekt, orbit || undefined, bahnFarbe(brechen, farben))}</g>`);
+  else if (z.objekt && !erkl) teile.push(`<g class="objekte">${objekteSVG(g, M, A, z.punkt, 0, n, z.form, farben, massObjekt, orbit || undefined)}</g>`);
   if (z.objekt && !erkl) {
     const q = A.zuBild(ausgangsstelle(z.punkt, n));
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
@@ -1194,15 +1125,14 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
 export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle = false } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
-  const brechen = z.brechen ? gebrochen(g, z.frei) : null;
-  const M = brechen ? brechen.M : metrik(z.gitter[sys]);
+  const M = metrik(z.gitter[sys]);
   const mitte = kart(M, [0.5, 0.5]);
   // Tapete: ohne Zelle und Elemente, alles in einer Farbe; Ausschnitt und Grösse wie sonst, damit
   // das Umschalten nichts verschiebt (mehr zeigen: Vergrösserung unter 1)
   const tapete = !!z.tapete;
   // Vergrösserung zoomB: kleinerer Ausschnitt, Objekte im selben Verhältnis grösser
   const zoom = z.zoomB ?? 1;
-  const w = (MUSTER_BREITE * Math.max(1, (brechen ? z.frei : z.gitter[sys]).ba)) / zoom;
+  const w = (MUSTER_BREITE * Math.max(1, z.gitter[sys].ba)) / zoom;
   /** @type {Box} */
   const box = [mitte[0] - w / 2, mitte[1] - w / 2, mitte[0] + w / 2, mitte[1] + w / 2];
   const A = ansicht(M, box, 520, 10);
@@ -1219,7 +1149,7 @@ export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle 
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
   if (!tapete) teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
   if (z.musterElemente && (!tapete || tapeteElemente)) {
-    const e = elementeImBereich(brechen ? brechen.H : g, 1);
+    const e = elementeImBereich(g, 1);
     /** @type {Elementauswahl} */
     const alle = { drehpunkte: [], linien: [] };
     const [i0, i1] = nurZelle ? [0, 1] : [lo, hi];
@@ -1230,8 +1160,8 @@ export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle 
     teile.push(elementeSVG(g, alle, A, farben, z.farben, { k }));
   }
   const einfarbig = tapete ? farben.upper : null;
-  teile.push(zeichnungSVG(brechen ? brechen.H : g, A, brechen ? { ...z, aeFuell: false } : z, lo, hi, farben, 0.8, einfarbig, true));
-  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, massObjekt, undefined, tapete ? () => /** @type {string} */ (einfarbig) : bahnFarbe(brechen, farben), true));
+  teile.push(zeichnungSVG(g, A, z, lo, hi, farben, 0.8, einfarbig, true));
+  if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, massObjekt, undefined, tapete ? () => /** @type {string} */ (einfarbig) : null, true));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);
   return { svg: teile.join(''), ansicht: A };

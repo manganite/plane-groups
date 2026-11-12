@@ -43,7 +43,6 @@ export const TIPS = {
   'lat-ba': 'Verhältnis der Gitterkonstanten b/a. Frei im schiefwinkligen und im rechteckigen System.',
   'lat-gamma': 'Winkel γ zwischen a und b. Frei nur im schiefwinkligen System.',
   'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen, mit Bindung an das System.',
-  'opt-brechen': 'b/a und γ ohne die Bindung an das Kristallsystem verändern: Es bleiben nur die Operationen, die die neue Metrik erhalten. Die Kenndaten nennen die verbleibende Symmetrie.',
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
   'v-zoom': 'Vergrössert das Muster (über 1) oder zeigt einen grösseren Ausschnitt (unter 1); Zellen und Objekte ändern sich im selben Verhältnis.',
@@ -54,7 +53,7 @@ export const TIPS = {
   'zeichnen-zurueck': 'Den letzten Strich oder das letzte Radieren rückgängig machen.',
   'zeichnen-loeschen': 'Alle Striche entfernen.',
   'opt-fuell': 'Die asymmetrische Einheit füllen und mit allen Operationen vervielfältigen: Ihre Bilder pflastern die Ebene ohne Lücken und Überlappungen.',
-  'opt-warum': 'Ein Symmetrieelement im Symmetriegerüst antippen zeigt, aus welchen zwei Operationen es folgt, am Fähnchen Schritt für Schritt. Lässt sich mit dem schrittweisen Aufbau kombinieren: ein neu hinzugekommenes Element antippen.',
+  'opt-herkunft': 'Ein Symmetrieelement im Symmetriegerüst antippen zeigt, aus welchen zwei Operationen es folgt, am Fähnchen Schritt für Schritt. Lässt sich mit dem schrittweisen Aufbau kombinieren: ein neu hinzugekommenes Element antippen.',
   'opt-schritt': 'Das Objekt wird mit den Symmetrieoperationen einzeln abgebildet, in der Reihenfolge der International Tables; zuletzt verschieben die Gittertranslationen alle Bilder in die Zelle. Ein Zähler zeigt, wie viele verschiedene Stellen entstehen.',
   'schritt-regler': 'Schritt: Operation (1), (2), … der Liste, zuletzt die Gittertranslationen.',
   'schritt-zurueck': 'Einen Schritt zurück.',
@@ -76,9 +75,9 @@ export const SECTIONS = [
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'seg-ornament', 'opt-einrasten', 'opt-orbit'] },
   { heading: '#sec-zeichnen > summary', intro: 'Was tut eine Ebenengruppe? Zeichnen Sie etwas: Die Gruppe macht daraus ein Muster.', ids: ['werkzeug-zeichnen', 'werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen', 'opt-fuell'] },
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
-  { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden, und aus welchen Operationen entsteht ein bestimmtes Element?', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor', 'opt-warum'] },
+  { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden, und aus welchen Operationen entsteht ein bestimmtes Element?', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor', 'opt-herkunft'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten. Zum genauen Setzen hilft die Lupe über dem Symmetriegerüst.', ids: ['obj-x', 'obj-y', 'obj-groesse', 'werkzeug-lupe'] },
-  { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten. Ohne Bindung an das System bricht sie.', ids: ['lat-ba', 'lat-gamma', 'opt-brechen'] },
+  { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten.', ids: ['lat-ba', 'lat-gamma'] },
   { heading: '#sec-view > summary', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'v-zoom'] },
 ];
 
@@ -167,7 +166,7 @@ export const ABLAEUFE = [
       {
         frage: 'In <i>pm</i> laufen parallele Spiegellinien bei <i>x</i> = 0 und <i>x</i> = ½. Was ergibt die Spiegelung an der einen, gefolgt von der Spiegelung an der anderen?',
         vermutung: ['die Identität: Zweimal spiegeln hebt sich auf', 'eine Translation um <i>a</i>, doppelt so weit wie der Abstand der Linien', 'eine Drehung um 180°'], richtig: 1,
-        handlung: { text: 'Herkunft der Spiegellinie bei <i>x</i> = ½ zeigen', hash: '#m=eg&g=pm&warum=1&erkl=m;1/2,0;0,1' },
+        handlung: { text: 'Herkunft der Spiegellinie bei <i>x</i> = ½ zeigen', hash: '#m=eg&g=pm&herkunft=1&erkl=m;1/2,0;0,1' },
         beobachtung: 'Die App zeigt: Die Spiegelung an <i>x</i> = ½ ist die Spiegelung an <i>x</i> = 0, gefolgt von der Translation um <i>a</i>.',
         erklaerung: 'Daraus folgt: Spiegelt man zuerst an <i>x</i> = 0 und dann an <i>x</i> = ½, heben sich die beiden Spiegelungen an <i>x</i> = 0 auf, und es bleibt die Translation um <i>a</i>, doppelt so weit wie der Abstand der Linien. Nur zweimal an derselben Linie gespiegelt ergibt die Identität. Parallele Spiegellinien folgen deshalb im Abstand der halben kürzesten Translation senkrecht zu ihnen aufeinander, nicht erst im Abstand der ganzen.',
         skript: 'verknuepfung',
@@ -180,7 +179,7 @@ export const ABLAEUFE = [
       {
         frage: 'In <i>p</i>6 liegen auf den Ecken der Zelle 6-zählige Drehpunkte. Welche Zähligkeit hat der Drehpunkt bei (⅔, ⅓) im Innern der Zelle?',
         vermutung: ['6', '3', '2'], richtig: 1,
-        handlung: { text: 'Herkunft des Drehpunkts zeigen', hash: '#m=eg&g=p6&warum=1&erkl=3;2/3,1/3' },
+        handlung: { text: 'Herkunft des Drehpunkts zeigen', hash: '#m=eg&g=p6&herkunft=1&erkl=3;2/3,1/3' },
         beobachtung: 'Er ist 3-zählig. Die App zeigt, woher er kommt: Drehung um 120° um den Ursprung, gefolgt von der Translation um <i>a</i>.',
         erklaerung: 'Eine Drehung und eine Translation ergeben eine Drehung um denselben Winkel um einen verschobenen Punkt. Aus den Drehungen um 120° und 180° um den 6-zähligen Drehpunkt entstehen so Drehpunkte kleinerer Zähligkeit, wo keiner hineingesteckt wurde.',
         skript: 'verknuepfung',
@@ -188,7 +187,7 @@ export const ABLAEUFE = [
       {
         frage: 'Und der Drehpunkt in der Mitte der Zellkante bei (½, 0)?',
         vermutung: ['6', '3', '2'], richtig: 2,
-        handlung: { text: 'Herkunft des Drehpunkts zeigen', hash: '#m=eg&g=p6&warum=1&erkl=2;1/2,0' },
+        handlung: { text: 'Herkunft des Drehpunkts zeigen', hash: '#m=eg&g=p6&herkunft=1&erkl=2;1/2,0' },
         beobachtung: 'Er ist 2-zählig: Drehung um 180° um den Ursprung, gefolgt von der Translation um <i>a</i>. Er liegt in der Mitte der Translation.',
         erklaerung: 'Eine Elementarzelle von <i>p</i>6 enthält deshalb drei Sorten Drehpunkte: 6-zählige auf den Ecken, 3-zählige in den Mitten der beiden gleichseitigen Dreiecke der Zelle, bei (⅓, ⅔) und (⅔, ⅓), 2-zählige auf den Kantenmitten und in der Zellmitte.',
         skript: 'verknuepfung',

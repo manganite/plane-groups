@@ -21,9 +21,8 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
   - **Bilder rund um die Zelle** wahlweise wie in den Diagrammen der allgemeinen Lage in ITA: auch die Bilder im Rand um die Zelle, sodass die Gruppen um Ecken und Ränder vollständig sind.
   - **Asymmetrische Einheit** einblendbar. Ihre Bedingungen in den Kenndaten (z. B. „0 ≤ x ≤ ½“) lassen sich einzeln antippen: Das Symmetriegerüst schattiert, wo die gewählten Bedingungen erfüllt sind, und hebt ihre Grenzlinien hervor; alle zusammen ergeben die asymmetrische Einheit.
   - **Muster:** Ausschnitt des unendlichen Musters mit hervorgehobener Elementarzelle.
-  - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“: dort das Pedion mit Flächenmuster und Blick senkrecht auf die Fläche; das Muster zeigt genau diese Punktgruppe), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen, Auslöschungen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
+  - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“: dort das Pedion mit Flächenmuster und Blick senkrecht auf die Fläche; das Muster zeigt genau diese Punktgruppe), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
   - **Gitterparameter** innerhalb des Kristallsystems frei: *b*/*a* (schiefwinklig, rechteckig), γ (schiefwinklig).
-  - **Symmetrie brechen** (im Abschnitt „Gitter“): *b*/*a* und γ ohne Bindung an das Kristallsystem. Es bleiben die Operationen, deren Matrix die neue Metrik erhält; die Kenndaten nennen die verbleibende Untergruppe in der Standardaufstellung der ITA mit konventioneller Zelle (z. B. p4mm mit *a* = *b*, γ ≠ 90° → c2mm mit *a*′ = *a* + *b*, *b*′ = −*a* + *b*) und was weggefallen ist. Das Symmetriegerüst zeigt nur die verbleibenden Elemente (wie die Stereo-App), die Bilder des Objekts sind nach den Bahnen der Restsymmetrie gefärbt.
   - **Selbst zeichnen:** Mit dem Werkzeug „Zeichnen“ im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, im Symmetriegerüst und im Muster (blau gleiche Händigkeit, orange Spiegelbild). Das Werkzeug „Radieren“ entfernt überfahrene Stücke, am Original und an allen Kopien zugleich; „Rückgängig“ macht Striche und Radieren rückgängig. „Asymmetrische Einheit füllen“ zeigt, dass ihre Bilder die Ebene ohne Lücken und Überlappungen pflastern. Die Striche bleiben im Browser gespeichert, stehen aber nicht in der Link-Adresse.
   - **Schritt für Schritt:** Das Objekt wird mit jeder Symmetrieoperation einzeln abgebildet, in der Reihenfolge der Liste in ITA (bei zentrierten Gruppen mit (½, ½)+ als 1′, 2′, …), zuletzt mit den Gittertranslationen. Die Bilder liegen zuerst dort, wohin die Koordinaten der Liste zeigen, auch ausserhalb der Zelle; der Weg zeigt, wie die Operation wirkt. Ein Zähler nennt die verschiedenen Stellen: Auf einer speziellen Lage fallen Bilder zusammen, und am Ende bleibt die Zähligkeit der Wyckoff-Lage. In den Kenndaten ist die Zeile der aktuellen Operation markiert.
   - **Aufbau aus Erzeugenden:** Die Symmetrieelemente erscheinen Schritt für Schritt. Zuerst kommen die Erzeugenden nach ITA („Generators selected“), dann, was aus ihren Verknüpfungen mit den Gittertranslationen folgt. Neue Elemente sind hervorgehoben.
@@ -80,7 +79,7 @@ Ein Doppelklick auf `index.html` genügt nicht: Browser laden die JavaScript-Mod
 
 ## Link-Adressen
 
-Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Geschrieben wird nur, was vom Startzustand abweicht; Schalter mit `1` (ein) und `0` (aus). Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps der Familie) und bleiben stabil (Test `tests/zustand.test.mjs`):
+Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Geschrieben wird nur, was vom Startzustand abweicht; Schalter mit `1` (ein) und `0` (aus). Die Link-Adressen sind eine Schnittstelle (Skript, Quiz, andere Apps der Familie; Test `tests/zustand.test.mjs`). Solange die App in Entwicklung ist, dürfen sie sich ändern: Ein Schlüssel, der seine Bedeutung ändert, bekommt einen neuen Namen, und alte Links ergeben den Startwert (Leitfaden Abschn. 8). Stabil werden sie erst mit der endgültigen Form der App.
 
 | Schlüssel | Bedeutung | Werte (Startwert fett) |
 |---|---|---|
@@ -103,20 +102,19 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `lupe` | Lupe: Symmetriegerüst um das Objekt vergrössert | **`0`**, `1` |
 | `schritt` | Schritt für Schritt | **`0`** (aus), Operation `1` … *N* der Liste, *N* + 1 Gittertranslationen |
 | `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
-| `warum` | „Herkunft der Elemente“ (Name des Parameters aus der Zeit von „Warum ist das da?“) | **`0`**, `1` |
+| `herkunft` | „Herkunft der Elemente“ | **`0`**, `1` |
 | `aet` | angetippte Bedingungen der asymmetrischen Einheit | Nummern ab `0` in der Reihenfolge der ITA-Seite, z. B. `0,2`; **leer** |
 | `erkl` | erklärtes Element | z. B. `4;1/2,1/2` (4-zähliger Drehpunkt bei ½, ½), `m;1/4,0;0,1` (Spiegellinie durch ¼, 0 in Richtung [01]), `g;…` (Gleitspiegellinie) |
-| `brechen` | Gitter ohne Bindung an das Kristallsystem (Symmetrie brechen; nicht schiefwinklig) | **`0`**, `1`; dann `ba` 0.5–2 und `gamma` 60–150 frei |
-| `ba` | *b*/*a* (nur schiefwinklig, rechteckig) | 0.6–1.6; **1.25** bzw. **1.35** |
-| `gamma` | γ in Grad (nur schiefwinklig) | 95–125; **105** |
+| `ba` | *b*/*a* (nur schiefwinklig, rechteckig) | 0.5–2; **1.25** bzw. **1.35** |
+| `gamma` | γ in Grad (nur schiefwinklig) | 60–150; **105** |
 
 Im Modus „Gitter und Basis“ (`m=struktur`):
 
 | Schlüssel | Bedeutung | Werte (Startwert fett) |
 |---|---|---|
-| `v` | Vorgabe, von der die Struktur ausgeht (Ziel von „Zurücksetzen“); von der App immer geschrieben, fehlt es (ältere Links), gilt `dreieck1` | Kennung aus `js/vorgaben.js`, z. B. `graphen`, `a33434`, `asi-pinwheel`; **`dreieck1`** |
+| `v` | Vorgabe, von der die Struktur ausgeht (Ziel von „Zurücksetzen“); von der App immer geschrieben, fehlt es, gilt `dreieck1` | Kennung aus `js/vorgaben.js`, z. B. `graphen`, `a33434`, `asi-pinwheel`; **`dreieck1`** |
 | `ba`, `gamma` | Gitter, wenn Gitter oder Basis von der Vorgabe abweichen | 0.5–2 bzw. 60–150 |
-| `basis` | Basis, wenn verändert: Motive durch `;` getrennt, je `motiv,farbe,x,y,winkel[,grösse][,m]`; `m`: gespiegelt (vor der Drehung, nur bei Fähnchen und Windrädern; ältere Links ohne `m` gelten weiter) | z. B. `atom,0,1/3,2/3,0;atom,1,2/3,1/3,0` (h-BN), `fahne,0,1/5,3/10,30;fahne,0,4/5,3/10,150,m` (*pm*); Motive wie in `js/motive.js`, Farbe `0`–`3`, Winkel in Grad |
+| `basis` | Basis, wenn verändert: Motive durch `;` getrennt, je `motiv,farbe,x,y,winkel[,grösse][,m]`; `m`: gespiegelt (vor der Drehung, nur bei Fähnchen und Windrädern; ohne `m` nicht gespiegelt) | z. B. `atom,0,1/3,2/3,0;atom,1,2/3,1/3,0` (h-BN), `fahne,0,1/5,3/10,30;fahne,0,4/5,3/10,150,m` (*pm*); Motive wie in `js/motive.js`, Farbe `0`–`3`, Winkel in Grad |
 | `sg` | festgehaltene Ebenengruppe („Symmetrie festhalten“): `basis` enthält dann je Bahn einen Vertreter, die App schreibt die Bahnen aus; nur zusammen mit `basis`, das Gitter muss zum Kristallsystem passen (auf 0.0005 bzw. 0.005°), sonst gilt die Vorgabe `v` ohne festgehaltene Symmetrie; höchstens 48 Motive ausgeschrieben (je Vertreter die Zähligkeit der allgemeinen Lage) | Symbol, z. B. `p4mm`; **fehlt** (nicht festgehalten). Beispiel: `v=quadratisch&sg=p4mm&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0` (acht Fähnchen) |
 | `sel` | Symmetrieelemente | `0`, **`1`** |
 | `szelle` | konventionelle Zelle | `0`, **`1`** |
@@ -124,17 +122,15 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `sbind` | Bindungen zwischen nächsten Nachbarn | `0`, **`1`** |
 | `zoom` | Vergrösserung des Musters | 0.5–3, **1** |
 
-Bekannte Grenze: Eine ältere Fassung der App (z. B. noch aus dem Offline-Speicher) kennt `sg` nicht und zeigt von einem solchen Link nur die Vertreter.
-
 
 ## Konventionen
 
 - Diagramme wie in International Tables for Crystallography, Vol. A (2006), Abschn. 2.2.6.1 und 2.2.6.4: *a* zeigt nach unten, *b* nach rechts, Ursprung oben links.
-- Symbole der Symmetrieelemente, Koordinaten (Querstrich statt Minus, Brüche), Symmetrieoperationen, Wyckoff-Lagen und Auslöschungen nach ITA Part 6. Gezeichnet werden auch die Gleitspiegellinien, die das Symbol nicht nennt.
-- Ebenengruppen in der Standardaufstellung der ITA; bestimmte Gruppen (Modus „Gitter und Basis“, „Symmetrie brechen“) mit konventioneller Zelle *a*′, *b*′ und Ursprung.
+- Symbole der Symmetrieelemente, Koordinaten (Querstrich statt Minus, Brüche), Symmetrieoperationen und Wyckoff-Lagen nach ITA Part 6; die Reflection conditions der ITA fehlen, sie gehören zur Beugung (crystallography-common#73). Gezeichnet werden auch die Gleitspiegellinien, die das Symbol nicht nennt.
+- Ebenengruppen in der Standardaufstellung der ITA; bestimmte Gruppen (Modus „Gitter und Basis“) mit konventioneller Zelle *a*′, *b*′ und Ursprung.
 - Kristallsysteme der Ebene: schiefwinklig, rechteckig, quadratisch, hexagonal (Begriff „rechteckig“ wie bei Hoffmann).
 - Dezimalkomma in Oberfläche und Skript, Dezimalpunkt in der Link-Adresse.
-- Eigene Festlegungen der App: Bereiche der Gitterregler (*b*/*a* 0,6–1,6, γ 95–125°, so dass keine höhere Symmetrie entsteht; beim Brechen 0,5–2 und 60–150°); Bilder des Objekts blau bei gleicher Händigkeit, orange als Spiegelbild; Namen der Operationen in den Punktgruppen (Spiegelungen nach der Normalen der Linie, Skript Abschn. 4.4).
+- Eigene Festlegungen der App: Bereich der Gitterregler in allen Modi (*b*/*a* 0,5–2, γ 60–150°; er schliesst höhere Metrik nicht aus, z. B. *b* = *a* im rechteckigen System, die Gruppe bleibt die gewählte); Bilder des Objekts blau bei gleicher Händigkeit, orange als Spiegelbild; Namen der Operationen in den Punktgruppen (Spiegelungen nach der Normalen der Linie, Skript Abschn. 4.4).
 
 ## Entwicklung
 
@@ -145,12 +141,11 @@ Bekannte Grenze: Eine ältere Fassung der App (z. B. noch aus dem Offline-Speich
 | `index.html`, `js/main.js` | Oberfläche und Steuerung der App: Zustand, Bedienelemente, Tafeln, Kenndaten |
 | `js/zustand.js` | Zustand und Link-Adresse (Schnittstelle, siehe oben) |
 | `js/ebenengruppen.js` | Die 17 Ebenengruppen nach ITA Part 6 (nur Angaben, die sich nicht berechnen lassen) |
-| `js/symmetrie.js` | Rechenkern: Operationen, Verknüpfung, Symmetrieelemente, Lagen, Auslöschungen |
+| `js/symmetrie.js` | Rechenkern: Operationen, Verknüpfung, Symmetrieelemente, Lagen |
 | `js/asymmetrie.js` | Asymmetrische Einheit aus den Bedingungen der ITA-Seite |
 | `js/zeichnung.js` | SVG-Zeichnungen: Symmetriegerüst (Tafel A) und Muster (Tafel B), ohne DOM |
 | `js/text.js`, `js/symbole.js` | Schreibweise der Kenndaten wie in ITA; Schoenflies-Symbole und Signaturen nach Conway |
-| `js/schritte.js`, `js/herkunft.js`, `js/warum.js` | „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Herkunft der Elemente“ |
-| `js/brechen.js` | „Symmetrie brechen“: verbleibende Untergruppe |
+| `js/schritte.js`, `js/herkunft.js`, `js/herkunft-text.js` | „Schritt für Schritt“, „Aufbau aus Erzeugenden“ und „Herkunft der Elemente“ |
 | `js/punktoperationen.js` | Operationen der Punktgruppen der Ebene mit Namen wie im Skript |
 | `js/struktur.js`, `js/struktur-ui.js`, `js/bestimmung.js`, `js/motive.js`, `js/vorgaben.js` | Modus „Gitter und Basis“: Tafeln und Kenndaten, Bedienung, Bestimmung der Ebenengruppe, Motive, Vorgaben |
 | `js/bestimmen.js` | Leitfragen und Flussdiagramm nach Sanderson (Skript Kap. 8), geprüft gegen die Symmetrieelemente aller 17 Gruppen |
@@ -186,7 +181,7 @@ node tools/common/sync.mjs ../crystallography-common
 node --test tests/*.test.mjs
 ```
 
-Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Symmetrie brechen“, „Selbst zeichnen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung und anderem Massstab; Toleranzen knapp neben speziellen Metriken und Lagen), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopie der gemeinsamen Dateien und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit Typprüfung, ESLint und der PDF-Fassung des Skripts.
+Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Selbst zeichnen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung und anderem Massstab; Toleranzen knapp neben speziellen Metriken und Lagen), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopie der gemeinsamen Dateien und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit Typprüfung, ESLint und der PDF-Fassung des Skripts.
 
 Typprüfung und ESLint (die Typen stehen als JSDoc-Kommentare im Code, die Regeln für ESLint in `tools/common/eslint-basis.mjs`; Versionen wie in den Jobs `typen` und `lint` in `.github/workflows/ci.yml`, alle Pakete in einem Befehl, sonst entfernt npm die zuvor installierten):
 
@@ -221,7 +216,7 @@ Der Tag startet zwei Workflows: `release.yml` legt das GitHub-Release mit den No
 
 ## Grundlagen und Quellen
 
-- International Tables for Crystallography, Vol. A, 5. Aufl., hrsg. von Th. Hahn, Springer, Dordrecht 2006, Abschn. 2.2 und Part 6: Diagramme, Symbole, Symmetrieoperationen, Wyckoff-Lagen, asymmetrische Einheit, Auslöschungen; Grundlage der Daten und Tests.
+- International Tables for Crystallography, Vol. A, 5. Aufl., hrsg. von Th. Hahn, Springer, Dordrecht 2006, Abschn. 2.2 und Part 6: Diagramme, Symbole, Symmetrieoperationen, Wyckoff-Lagen, asymmetrische Einheit; Grundlage der Daten und Tests.
 - W. Borchardt-Ott, H. Sowa: *Kristallographie. Eine Einführung für Studierende der Naturwissenschaften*, Springer, Berlin 2018, [doi:10.1007/978-3-662-56816-3](https://doi.org/10.1007/978-3-662-56816-3): Begriffe (Gitter, Basis, Elementarzelle, Ebenengruppen, Punktlagen).
 - F. Hoffmann: *Faszination Kristalle und Symmetrie. Einführung in die Kristallographie*, Springer Fachmedien, Wiesbaden 2016, [doi:10.1007/978-3-658-09581-9](https://doi.org/10.1007/978-3-658-09581-9): Muster in Alltag und Kunst, Mauerwerk, Parkettierungen, Netzebenen.
 - J. H. Conway, H. Burgiel, C. Goodman-Strauss: *The Symmetries of Things*: Signaturen (Orbifold-Notation), Farbsymmetrie.

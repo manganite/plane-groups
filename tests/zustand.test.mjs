@@ -46,7 +46,7 @@ test('ungültige Werte werden ignoriert, ohne Modus kein Link', () => {
   assert.deepEqual(z.punkt, [startzustand().punkt[0], 0.2]); // x ungültig: Startwert; y gültig
   assert.equal(z.zellen, 1);
   assert.equal(z.form, 'fahne');
-  assert.equal(z.gitter.rechteckig.ba, 1.6); // ausserhalb: nächster gültiger Wert (Leitfaden 5.2)
+  assert.equal(z.gitter.rechteckig.ba, 2); // ausserhalb (Obergrenze 2): nächster gültiger Wert (Leitfaden 5.2)
 });
 
 test('spezielle Lagen bleiben beim Neuladen speziell (Brüche exakt in der Adresse; Review PR #2)', async () => {
@@ -112,22 +112,21 @@ test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', (
 test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {
   const s = startzustand();
   // absichtlich falsche Arten, wie sie im Speicher des Browsers stehen könnten
-  const z = zustandPruefen(/** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', warum: 1 })));
+  const z = zustandPruefen(/** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), aufbau: '<img src=x onerror=alert(1)>', erkl: '<b>', form: 'x', zellen: '2', elemente: 'ja', herkunft: 1 })));
   assert.equal(z.aufbau, s.aufbau);
   assert.equal(z.erkl, null);
   assert.equal(z.form, s.form);
   assert.equal(z.zellen, 1);
   assert.equal(z.elemente, s.elemente);
-  assert.equal(z.warum, false);
+  assert.equal(z.herkunft, false);
   // gültige Werte bleiben
   const g = zustandPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'ranke', zellen: 2, elemente: false });
   assert.deepEqual([g.aufbau, g.erkl, g.form, g.zellen, g.elemente], [3, 'm;1/4,0;0,1', 'ranke', 2, false]);
 });
 
-test('Erste Schritte: gespeicherte Modi lesen, alter Wert „1“ gilt als „eg“', () => {
+test('Erste Schritte: gespeicherte Modi lesen', () => {
   assert.deepEqual([...introGesehen(null)], []);
   assert.deepEqual([...introGesehen('')], []);
-  assert.deepEqual([...introGesehen('1')], ['eg']);
   assert.deepEqual([...introGesehen('struktur')], ['struktur']);
   assert.deepEqual([...introGesehen('struktur,eg')].sort(), ['eg', 'struktur']);
 });

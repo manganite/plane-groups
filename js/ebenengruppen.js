@@ -1,7 +1,8 @@
 // Die 17 Ebenengruppen nach International Tables for Crystallography, Vol. A (2006), Part 6
 // (Ebenengruppe Nr. n auf S. 91 + n, Nr. 17 auf S. 108–109). Hier stehen nur Angaben, die dort
-// tabelliert sind; alles Weitere (Symmetrieelemente, Lagesymmetrien, Auslöschungen) berechnet
-// js/symmetrie.js, und tests/ebenengruppen.test.mjs prüft beides gegeneinander.
+// tabelliert sind; alles Weitere (Symmetrieelemente, Lagesymmetrien) berechnet
+// js/symmetrie.js, und tests/ebenengruppen.test.mjs prüft beides gegeneinander. Die „Reflection
+// conditions“ der ITA fehlen hier: Sie gehören zur Beugung (crystallography-common#73).
 //
 // Koordinaten in Bruchteilen der Gittervektoren, a nach unten, b nach rechts (ITA Abschn. 2.2.6.1).
 // Schreibweise wie in ITA, mit „-x“ statt Querstrich:
@@ -11,12 +12,9 @@
 //   erzeugende  ITA „Generators selected“ ohne (1) und die Gittertranslationen (Nummern in ops)
 //   ae          asymmetrische Einheit: Ungleichungen wie in ITA und Ecken des Polygons
 //   wyckoff     Buchstabe, Zähligkeit, orientierte Lagesymmetrie, Koordinaten (nur der (0,0)+ Satz)
-//   bedingungen Auslöschungsbedingungen: allgemein und je Wyckoff-Lage zusätzlich („Special“)
-//               als [Klasse, Bedingung]; Klasse 'hk' (alle), 'h0' (k = 0) oder '0k' (h = 0)
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @typedef {'schiefwinklig' | 'rechteckig' | 'quadratisch' | 'hexagonal'} System */
-/** Auslöschungsbedingung [Klasse, Bedingung], z. B. ['h0', 'h=2n']. @typedef {['hk' | 'h0' | '0k', 'h=2n' | 'k=2n' | 'h+k=2n']} Bedingung */
 /** Wyckoff-Lage: Buchstabe, Zähligkeit, orientierte Lagesymmetrie, Koordinaten. @typedef {{ b: string, n: number, sym: string, koord: string[] }} Wyckoff */
 /**
  * Eine Ebenengruppe, wie in ITA tabelliert (Felder oben erklärt).
@@ -36,7 +34,6 @@
  * @property {Vec2[]} [zentrierung]
  * @property {number[]} erzeugende
  * @property {Wyckoff[]} wyckoff
- * @property {{ allgemein: Bedingung[], [buchstabe: string]: Bedingung[] }} bedingungen
  */
 
 /** Kristallsysteme der Ebene (ITA Tab. 2.2.4.1, Ebene). @type {Record<System, { name: string, ita: string }>} */
@@ -81,7 +78,6 @@ export const EBENENGRUPPEN = [
     wyckoff: [
       { b: 'a', n: 1, sym: '1', koord: ['x,y'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 2, symbol: 'p2', lang: 'p2', punktgruppe: '2', system: 'schiefwinklig', bravais: 'mp', seite: 93,
@@ -97,7 +93,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '2', koord: ['0,1/2'] },
       { b: 'a', n: 1, sym: '2', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 3, symbol: 'pm', lang: 'p1m1', punktgruppe: 'm', system: 'rechteckig', bravais: 'op', seite: 94,
@@ -111,7 +106,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '.m.', koord: ['1/2,y'] },
       { b: 'a', n: 1, sym: '.m.', koord: ['0,y'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 4, symbol: 'pg', lang: 'p1g1', punktgruppe: 'm', system: 'rechteckig', bravais: 'op', seite: 95,
@@ -123,7 +117,6 @@ export const EBENENGRUPPEN = [
     wyckoff: [
       { b: 'a', n: 2, sym: '1', koord: ['x,y', '-x,y+1/2'] },
     ],
-    bedingungen: { allgemein: [['0k', 'k=2n']] },
   },
   {
     nr: 5, symbol: 'cm', lang: 'c1m1', punktgruppe: 'm', system: 'rechteckig', bravais: 'oc', seite: 96,
@@ -138,7 +131,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 4, sym: '1', koord: ['x,y', '-x,y'] },
       { b: 'a', n: 2, sym: '.m.', koord: ['0,y'] },
     ],
-    bedingungen: { allgemein: [['hk', 'h+k=2n'], ['h0', 'h=2n'], ['0k', 'k=2n']] },
   },
   {
     nr: 6, symbol: 'p2mm', lang: 'p2mm', punktgruppe: '2mm', system: 'rechteckig', bravais: 'op', seite: 97,
@@ -158,7 +150,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '2mm', koord: ['0,1/2'] },
       { b: 'a', n: 1, sym: '2mm', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 7, symbol: 'p2mg', lang: 'p2mg', punktgruppe: '2mm', system: 'rechteckig', bravais: 'op', seite: 98,
@@ -173,7 +164,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '2..', koord: ['0,1/2', '1/2,1/2'] },
       { b: 'a', n: 2, sym: '2..', koord: ['0,0', '1/2,0'] },
     ],
-    bedingungen: { allgemein: [['h0', 'h=2n']], b: [['hk', 'h=2n']], a: [['hk', 'h=2n']] },
   },
   {
     nr: 8, symbol: 'p2gg', lang: 'p2gg', punktgruppe: '2mm', system: 'rechteckig', bravais: 'op', seite: 99,
@@ -187,7 +177,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '2..', koord: ['1/2,0', '0,1/2'] },
       { b: 'a', n: 2, sym: '2..', koord: ['0,0', '1/2,1/2'] },
     ],
-    bedingungen: { allgemein: [['h0', 'h=2n'], ['0k', 'k=2n']], b: [['hk', 'h+k=2n']], a: [['hk', 'h+k=2n']] },
   },
   {
     nr: 9, symbol: 'c2mm', lang: 'c2mm', punktgruppe: '2mm', system: 'rechteckig', bravais: 'oc', seite: 100,
@@ -206,7 +195,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '2mm', koord: ['0,1/2'] },
       { b: 'a', n: 2, sym: '2mm', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [['hk', 'h+k=2n'], ['h0', 'h=2n'], ['0k', 'k=2n']], c: [['hk', 'h=2n']] },
   },
   {
     nr: 10, symbol: 'p4', lang: 'p4', punktgruppe: '4', system: 'quadratisch', bravais: 'tp', seite: 101,
@@ -221,7 +209,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '4..', koord: ['1/2,1/2'] },
       { b: 'a', n: 1, sym: '4..', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [], c: [['hk', 'h+k=2n']] },
   },
   {
     nr: 11, symbol: 'p4mm', lang: 'p4mm', punktgruppe: '4mm', system: 'quadratisch', bravais: 'tp', seite: 102,
@@ -239,7 +226,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '4mm', koord: ['1/2,1/2'] },
       { b: 'a', n: 1, sym: '4mm', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [], c: [['hk', 'h+k=2n']] },
   },
   {
     nr: 12, symbol: 'p4gm', lang: 'p4gm', punktgruppe: '4mm', system: 'quadratisch', bravais: 'tp', seite: 103,
@@ -254,7 +240,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '2.mm', koord: ['1/2,0', '0,1/2'] },
       { b: 'a', n: 2, sym: '4..', koord: ['0,0', '1/2,1/2'] },
     ],
-    bedingungen: { allgemein: [['h0', 'h=2n'], ['0k', 'k=2n']], b: [['hk', 'h+k=2n']], a: [['hk', 'h+k=2n']] },
   },
   {
     nr: 13, symbol: 'p3', lang: 'p3', punktgruppe: '3', system: 'hexagonal', bravais: 'hp', seite: 104,
@@ -272,7 +257,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '3..', koord: ['1/3,2/3'] },
       { b: 'a', n: 1, sym: '3..', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 14, symbol: 'p3m1', lang: 'p3m1', punktgruppe: '3m', system: 'hexagonal', bravais: 'hp', seite: 105,
@@ -288,7 +272,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 1, sym: '3m.', koord: ['1/3,2/3'] },
       { b: 'a', n: 1, sym: '3m.', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 15, symbol: 'p31m', lang: 'p31m', punktgruppe: '3m', system: 'hexagonal', bravais: 'hp', seite: 106,
@@ -303,7 +286,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '3..', koord: ['1/3,2/3', '2/3,1/3'] },
       { b: 'a', n: 1, sym: '3.m', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 16, symbol: 'p6', lang: 'p6', punktgruppe: '6', system: 'hexagonal', bravais: 'hp', seite: 107,
@@ -318,7 +300,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '3..', koord: ['1/3,2/3', '2/3,1/3'] },
       { b: 'a', n: 1, sym: '6..', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
   {
     nr: 17, symbol: 'p6mm', lang: 'p6mm', punktgruppe: '6mm', system: 'hexagonal', bravais: 'hp', seite: 108,
@@ -335,7 +316,6 @@ export const EBENENGRUPPEN = [
       { b: 'b', n: 2, sym: '3m.', koord: ['1/3,2/3', '2/3,1/3'] },
       { b: 'a', n: 1, sym: '6mm', koord: ['0,0'] },
     ],
-    bedingungen: { allgemein: [] },
   },
 ];
 

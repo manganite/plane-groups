@@ -3,7 +3,7 @@
 // Gittertranslationen. Auf einer speziellen Lage fallen Bilder zusammen; übrig bleibt die
 // Zähligkeit der Wyckoff-Lage.
 
-import { opName } from './warum.js';
+import { opName } from './herkunft-text.js';
 import { koordHTML, koordText } from './text.js';
 import { opNummer } from './zeichnung.js';
 

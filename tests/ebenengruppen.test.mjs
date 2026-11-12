@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import {
   gruppe, erzeugende, abschluss, gleichModGitter, punktgruppe, beschreibe, verknuepfen, translation,
-  liesOp, opText, elemente, stabilisator, lagesymbol, lage, bahn, strukturfaktor, verletzt, mod1, art, punktAufLage,
+  liesOp, opText, elemente, stabilisator, lagesymbol, lage, bahn, mod1, art, punktAufLage,
 } from '../js/symmetrie.js';
 
 // Reproduzierbarer Zufall (LCG), damit Fehlschläge nachvollziehbar sind
@@ -143,26 +143,6 @@ for (const id of ALLE) {
       geprueft++;
     }
     assert.ok(geprueft > 200, `${id}: genug Stichproben (${geprueft})`);
-  });
-
-  test(`${id}: Auslöschungen wie in ITA, allgemein und für jede Wyckoff-Lage`, () => {
-    const g = gruppe(id);
-    const rnd = zufall(200 + g.daten.nr);
-    const allgemein = g.daten.bedingungen.allgemein;
-    for (const w of g.daten.wyckoff) {
-      const bed = w === g.daten.wyckoff[0] ? allgemein : [...allgemein, ...(g.daten.bedingungen[w.b] ?? [])];
-      // drei Stichproben der freien Parameter; ausgelöscht heisst: in allen drei |F| = 0
-      const bahnen = [0, 1, 2].map(() => {
-        const q = [rnd(), rnd()];
-        const o = liesOp(w.koord[0]);
-        return bahn(g, [o.R[0][0] * q[0] + o.R[0][1] * q[1] + o.t[0], o.R[1][0] * q[0] + o.R[1][1] * q[1] + o.t[1]]);
-      });
-      for (let h = -6; h <= 6; h++) for (let k = -6; k <= 6; k++) {
-        if (h === 0 && k === 0) continue;
-        const null_ = bahnen.every((b) => Math.hypot(...strukturfaktor(b, h, k)) < 1e-9);
-        assert.equal(null_, verletzt(bed, h, k), `${id} ${w.b}: Reflex ${h}${k}`);
-      }
-    }
   });
 }
 

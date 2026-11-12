@@ -1,5 +1,5 @@
 // Schreibweise der Kenndaten wie in ITA: Koordinaten mit Querstrich und Brüchen, Operationen,
-// Lagesymmetrie, Auslöschungsbedingungen. Ohne DOM (Tests in Node).
+// Lagesymmetrie. Ohne DOM (Tests in Node).
 
 /** @type {Record<string, string>} */
 const BRUECHE = { '1/2': '½', '1/3': '⅓', '2/3': '⅔', '1/4': '¼', '3/4': '¾', '1/6': '⅙', '5/6': '⅚' };
@@ -51,13 +51,6 @@ export const lageHTML = (s) => `<span class="koord">${s.replace(/m/g, '<i>m</i>'
 /** Hermann-Mauguin-Symbol einer Ebenengruppe oder Punktgruppe, Buchstaben kursiv. */
 /** @param {string} s */
 export const symbolHTML = (s) => s.replace(/([a-z])/g, '<i>$1</i>');
-
-/** Auslöschungsbedingung [Klasse, Bedingung] als HTML: „h0: h = 2n“. @param {readonly [string, string]} bedingung */
-export function bedingungHTML([klasse, bed]) {
-  const kl = klasse.replace(/([hk])/g, '<i>$1</i>');
-  const b = bed.replace(/=/, ' = ').replace(/\+/, ' + ').replace(/([hkn])/g, '<i>$1</i>');
-  return `${kl}: ${b}`;
-}
 
 /**
  * Dezimalzahl in deutscher Schreibweise: Komma, echtes Minuszeichen, n Nachkommastellen

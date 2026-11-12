@@ -101,6 +101,15 @@ für diese App gilt.
     Bestimmung der Symmetrie; Striche mit derselben Farbwahl wie die Motive; der Kreis mit Komma bleibt Form des Objekts
     in „Ebenengruppen“, kein Motiv. Das ersetzt u. a. die Regel „Zusammenfallende Bilder“ und die Begründung der Grenze unten. Alle Entscheidungen mit Gründen im Konzept. Wird umgesetzt;
     bis dahin beschreiben die Punkte unten den heutigen Stand.
+    **Schritt 2 (Abbau) umgesetzt am 12.11.2026** (Konzept, Abschn. 5): „Symmetrie brechen“ in „Ebenengruppen“ und die
+    Auslöschungen (Spalte, Abschnitt, Daten, `verletzt`/`strukturfaktor`, Kasten in Kap. 6) sind entfernt; die
+    „Reflection conditions“ der ITA nennt das Skript nur noch als Beschreibung der Seite, mit Hinweis auf die Beugung.
+    Ein Gitterbereich für alle Modi: *b*/*a* 0,5–2, γ 60–150° (`GITTER_BEREICH` in `js/zustand.js`; `STRUKTUR_BEREICH`
+    leitet sich davon ab). Er schliesst höhere Metrik nicht aus; in „Ebenengruppen“ bleibt die Gruppe die gewählte, die
+    Metrik ist zufällig höher (z. B. *b* = *a* im rechteckigen System), und der Hinweis im Abschnitt „Gitter“ sagt es.
+    Link und Speicher haben sich geändert (Bruch, MINOR, Leitfaden Abschn. 8): `brechen` und `frei` entfallen; `warum`
+    heisst `herkunft` (Schlüssel mit neuer Bedeutung bekommen einen neuen Namen, hier nur der alte Name ersetzt, weil
+    die Bedeutung dieselbe bleibt); die Speicherversion `SPEICHER_VERSION` steigt auf 2, ein Stand mit v1 wird verworfen.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
   Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des
@@ -109,13 +118,13 @@ für diese App gilt.
     *y*-Achse des Motivs, vor der Drehung). So ist jede Orientierung darstellbar, auch die Bilder chiraler Motive
     (Fähnchen, Windräder) unter Spiegel- und Gleitspiegellinien. Alle achiralen Motive sind zu dieser Achse
     symmetrisch (Test); bei ihnen entfällt das Feld, und der Schalter „gespiegelt“ ist gesperrt. Er wirkt auch
-    ohne festgehaltene Symmetrie. Im Link ein optionales letztes Feld `m` in `basis=`, damit alte Links unverändert
-    gelten. Wechselt ein gespiegeltes Motiv zu einem achiralen, entfällt das Feld (Wahl beim Umsetzen): Anders als
+    ohne festgehaltene Symmetrie. Im Link ein optionales letztes Feld `m` in `basis=` (ohne `m` ist das
+    Motiv nicht gespiegelt). Wechselt ein gespiegeltes Motiv zu einem achiralen, entfällt das Feld (Wahl beim Umsetzen): Anders als
     bei einem Schalter, der nur ruht (Leitfaden Abschn. 5.2), gibt es dann nichts, was ruhen könnte, denn das
     Spiegelbild ist dasselbe Motiv.
   - **Gespeichert** wird je Bahn ein Vertreter und die Gruppe (Link `sg=<Symbol>`, Speicher `festeGruppe`), nicht
     alle Motive: Nur so bleibt eine Bahn beim Ziehen über eine spezielle Lage zusammen (dort fallen Bilder zusammen
-    und trennen sich wieder). Ohne `sg` bedeutet `basis=` wie bisher alle Motive. Ausschalten schreibt die Bahnen
+    und trennen sich wieder). Ohne `sg` enthält `basis=` alle Motive. Ausschalten schreibt die Bahnen
     aus. Das Gitter folgt dem System der Gruppe, im Bereich der Regler von „Gitter und Basis“; so kann zufällige
     Zusatzsymmetrie entstehen (z. B. *p*2*mm* mit *b*/*a* = 1 → *p*4*mm*).
   - **Einschalten:** zuerst gegebenenfalls die Übernahme (nächster Punkt), dann wird jedes Motiv Vertreter; Motive,
@@ -199,11 +208,12 @@ für diese App gilt.
   aus Erzeugenden“, nicht Knopf über dem Gerüst. Grund: Über dem Gerüst stehen die Werkzeuge Zeichnen und
   Radieren und der Schalter Lupe, die dem Gestalten dienen; dieses erklärt die Symmetrieelemente wie der
   Aufbau, mit dem es sich kombinieren lässt. Der alte Name sagte nicht, worauf er sich bezieht. Zustand
-  `warum`, Link `warum=1` und die Datei `js/warum.js` behalten den alten Namen (Link-Adressen sind
-  Schnittstelle; Umbenennen der Datei ohne Nutzen). Ist es aus Speicher oder Link aktiv, klappt sein Abschnitt
-  beim Start auf; ohne Elemente oder beim Brechen ist es gesperrt, bleibt aber gewählt.
+  `herkunft`, Link `herkunft=1`, Datei `js/herkunft-text.js` (die Texte; `js/herkunft.js` rechnet) und die
+  Bedienelemente `opt-herkunft`, `row-herkunft` heissen wie der Schalter (12.11.2026, Altlast aus der Zeit von
+  „Warum ist das da?“; nach Leitfaden Abschn. 8 ohne Umrechnung alter Links). Ist es aus Speicher oder Link aktiv,
+  klappt sein Abschnitt beim Start auf; ohne Elemente ist es gesperrt, bleibt aber gewählt.
 - **Zahlen aus Link und Speicher** (6.11.2026, #98, Leitfaden Abschn. 5.2, Entscheidung Thomas): Regler-Werte
-  (Gitter, Brechen, „Gitter und Basis“, Vergrösserung, Objekt- und Motivgrösse) werden ausserhalb ihres Bereichs
+  (Gitter, „Gitter und Basis“, Vergrösserung, Objekt- und Motivgrösse) werden ausserhalb ihres Bereichs
   auf den nächsten gültigen Wert gesetzt, Drehwinkel der Motive in 0° bis unter 360° umgerechnet. `schritt` und
   `aufbau` gelten als ganzzahlige Auswahl und erhalten ausserhalb 0 … 25 bzw. 0 … 20 den Startwert: Ihr Regler
   hängt von der Gruppe ab, die Grenzen im Link sind feste Schutzgrenzen. Ebenso Koordinaten jenseits ±10⁶
@@ -233,15 +243,20 @@ für diese App gilt.
   - `hilfe-daten.js` ist Code, keine Datendatei (Wahl beim Umsetzen, 8.11.2026): Sie stellt Modi, Erste Schritte und
     die Experimente zusammen und ordnet die erzeugten aus `experimente.js` ein (`findIndex`, `slice`). App und
     Hilfeseite nehmen die Liste `EXPERIMENTE` von dort, damit die Reihenfolge an einem Ort steht.
-  - `herkunft.js`, `warum.js`, `text.js` setzen Sätze aus berechneten Teilen zusammen (Lage, Operation,
+  - `herkunft.js`, `herkunft-text.js`, `text.js` setzen Sätze aus berechneten Teilen zusammen (Lage, Operation,
     Winkel); dort gibt es keine festen Texte, die sich als Daten herauslösen liessen.
 
 ## Konventionen
 
 - Dezimalkomma in Skript und Oberfläche; Querstrich statt Minus, wo die Kristallographie ihn verwendet.
-- **Präfixe nie ändern:** Service-Worker-Cache `ebenengruppen-`, Zustand `ebenen-zustand`, Quiz-Speicher
-  `ebenen-quiz`, Erste Schritte `ebenen-intro` (Wert: die gesehenen Modi, z. B. `eg,struktur`; `1` aus v1.0 gilt
-  als `eg`), Stand der Experimente `ebenen-experimente` (bleibt beim Zurücksetzen wie das Quiz). Jeder Eintrag im Speicher heisst `ebenen-…` (Leitfaden Abschn. 5.2, „Alle Einstellungen zurücksetzen“).
+- **Speicherschlüssel:** Service-Worker-Cache `ebenengruppen-`, Zustand `ebenen-zustand`, Quiz-Speicher
+  `ebenen-quiz`, Erste Schritte `ebenen-intro` (Wert: die gesehenen Modi, z. B. `eg,struktur`), Stand der Experimente
+  `ebenen-experimente` (bleibt beim Zurücksetzen wie das Quiz). Das Präfix `ebenen-` bleibt, weil die Apps der Familie
+  einen Ursprung teilen und „Alle Einstellungen zurücksetzen“ nach Präfix löscht (Leitfaden Abschn. 5.2): Jeder Eintrag
+  im Speicher heisst `ebenen-…`. Name und Format der Einträge dürfen sich in der Entwicklung ändern, auch der Lernstand
+  (Leitfaden Abschn. 7 und 8); ändert sich das Format des Zustands, steigt `SPEICHER_VERSION` (`js/zustand.js`), und ein
+  Stand mit anderer Version wird verworfen. Frühere Werte werden nicht umgerechnet (`ebenen-intro` aus v1.0 mit „1“
+  gilt als unbekannter Modus: die Ersten Schritte erscheinen einmal).
 - **Bildangaben im Quiz:** `#…` Tafel A, `B#…` Tafel B (Muster); Endung `@k` setzt die Symbolgrösse;
   `skizze:3m|2mm|4mm|6mm|kachel-p2` sind Skizzen aus dem Skript (`kachel-p2` ohne Drehpunkte, Abb. 7.6c). Zerlegen nur mit `zerlege()` aus
   `js/quiz-bild.js` (`hashAnwenden` verträgt das `@` nicht).
@@ -251,7 +266,9 @@ für diese App gilt.
 - Hilfen in `js/quiz-bank.js`: `ov()` Querstrich, `sym()` Symbol kursiv, `LZ` sammelt die Lernziele.
 - Bindungen im Modus „Gitter und Basis“ aus der periodischen Zelle (`bindungenBasis`); ersetzt die
   frühere quadratische Suche (225 Fälle gleich).
-- **Link-Adressen** sind Schnittstelle (Leitfaden Abschn. 8). Die Werte stehen in `js/zustand.js`
+- **Link-Adressen** sind Schnittstelle (Leitfaden Abschn. 8), aber noch nicht stabil: Die App ist in Entwicklung, ein
+  Bruch von Link oder Speicher ist erlaubt (MINOR, im CHANGELOG unter „Geändert“ mit Hinweis), alter Code zum Umrechnen
+  entfällt; stabil werden sie mit der endgültigen Form der App (Entscheidung Thomas, noch offen). Die Werte stehen in `js/zustand.js`
   (`SCHALTER`, `FORMEN`, `ZOOM_BEREICH`, `OBJ_BEREICH`). Zur Stereo-App verlinkt die App mit deren
   Parameter `blick=1–3` die 10 polaren Punktgruppen.
 

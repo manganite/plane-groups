@@ -41,27 +41,27 @@
 .itatab .zent td { color: var(--muted); font-size: 0.82rem; padding-top: 8px; }
 @media (pointer: coarse) { .itatab .setzen { min-height: 40px; } }
 .tabwrap { overflow-x: auto; }
-body.warum #bild-a { cursor: pointer; }
+body.herkunft #bild-a { cursor: pointer; }
 body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: none; }
 /* „Herkunft der Elemente“ in den Kenndaten */
-.warumbox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
-.warumbox h3 { margin: 0 0 6px; color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 1rem; }
-.warumbox p { margin: 6px 0 0; }
-.warumbox .gleichung { font-size: 1.02rem; margin: 6px 0; }
-.warumbox .ab { display: inline-block; min-width: 1.6em; padding: 0 5px; border-radius: 4px; color: var(--paper); font-weight: 600; text-align: center; }
-.warumbox .ab.a { background: var(--fc4); } .warumbox .ab.b { background: var(--fc3); } .warumbox .ab.c { background: var(--accent); } .warumbox .ab.v { background: var(--fc3); } .warumbox .ab.t { background: var(--fc4); font-style: italic; }
+.erklaerbox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
+.erklaerbox h3 { margin: 0 0 6px; color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 1rem; }
+.erklaerbox p { margin: 6px 0 0; }
+.erklaerbox .gleichung { font-size: 1.02rem; margin: 6px 0; }
+.erklaerbox .ab { display: inline-block; min-width: 1.6em; padding: 0 5px; border-radius: 4px; color: var(--paper); font-weight: 600; text-align: center; }
+.erklaerbox .ab.a { background: var(--fc4); } .erklaerbox .ab.b { background: var(--fc3); } .erklaerbox .ab.c { background: var(--accent); } .erklaerbox .ab.v { background: var(--fc3); } .erklaerbox .ab.t { background: var(--fc4); font-style: italic; }
 .aeteile .aeteil { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 1px 7px; font: inherit; cursor: pointer; }
 .aeteile .aeteil[aria-pressed="true"] { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 18%, var(--paper)); }
 .aeteile .sep { color: var(--muted); }
 .aehinweis { display: block; margin-top: 4px; }
-.warumbox .st { display: inline-block; width: 1.35em; height: 1.35em; line-height: 1.35em; border-radius: 50%; color: var(--paper); font-size: 0.85em; font-weight: 700; text-align: center; background: var(--ink); }
-.warumbox .st1 { background: var(--fc3); } .warumbox .st2 { background: var(--fc4); } .warumbox .stc { background: var(--accent); }
-.warumbox ul.wege { margin: 0.4em 0; padding-left: 0; list-style: none; } .warumbox ul.wege li { margin: 0.3em 0; }
-.warumbox .regel { padding: 6px 10px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
-.warumbox ol { margin: 6px 0 0; padding-left: 1.4em; }
+.erklaerbox .st { display: inline-block; width: 1.35em; height: 1.35em; line-height: 1.35em; border-radius: 50%; color: var(--paper); font-size: 0.85em; font-weight: 700; text-align: center; background: var(--ink); }
+.erklaerbox .st1 { background: var(--fc3); } .erklaerbox .st2 { background: var(--fc4); } .erklaerbox .stc { background: var(--accent); }
+.erklaerbox ul.wege { margin: 0.4em 0; padding-left: 0; list-style: none; } .erklaerbox ul.wege li { margin: 0.3em 0; }
+.erklaerbox .regel { padding: 6px 10px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.erklaerbox ol { margin: 6px 0 0; padding-left: 1.4em; }
 .elemliste { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
 .elemliste .linkbtn { font-size: 0.86rem; }
-.warumbox ol li { margin: 2px 0; }
+.erklaerbox ol li { margin: 2px 0; }
 .phasen { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
 .phasen button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 3px 10px; font: inherit; font-size: 0.85rem; cursor: pointer; }
 .phasen button:hover { border-color: var(--muted); }
@@ -272,21 +272,20 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
             <button type="button" id="aufbau-vor">weiter ▶</button>
           </div>
           <p class="hintline" id="aufbau-hint"></p>
-          <label class="check" id="row-warum"><input type="checkbox" id="opt-warum"><span>Herkunft der Elemente<span class="why"></span></span></label>
+          <label class="check" id="row-herkunft"><input type="checkbox" id="opt-herkunft"><span>Herkunft der Elemente<span class="why"></span></span></label>
         </div>
       </details>
       <details class="sect" id="sec-gitter">
-        <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel, Symmetrie brechen</span></summary>
+        <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
           <div class="range">
             <label for="lat-ba"><i>b</i>/<i>a</i></label><output id="lat-ba-out"></output>
-            <input type="range" id="lat-ba" min="0.6" max="1.6" step="0.01">
+            <input type="range" id="lat-ba" min="0.5" max="2" step="0.01">
           </div>
           <div class="range">
             <label for="lat-gamma">γ</label><output id="lat-gamma-out"></output>
-            <input type="range" id="lat-gamma" min="95" max="125" step="0.5">
+            <input type="range" id="lat-gamma" min="60" max="150" step="0.5">
           </div>
-          <label class="check" id="row-brechen"><input type="checkbox" id="opt-brechen"><span>Ohne Bindung an das Kristallsystem (Symmetrie brechen)<span class="why"></span></span></label>
           <p class="hintline" id="lat-why"></p>
           <button class="resetbtn" id="reset-gitter" type="button">Gitter zurücksetzen</button>
         </div>
