@@ -3,10 +3,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { VORGABEN, vorgabe } from '../js/vorgaben.js';
 import { MOTIVE, MOTIVZEILEN, motivKart, chiral } from '../js/motive.js';
+import { ORNAMENTE, ornamentMitte, ORNAMENT_EINHEIT } from '../js/zeichnung.js';
 import { motivSVG, motivSymbol, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, gitterZurGruppe } from '../js/zustand.js';
 import { ausgeschrieben } from '../js/bahnen.js';
-import { metrik, kart, ansicht, LUPE } from '../js/zeichnung.js';
+import { metrik, kart, ansicht, bruchVon, LUPE } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
 import { grad } from '../js/zeichnung.js';
 
@@ -529,5 +530,47 @@ test('Motivauswahl: jedes Motiv in genau einer Zeile, die Zeile nennt seine Eige
     const s = motivSymbol(k, 'var(--mf)', 'var(--paper)');
     assert.match(s, /^<svg class="motivsym" /); assert.ok(!/NaN|undefined/.test(s), k);
     assert.ok(/fill="var\(--mf\)"|stroke="var\(--mf\)"/.test(s), `${k}: Farbe der Atomsorte`);
+  }
+});
+
+test('Ornamente als Motive: kennzeichnende Punkte liegen auf den Pfaden, und die Zeichnung beginnt dort, wo motivKart den ersten Punkt hat', () => {
+  /** Abstand eines Punktes zu einem dicht abgetasteten Pfad (nur Bézier-Abschnitte M, L, Q, C) @param {string} ornament @param {Vec2} q */
+  const abstand = (ornament, q) => {
+    let best = Infinity;
+    for (const [befehle] of ORNAMENTE[ornament]) {
+      /** @type {Vec2} */ let cur = [0, 0];
+      for (const [c, ...ps] of befehle) {
+        if (c === 'Z') continue;
+        const ctrl = c === 'M' || c === 'L' ? [cur, ps[0]] : [cur, ...ps];
+        for (let i = 0; i <= 400; i++) {
+          const t = i / 400; const n = ctrl.length - 1;
+          // Bernstein-Polynome, Grad n (Linie, Q oder C)
+          const bin = (/** @type {number} */ k) => (n === 1 ? 1 : n === 2 ? [1, 2, 1][k] : [1, 3, 3, 1][k]);
+          const x = ctrl.reduce((s, p, k) => s + bin(k) * (1 - t) ** (n - k) * t ** k * p[0], 0);
+          const y = ctrl.reduce((s, p, k) => s + bin(k) * (1 - t) ** (n - k) * t ** k * p[1], 0);
+          best = Math.min(best, Math.hypot(x - q[0], y - q[1]));
+        }
+        cur = ps[ps.length - 1];
+      }
+    }
+    return best;
+  };
+  for (const k of ['blatt', 'tropfen', 'ranke']) {
+    const [mx, my] = ornamentMitte(k);
+    for (const [u, v] of MOTIVE[k].punkte) {
+      assert.ok(abstand(k, [u * ORNAMENT_EINHEIT + mx, v * ORNAMENT_EINHEIT + my]) < 0.05, `${k}: Punkt (${u.toFixed(2)}, ${v.toFixed(2)}) liegt nicht auf dem Pfad`);
+    }
+  }
+  // Zeichnung und Punkte gleich orientiert: der Anfang des ersten Pfades ist der erste Punkt (alle drei Ornamente)
+  for (const gi of [{ ba: 1, gamma: grad(90) }, { ba: 1.3, gamma: grad(110) }]) {
+    const M = metrik(gi); const A = ansicht(M, [0, 0, 1, 1], 520, 0);
+    for (const k of ['blatt', 'tropfen', 'ranke']) {
+      for (const o of /** @type {Partial<Basiseintrag>[]} */ ([{}, { winkel: grad(37), spiegel: true }, { winkel: grad(200), groesse: 0.17 }])) {
+        const e = { motiv: k, farbe: 0, p: /** @type {Vec2} */ ([0.5, 0.5]), ...o };
+        const m = motivSVG(e, e.p, A, M, '#00a', '#fff').match(/ d="M([-\d.]+),([-\d.]+)/);
+        const f = bruchVon(M, motivKart(e)[0].c); const soll = A.zuBild([e.p[0] + f[0], e.p[1] + f[1]]);
+        assert.ok(m && Math.hypot(Number(m[1]) - soll[0], Number(m[2]) - soll[1]) < 0.05, `${k} ${JSON.stringify(o)}`);
+      }
+    }
   }
 });

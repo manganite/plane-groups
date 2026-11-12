@@ -145,10 +145,12 @@ für diese App gilt.
       liegt auf der Mitte des Rechtecks um die Pfadpunkte (`ornamentMitte`), nicht auf dem Fuss: Um die Mitte dreht es sich
       und lässt sich greifen wie die übrigen Motive. Eine lokale Einheit sind `ORNAMENT_EINHEIT` = 13 Bildpunkte der Pfade
       (das Ornament ist etwa zwei Einheiten hoch wie das Fähnchen), die Standardgrösse 0,1 wie beim Fähnchen.
-    - **Kennzeichnende Punkte:** je Ornament 4 oder 5 Punkte seiner Pfade (Fuss, Spitze, Ansatz …), jeder mit eigener Art
+    - **Kennzeichnende Punkte:** je Ornament 4 oder 5 Punkte auf seinen Pfaden (Fuss, Spitze, Ansatz, Mitte eines Bézier-Abschnitts; nicht dessen
+      Kontrollpunkte, ein Test misst den Abstand), jeder mit eigener Art
       (`o0`, `o1` …). Eine Symmetrie müsste jeden Punkt auf sich selbst abbilden, und das tut bei drei Punkten, die nicht auf
-      einer Geraden liegen, nur die Identität; so täuschen sie keine Symmetrie vor. Der Test prüft Art, Lage und, dass jedes
-      Ornament allein, gedreht und gespiegelt, in verschiedenen Gittern *p*1 ergibt.
+      einer Geraden liegen, nur die Identität; so täuschen sie keine Symmetrie vor. Der Test prüft Art, Lage auf dem Pfad, dass die Zeichnung
+      beim ersten Punkt beginnt (gleiche Orientierung wie `motivKart`) und dass jedes Ornament allein, gedreht und
+      gespiegelt, in verschiedenen Gittern *p*1 ergibt.
     - **Motivauswahl:** `MOTIVZEILEN` (Daten, `js/motive.js`) ordnet die Motive den vier Zeilen zu (Atom; ohne Eigensymmetrie;
       nur Drehsymmetrie; mit Spiegelsymmetrie), ein Test prüft die Zeilen gegen `symmetrie`. Die Knöpfe zeigen ein kleines
       Bild (`motivSymbol` in `js/struktur.js`, in der Farbe der gewählten Atomsorte über die CSS-Variable `--mf`), mindestens

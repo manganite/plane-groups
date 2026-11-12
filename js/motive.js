@@ -41,7 +41,8 @@ function windrad(n) {
 const vieleck = (n, start = -90) => Array.from({ length: n }, (_, k) => [...polar(1, start + (360 * k) / n), 'e']);
 
 /**
- * Kennzeichnende Punkte eines Ornaments (#104) aus Punkten seiner Pfade (Bildpunkte, Fuss im Ursprung), in lokalen
+ * Kennzeichnende Punkte eines Ornaments (#104) aus Punkten auf seinen Pfaden (Bildpunkte, Fuss im Ursprung; Anfang, Ende
+ * oder Mitte t = ½ eines Bézier-Abschnitts, nicht dessen Kontrollpunkte; tests/struktur.test.mjs misst den Abstand), in lokalen
  * Koordinaten um die Mitte des Ornaments. Jeder Punkt hat eine eigene Art: Eine Symmetrie müsste jeden Punkt auf sich
  * selbst abbilden, und das tut bei drei Punkten, die nicht auf einer Geraden liegen, nur die Identität. Ein Ornament
  * hat also keine eigene Symmetrie (tests/struktur.test.mjs prüft es für jedes).
@@ -66,8 +67,8 @@ export const MOTIVE = {
   },
   // Ornamente (#104): chiral wie das Fähnchen; die Pfade stehen in ORNAMENTE (zeichnung.js), eine lokale Einheit
   // sind ORNAMENT_EINHEIT Bildpunkte der Pfade (das Ornament ist etwa zwei Einheiten hoch)
-  blatt: { name: 'Blatt', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'blatt', punkte: ornamentPunkte('blatt', [[0, 0], [4, -9], [13, -26], [-1, -15]]) },
-  tropfen: { name: 'Tropfen', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'tropfen', punkte: ornamentPunkte('tropfen', [[0, -1], [-9, -10], [0, -20], [12, -13], [9, 2]]) },
+  blatt: { name: 'Blatt', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'blatt', punkte: ornamentPunkte('blatt', [[0, 0], [4, -9], [13, -26], [2.875, -18.625]]) },
+  tropfen: { name: 'Tropfen', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'tropfen', punkte: ornamentPunkte('tropfen', [[0, -1], [-6.75, -10.5], [0, -20], [8.375, -16.5], [9, 2]]) },
   ranke: { name: 'Ranke', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'ranke', punkte: ornamentPunkte('ranke', [[0, 0], [11, -17], [15, -9], [3, -10], [-3, -21]]) },
   w2: { name: 'Windrad 2', symmetrie: '2', groesse: 0.1, punkte: windrad(2), form: 'polygon' },
   dreieck: { name: 'Dreieck (gleichschenklig)', symmetrie: 'm', groesse: 0.12, punkte: [[0, -1, 's'], [0.7, 0.6, 'e'], [-0.7, 0.6, 'e']], form: 'polygon' },
