@@ -197,6 +197,9 @@ für diese App gilt.
     entstehen neu. Das Gitter bleibt, wenn es zum System passt (`gitterZurGruppe`, innerhalb der Genauigkeit des Links, dann
     exakt), sonst gilt das Startgitter des Systems; im Bereich der Regler (`GITTER_BEREICH`) bleibt ein Gitterregler frei, wo
     das System es freigibt (in *p*2*mm* auch *b* = *a*). Gesperrt (mit Grund), wenn die Grenze überschritten würde.
+    Das Gitter wird nicht gemerkt (Thomas, 12.11.2026): Wer von *p*2 mit eigenem Gitter über *p*6*mm* zurückwechselt, hat
+    das Startgitter. Grund: Man legt meist Motive an und vergleicht, welches Muster sie in verschiedenen Gruppen ergeben;
+    ein mitgeführtes Gitter je System wäre mehr Zustand und mehr Bedienung, als der Vergleich braucht.
   - **Übergang aus „Gitter und Basis“** (Knopf „In „Muster entwerfen“ weiterbearbeiten“, `uebernahmeVon`): Die bestimmte Gruppe steht
     im Entwurf in der Aufstellung nach ITA. Weicht die konventionelle Zelle oder der Ursprung ab, rechnet die Übernahme die
     Struktur um (*b*/*a*, γ, Lagen, Winkel und Grösse der Motive); mit anderer Zelle dreht sich das Bild, weil *b* immer
