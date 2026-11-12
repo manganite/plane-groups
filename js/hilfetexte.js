@@ -5,7 +5,7 @@
 export const TIPS = {
   'tab-eg': 'Die 17 Ebenengruppen: Symmetrieelemente, Lagen und Muster.',
   'tab-struktur': 'Gitter und Basis: eine Struktur aus Gitter und Motiven aufbauen; die App bestimmt ihre Ebenengruppe.',
-  'tab-entwurf': 'Muster entwerfen: eine Ebenengruppe wählen und Motive setzen; jedes erscheint mit allen Operationen der Gruppe. Die Gruppe bleibt fest, die App bestimmt nichts.',
+  'tab-entwurf': 'Muster entwerfen: eine Ebenengruppe wählen, Motive setzen und Striche zeichnen; jedes erscheint mit allen Operationen der Gruppe. Die Gruppe bleibt fest, die App bestimmt nichts.',
   's-vorgabe': 'Fertige Strukturen: Bravais-Gitter, ein Dreiecksbeispiel in drei Stufen, 2D-Materialien in Draufsicht, Archimedische Parkettierungen, Mauerwerk und Pflaster sowie künstliches Spin-Eis.',
   's-zuruecksetzen': 'Gitter und Basis wieder wie in der gewählten Vorgabe.',
   's-elemente': 'Symmetrieelemente der gefundenen Ebenengruppe über der Struktur, in der konventionellen Zelle.',
@@ -73,7 +73,7 @@ export const SECTIONS = [
   { heading: '#sec-zeichnen > summary', intro: 'Striche statt Motive: Zeichnen Sie etwas, die Gruppe macht daraus ein Muster. Striche und Motive lassen sich kombinieren; Striche haben die Farbe einer Atomsorte, Spiegelbilder dieselbe.', ids: ['s-werkzeug-zeichnen', 's-werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen'] },
   { heading: '#sec-sgitter > summary', intro: 'Gitter der gegebenen Zelle; in „Gitter und Basis“ ohne Bindung an ein Kristallsystem, im Entwurf innerhalb des Kristallsystems der Gruppe.', ids: ['s-ba', 's-gamma', 's-metrik'] },
   { heading: '#sec-weiter > summary', intro: 'Eine Struktur aus „Gitter und Basis“ als Muster weiterbearbeiten, in der bestimmten Gruppe.', ids: ['s-weiter'] },
-  { heading: '#ctl-entwurf > h2', intro: 'Muster entwerfen: Man wählt die Gruppe und setzt Motive; jedes erscheint mit allen Operationen der Gruppe. Gruppe und Zelle bleiben fest, die App bestimmt die Symmetrie nicht.', ids: ['e-picker', 'e-elemente', 'e-ae'] },
+  { heading: '#ctl-entwurf > h2', intro: 'Muster entwerfen: Man wählt die Gruppe, setzt Motive und zeichnet Striche; jedes erscheint mit allen Operationen der Gruppe. Gruppe und Zelle bleiben fest, die App bestimmt die Symmetrie nicht.', ids: ['e-picker', 'e-elemente', 'e-ae'] },
   { heading: '#ctl-gruppe > h2', intro: 'Gruppe antippen: Links erscheint das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'seg-ornament', 'opt-einrasten', 'opt-orbit'] },
   { heading: '#sec-schritte > summary', intro: 'Wie erzeugen die Symmetrieoperationen aus einem Objekt das ganze Muster? Hier wirken sie einzeln.', ids: ['opt-schritt', 'schritt-regler', 'schritt-zurueck', 'schritt-vor', 'schritt-abspielen'] },
   { heading: '#sec-aufbau > summary', intro: 'Welche Symmetrieelemente folgen zwangsläufig aus wenigen Erzeugenden, und aus welchen Operationen entsteht ein bestimmtes Element?', ids: ['opt-aufbau', 'aufbau-schritt', 'aufbau-zurueck', 'aufbau-vor', 'opt-herkunft'] },

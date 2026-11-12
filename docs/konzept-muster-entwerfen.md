@@ -243,5 +243,5 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
    Motiven, Regel für zusammenfallende Bilder (Abschn. 2, Punkt 14), Gitter; „Symmetrie festhalten“ aus „Gitter und Basis“ entfernen; Übergang; Ornamente aus „Ebenengruppen“ samt
    Skript (Vorgabe mit Ranken für Kap. 8, Umbau von `js/skript.js`) und Quiz; Experimente und Erste Schritte dazu.
 5. Zeichnen in den neuen Modus (**umgesetzt am 12.11.2026**; Wahl beim Umsetzen in `CLAUDE.md`, Punkt „Modus „Muster entwerfen““).
-6. Hilfebilder, Vorschau, Durchsicht des Skripts.
+6. Hilfebilder, Vorschau, Durchsicht des Skripts (**umgesetzt am 12.11.2026**: Hilfebilder neu erzeugt, Kästen „In der App“ zu Zeichnen und Asymmetrischer Einheit nachgeführt, Tooltips des Modus ergänzt, Vorschau mit dem vollständigen Stand veröffentlicht).
 7. Release (MINOR, Hinweis: alte Links gelten nicht mehr).
