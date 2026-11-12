@@ -127,6 +127,7 @@ test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie i
 test('Erste Schritte: gespeicherte Modi lesen', () => {
   assert.deepEqual([...introGesehen(null)], []);
   assert.deepEqual([...introGesehen('')], []);
+  assert.deepEqual([...introGesehen('1')], ['1']); // „1“ aus v1.0 ist ein unbekannter Modus, keine Umdeutung
   assert.deepEqual([...introGesehen('struktur')], ['struktur']);
   assert.deepEqual([...introGesehen('struktur,eg')].sort(), ['eg', 'struktur']);
 });

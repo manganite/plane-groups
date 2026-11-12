@@ -480,10 +480,8 @@ function kenndaten() {
       <div><dt>Ursprung</dt><dd>${ursprungHTML(d.ursprung)}</dd></div>
       <div class="wide"><dt>Asymmetrische Einheit</dt><dd>${aeBedingungen(d)}</dd></div>
     </dl>
-    <div class="cols">
-      <div><h3>Symmetrieoperationen</h3>${opsTab}
+    <div><h3>Symmetrieoperationen</h3>${opsTab}
         <p class="note">Erzeugende: ${d.erzeugende.length ? d.erzeugende.map((i) => `(${i})`).join(', ') : 'nur'} ${d.erzeugende.length ? 'und die' : 'die'} Gittertranslationen <i>t</i>(1, 0), <i>t</i>(0, 1)${zentriert ? ' sowie <i>t</i>(½, ½)' : ''}.</p></div>
-    </div>
     <h3>Lagen (Wyckoff-Lagen)</h3>${wyTab}
     <details class="explain"><summary>Erläuterungen</summary>
       <p class="note">Aufbau wie eine Seite in den International Tables for Crystallography, Vol. A, Part 6. Koordinaten in Bruchteilen von <i>a</i> und <i>b</i>; <span class="ov"><i>x</i></span> steht für −<i>x</i>. Die Lagesymmetrie ist orientiert: Die erste Stelle nennt die Drehung, die zweite und dritte die Spiegellinien, deren Normale in der jeweiligen Blickrichtung liegt; ein Punkt heisst „keine“.</p>
@@ -593,7 +591,7 @@ function schritteAbspielen() {
   aktualisieren();
   const ende = gruppeVon(z.gruppe).ordnung + 1;
   const weiter = () => {
-    // ruht „Schritt für Schritt“ inzwischen (Herkunft, Elemente wieder an, Objekt aus, Brechen), nicht unsichtbar weiterzählen
+    // ruht „Schritt für Schritt“ inzwischen (Herkunft, Elemente wieder an, Objekt aus), nicht unsichtbar weiterzählen
     if (z.schritt === 0 || z.schritt >= ende || !schrittWirkt(z)) { schrittAblauf = undefined; return; }
     z.schritt += 1;
     aktualisieren();

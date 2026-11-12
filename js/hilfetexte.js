@@ -42,7 +42,7 @@ export const TIPS = {
   'reset-objekt': 'Objekt zurück an die Ausgangslage und auf die normale Grösse.',
   'lat-ba': 'Verhältnis der Gitterkonstanten b/a. Frei im schiefwinkligen und im rechteckigen System.',
   'lat-gamma': 'Winkel γ zwischen a und b. Frei nur im schiefwinkligen System.',
-  'reset-gitter': 'Gitterparameter dieses Kristallsystems zurücksetzen, mit Bindung an das System.',
+  'reset-gitter': 'Gitterparameter auf die Startwerte dieses Kristallsystems zurücksetzen.',
   'v-farben': 'Symmetrieelemente in der Farbe ihrer Blickrichtung (Position im Hermann-Mauguin-Symbol): Drehpunkte, Spiegel- und Gleitspiegellinien nach der Richtung ihrer Normalen.',
   'v-muster-el': 'Die Symmetrieelemente auch im Muster einblenden.',
   'v-zoom': 'Vergrössert das Muster (über 1) oder zeigt einen grösseren Ausschnitt (unter 1); Zellen und Objekte ändern sich im selben Verhältnis.',

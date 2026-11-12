@@ -194,6 +194,9 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.deepEqual([alt1.gruppe, alt1.herkunft, 'brechen' in alt1, 'frei' in alt1, 'warum' in alt1], ['p6mm', false, false, false, false]);
   const alt2 = startzustand(); hashAnwenden(alt2, '#m=eg&g=p6mm&brechen=1&warum=1');
   assert.deepEqual([alt2.gruppe, alt2.herkunft, 'brechen' in alt2, 'warum' in alt2], ['p6mm', false, false, false]);
+  // `warum=1` wird nicht zu `herkunft`: Der Link zeigt die Erklärung, aber ohne den Schalter
+  const alt3 = startzustand(); hashAnwenden(alt3, '#m=eg&g=p4mm&warum=1&erkl=4;0,0');
+  assert.deepEqual([alt3.herkunft, alt3.erkl], [false, '4;0,0']);
   // Vergrösserung, Objekt, Struktur und Motivgrösse: in beiden Wegen der nächste gültige Wert
   const zs = speicher({ zoomB: 9, objGroesse: 0.1, struktur: { ba: 5, gamma: 10, basis: [{ motiv: 'atom', p: [0, 0], groesse: 7 }] } });
   assert.deepEqual([zs.zoomB, zs.objGroesse, zs.struktur.ba, zs.struktur.gamma, zs.struktur.basis[0].groesse], [3, 0.5, 2, 60, 1]);

@@ -332,7 +332,7 @@ export function liesBasis(text) {
   const out = [];
   for (const teil of String(text).split(';')) {
     const felder = teil.split(',');
-    // letztes Feld „m“: gespiegelt (ältere Links haben es nicht)
+    // letztes Feld „m“: gespiegelt (ohne „m“ nicht gespiegelt)
     const gespiegelt = felder.length > 5 && felder[felder.length - 1] === 'm';
     if (gespiegelt) felder.pop();
     const [motiv, farbe, x, y, winkel, groesse] = felder;
