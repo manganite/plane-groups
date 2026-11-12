@@ -9,7 +9,7 @@ import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, radieren, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './herkunft-text.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, wieVorgabe, ausSpeicher, speicherStand, introGesehen } from './zustand.js';
@@ -179,7 +179,7 @@ function auswahlAbgleichen() {
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
 /** „Herkunft der Elemente“ wirkt: gewählt und mit Symmetrieelementen (ohne diese ruht es, bleibt aber gewählt). */
 const herkunftAktiv = () => z.herkunft && z.elemente;
-/** Grund, wenn Zeichnen, Radieren, Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
+/** Grund, wenn Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
 const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
 function bedienungAbgleichen() {
   eingabe('opt-elemente').checked = z.elemente;
@@ -234,35 +234,17 @@ function bedienungAbgleichen() {
   eingabe('opt-herkunft').disabled = !z.elemente;
   element('#row-herkunft .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
   document.body.classList.toggle('herkunft', herkunftAktiv());
-  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): Werkzeuge Zeichnen und Radieren aus,
-  // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
+  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): die Lupe ruht (bleibt gewählt) und kommt
+  // beim Verlassen zurück
   const ruhig = z.modus === 'eg' && erklaerend(z);
-  if (ruhig) { z.zeichnen = false; z.radieren = false; }
-  knopf('werkzeug-zeichnen').disabled = ruhig;
   knopf('werkzeug-lupe').disabled = ruhig;
-  // Selbst zeichnen
-  $('werkzeug-zeichnen').setAttribute('aria-pressed', String(z.zeichnen));
-  document.body.classList.toggle('zeichnen', z.zeichnen);
-  $('werkzeug-radieren').setAttribute('aria-pressed', String(z.radieren));
   $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
-  knopf('werkzeug-radieren').disabled = ruhig || (!z.striche.length && !z.radieren);
-  document.body.classList.toggle('radieren', z.radieren);
-  knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
-  knopf('zeichnen-loeschen').disabled = !z.striche.length;
   // Füllen: wirkt, wo es eine Gruppe gibt; in „Gitter und Basis“ die bestimmte, ohne Basis also keine, im Entwurf die gewählte
   const bestimmt = z.modus !== 'eg' ? sUI.bestimmt() : null;
   const fuellGrund = z.modus !== 'eg' ? (bestimmt ? '' : 'nur mit bestimmter Ebenengruppe (die Basis ist leer)') : ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
   eingabe('opt-fuell').checked = z.aeFuell;
   eingabe('opt-fuell').disabled = fuellGrund !== '';
   element('#row-fuell .why').textContent = fuellGrund;
-  const punkteGezeichnet = z.striche.flat().length;
-  $('zeichnen-hint').textContent = z.radieren
-    ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
-    : z.zeichnen
-    ? `Im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen ${gruppeVon(z.gruppe).ordnung} Operationen je Zelle, auch im Muster. Blau: gleiche Händigkeit, orange: Spiegelbild.${punkteGezeichnet >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
-    : ruhig
-    ? `Zeichnen und Radieren ruhen, ${SOLANGE_ERKLAERT}; die Zeichnung ist im Symmetriegerüst ausgeblendet, im Muster bleibt sie.`
-    : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
   $('fuell-hint').innerHTML = !z.aeFuell ? ''
     : z.modus !== 'eg'
       ? (bestimmt ? `Kräftig: die asymmetrische Einheit der ${z.modus === 'entwurf' ? 'gewählten' : 'bestimmten'} Gruppe ${symbolHTML(bestimmt.symbol)}. ${bestimmt.ordnung === 1 ? 'Sie füllt die konventionelle Zelle allein' : `Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen`}.` : '')
@@ -307,14 +289,14 @@ let ansichtA = null;
 let massObjektA = 1;
 /**
  * Ausschnitt der Lupe: folgt dem Objekt, bleibt aber ganz stehen (Mitte und Grösse), solange
- * gezogen, gezeichnet oder radiert wird, damit der Zeiger und das Bild zusammenpassen.
+ * gezogen wird, damit der Zeiger und das Bild zusammenpassen.
  */
 /** @type {Box | null} */
 let lupeBox = null;
 /** @returns {{ lupeBox?: Box, lupeMitte?: Vec2 }} */
 function lupeOptionen() {
   if (!z.lupe || erklaerend(z)) { lupeBox = null; return {}; }
-  return lupeBox && (ziehen || strich || radierStelle) ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
+  return lupeBox && ziehen ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
 }
 /** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. @param {Farben} f */
 function tafelAJetzt(f) {
@@ -333,7 +315,7 @@ function zeichnen() {
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
   // unbekanntes Element (z. B. aus einem alten Link): verwerfen und die Bedienung neu abgleichen, die es
-  // sonst noch als laufende Erklärung zählt (Sperren von Zeichnen, Radieren, Füllen und Lupe)
+  // sonst noch als laufende Erklärung zählt (Sperren von Füllen und Lupe)
   if (z.erkl && !erklaerung) { z.erkl = null; aktualisieren(); }
   grafik('bild-a').innerHTML = a.svg;
   grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
@@ -368,7 +350,7 @@ function legende(f) {
     items.push(`<span class="lg"><svg width="20" height="20" viewBox="-10 -10 20 20"><circle r="8" fill="none" stroke="${f.accent}" stroke-width="1.6" stroke-dasharray="2.6 2.2"/></svg>Ausgangsobjekt</span>`);
   }
   if (z.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
-  if (!z.objekt && (z.striche.length || z.aeFuell)) {
+  if (!z.objekt && z.aeFuell) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);
     if (gruppeVon(z.gruppe).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
   }
@@ -384,7 +366,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
-  if (erklaerend(z)) items.push(`<span class="lg hint">Zeichnen, Radieren und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
+  if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
   if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
@@ -618,76 +600,15 @@ let versatz = [0, 0];
 /** @type {Vec2 | null} */
 let start = null;
 
-// ------------------------------------------------------------------ Selbst zeichnen
-/** @type {Vec2[] | null} */
-let strich = null; // Punkte des Strichs, der gerade gezeichnet wird (Bruchkoordinaten)
-// Verlauf für „Rückgängig“: Stand der Striche vor jedem Strich und jedem Radieren (nur im Speicher)
-/** @type {Vec2[][][]} */
-const verlauf = [];
-const merken = () => { verlauf.push(z.striche.map((st) => st.map((q) => /** @type {Vec2} */ ([...q])))); if (verlauf.length > 50) verlauf.shift(); };
-/** @type {Vec2 | null} */
-let radierStelle = null; // Bildpunkt des Radierers, solange gedrückt
-let nurA = false;
-/** Während des Zeichnens nur Tafel A neu zeichnen (das Muster folgt am Ende des Strichs). */
-function zeichneA() {
-  if (nurA) return;
-  nurA = true;
-  requestAnimationFrame(() => {
-    nurA = false;
-    const a = tafelAJetzt(farben());
-    ansichtA = a.ansicht;
-    // Radierer als Kreis an der Stelle des Zeigers
-    grafik('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${farben().muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
-  });
-}
-/** Radius des Radierers in Pixeln der Tafel (520 breit). */
-const RADIER_PX = 12;
-/** Nur mit gezeichneter Tafel A aufgerufen. @param {PointerEvent} e */
-function radierenAn(e) {
-  const A = /** @type {Ansicht} */ (ansichtA);
-  const q = svgPunkt(e);
-  radierStelle = q;
-  const g = gruppeVon(z.gruppe);
-  z.striche = radieren(z.striche, g, metrik(z.gitter[systemJetzt()]), A.vonBild(q), RADIER_PX / A.s);
-  zeichneA();
-}
-/** @param {PointerEvent} e */
-function strichBeginnen(e) {
-  if (!ansichtA || z.striche.flat().length >= STRICH_GRENZE) return;
-  merken();
-  strich = [ansichtA.vonBild(svgPunkt(e))];
-  z.striche.push(strich);
-  grafik('bild-a').setPointerCapture(e.pointerId);
-}
-/** Nur während eines Strichs aufgerufen. @param {PointerEvent} e */
-function strichWeiter(e) {
-  const s = /** @type {Vec2[]} */ (strich);
-  const p = /** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e));
-  const q = s[s.length - 1];
-  if (Math.hypot(p[0] - q[0], p[1] - q[1]) < 0.004 || z.striche.flat().length >= STRICH_GRENZE) return;
-  s.push(p);
-  zeichneA();
-}
-function strichBeenden() {
-  if (radierStelle) { radierStelle = null; aktualisieren(); return; }
-  if (!strich) return;
-  const i = z.striche.indexOf(strich);
-  const fertig = vereinfachen(strich);
-  if (fertig.length >= 2) z.striche[i] = fertig; else z.striche.splice(i, 1);
-  strich = null;
-  aktualisieren();
-}
 function zeigerEinrichten() {
   const svg = grafik('bild-a');
   svg.addEventListener('touchstart', (e) => {
     if (z.modus !== 'eg') { sUI.touchstart(e); return; }
-    if (z.zeichnen || z.radieren || naheObjekt(e)) e.preventDefault();
+    if (naheObjekt(e)) e.preventDefault();
   }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
     if (z.modus !== 'eg') { sUI.down(e); return; }
-    if (z.zeichnen) { strichBeginnen(e); return; }
-    if (z.radieren) { if (!ansichtA) return; merken(); grafik('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
     if (herkunftAktiv()) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
@@ -702,8 +623,6 @@ function zeigerEinrichten() {
   });
   svg.addEventListener('pointermove', (e) => {
     if (sUI.move(e)) return;
-    if (strich) { strichWeiter(e); return; }
-    if (radierStelle) { radierenAn(e); return; }
     if (!ziehen) return;
     const s0 = /** @type {Vec2} */ (start); // beim Ziehen gesetzt
     if (!bewegt && Math.hypot(e.clientX - s0[0], e.clientY - s0[1]) < 3) return;
@@ -712,12 +631,12 @@ function zeigerEinrichten() {
     setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild([sp[0] + versatz[0], sp[1] + versatz[1]]));
   });
   // nach dem Ziehen neu zeichnen, damit die Lupe dem losgelassenen Objekt folgt
-  const loslassen = () => { const war = ziehen; ziehen = false; if (!sUI.up()) strichBeenden(); if (war && z.lupe) aktualisieren(); };
+  const loslassen = () => { const war = ziehen; ziehen = false; sUI.up(); if (war && z.lupe) aktualisieren(); };
   svg.addEventListener('pointerup', loslassen);
   svg.addEventListener('pointercancel', loslassen);
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (z.modus !== 'eg' || (herkunftAktiv()) || z.zeichnen || z.radieren || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
+    if (z.modus !== 'eg' || (herkunftAktiv()) || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
     const p = /** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -829,24 +748,11 @@ function init() {
     const wahl = naechstes('[data-erkl]');
     if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); stoppeSchritte(); abspielen(); }
   });
-  $('werkzeug-zeichnen').addEventListener('click', () => {
-    z.zeichnen = !z.zeichnen;
-    if (z.zeichnen) { z.radieren = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
-    aktualisieren();
-  });
   $('werkzeug-lupe').addEventListener('click', () => { z.lupe = !z.lupe; lupeBox = null; aktualisieren(); });
-  $('werkzeug-radieren').addEventListener('click', () => {
-    z.radieren = !z.radieren;
-    if (z.radieren) { z.zeichnen = false; z.erkl = null; clearTimeout(ablauf); phase = 3; stoppeSchritte(); }
-    aktualisieren();
-  });
-  // Rückgängig: den Stand vor dem letzten Strich oder Radieren; ohne Verlauf (nach dem Neuladen) den letzten Strich
-  $('zeichnen-zurueck').addEventListener('click', () => { if (verlauf.length) z.striche = /** @type {Vec2[][]} */ (verlauf.pop()); else z.striche.pop(); aktualisieren(); });
-  $('zeichnen-loeschen').addEventListener('click', () => { merken(); z.striche = []; aktualisieren(); });
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
   $('opt-herkunft').addEventListener('change', () => {
     z.herkunft = eingabe('opt-herkunft').checked;
-    if (z.herkunft) { stoppeSchritte(); z.zeichnen = false; z.radieren = false; }
+    if (z.herkunft) stoppeSchritte();
     if (!z.herkunft) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });
@@ -918,7 +824,7 @@ function init() {
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
   // Ist eine Erklärung aus Speicher oder Link aktiv, ihren Abschnitt aufklappen: Sie sperrt
-  // Zeichnen, Radieren, Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
+  // Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
   if (z.modus === 'eg' && (z.herkunft || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
   if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;
   aktualisieren();

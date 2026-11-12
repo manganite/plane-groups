@@ -122,6 +122,51 @@ try {
   pruefe((await adresse()).includes('m=entwurf&g=p4gm') && (await text('#info')).includes('gedreht'), 'Flechtverband: p4gm, Umstellung in den Kenndaten');
   pruefe(await page.locator('#tab-entwurf').getAttribute('aria-selected') === 'true', 'Übergang: Tab „Muster entwerfen“ gewählt');
 
+  // 7. Zeichnen und Radieren im Entwurf: Striche mit allen Operationen, Farbe der Atomsorte, Rückgängig, Alles löschen
+  await oeffnen('#m=entwurf&g=p4mm');
+  const striche = () => page.locator('#bild-a g.striche path').count();
+  const stricheB = () => page.locator('#bild-b g.striche path').count();
+  pruefe(await page.locator('#s-werkzeug-zeichnen').isVisible() && await page.locator('#sec-zeichnen').isVisible(), 'Zeichnen: Werkzeug und Abschnitt im Entwurf sichtbar');
+  await page.locator('#s-werkzeug-radieren').isDisabled().then((d) => pruefe(d, 'Radieren gesperrt, solange es keine Striche gibt'));
+  await page.locator('#s-farbe button[data-farbe="2"]').click();
+  await page.locator('#s-werkzeug-zeichnen').click();
+  const z0 = await bildschirm([0.15, 0.2]); const z1 = await bildschirm([0.35, 0.3]);
+  await page.mouse.move(z0.x, z0.y); await page.mouse.down();
+  await page.mouse.move((z0.x + z1.x) / 2, (z0.y + z1.y) / 2, { steps: 6 }); await page.mouse.move(z1.x, z1.y, { steps: 6 });
+  await page.mouse.up(); await page.waitForTimeout(300);
+  const nA = await striche();
+  pruefe(nA >= 8 && await stricheB() >= 8, `Strich erscheint mit allen 8 Operationen von p4mm (Tafel A: ${nA}, Muster: ${await stricheB()})`);
+  const farbenA = await page.locator('#bild-a g.striche path').evaluateAll((l) => [...new Set(l.map((e) => e.getAttribute('stroke')))]);
+  pruefe(farbenA.length === 1, `alle Kopien in einer Farbe, auch Spiegelbilder (${farbenA.join(', ')})`);
+  pruefe(!(await adresse()).includes('striche'), 'Striche stehen nicht in der Link-Adresse');
+  pruefe(await page.locator('#s-werkzeug-zeichnen').getAttribute('aria-pressed') === 'true', 'Zeichnen gewählt, die Werkzeuge schliessen sich aus');
+  // Radieren mitten durch den Strich teilt ihn
+  await page.locator('#s-werkzeug-radieren').click();
+  pruefe(await page.locator('#s-werkzeug-zeichnen').getAttribute('aria-pressed') === 'false', 'Radieren wählt Zeichnen ab');
+  const mitte = await bildschirm([0.25, 0.25]);
+  await page.mouse.move(mitte.x, mitte.y); await page.mouse.down(); await page.mouse.move(mitte.x + 1, mitte.y + 1, { steps: 2 }); await page.mouse.up();
+  await page.waitForTimeout(300);
+  const nR = await striche();
+  pruefe(nR > nA, `Radieren teilt den Strich an allen Kopien (${nA} → ${nR} Pfade)`);
+  pruefe(await page.locator('#bild-a g.striche path').evaluateAll((l) => new Set(l.map((e) => e.getAttribute('stroke'))).size) === 1, 'Teile behalten ihre Farbe');
+  await page.locator('#zeichnen-zurueck').click(); await page.waitForTimeout(200);
+  pruefe(await striche() === nA, 'Rückgängig holt das Radieren zurück');
+  // Motive und Striche zugleich
+  await page.locator('#s-werkzeug-hinzufuegen').click();
+  const m = await bildschirm([0.7, 0.6]); await page.mouse.click(m.x, m.y); await page.waitForTimeout(300);
+  pruefe((await adresse()).includes('basis=') && await striche() === nA, 'Motiv und Striche nebeneinander');
+  // Striche überstehen Neuladen (Speicher) und den Wechsel der Gruppe
+  await page.reload(); await page.waitForTimeout(400);
+  pruefe(await striche() === nA, 'Neu laden: Striche aus dem Speicher');
+  await page.locator('#e-picker [data-g="p4gm"]').click(); await page.waitForTimeout(300);
+  pruefe(await striche() >= 8, 'Wechsel der Gruppe behält die Striche (neu vervielfältigt)');
+  await page.locator('#zeichnen-loeschen').click(); await page.waitForTimeout(200);
+  pruefe(await striche() === 0, 'Alles löschen');
+  await page.locator('#zeichnen-zurueck').click(); await page.waitForTimeout(200);
+  pruefe(await striche() >= 8, 'Rückgängig holt die gelöschten Striche zurück');
+  await page.locator('#tab-eg').click(); await page.waitForTimeout(200);
+  pruefe(await page.locator('#sec-zeichnen').isHidden() && await page.locator('#werkzeug-zeichnen').count() === 0, '„Ebenengruppen“ hat kein Zeichnen mehr');
+
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {
   await browser.close();

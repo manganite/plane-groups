@@ -242,9 +242,7 @@ test('Lupe: Tafel A genau doppelt so gross wie ohne Lupe, auch mit grossem Objek
 
 
 test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht', () => {
-  /** @type {Vec2[][]} */
-  const striche = [[[0.2, 0.2], [0.4, 0.3]]];
-  const basis = { ...startzustand(), gruppe: 'p4', striche, lupe: true };
+  const basis = { ...startzustand(), gruppe: 'p4', aeFuell: true, lupe: true };
   for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { herkunft: true }, { erkl: '4;1/2,1/2' }])) {
     const z = { ...basis, ...opt };
     assert.ok(erklaerend(z), JSON.stringify(opt));
@@ -262,8 +260,6 @@ test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Z
   assert.ok(!erklaerend(basis) && normal.lupeBox !== null && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
   // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht
   assert.ok(!erklaerend({ ...basis, herkunft: true, elemente: false }));
-  // gefüllte asymmetrische Einheit ruht mit der Zeichnung
-  assert.ok(!tafelA('p4', { ...basis, striche: [], aeFuell: true, aufbau: 1 }, FARBEN).svg.includes('class="zeichnung"'));
   // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
   const unbekannt = tafelA('p4', { ...basis, erkl: '4;1/3,0' }, FARBEN);
   assert.ok(unbekannt.erklaerung === null && unbekannt.lupeBox !== null && unbekannt.svg.includes('class="zeichnung"'));

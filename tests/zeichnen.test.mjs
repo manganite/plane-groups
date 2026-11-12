@@ -1,10 +1,11 @@
-// „Selbst zeichnen“: Kopien der Striche, Pflasterung durch die asymmetrische Einheit, Zustand.
+// „Muster entwerfen“ zeichnen: Kopien der Striche, Radieren, Pflasterung durch die asymmetrische Einheit, Zustand.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import { kopien, vereinfachen, tafelA, tafelB, radieren, metrik } from '../js/zeichnung.js';
-import { startzustand, hashVon, hashAnwenden } from '../js/zustand.js';
+import { startzustand, hashVon, entwurfStart, GITTER_START } from '../js/zustand.js';
+import { strukturTafelA, strukturTafelB, festeBestimmung } from '../js/struktur.js';
 import { grad } from '../js/zeichnung.js';
 import { da } from './hilfen.mjs';
 
@@ -55,18 +56,36 @@ test('Striche vereinfachen: Gerade wird zu zwei Punkten, Ecken bleiben', () => {
   assert.deepEqual(vereinfachen(ecke), [[0, 0], [0.2, 0], [0.2, 0.2]]);
 });
 
-test('Zeichnung in Tafel A und im Muster; Link: fuell, Striche bleiben beim Öffnen eines Links', () => {
+test('Gefüllte asymmetrische Einheit in Tafel A und im Muster; Link: fuell', () => {
   /** @type {Zustand} */
-  const z = { ...startzustand(), gruppe: 'p4mm', striche: [[[0.1, 0.2], [0.2, 0.3]]], aeFuell: true };
+  const z = { ...startzustand(), gruppe: 'p4mm', aeFuell: true };
   assert.match(tafelA('p4mm', z, F).svg, /class="zeichnung"/);
   assert.match(tafelB('p4mm', z, F).svg, /class="zeichnung"/);
   assert.match(hashVon(z), /fuell=1/);
+  assert.doesNotMatch(tafelA('p4mm', { ...z, aeFuell: false }, F).svg, /class="zeichnung"/);
+});
+
+test('Striche im Entwurf: Kopien in Tafel A und im Muster, alle in der Farbe ihrer Atomsorte, nicht im Link', () => {
+  const strich = { punkte: /** @type {Vec2[]} */ ([[0.1, 0.2], [0.2, 0.3]]), farbe: 2 };
+  const en = { ...entwurfStart('p4mm'), striche: [strich] };
+  const st = { ...en, bindungen: false, basis: [] };
+  const r = festeBestimmung(en);
+  const a = strukturTafelA(st, { elemente: false, zelle: true, ae: false, bindungen: false, farben: false, fuell: false, lupe: null }, F, null, null, r).svg;
+  const b = strukturTafelB(st, F, r, 1, { zelle: true, elemente: false }).svg;
+  for (const [name, svg] of [['A', a], ['B', b]]) {
+    const gr = svg.match(/<g class="striche">(.*?)<\/g>/)?.[1] ?? '';
+    const farben = new Set([...gr.matchAll(/stroke="([^"]+)"/g)].map((m) => m[1]));
+    assert.deepEqual([...farben], [F.dir[1]], `Tafel ${name}: eine Farbe (Atomsorte 3), Spiegelbilder ohne eigene`);
+    assert.ok((gr.match(/<path /g) ?? []).length >= 8, `Tafel ${name}: mindestens 8 Operationen der Gruppe`);
+  }
+  // andere Atomsorte, andere Farbe; ohne Striche keine Gruppe
+  assert.match(strukturTafelB({ ...st, striche: [{ ...strich, farbe: 0 }] }, F, r, 1).svg, new RegExp(`<g class="striche"><path[^>]*stroke="${F.upper}"`));
+  assert.doesNotMatch(strukturTafelB({ ...st, striche: [] }, F, r, 1).svg, /class="striche"/);
+  // „Gitter und Basis“ hat keine Striche
+  assert.doesNotMatch(strukturTafelB({ ...GITTER_START.quadratisch, basis: [] }, F, null, 1).svg, /class="striche"/);
+  // Link ohne Striche, Speicher mit
+  const z = { ...startzustand(), modus: /** @type {const} */ ('entwurf'), entwurf: en };
   assert.doesNotMatch(hashVon(z), /striche|0\.1,0\.2/);
-  /** @type {Zustand} */
-  const z2 = { ...startzustand(), striche: [[[0, 0], [0.5, 0.5]]] };
-  hashAnwenden(z2, '#m=eg&g=p2&fuell=1');
-  assert.equal(z2.aeFuell, true);
-  assert.equal(z2.striche.length, 1);
 });
 
 test('Radieren: nur das überfahrene Stück, auch an einer Kopie, Strich zerfällt', () => {

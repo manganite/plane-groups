@@ -5,7 +5,7 @@
 // Symmetrieelementen und asymmetrischer Einheit der gefundenen Gruppe, Tafel B einen grösseren
 // Ausschnitt.
 
-import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, lupeAusschnitt, ornamentSVG, ornamentMitte, ORNAMENT_EINHEIT, f2, pt } from './zeichnung.js';
+import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, kopien, lupeAusschnitt, ornamentSVG, ornamentMitte, ORNAMENT_EINHEIT, f2, pt } from './zeichnung.js';
 import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, lokalKart, strukturPunkte } from './motive.js';
@@ -32,6 +32,26 @@ import { SYSTEME, BRAVAIS } from './ebenengruppen.js';
 /** Farben der Atomsorten (Motivfarben). */
 /** @param {Farben} f */
 export const motivFarben = (f) => [f.upper, f.accent2, f.dir[1], f.dir[0]];
+
+/**
+ * Die gezeichneten Striche des Entwurfs mit allen Operationen der Gruppe im Bereich [lo, hi]², je in der Farbe ihrer
+ * Atomsorte (wie die Motive); Spiegelbilder bekommen keine eigene Farbe. A: Ansicht der Zelle, in der g gilt.
+ * @param {import('./symmetrie.js').Gruppe} g @param {Ansicht} A @param {import('./motive.js').Strich[]} striche
+ * @param {number} lo @param {number} hi @param {Farben} farben @param {number} breite Strichbreite in Bildpunkten
+ */
+export function strichSVG(g, A, striche, lo, hi, farben, breite) {
+  const cs = motivFarben(farben);
+  /** @type {string[]} */
+  const teile = [];
+  for (const s of striche) {
+    if (s.punkte.length < 2) continue;
+    for (const k of kopien(g, s.punkte, lo, hi)) {
+      const d = k.punkte.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
+      teile.push(`<path d="${d}" fill="none" stroke="${cs[s.farbe] ?? cs[0]}" stroke-width="${f2(breite)}" stroke-linecap="round" stroke-linejoin="round"/>`);
+    }
+  }
+  return teile.length ? `<g class="striche">${teile.join('')}</g>` : '';
+}
 
 /** Symmetrie der Struktur st = { ba, gamma, basis }: Ergebnis von bestimme() oder null. @param {Struktur} st */
 export function strukturSymmetrie(st) {
@@ -312,6 +332,10 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null,
     if (anzeige.zelle) teile.push(`<polygon class="konv-zelle" points="${zelle}" fill="none" stroke="${farben.accent}" stroke-width="2.2"/>`);
   }
   if (anzeige.bindungen) teile.push(bindungenSVG(st, A, M, bildBereich(A), farben.muted));
+  if (r && st.striche?.length) {
+    const [[a0, a1], [b0, b1]] = bildBereich(A);
+    teile.push(strichSVG(gruppe(r.symbol), konvAnsicht(A, r), st.striche, Math.floor(Math.min(a0, b0)), Math.ceil(Math.max(a1, b1)), farben, 2.6 * Math.min(anzeige.k ?? 1, 1.4)));
+  }
   teile.push(basisSVG(st, A, M, bildBereich(A), farben, auswahl));
   // Symmetrieelemente über den Motiven, damit Drehpunkte auf Atomen sichtbar bleiben
   if (r && anzeige.elemente) teile.push(elementeSVG(gruppe(r.symbol), elementeImBereich(gruppe(r.symbol), 1), konvAnsicht(A, r), farben, anzeige.farben, { k: anzeige.k ?? 1 }));
@@ -354,6 +378,7 @@ export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true
     teile.push(...aeFuellung(gruppe(r.symbol), konvAnsicht(A, r), lo1, hi1, farben, einfarbig ? farben.upper : null, true));
   }
   if (st.bindungen !== false) teile.push(bindungenSVG(st, A, M, [[lo, hi], [lo, hi]], farben.muted));
+  if (r && st.striche?.length) teile.push(strichSVG(gruppe(r.symbol), konvAnsicht(A, r), st.striche, lo, hi, farben, 2));
   teile.push(basisSVG(st, A, M, [[lo, hi], [lo, hi]], farben));
   if (r && elemente) {
     // Elemente einer konventionellen Zelle, über den ganzen Ausschnitt wiederholt (der Ausschnitt schneidet ab)

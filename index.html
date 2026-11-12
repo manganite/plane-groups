@@ -48,7 +48,6 @@
 @media (pointer: coarse) { .itatab .setzen { min-height: 40px; } }
 .tabwrap { overflow-x: auto; }
 body.herkunft #bild-a { cursor: pointer; }
-body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: none; }
 /* „Herkunft der Elemente“ in den Kenndaten */
 .erklaerbox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
 .erklaerbox h3 { margin: 0 0 6px; color: var(--accent); text-transform: none; letter-spacing: 0; font-size: 1rem; }
@@ -86,6 +85,7 @@ body:not(.modus-entwurf) .nur-entwurf { display: none !important; }
 body:not(.modus-struktur):not(.modus-entwurf) .nur-bau { display: none !important; }
 body.modus-struktur #bild-a, body.modus-entwurf #bild-a { cursor: grab; touch-action: manipulation; }
 body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a { cursor: copy; }
+body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { cursor: crosshair; touch-action: none; }
 .farbwahl button { min-width: 40px; }
 .farbwahl .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: middle; }
 .farbwahl button[aria-pressed="true"] { background: var(--paper); color: var(--ink); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
@@ -172,6 +172,16 @@ body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a 
           <p class="hintline" id="s-basis-hint"></p>
         </div>
       </details>
+      <details class="sect nur-entwurf" id="sec-zeichnen" open>
+        <summary>Zeichnen<span class="sumhint">Striche mit allen Operationen</span></summary>
+        <div class="stack">
+          <p class="hintline" id="zeichnen-hint"></p>
+          <div class="seg seg-text" role="group" aria-label="Zeichnung">
+            <button type="button" id="zeichnen-zurueck">Rückgängig</button>
+            <button type="button" id="zeichnen-loeschen">Alles löschen</button>
+          </div>
+        </div>
+      </details>
       <details class="sect" id="sec-sgitter">
         <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
@@ -240,16 +250,6 @@ body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a 
           </div>
           <p class="hintline" id="obj-why"></p>
           <button class="resetbtn" id="reset-objekt" type="button">Objekt zurücksetzen</button>
-        </div>
-      </details>
-      <details class="sect" id="sec-zeichnen">
-        <summary>Selbst zeichnen<span class="sumhint">Striche mit allen Operationen</span></summary>
-        <div class="stack">
-          <p class="hintline" id="zeichnen-hint">Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.</p>
-          <div class="seg seg-text" role="group" aria-label="Zeichnung">
-            <button type="button" id="zeichnen-zurueck">Rückgängig</button>
-            <button type="button" id="zeichnen-loeschen">Alles löschen</button>
-          </div>
         </div>
       </details>
       <details class="sect" id="sec-schritte">
@@ -323,8 +323,7 @@ body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a 
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span><small id="sub-a"></small></span>
-        <div class="tools nur-bau" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button></div>
-        <div class="tools nur-eg" role="group" aria-label="Zeichnen und Radieren"><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" id="werkzeug-radieren" aria-pressed="false">Radieren</button></div>
+        <div class="tools nur-bau" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button><button type="button" class="nur-entwurf" id="s-werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" class="nur-entwurf" id="s-werkzeug-radieren" aria-pressed="false">Radieren</button></div>
         <div class="tools" role="group" aria-label="Ansicht von Tafel A"><button type="button" id="werkzeug-lupe" aria-pressed="false">Lupe</button></div>
         <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-a" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-a" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-a" title="Bild als PNG-Datei speichern">PNG</button></div>
       </div>
