@@ -47,7 +47,6 @@ function pruefeGueltig(z) {
   assert.ok(z.zoomB >= 0.5 && z.zoomB <= 3 && z.objGroesse >= 0.5 && z.objGroesse <= 3, 'zoomB, objGroesse');
   assert.ok(Array.isArray(z.aeTeile) && z.aeTeile.every((i, k) => Number.isInteger(i) && i >= 0 && (k === 0 || i > z.aeTeile[k - 1])), `aeTeile ${z.aeTeile}`);
   assert.equal(typeof z.herkunft, 'boolean', 'herkunft');
-  assert.ok(!(z.zeichnen && z.radieren), 'zeichnen und radieren');
   assert.ok(VORGABEN.some((v) => v.id === z.struktur.vorgabe), `struktur.vorgabe ${z.struktur.vorgabe}`);
   assert.ok(Array.isArray(z.struktur.basis) && z.struktur.basis.length > 0, 'struktur.basis');
   // Entwurf: eine der 17 Gruppen, Gitter nach dem System, Grenze 48 nach Zähligkeit, zeichnen ohne Fehler
@@ -141,7 +140,7 @@ test('Rundlauf: Zustand → Link → Zustand (die Link-Adresse ist stabil)', () 
 
 test('Rundlauf: Zustand → Speicher → Zustand (alles bleibt, auch was nicht im Link steht)', () => {
   for (const z of beispiele()) {
-    z.striche = [[[0.1, 0.1], [0.4, 0.2]]];
+    if (z.modus === 'entwurf') z.entwurf.striche = [{ punkte: [[0.1, 0.1], [0.4, 0.2]], farbe: 2 }];
     const z2 = neuLaden(z);
     assert.deepEqual(JSON.parse(JSON.stringify(z2)), JSON.parse(JSON.stringify(z)), hashVon(z));
   }
@@ -261,15 +260,24 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.deepEqual([ohne.ba, ohne.gamma, ohneL.struktur.ba, ohneL.struktur.gamma], [1, 90, 1, 90]);
   const zl3 = startzustand(); hashAnwenden(zl3, '#m=eg&g=p4&zoom=9&og=0.1');
   assert.deepEqual([zl3.zoomB, zl3.objGroesse], [3, 0.5]);
-  // Objekt und Striche innerhalb ±10⁶, höchstens STRICH_GRENZE Punkte (1200, zeichnung.js)
+  // Objekt innerhalb ±10⁶
   assert.deepEqual(speicher({ punkt: [2e6, 0] }).punkt, startzustand().punkt);
-  assert.deepEqual(speicher({ striche: [[[0, 0], [1e300, 0]], [[0, 0], [1, 1]]] }).striche, [[[0, 0], [1, 1]]]);
-  const viele = speicher({ striche: Array.from({ length: 30 }, () => Array.from({ length: 100 }, (_, i) => [i / 100, 0])) }).striche;
-  assert.ok(viele.flat().length <= 1200 && viele.length > 0, `${viele.flat().length} Punkte`);
-  // hashAnwenden prüft auch, was es aus dem bisherigen Zustand übernimmt (Gitter, Striche)
-  const alt = /** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), gitter: { schiefwinklig: { ba: 'x', gamma: 1 } }, striche: [[[0, 0], ['a', 1]]] }));
-  hashAnwenden(alt, '#m=eg&g=p4');
-  assert.deepEqual([alt.gitter.schiefwinklig.ba, alt.striche.length], [1.25, 0]);
+  // Striche des Entwurfs: Punkte innerhalb ±10⁶, Farbe 0 … 3 (sonst 0), mindestens 2 Punkte, höchstens STRICH_GRENZE Punkte (1200, zeichnung.js)
+  const strichEn = (/** @type {unknown} */ striche) => speicher({ modus: 'entwurf', entwurf: { gruppe: 'p4', ba: 1, gamma: 90, basis: [], striche } }).entwurf.striche;
+  assert.deepEqual(strichEn([{ punkte: [[0, 0], [1e300, 0]], farbe: 1 }, { punkte: [[0, 0], [1, 1]], farbe: 2 }, { punkte: [[0, 0]], farbe: 1 }, { punkte: [[0, 0], [1, 1]], farbe: 7 }, 'x']),
+    [{ punkte: [[0, 0], [1, 1]], farbe: 2 }, { punkte: [[0, 0], [1, 1]], farbe: 0 }]);
+  assert.deepEqual(strichEn('x'), []); assert.deepEqual(strichEn(undefined), []);
+  const viele = strichEn(Array.from({ length: 30 }, () => ({ punkte: Array.from({ length: 100 }, (_, i) => [i / 100, 0]), farbe: 1 })));
+  assert.ok(viele.reduce((n, s) => n + s.punkte.length, 0) <= 1200 && viele.length > 0, `${viele.length} Striche`);
+  // ein Link bringt keine Striche mit (nur der Speicher), und die des Entwurfs davor bleiben beim Öffnen eines Entwurf-Links
+  const alt = startzustand(); alt.entwurf.striche = [{ punkte: [[0, 0], [1, 1]], farbe: 1 }];
+  hashAnwenden(alt, '#m=entwurf&g=p4');
+  assert.equal(alt.entwurf.striche.length, 1);
+  assert.ok(!/striche/.test(hashVon(alt)));
+  // hashAnwenden prüft auch, was es aus dem bisherigen Zustand übernimmt (Gitter)
+  const altG = /** @type {Zustand} */ (/** @type {unknown} */ ({ ...startzustand(), gitter: { schiefwinklig: { ba: 'x', gamma: 1 } } }));
+  hashAnwenden(altG, '#m=eg&g=p4');
+  assert.equal(altG.gitter.schiefwinklig.ba, 1.25);
   // aeTeile: Doppelte weg, aufsteigend
   assert.deepEqual(speicher({ gruppe: 'p2mm', aeTeile: [1, 0, 0, 1, 99] }).aeTeile, [0, 1]);
   // fremde Schlüssel und __proto__ werden nicht übernommen

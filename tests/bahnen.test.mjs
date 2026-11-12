@@ -435,11 +435,11 @@ test('entwurfHTML: leer, Lage und Bilder je Zelle, überlagerte Bilder, Umstellu
   /** @param {string} h */
   const klar = (h) => h.replace(/<[^>]+>/g, '');
   // leerer Entwurf: Gruppe und Facts, Hinweis zum Hinzufügen, keine Tabelle
-  const leer = entwurfHTML({ ...R, gruppe: 'pm', basis: [], elemente: true, ae: false }, FARBEN);
+  const leer = entwurfHTML({ ...R, gruppe: 'pm', basis: [], striche: [], elemente: true, ae: false }, FARBEN);
   assert.match(leer, /Der Entwurf ist leer/); assert.doesNotMatch(leer, /<table/);
   assert.match(klar(leer), /gewählt, nicht bestimmt/);
   // pm, Dreieck auf der Spiegellinie (0, y), um 45° gedreht: eigene Symmetrie m, aber falsch ausgerichtet → überlagert
-  const en = { ...R, gruppe: 'pm', elemente: true, ae: false, basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(45) }]) };
+  const en = { ...R, gruppe: 'pm', striche: [], elemente: true, ae: false, basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(45) }]) };
   const h = entwurfHTML(en, FARBEN);
   assert.match(h, /Überlagerte Bilder/);
   assert.match(h, /Wyckoff-Lage|1 <span class="wy">a<\/span>/);
@@ -449,7 +449,7 @@ test('entwurfHTML: leer, Lage und Bilder je Zelle, überlagerte Bilder, Umstellu
   const ok = entwurfHTML({ ...en, basis: [{ motiv: 'atom', farbe: 0, p: [0, 0.3], winkel: grad(0) }] }, FARBEN);
   assert.doesNotMatch(ok, /Überlagerte Bilder/); assert.match(klar(ok), /1 a\s*\.m\.\s*1/);
   // Umstellung: Zelle → gedreht; nur Ursprung → verschoben
-  const q = { ...GITTER_START.quadratisch, gruppe: 'p4mm', elemente: true, ae: false, basis: [] };
+  const q = { ...GITTER_START.quadratisch, gruppe: 'p4mm', striche: [], elemente: true, ae: false, basis: [] };
   assert.match(entwurfHTML(q, FARBEN, { zelle: [[1, 1], [-1, 1]], ursprung: null }), /gedreht/);
   const nurU = entwurfHTML(q, FARBEN, { zelle: null, ursprung: [0.25, 0.25] });
   assert.match(nurU, /nur verschoben/); assert.doesNotMatch(nurU, /gedreht/);

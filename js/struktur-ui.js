@@ -9,7 +9,7 @@
 
 import { VORGABEN } from './vorgaben.js';
 import { MOTIVE, MOTIVZEILEN, chiral } from './motive.js';
-import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
+import { metrik, drehSymbol, elementeImBereich, grad, radieren, vereinfachen, STRICH_GRENZE } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
 import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, gruppeWechseln, uebernahmeVon } from './bahnen.js';
@@ -35,7 +35,15 @@ const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
  *   svgPunkt: (e: { clientX: number, clientY: number }) => Vec2, coarse: MediaQueryList }} ctx
  */
 export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
-  let werkzeug = 'verschieben'; // oder 'hinzufuegen'
+  let werkzeug = 'verschieben'; // oder 'hinzufuegen', im Entwurf auch 'zeichnen', 'radieren'
+  /** Strich, der gerade gezeichnet wird (Teil von z.entwurf.striche), und Stelle des Radierers (Bildpunkte), solange gedrückt. */
+  /** @type {import('./motive.js').Strich | null} */
+  let strich = null;
+  /** @type {Vec2 | null} */
+  let radierStelle = null;
+  /** Verlauf für „Rückgängig“: Stand der Striche vor jedem Strich und jedem Radieren (nur im Speicher). */
+  /** @type {import('./motive.js').Strich[][]} */
+  let verlauf = [];
   /** @type {Vorlage} */
   let neu = { motiv: 'dreieck', farbe: 0, winkel: grad(0), groesse: null }; // Vorlage für „Hinzufügen“
   /** @type {number | null} */
@@ -152,7 +160,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   function abgleichen() {
     // Wechsel der Modi (Tab, Link, Erste Schritte): die Nummern der Auswahl gelten im anderen Modus nicht
     if (z.modus !== modusAlt) {
-      modusAlt = z.modus; auswahlAufheben();
+      modusAlt = z.modus; auswahlAufheben(); strich = null; radierStelle = null;
+      if (!istEntwurf() && (werkzeug === 'zeichnen' || werkzeug === 'radieren')) werkzeug = 'verschieben';
       if (istEntwurf() && !en().basis.length) werkzeug = 'hinzufuegen'; // ein leerer Entwurf braucht als Erstes ein Motiv
     }
     const g0 = festG();
@@ -161,6 +170,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     document.body.classList.toggle('modus-struktur', z.modus === 'struktur');
     document.body.classList.toggle('modus-entwurf', istEntwurf());
     modi?.markieren(z.modus === 'struktur' ? 'tab-struktur' : istEntwurf() ? 'tab-entwurf' : 'tab-eg');
+    document.body.classList.toggle('zeichnen', zeichnet() && werkzeug === 'zeichnen');
+    document.body.classList.toggle('radieren', zeichnet() && werkzeug === 'radieren');
     if (z.modus === 'eg') return;
     const s = bau();
     if (!istEntwurf()) {
@@ -175,7 +186,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       eingabe('e-ae').checked = en().ae;
     }
     eingabe('s-einrasten').checked = rasten;
-    for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
+    for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen'], ['s-werkzeug-zeichnen', 'zeichnen'], ['s-werkzeug-radieren', 'radieren']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
+    if (istEntwurf()) strichAbgleichen();
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
     const e = ziel();
     const f = motivFarben(farben());
@@ -200,7 +212,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     knopf('s-entfernen').textContent = istEntwurf() ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen';
     $('s-basis-titel').textContent = gewaehlt === null ? 'Neues Motiv'
       : istEntwurf() ? `Gewähltes Motiv (Bahn ${gewaehlt + 1} von ${s.basis.length})` : `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})`;
-    $('s-basis-hint').textContent = werkzeug === 'hinzufuegen'
+    $('s-basis-hint').textContent = zeichnet() ? 'Die Atomsorte (Farbe) gilt auch für neue Striche; ein Strich behält seine Farbe, bis er radiert wird.'
+      : werkzeug === 'hinzufuegen'
       ? (!platz() ? `Die Basis ist voll (höchstens ${BASIS_GRENZE} Motive${istEntwurf() ? ', jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : ''}).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
       : gewaehlt !== null ? (istEntwurf()
         ? 'Die Einstellungen gelten für das gewählte Motiv und seine ganze Bahn. Ziehen verschiebt die Bahn; ins Leere tippen hebt die Auswahl auf.'
@@ -229,6 +242,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   const zurGruppe = (sym) => gruppeWechseln(en(), sym, BASIS_GRENZE);
   /** Auswahl zurücksetzen (die Nummern der Basis ändern sich). */
   const auswahlAufheben = () => { gewaehlt = null; gewaehltOp = 0; };
+  /** Zeichnen und Radieren: nur im Entwurf. */
+  const zeichnet = () => istEntwurf() && (werkzeug === 'zeichnen' || werkzeug === 'radieren');
+  const punkteGezeichnet = () => en().striche.reduce((n, st) => n + st.punkte.length, 0);
+  const kopieStriche = () => en().striche.map((st) => ({ punkte: st.punkte.map((q) => /** @type {Vec2} */ ([...q])), farbe: st.farbe }));
+  const merken = () => { verlauf.push(kopieStriche()); if (verlauf.length > 50) verlauf.shift(); };
+  /** Radius des Radierers in Pixeln der Tafel (520 breit). */
+  const RADIER_PX = 12;
 
   /**
    * Zwischenspeicher für weiterAbgleichen(): Der Übergang hängt nur von der Struktur ab. Er kostet eine Reduktion auf
@@ -262,6 +282,19 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     ].filter(Boolean).join(' ');
   }
   /** „Muster entwerfen“: Gruppenwahl; gesperrt, wo die Grenze überschritten würde (mit Grund). */
+  /** Werkzeuge Zeichnen und Radieren, Rückgängig, Alles löschen und der Hinweis (nur im Entwurf). */
+  function strichAbgleichen() {
+    const n = en().striche.length;
+    knopf('s-werkzeug-radieren').disabled = !n && werkzeug !== 'radieren';
+    knopf('zeichnen-zurueck').disabled = !n && !verlauf.length;
+    knopf('zeichnen-loeschen').disabled = !n;
+    $('zeichnen-hint').textContent = werkzeug === 'radieren'
+      ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
+      : werkzeug === 'zeichnen'
+        ? `Im Entwurf ziehen: Jeder Strich erscheint mit allen ${gruppe(en().gruppe).ordnung} Operationen der Gruppe je Zelle, auch im Muster, in der Farbe der gewählten Atomsorte; Spiegelbilder haben dieselbe Farbe.${punkteGezeichnet() >= STRICH_GRENZE ? ' Die Zeichnung ist voll; „Rückgängig“ oder „Alles löschen“ schafft Platz.' : ''}`
+        : 'Werkzeug „Zeichnen“ über dem Entwurf wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster. Striche und Motive lassen sich kombinieren.';
+  }
+
   function gruppeAbgleichen() {
     let grenze = false;
     elemente('#e-picker .pgb', HTMLButtonElement).forEach((b) => {
@@ -302,7 +335,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>asymmetrische Einheit mit Bildern, gleiche Händigkeit</span>`);
       if (gruppe(r.symbol).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
     }
-    items.push(werkzeug === 'hinzufuegen'
+    items.push(zeichnet() ? `<span class="lg hint">${werkzeug === 'zeichnen' ? 'Ziehen: Strich zeichnen' : 'Über Striche ziehen: radieren'}</span>`
+      : werkzeug === 'hinzufuegen'
       ? '<span class="lg hint"><span class="only-fine">Stelle anklicken: neues Motiv</span><span class="only-coarse">Stelle antippen: neues Motiv</span></span>'
       : '<span class="lg hint">Motiv wählen und ziehen</span>');
     $('legend').innerHTML = items.join('');
@@ -317,7 +351,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     ansicht = a.ansicht;
     const r = a.ergebnis;
     if (!istEntwurf() && r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
-    grafik('bild-a').innerHTML = a.svg;
+    grafik('bild-a').innerHTML = a.svg + (radierStelle ? `<circle cx="${radierStelle[0]}" cy="${radierStelle[1]}" r="${RADIER_PX}" fill="none" stroke="${f.muted}" stroke-width="1.5" stroke-dasharray="3 2"/>` : '');
     if (nurA) return;
     grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB, optionenB()).svg;
     legende(f, r);
@@ -371,13 +405,29 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Touch: nur dann das Scrollen verhindern, wenn ein Motiv gezogen oder gesetzt wird. @param {TouchEvent} e */
   function touchstart(e) {
     if (!ansicht) return;
-    if (werkzeug === 'hinzufuegen' || treffer(svgPunkt(e.touches[0]))) e.preventDefault();
+    if (werkzeug === 'hinzufuegen' || zeichnet() || treffer(svgPunkt(e.touches[0]))) e.preventDefault();
   }
   /** @param {PointerEvent} e */
   function down(e) {
     if (!ansicht) return;
     const q = svgPunkt(e);
     const p = ansicht.vonBild(q);
+    if (zeichnet()) {
+      if (werkzeug === 'zeichnen') {
+        if (punkteGezeichnet() >= STRICH_GRENZE) return;
+        merken();
+        strich = { punkte: [p], farbe: neu.farbe };
+        en().striche.push(strich);
+      } else {
+        if (!en().striche.length) return;
+        merken();
+        radierenAn(q);
+      }
+      fest = ansicht;
+      grafik('bild-a').setPointerCapture(e.pointerId);
+      aktualisieren();
+      return;
+    }
     if (werkzeug === 'hinzufuegen') {
       if (!platz()) return;
       /** @type {Basiseintrag} */
@@ -398,8 +448,29 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     aktualisieren();
   }
   let rahmen = false;
+  /** Radieren an der Stelle q (Bildpunkt): jeder Strich verliert die überfahrenen Stücke und behält seine Farbe. @param {Vec2} q */
+  function radierenAn(q) {
+    const A = /** @type {Ansicht} */ (fest ?? ansicht);
+    radierStelle = q;
+    const g = gruppe(en().gruppe); const M = metrik(en());
+    const p = A.vonBild(q);
+    en().striche = en().striche.flatMap((st) => radieren([st.punkte], g, M, p, RADIER_PX / A.s).map((punkte) => ({ punkte, farbe: st.farbe })));
+  }
+  /** Tafel A beim Zeichnen oder Radieren mit dem nächsten Bild neu zeichnen (das Muster folgt am Ende des Strichs). */
+  function nachziehen() {
+    if (rahmen) return;
+    rahmen = true;
+    requestAnimationFrame(() => { rahmen = false; if (strich || radierStelle || zug) { abgleichen(); zeichnen({ nurA: true }); } });
+  }
   /** @param {PointerEvent} e */
   function move(e) {
+    if (strich) {
+      const p = /** @type {Ansicht} */ (fest).vonBild(svgPunkt(e));
+      const q = strich.punkte[strich.punkte.length - 1];
+      if (Math.hypot(p[0] - q[0], p[1] - q[1]) >= 0.004 && punkteGezeichnet() < STRICH_GRENZE) { strich.punkte.push(p); nachziehen(); }
+      return true;
+    }
+    if (radierStelle) { radierenAn(svgPunkt(e)); nachziehen(); return true; }
     if (!zug) return false;
     const p = /** @type {Ansicht} */ (fest).vonBild(svgPunkt(e)); // beim Ziehen eingefroren
     /** @type {Vec2} */
@@ -413,10 +484,20 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       // auf einer speziellen Lage fallen Bilder zusammen (dann ist nur eines gezeichnet): die Auswahl zeigt dieses (gezogen wird weiter über zug.op)
       gewaehltOp = sichtbareOp(g, metrik(bau()), e0, zug.op);
     } else bau().basis[zug.k].p = raste(ziel);
-    if (!rahmen) { rahmen = true; requestAnimationFrame(() => { rahmen = false; if (zug) { abgleichen(); zeichnen({ nurA: true }); } }); }
+    nachziehen();
     return true;
   }
   function up() {
+    if (strich || radierStelle) {
+      if (strich) {
+        const i = en().striche.indexOf(strich);
+        const fertig = vereinfachen(strich.punkte);
+        if (fertig.length >= 2) en().striche[i] = { punkte: fertig, farbe: strich.farbe }; else en().striche.splice(i, 1);
+      }
+      strich = null; radierStelle = null; fest = null;
+      aktualisieren();
+      return true;
+    }
     if (!zug) return false;
     const e = bau().basis[zug.k];
     e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
@@ -455,6 +536,16 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     $('s-einrasten').addEventListener('change', () => { rasten = eingabe('s-einrasten').checked; aktualisieren(); });
     $('s-werkzeug-verschieben').addEventListener('click', () => { werkzeug = 'verschieben'; aktualisieren(); });
+    // Zeichnen und Radieren schliessen sich mit Hinzufügen und Wählen aus; die Auswahl wird aufgehoben (Leitfaden Abschn. 5.2)
+    for (const [id, w] of /** @type {[string, 'zeichnen' | 'radieren'][]} */ ([['s-werkzeug-zeichnen', 'zeichnen'], ['s-werkzeug-radieren', 'radieren']])) {
+      $(id).addEventListener('click', () => { werkzeug = werkzeug === w ? 'verschieben' : w; auswahlAufheben(); aktualisieren(); });
+    }
+    $('zeichnen-zurueck').addEventListener('click', () => {
+      const alt = verlauf.pop();
+      if (alt) en().striche = alt; else en().striche.pop();
+      aktualisieren();
+    });
+    $('zeichnen-loeschen').addEventListener('click', () => { merken(); en().striche = []; aktualisieren(); });
     $('s-werkzeug-hinzufuegen').addEventListener('click', () => {
       werkzeug = werkzeug === 'hinzufuegen' ? 'verschieben' : 'hinzufuegen';
       // die Vorlage übernimmt das gewählte Motiv
@@ -527,7 +618,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-weiter').addEventListener('click', () => {
       const u = uebernahme();
       if ('grund' in u) return;
-      z.entwurf = { ...u.struktur, elemente: en().elemente, ae: en().ae };
+      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae }; verlauf = [];
       umstellung = u.umstellung; z.modus = 'entwurf'; werkzeug = 'verschieben';
       aktualisieren();
     });
@@ -546,8 +637,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     werkzeug = 'verschieben';
     gewaehlt = k; gewaehltOp = 0; umstellung = null;
   }
-  /** Werkzeug über der Struktur setzen. @param {'verschieben' | 'hinzufuegen'} w */
-  function werkzeugSetzen(w) { werkzeug = w; if (w === 'hinzufuegen') auswahlAufheben(); }
+  /** Werkzeug über der Struktur setzen. @param {'verschieben' | 'hinzufuegen' | 'zeichnen' | 'radieren'} w */
+  function werkzeugSetzen(w) { werkzeug = w; if (w !== 'verschieben') auswahlAufheben(); }
 
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). @param {Farben} f @param {string} tafel */
   function bild(f, tafel) {

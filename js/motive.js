@@ -18,7 +18,12 @@ import { metrik, bruchVon, ORNAMENT_EINHEIT, ornamentMitte } from './zeichnung.j
  * nur bei chiralen Motiven (chiral()), sonst fehlt das Feld (die übrigen sind zu dieser Achse symmetrisch).
  * @typedef {{ motiv: string, p: Vec2, winkel?: Grad, groesse?: number, farbe?: number, spiegel?: true }} Basiseintrag
  */
-/** Struktur im Modus „Gitter und Basis“. @typedef {import('./zeichnung.js').Gitter & { basis: Basiseintrag[], bindungen?: boolean }} Struktur */
+/**
+ * Gezeichneter Strich im Modus „Muster entwerfen“: Punkte in Bruchkoordinaten der gegebenen Zelle und Farbe (Nummer der
+ * Atomsorte wie bei den Motiven).
+ * @typedef {{ punkte: Vec2[], farbe: number }} Strich
+ */
+/** Struktur im Modus „Gitter und Basis“; im Entwurf kommen die Striche dazu. @typedef {import('./zeichnung.js').Gitter & { basis: Basiseintrag[], bindungen?: boolean, striche?: Strich[] }} Struktur */
 
 /** Lokaler Punkt eines Motivs: x, y, Art. @typedef {[number, number, string]} Motivpunkt */
 

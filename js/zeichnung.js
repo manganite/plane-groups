@@ -649,27 +649,13 @@ export function aeFuellung(g, A, lo, hi, farben, einfarbig = null, nurSichtbar =
 }
 
 /**
- * SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]².
+ * SVG der gefüllten asymmetrischen Einheit im Bereich [lo, hi]² (leer, wenn „Füllen“ aus ist).
  * @param {Gruppe} g @param {Ansicht} A @param {Zustand} z @param {number} lo @param {number} hi @param {Farben} farben
- * @param {number} [massstab] @param {string | null} [einfarbig] @param {boolean} [nurSichtbar]
+ * @param {string | null} [einfarbig] @param {boolean} [nurSichtbar]
  */
-function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null, nurSichtbar = false) {
-  const teile = [];
-  /** @param {Vec2[]} pts */
-  const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
-  // nurSichtbar: Kopien, deren Umriss ganz ausserhalb des Bildes liegt, weglassen
-  /** @param {Vec2[]} pts */
-  const sichtbar = (pts) => !nurSichtbar || imBild(A, pts);
-  if (z.aeFuell) teile.push(...aeFuellung(g, A, lo, hi, farben, einfarbig, nurSichtbar));
-  for (const strich of z.striche ?? []) {
-    if (strich.length < 2) continue;
-    for (const k of kopien(g, strich, lo, hi)) {
-      if (!sichtbar(k.punkte)) continue;
-      const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
-      teile.push(`<path d="${pfad(k.punkte)}" fill="none" stroke="${farbe}" stroke-width="${f2((k.urbild ? 3.2 : 2) * massstab)}" stroke-linecap="round" stroke-linejoin="round"/>`);
-    }
-  }
-  return teile.length ? `<g class="zeichnung">${teile.join('')}</g>` : '';
+function zeichnungSVG(g, A, z, lo, hi, farben, einfarbig = null, nurSichtbar = false) {
+  if (!z.aeFuell) return '';
+  return `<g class="zeichnung">${aeFuellung(g, A, lo, hi, farben, einfarbig, nurSichtbar).join('')}</g>`;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1205,7 +1191,7 @@ export function tafelB(id, z, farben, { k = 1 } = {}) {
     teile.push(elementeSVG(g, alle, A, farben, z.farben, { k }));
   }
   const einfarbig = tapete ? farben.upper : null;
-  teile.push(zeichnungSVG(g, A, z, lo, hi, farben, 0.8, einfarbig, true));
+  teile.push(zeichnungSVG(g, A, z, lo, hi, farben, einfarbig, true));
   if (z.objekt) teile.push(objekteSVG(g, M, A, z.punkt, lo, hi, z.form, farben, massObjekt, undefined, tapete ? () => /** @type {string} */ (einfarbig) : null, true));
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);

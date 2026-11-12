@@ -11,7 +11,7 @@ import { gruppe } from './symmetrie.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { Gitter } from './zeichnung.js' */
-/** @import { Basiseintrag } from './motive.js' */
+/** @import { Basiseintrag, Strich } from './motive.js' */
 /** @import { System } from './ebenengruppen.js' */
 /**
  * Struktur im Modus „Gitter und Basis“ mit den Schaltern ihrer Tafeln: alle Motive der Basis.
@@ -21,7 +21,7 @@ import { gruppe } from './symmetrie.js';
  * Entwurf im Modus „Muster entwerfen“ (#136): die Ebenengruppe (immer fest; ein eigenes Feld, nicht `gruppe` von
  * „Ebenengruppen“), das Gitter im System der Gruppe und je Bahn ein Vertreter (bahnen.js); elemente und ae sind
  * die Anzeigen von Tafel A.
- * @typedef {Gitter & { gruppe: string, basis: Basiseintrag[], elemente: boolean, ae: boolean }} EntwurfZustand
+ * @typedef {Gitter & { gruppe: string, basis: Basiseintrag[], striche: Strich[], elemente: boolean, ae: boolean }} EntwurfZustand
  */
 /**
  * Zustand der App (Felder siehe startzustand()).
@@ -45,9 +45,6 @@ import { gruppe } from './symmetrie.js';
  * @property {boolean} herkunft
  * @property {string | null} erkl
  * @property {number} aufbau
- * @property {boolean} zeichnen
- * @property {boolean} radieren
- * @property {Vec2[][]} striche
  * @property {boolean} aeFuell
  * @property {number} schritt
  * @property {number[]} aeTeile
@@ -111,7 +108,7 @@ export const ENTWURF_START = 'p4mm';
 /** Entwurf im Modus „Muster entwerfen“: leer, in der Gruppe ENTWURF_START mit dem Startgitter ihres Systems. @param {string} [sym] @returns {EntwurfZustand} */
 export function entwurfStart(sym = ENTWURF_START) {
   const gi = GITTER_START[systemVon(sym)];
-  return { gruppe: sym, ba: gi.ba, gamma: gi.gamma, basis: [], elemente: true, ae: false };
+  return { gruppe: sym, ba: gi.ba, gamma: gi.gamma, basis: [], striche: [], elemente: true, ae: false };
 }
 
 /**
@@ -178,9 +175,6 @@ export function startzustand() {
     herkunft: false, // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
-    zeichnen: false, // Werkzeug „Zeichnen“ in Tafel A (nicht in der Link-Adresse)
-    radieren: false, // Werkzeug „Radieren“ in Tafel A (nicht in der Link-Adresse)
-    striche: [], // gezeichnete Striche in Bruchkoordinaten (nur im Browser gespeichert, nicht im Link)
     aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
     schritt: 0, // Schritt für Schritt: 0 aus, sonst Operation 1 … N der ITA-Liste, N + 1 Gittertranslationen
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
@@ -268,11 +262,6 @@ export function zustandPruefen(z) {
   const zahlTeile = /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === z.gruppe)).ae.text.split(';').length;
   z.aeTeile = Array.isArray(z.aeTeile) ? [...new Set(z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile))].sort((x, y) => x - y) : [];
   z.gitter = gitterPruefen(z.gitter);
-  // Werkzeuge und gezeichnete Striche (nur im Speicher): Folgen von Punkten, höchstens STRICH_GRENZE
-  z.zeichnen = z.zeichnen === true;
-  z.radieren = z.radieren === true && !z.zeichnen;
-  z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(imFeld)) : [];
-  while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
   z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
   z.entwurf = pruefeEntwurf(z.entwurf) ?? entwurfStart();
   return z;
@@ -421,6 +410,24 @@ export function pruefeStruktur(st) {
 }
 
 /**
+ * Striche aus dem Speicher prüfen (nicht im Link): Punktfolgen ab zwei Punkten, alle im Feld, Farbe eine der vier
+ * Atomsorten (sonst die erste); höchstens STRICH_GRENZE Punkte, die ältesten Striche fallen zuerst weg.
+ * @param {unknown} striche @returns {Strich[]}
+ */
+export function pruefeStriche(striche) {
+  if (!Array.isArray(striche)) return [];
+  /** @type {Strich[]} */
+  const out = [];
+  for (const st of striche) {
+    if (!istObjekt(st) || !Array.isArray(st.punkte) || st.punkte.length < 2 || !st.punkte.every(imFeld)) continue;
+    const farbe = Number(st.farbe);
+    out.push({ punkte: st.punkte.map((p) => /** @type {Vec2} */ ([p[0], p[1]])), farbe: Number.isInteger(farbe) && farbe >= 0 && farbe < 4 ? farbe : 0 });
+  }
+  while (out.flat().reduce((n, st) => n + st.punkte.length, 0) > STRICH_GRENZE) out.shift();
+  return out;
+}
+
+/**
  * Entwurf aus Speicher oder Link prüfen: gültige Kopie oder null. Unbekannte Gruppe: null (der leere Startentwurf;
  * nicht umdeuten, Leitfaden Abschn. 5.2). Ein Gitter, das nicht zum System der Gruppe passt, wird das Startgitter des
  * Systems (gitterZurGruppe: innerhalb der Genauigkeit des Links gilt der exakte Wert des Systems). Die Vertreter
@@ -434,7 +441,7 @@ export function pruefeEntwurf(en) {
   const start = GITTER_START[systemVon(sym)];
   const ba = begrenzt(en.ba, STRUKTUR_BEREICH.ba) ?? start.ba; const gamma = begrenzt(en.gamma, STRUKTUR_BEREICH.gamma) ?? start.gamma;
   const gi = gitterZurGruppe(ba, gamma, sym) ?? start;
-  return { gruppe: sym, ba: gi.ba, gamma: grad(gi.gamma), basis: pruefeBasis(en.basis, bahnGewicht(sym)), elemente: en.elemente !== false, ae: en.ae === true };
+  return { gruppe: sym, ba: gi.ba, gamma: grad(gi.gamma), basis: pruefeBasis(en.basis, bahnGewicht(sym)), striche: pruefeStriche(en.striche), elemente: en.elemente !== false, ae: en.ae === true };
 }
 
 /** @type {[string, StrukturSchalterfeld][]} */
@@ -512,9 +519,9 @@ function hashLesen(z, hash) {
   const q = new URLSearchParams(String(hash).replace(/^#/, ''));
   if (!q.has('m')) return false;
   const s = startzustand();
-  // Gezeichnetes steht nicht im Link und bleibt beim Öffnen eines Links erhalten, ebenso Struktur und Entwurf
-  // des anderen Modus
-  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), striche: Array.isArray(z.striche) ? z.striche : [], struktur: z.struktur ?? s.struktur, entwurf: z.entwurf ?? s.entwurf });
+  // Struktur und Entwurf bleiben beim Öffnen eines Links erhalten (der Link des anderen Modus ändert sie nicht); die
+  // Striche des Entwurfs stehen nicht im Link und bleiben auch im Entwurf erhalten (unten)
+  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), struktur: z.struktur ?? s.struktur, entwurf: z.entwurf ?? s.entwurf });
   if (q.get('m') === 'eg') z.modus = 'eg';
   if (q.get('m') === 'struktur') {
     // Modus „Gitter und Basis“: Vorgabe, darauf Gitter und Basis aus dem Link
@@ -546,6 +553,7 @@ function hashLesen(z, hash) {
       if (q.has('ae')) en.ae = an(q.get('ae'));
     }
     for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
+    en.striche = pruefeStriche(z.entwurf?.striche);
     z.entwurf = en;
     z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
     return true;

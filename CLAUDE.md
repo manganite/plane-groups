@@ -231,6 +231,28 @@ für diese App gilt.
   - **Ungültig aus Link oder Speicher** (Leitfaden Abschn. 5.2: nicht umdeuten): unbekannte oder fehlende Gruppe `g` ergibt den
     leeren Startentwurf (auch Vertreter und Gitter des Links entfallen); ein Gitter, das nicht zum System der Gruppe passt,
     das Startgitter des Systems (Vertreter und Anzeigen bleiben). Link und Speicher prüfen gleich (`pruefeEntwurf`).
+  - **Zeichnen** (Schritt 5, umgesetzt am 12.11.2026; Wahl beim Umsetzen, von Thomas zu bestätigen): „Selbst zeichnen“ ist aus
+    „Ebenengruppen“ in den Entwurf gezogen (Konzept, Abschn. 3.1); dort entfallen die Zustandsfelder `zeichnen`, `radieren`,
+    `striche`, die Bedienelemente und der Abschnitt. Dort bleibt nur die gefüllte asymmetrische Einheit (`zeichnungSVG`).
+    - **Zustand:** `EntwurfZustand.striche` = Liste von `Strich { punkte: Vec2[], farbe }` (Typ in `js/motive.js`), Punkte in
+      Bruchkoordinaten der gegebenen (= konventionellen) Zelle, Farbe = Index der Atomsorte 0–3 wie bei den Motiven
+      (`motivFarben`); Spiegelbilder bekommen keine eigene Farbe. Prüfung in `pruefeStriche` (`js/zustand.js`: mindestens 2
+      Punkte je Strich, Punkte innerhalb ±10⁶, Farbe ausserhalb 0–3 ergibt 0, höchstens `STRICH_GRENZE` Punkte, überzählige
+      Striche am Anfang fallen weg).
+    - **Link und Speicher:** Striche stehen nur im Browserspeicher, nicht in der Link-Adresse (wie vorher in „Ebenengruppen“; die
+      Zeichnung kann mehr als tausend Punkte haben). Ein Link `m=entwurf&…` lässt die Striche des Entwurfs davor stehen, wie
+      der Speicher überhaupt Dinge behält, die der Link nicht trägt. Das Konzept sagt „Link und Speicher der Zeichnung“; gemeint
+      ist hier nur der Speicher (Entscheidung beim Umsetzen). Neues Feld mit Startwert `[]`: kein Bruch, `SPEICHER_VERSION`
+      bleibt 3. Wechsel der Gruppe behält die Striche (Bruchkoordinaten), der Übergang aus „Gitter und Basis“ beginnt ohne Striche.
+    - **Zeichnung:** `strichSVG` (`js/struktur.js`) vervielfältigt jeden Strich mit allen Operationen der gewählten Gruppe
+      (`kopien`, `js/zeichnung.js`), unter den Motiven in Tafel A und B, auch als Tapete; Breite 2,6 (A, mit `k` bis 1,4) bzw. 2.
+      Radieren wirkt je Strich (`radieren` auf einem Strich), die Teile behalten die Farbe.
+    - **Bedienung:** Werkzeuge „Zeichnen“ und „Radieren“ neben „Wählen und ziehen“ und „Hinzufügen“ (sie schliessen sich aus, die
+      Auswahl wird aufgehoben, Leitfaden Abschn. 5.2); die Farbe ist die des Bereichs „Neues Motiv“ (`neu.farbe`). Abschnitt
+      „Zeichnen“ (offen) mit Hinweis, „Rückgängig“ (Verlauf der Striche bis 50 Schritte, nur im Speicher; ohne Verlauf der letzte
+      Strich) und „Alles löschen“. „Radieren“ ist gesperrt, solange es keine Striche gibt, bleibt aber gewählt. Die Lupe bleibt
+      beim Zeichnen stehen (`fest`). Wechsel in einen anderen Modus wählt das Werkzeug ab. Die Bedienung prüft
+      `tools/entwurf-pruefen.mjs`, Abschnitt 7.
   - **Orientierung der Bilder:** Drehanteil *K* der Operation kartesisch (`kartMatrix`): *D*(*w*′) *S*^*s*′ = *K* *D*(*w*)
     *S*^*s* mit der Drehung *D* und der Spiegelung *S* an der eigenen *y*-Achse, also *s*′ = *s* XOR (det *K* < 0); *w*′ aus dem
     Bild der *y*-Achse des Motivs (zweite Spalte), die *S* festlässt. Motiv, Farbe, Grösse und Winkel gelten für die ganze
@@ -238,7 +260,7 @@ für diese App gilt.
     Winkel und „gespiegelt“ das Bild, und Änderungen gehen ebenso über die Umkehroperation an den Vertreter. Einrasten zuerst
     auf spezielle Lagen (`lage()`, Toleranz in Pixeln wie in „Ebenengruppen“), sonst auf das 1/12-Raster. Liegt ein gewähltes
     Bild auf einer speziellen Lage, zeigt die Auswahl das dort gezeichnete Bild (`sichtbareOp`; Review #134).
-  - **Bedienung** (Wahl beim Umsetzen): Reiter „Muster entwerfen“; Karte mit Gruppenwahl (Knöpfe je Kristallsystem wie in
+  - **Bedienung** (Wahl beim Umsetzen; Zeichnen ab Schritt 5, siehe oben): Reiter „Muster entwerfen“; Karte mit Gruppenwahl (Knöpfe je Kristallsystem wie in
     „Ebenengruppen“), „Symmetrieelemente“ und „Asymmetrische Einheit“; darunter wie in „Gitter und Basis“ Basis und Gitter
     (Karte `nur-bau`) sowie „Darstellung“. Ein leerer Entwurf wählt das Werkzeug „Hinzufügen“ von selbst (auch beim Öffnen eines
     Links). „Metrik setzen“ und „Vorgabe“ gibt es nur in „Gitter und Basis“. Die Bedienung prüft ein Browserlauf
@@ -266,10 +288,10 @@ für diese App gilt.
   Ausnahme: Erklärungen im Symmetriegerüst (nächster Punkt).
 - **Erklärungen im Symmetriegerüst** (5.11.2026, Thomas): In „Schritt für Schritt“, „Aufbau aus Erzeugenden“
   und „Herkunft der Elemente“ zeigt das Gerüst das Objekt in fester Grösse (wie ihre Fähnchen; meist kleiner
-  als im Gitter), ohne eigene Zeichnung und gefüllte asymmetrische Einheit (im Muster bleiben sie); Zeichnen,
-  Radieren, Füllen und Lupe ruhen (`erklaerend` in `js/zeichnung.js`). Nach Leitfaden Abschn. 5.2 werden die
-  Werkzeuge Zeichnen und Radieren abgewählt, die Schalter „Füllen“ und Lupe bleiben gewählt und wirken beim
-  Verlassen wieder. Grund: Mit grossem Objekt, Zeichnung oder Lupe erkennt man die Elemente und Wege nicht
+  als im Gitter), ohne gefüllte asymmetrische Einheit (im Muster bleibt sie); Füllen und Lupe ruhen (`erklaerend` in
+  `js/zeichnung.js`). Die Schalter „Füllen“ und Lupe bleiben gewählt (Leitfaden Abschn. 5.2) und wirken beim
+  Verlassen wieder. (Bis Schritt 5 ruhten auch Zeichnen und Radieren; sie gibt es nur noch im Entwurf, der keine
+  Erklärungen kennt.) Grund: Mit grossem Objekt, Zeichnung oder Lupe erkennt man die Elemente und Wege nicht
   mehr; die Lupe braucht man nur zum Zeichnen, Radieren und Setzen. Der Zustand gilt sofort beim Einschalten,
   damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. „Herkunft der Elemente“ überdeckt
   „Schritt für Schritt“, schon beim Einschalten, nicht erst mit gezeigtem Element (die Erklärung zeigt statt

@@ -242,6 +242,6 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
    Skript, Quiz, Experimente, Erste Schritte.) Neuer Modus mit Gruppenwahl, gebündelter Motivauswahl (auch in „Gitter und Basis“, schliesst #104), Ornamenten als
    Motiven, Regel für zusammenfallende Bilder (Abschn. 2, Punkt 14), Gitter; „Symmetrie festhalten“ aus „Gitter und Basis“ entfernen; Übergang; Ornamente aus „Ebenengruppen“ samt
    Skript (Vorgabe mit Ranken für Kap. 8, Umbau von `js/skript.js`) und Quiz; Experimente und Erste Schritte dazu.
-5. Zeichnen in den neuen Modus.
+5. Zeichnen in den neuen Modus (**umgesetzt am 12.11.2026**; Wahl beim Umsetzen in `CLAUDE.md`, Punkt „Modus „Muster entwerfen““).
 6. Hilfebilder, Vorschau, Durchsicht des Skripts.
 7. Release (MINOR, Hinweis: alte Links gelten nicht mehr).
