@@ -23,11 +23,6 @@ Hinweis: Mit diesem Release ändern sich Link-Adressen und gespeicherte Stände 
 - **Motive spiegeln** (#121, Vorarbeit für „Muster entwerfen“): Im Modus „Gitter und Basis“ lassen sich Fähnchen und Windräder mit „Gespiegelt“ als Spiegelbild setzen (gespiegelt vor der Drehung, beim Fähnchen an der Stange). So lassen sich Muster mit Spiegel- und Gleitspiegellinien auch aus chiralen Motiven bauen. Bei den übrigen Motiven ist der Schalter gesperrt, weil ihr Spiegelbild dasselbe Motiv ist. Die Kenndaten nennen gespiegelte Motive. Link-Adresse: optionales letztes Feld `m` je Motiv in `basis=` (ohne `m` nicht gespiegelt).
 - **„Darstellung“, Füllen und Lupe in beiden Modi** (#136, Schritt 3): Im Modus „Gitter und Basis“ gibt es jetzt den Abschnitt „Darstellung“ wie in „Ebenengruppen“: Symmetrieelemente nach Blickrichtung färben (Tafel A und Muster), Symmetrieelemente im Muster, Muster als Tapete (ohne Zelle und Elemente; die Motive behalten ihre Farben), die asymmetrische Einheit der bestimmten Gruppe füllen (Tafel A und Muster; ohne Motive gesperrt, mit Grund) und die Vergrösserung des Musters. Die **Lupe** über dem Symmetriegerüst bzw. der Struktur wirkt auch dort: doppelte Vergrösserung um das gewählte Motiv, ohne Wahl um die Mitte der Zelle; beim Ziehen bleibt der Ausschnitt stehen. Im Link stehen dieselben Schlüssel wie in „Ebenengruppen“ (`farb`, `mel`, `tap`, `fuell`, `lupe`, `zoom`).
 
-### Behoben
-
-- **CI, Deploy und Release ohne apt** (crystallography-common#128): Der Browser für das Skript-PDF wird ohne `--with-deps` installiert, also ohne Systempakete über `apt`; am 11.11.2026 scheiterten die Jobs mehrfach, weil der Runner die Paketquellen von Ubuntu nicht erreichte. Alle Zeichen des Skripts ausserhalb der eigenen Schriften deckt die Schrift DejaVu des Runners ab (geprüft in der CI).
-- **Zentrierte Gitter in „Gitter und Basis“:** Ist die gegebene Zelle schon die konventionelle, zeigt die Struktur keine zweite Zelle *a*′, *b*′ mehr, auch wenn die Bestimmung sie wegen Rundungsfehlern als 0,9999999999999999-faches liefert (bei *cm* und *c*2*mm* aus selbst gebauten Strukturen).
-
 ### Geändert
 
 - **Skript, Hilfeseite und Tooltips zum Zeichnen im Entwurf** (#136, Schritt 6): Die Kästen „In der App“ in Kap. 6 und 7 nennen „Zeichnen“ im Modus „Muster entwerfen“ (in „Ebenengruppen“ gibt es es nicht mehr); Tooltip und ⓘ-Erklärung des Modus nennen Striche; Bilder der Hilfeseite neu erzeugt. Texte von Thomas zu prüfen.
@@ -43,6 +38,8 @@ Hinweis: Mit diesem Release ändern sich Link-Adressen und gespeicherte Stände 
 
 ### Behoben
 
+- **CI, Deploy und Release ohne apt** (crystallography-common#128): Der Browser für das Skript-PDF wird ohne `--with-deps` installiert, also ohne Systempakete über `apt`; am 11.11.2026 scheiterten die Jobs mehrfach, weil der Runner die Paketquellen von Ubuntu nicht erreichte. Alle Zeichen des Skripts ausserhalb der eigenen Schriften deckt die Schrift DejaVu des Runners ab (geprüft in der CI).
+- **Zentrierte Gitter in „Gitter und Basis“:** Ist die gegebene Zelle schon die konventionelle, zeigt die Struktur keine zweite Zelle *a*′, *b*′ mehr, auch wenn die Bestimmung sie wegen Rundungsfehlern als 0,9999999999999999-faches liefert (bei *cm* und *c*2*mm* aus selbst gebauten Strukturen).
 - **Gemeinsame Grundlage** auf crystallography-common v0.15.1: Tooltips erscheinen auch auf Laptops mit Touchscreen, wenn mit Maus oder Tastatur gearbeitet wird (vorher blieben sie aus, wenn der Browser den Touchscreen als primäres Zeigegerät meldete; crystallography-common#114).
 
 ## [1.2.0] - 2026-11-08
