@@ -73,13 +73,17 @@ export function motivSVG(e, p, A, M, farbe, papier, { auswahl = false } = {}) {
   else if (d.form === 'fahne') {
     svg = `<line x1="${f2(q[0][0])}" y1="${f2(q[0][1])}" x2="${f2(q[1][0])}" y2="${f2(q[1][1])}" stroke="${farbe}" stroke-width="2.4" stroke-linecap="round"/>`
       + `<polygon points="${[q[1], q[2], q[3]].map(pt).join(' ')}" fill="${farbe}"/>`;
-  } else if (d.form === 'ellipse') {
-    // Ellipse durch die Endpunkte (lokal ±1, 0) und die Seiten (0, ±0,32)
+  } else if (d.form === 'stab') {
+    // Abgerundetes Stäbchen durch die Endpunkte (lokal ±1, 0) und die Seiten (0, ±0,32): Halbkreise mit Radius 0,32
+    // um (±0,68, 0), dazwischen gerade Seiten
     const rad = ((e.winkel ?? 0) * Math.PI) / 180; const g = e.groesse ?? d.groesse;
-    const umriss = Array.from({ length: 28 }, (_, k) => {
-      const w = (2 * Math.PI * k) / 28; const u = Math.cos(w); const v = 0.32 * Math.sin(w);
-      return bild(/** @type {Kartesisch<Vec2>} */ ([g * (Math.cos(rad) * u - Math.sin(rad) * v), g * (Math.sin(rad) * u + Math.cos(rad) * v)]));
-    });
+    const r = 0.32; const n = 14;
+    /** @type {[number, number][]} */
+    const lokal = [];
+    for (const [cx, w0] of /** @type {[number, number][]} */ ([[1 - r, -Math.PI / 2], [-(1 - r), Math.PI / 2]])) {
+      for (let k = 0; k <= n; k++) { const w = w0 + (Math.PI * k) / n; lokal.push([cx + r * Math.cos(w), r * Math.sin(w)]); }
+    }
+    const umriss = lokal.map(([u, v]) => bild(/** @type {Kartesisch<Vec2>} */ ([g * (Math.cos(rad) * u - Math.sin(rad) * v), g * (Math.sin(rad) * u + Math.cos(rad) * v)])));
     svg = `<polygon points="${umriss.map(pt).join(' ')}" fill="${farbe}" fill-opacity="0.9" stroke="${papier}" stroke-width="0.8"/>`;
   } else svg = `<polygon points="${q.map(pt).join(' ')}" fill="${farbe}" fill-opacity="${d.deckkraft ?? 0.9}" stroke="${papier}" stroke-width="0.8" stroke-linejoin="round"/>`;
   if (auswahl) svg += `<circle cx="${f2(mitte[0])}" cy="${f2(mitte[1])}" r="${f2(Math.max(14, s * 1.35))}" fill="none" stroke="${farbe}" stroke-width="1.8" stroke-dasharray="3 2.5"/>`;
