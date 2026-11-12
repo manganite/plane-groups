@@ -88,192 +88,94 @@ für diese App gilt.
     Signatur nach Conway bestimmen nur im Skript (#85); in den Kenndaten bleibt sie.
   - **Symmetriebruch** nur in „Gitter und Basis“, wo das Gitter frei ist und es um Symmetriebruch geht; die anderen Modi
     ändern das Gitter nur innerhalb des Kristallsystems.
-  - **Ein Gitterbereich für alle Modi:** *b*/*a* 0,5–2, γ 60–150° (`GITTER_BEREICH` in `js/zustand.js`; `STRUKTUR_BEREICH`
-    leitet sich davon ab). Er schliesst höhere Metrik nicht aus; ein engerer tat es auch nicht (*b*/*a* = 1 war einstellbar).
-    In „Ebenengruppen“ bleibt die Gruppe die gewählte, die Metrik ist dann zufällig höher (z. B. *b* = *a* im rechteckigen
-    System), und der Hinweis im Abschnitt „Gitter“ sagt es.
-  - **„Darstellung“ gleich in allen Modi:** eigene Karte unten in der Seitenleiste (Nach Blickrichtung färben,
-    Symmetrieelemente im Muster, Muster als Tapete, Asymmetrische Einheit füllen, Vergrösserung des Musters), dieselben Felder
-    im Zustand (`farben`, `musterElemente`, `tapete`, `aeFuell`, `lupe`, `zoomB`) und Schlüssel im Link (`farb`, `mel`, `tap`,
-    `fuell`, `lupe`, `zoom`; `GEMEINSAME_SCHALTER` in `js/zustand.js`), dazu Einrasten (`einrasten`, `rast`; seit #130,
-    Abschnitt „Seitenleiste und Tafel“). Die Schalter nur von „Ebenengruppen“ (`el`, `obj`, `ae`, `orbit`) stehen nicht im
-    Link der anderen Modi. Wahl beim Umsetzen:
-    - **Farben:** Der Startwert `farb=1` gilt in allen Modi. Abbildungen im Skript und im Quiz geben `farben: false`
-      ausdrücklich an.
-    - **Tapete:** ohne konventionelle Zelle und ohne Symmetrieelemente (sie sperrt „Symmetrieelemente im Muster“, das gewählt
-      bleibt); die Motive behalten ihre Farben, die gefüllte asymmetrische Einheit ist einfarbig. Die Bindungen folgen ihrem
-      eigenen Schalter („Anzeigen“), weil sie zur Struktur gehören, nicht zur Darstellung.
-    - **Füllen** in „Gitter und Basis“: die asymmetrische Einheit der bestimmten Gruppe mit allen Bildern, gezeichnet in deren
-      konventioneller Zelle (`aeFuellung` in `js/zeichnung.js`, dieselbe Rechnung wie in „Ebenengruppen“; der Bereich der
-      Bilder folgt aus dem Bild, `konvBereich` in `js/struktur.js`), in Tafel A und im Muster. Ohne Motive gibt es keine
-      bestimmte Gruppe: Der Schalter ist gesperrt, mit Grund, bleibt aber gewählt (Leitfaden Abschn. 5.2).
-    - **Lupe:** ein Schalter (Symbol) über Tafel A neben Einrasten, in allen Modi dieselbe Rechnung (`lupeAusschnitt` in
-      `js/zeichnung.js`). Mitte: in „Ebenengruppen“ das Objekt, sonst das gewählte, gezeichnete Motiv, ohne Wahl die Mitte der
-      gegebenen Zelle. Beim Ziehen und Zeichnen bleibt der Ausschnitt stehen (`fest`) und folgt erst beim Loslassen; tippt
-      man ins Leere, springt die Ansicht zur Mitte der Zelle. Sie ruht nur in den Erklärungen von „Ebenengruppen“
-      (`erklaerend`, `z.modus === 'eg'`).
+  - **Ein Gitterbereich für alle Modi** (*b*/*a* 0,5–2, γ 60–150°, `GITTER_BEREICH` in `js/zustand.js`). Er schliesst höhere
+    Metrik nicht aus; ein engerer tat es auch nicht. In „Ebenengruppen“ bleibt die Gruppe die gewählte, auch wenn die Metrik
+    zufällig höher ist (z. B. *b* = *a* im rechteckigen System); der Hinweis im Abschnitt „Gitter“ sagt es.
+  - **„Darstellung“ gleich in allen Modi:** eine Karte unten in der Seitenleiste, dieselben Schalter, Felder und Schlüssel im
+    Link (`GEMEINSAME_SCHALTER` in `js/zustand.js`), dazu Einrasten; die Schalter nur von „Ebenengruppen“ stehen nicht im Link
+    der anderen Modi. Wahl beim Umsetzen: Startwert `farb=1` überall, Abbildungen in Skript und Quiz geben `farben: false`
+    ausdrücklich an. Die Tapete zeigt weder Zelle noch Symmetrieelemente; die Bindungen folgen ihrem eigenen Schalter, weil sie
+    zur Struktur gehören, nicht zur Darstellung. „Füllen“ in „Gitter und Basis“ füllt die asymmetrische Einheit der bestimmten
+    Gruppe; ohne Motive gibt es keine, der Schalter ist dann gesperrt (Leitfaden Abschn. 5.2). Die Lupe rechnet in allen Modi
+    gleich; Mitte ist das Objekt bzw. das gewählte Motiv, sonst die Mitte der Zelle, und beim Ziehen und Zeichnen bleibt der
+    Ausschnitt stehen, bis man loslässt.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **Motive** („Gitter und Basis“ und „Muster entwerfen“; Thomas, 6., 11. und 12.11.2026):
-  - **Auswahl nach Eigensymmetrie:** `MOTIVZEILEN` (Daten, `js/motive.js`) ordnet die Motive vier Zeilen zu (Atom; ohne
-    Eigensymmetrie; nur Drehsymmetrie; mit Spiegelsymmetrie), ein Test prüft die Zeilen gegen `symmetrie`. Grund: Ein Motiv
-    erscheint auf einer speziellen Lage nur dann einmal, wenn es deren Lagesymmetrie hat; die Zeilen zeigen, welches Motiv
-    wohin passt. Die Knöpfe zeigen ein kleines Bild (`motivSymbol` in `js/struktur.js`, auf die Mitte des Rechtecks um seine
-    Punkte gesetzt, damit auch das Fähnchen mit dem Fuss auf der Lage ganz im Feld liegt; Farbe der gewählten Atomsorte über
-    `--mf`), mindestens 40 px; Name und Punktgruppe im Tooltip und im `aria-label`, die Zeile als `aria-labelledby`, das ⓘ
-    nennt die Zeilen. `s-motiv` ist eine Gruppe von Knöpfen: je Zeile ein Raster mit bis zu 6 Knöpfen, der Name der Zeile als
-    kleine Überschrift darüber (#130; vorher eine linke Spalte, die nur 3 Knöpfe je Zeile liess).
-  - **Gleichschenkliges Dreieck** schmal (Spitze etwa 28°; Test: höchstens 40°), damit es als Bild klar vom gleichseitigen
-    zu unterscheiden ist (Thomas, 12.11.2026).
-  - **Ornamente** (Blatt, Tropfen, Ranke) gibt es nur als Motive; als Form des Objekts in „Ebenengruppen“ bleiben Fähnchen und
-    Kreis mit Komma (`FORMEN` in `js/zustand.js` und `js/zeichnung.js`). Der Kreis mit Komma ist kein Motiv: Er ist das Zeichen
-    der ITA für ein Objekt ohne Eigensymmetrie; als Motiv lägen auf einem Drehpunkt gleich aussehende Kreise übereinander.
-    Pfade in `ORNAMENTE` (`js/zeichnung.js`, gezeichnet von `ornamentSVG`). Das Ornament liegt auf der Mitte des Rechtecks um
-    die Pfadpunkte (`ornamentMitte`), um sie dreht es sich und lässt sich greifen wie die übrigen Motive. Eine lokale Einheit
-    sind `ORNAMENT_EINHEIT` = 13 Bildpunkte der Pfade (etwa zwei Einheiten hoch wie das Fähnchen), Standardgrösse 0,1.
-    **Kennzeichnende Punkte:** je 4 oder 5 auf den Pfaden (Fuss, Spitze, Ansatz, Mitte eines Bézier-Abschnitts; nicht dessen
-    Kontrollpunkte), jeder mit eigener Art (`o0`, `o1` …). Eine Symmetrie müsste jeden Punkt auf sich selbst abbilden, und das
-    tut bei drei Punkten, die nicht auf einer Geraden liegen, nur die Identität; so täuschen sie keine Symmetrie vor. Der Test
-    prüft Art, Lage auf dem Pfad, dass die Zeichnung beim ersten Punkt beginnt (gleiche Orientierung wie `motivKart`) und dass
-    jedes Ornament allein, gedreht und gespiegelt, in verschiedenen Gittern *p*1 ergibt.
+  - **Auswahl nach Eigensymmetrie** in vier Zeilen: Atom; ohne Eigensymmetrie; nur Drehsymmetrie; mit Spiegelsymmetrie
+    (`MOTIVZEILEN`, ein Test prüft sie gegen `symmetrie`). Grund: Ein Motiv erscheint auf einer speziellen Lage nur dann
+    einmal, wenn es deren Lagesymmetrie hat; die Zeilen zeigen, welches Motiv wohin passt. Knöpfe mit kleinem Bild, Name und
+    Punktgruppe im Tooltip und im `aria-label` (#130).
+  - **Gleichschenkliges Dreieck** schmal (Spitze etwa 28°, Test höchstens 40°), damit es als Bild klar vom gleichseitigen zu
+    unterscheiden ist (Thomas, 12.11.2026).
+  - **Ornamente** (Blatt, Tropfen, Ranke) gibt es nur als Motive; als Objekt in „Ebenengruppen“ bleiben Fähnchen und Kreis mit
+    Komma. Der Kreis mit Komma ist kein Motiv: Er ist das Zeichen der ITA für ein Objekt ohne Eigensymmetrie; als Motiv lägen
+    auf einem Drehpunkt gleich aussehende Kreise übereinander. Für die Bestimmung trägt jedes Ornament 4 oder 5 Punkte auf
+    seinem Pfad, jeder von eigener Art: Nur die Identität bildet drei solche Punkte, die nicht auf einer Geraden liegen, auf
+    sich ab, so täuschen sie keine Symmetrie vor (Test: jedes Ornament allein ergibt *p*1).
   - **Grundsatz Aufpunkt** (Thomas, 12.11.2026): Gleiche Objekte haben in allen Modi denselben Aufpunkt (Lage, Drehpunkt),
-    sonst ist das Verhalten für Nutzer intransparent. Das Fähnchen liegt mit dem Fuss auf der Lage und dreht sich um ihn (die
-    Stange ragt 2 Einheiten nach oben; Auswahl- und Greifzone um den Fuss), die übrigen Motive mit der Mitte. Neue Objekte, die
-    in mehreren Modi vorkommen, folgen dem Grundsatz.
-  - **Spiegelbilder:** Ein Basiseintrag hat neben `winkel` das Feld `spiegel` (Spiegelung an der eigenen *y*-Achse des Motivs,
-    vor der Drehung), damit jede Orientierung darstellbar ist, auch die Bilder chiraler Motive unter Spiegel- und
-    Gleitspiegellinien. Achirale Motive sind zu dieser Achse symmetrisch (Test); bei ihnen entfällt das Feld, und der Schalter
-    „Gespiegelt“ fehlt (Leitfaden Abschn. 5.2, #130; ebenso „Mit Fuge“ ausser beim Ziegel). Im Link ein optionales letztes Feld `m` in `basis=`. Wechselt ein gespiegeltes Motiv zu einem
-    achiralen, entfällt das Feld (es gibt dann nichts, was ruhen könnte, Leitfaden Abschn. 5.2).
-  - **Ziegel mit und ohne Fuge** (Thomas, 12.11.2026): Der Ziegel ist ein Rechteck 2 : 1, Grösse = halbe Länge, ohne Fuge
-    lückenlos; der Schalter „Mit Fuge“ (`fuge` am Basiseintrag, `Motiv.fuge` mit den Faktoren 0,95 und 0,9 für die lokalen
-    Punkte, `hatFuge`; Link-Feld `f`, standardmässig aus) lässt das Rechteck rundum um 5 % der Länge schrumpfen, also gleich
-    breite Fugen. Grund: Mit einer festen Fuge im Motiv waren die Fugen nur bei einer Grösse gleich breit und eine
-    geschlossene Parkettierung nicht möglich. Die Fuge ist relativ zur Grösse, nicht absolut: nur so sehen alle Vorgaben
-    (Raster 2*u* × *u* für *u* = 1, 1/2, 1/3 …) mit Grösse *u* und Schalter genau aus wie mit fester Fuge (Test über die
-    Ecken). Die Kantenmitten (Art `s`) sind Punkte der Bestimmung, weil die Ecken allein beim lückenlosen Läuferverband ein
-    Quadratgitter ergäben (*p*4*mm* statt *c*2*mm*).
-  - **Grösse** (Thomas, 12.11.2026): Der Regler ist logarithmisch von 0,02 bis 1 (`groesseVonRegler`, `reglerVonGroesse`,
-    `GROESSE_SCHRITTE` in `js/zustand.js`). Grund: Linear lag der typische Bereich der Atome (0,05 bis 0,2) auf nur 15 % des
-    Reglers. 250 Schritte zu je 1,6 %, die Grösse auf drei gültige Ziffern gerundet (höchstens 0,25 %), damit sie immer auf
-    dieselbe Stellung zurückläuft und der Regler beim Ziehen nicht springt (ein Test prüft den Rücklauf aller Stellungen).
-    Die Grösse des Objekts in „Ebenengruppen“ (`obj-groesse`, 0,5 bis 3) bleibt linear.
-- **Modus „Muster entwerfen“** (`entwurf`; Gründe unter „Modi und Umfang“, Format von Link und Speicher im README). Gruppe
-  und Zelle bleiben fest wie in VESTA (Thomas, 11.11.2026): Man wählt die Gruppe, jedes Motiv und jeder Strich erscheint mit
-  allen Operationen; die App bestimmt die Symmetrie des Musters nicht, das ist Thema von „Gitter und Basis“. Grund: So erwartet
-  man es vom Bau einer Struktur in gegebener Gruppe (VESTA-Handbuch, Kap. 6).
-  - **Zustand:** eigenes Feld `entwurf` (`EntwurfZustand`: `gruppe`, `ba`, `gamma`, `basis`, `striche`, `elemente`, `ae`,
-    `bindungen`), unabhängig von `struktur`, damit ein Wechsel der Modi keinen der beiden Stände verliert; `gruppe` des
-    Zustands gehört „Ebenengruppen“. `basis` hält je Bahn einen **Vertreter**, die Bilder entstehen in
-    `ausgeschrieben(entwurf)` (`js/bahnen.js`); nur so bleibt eine Bahn beim Ziehen über eine spezielle Lage zusammen.
-    Startentwurf: leer in *p*4*mm* (`ENTWURF_START`; Thomas, 12.11.2026).
+    sonst ist das Verhalten für Nutzer intransparent. Das Fähnchen liegt mit dem Fuss auf der Lage und dreht sich um ihn, die
+    übrigen Motive um ihre Mitte. Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
+  - **Spiegelbilder:** Ein Basiseintrag hat neben `winkel` das Feld `spiegel`, damit jede Orientierung darstellbar ist, auch
+    die Bilder chiraler Motive unter Spiegel- und Gleitspiegellinien. Bei achiralen Motiven fehlen Feld und Schalter
+    „Gespiegelt“ (Leitfaden Abschn. 5.2, #130).
+  - **Ziegel mit und ohne Fuge** (Thomas, 12.11.2026): Rechteck 2 : 1, ohne Fuge lückenlos; „Mit Fuge“ schrumpft es um einen
+    Anteil seiner Grösse. Grund: Mit einer festen Fuge im Motiv waren die Fugen nur bei einer Grösse gleich breit und eine
+    geschlossene Parkettierung nicht möglich. Die Kantenmitten sind Punkte der Bestimmung, weil die Ecken allein beim
+    lückenlosen Läuferverband ein Quadratgitter ergäben (*p*4*mm* statt *c*2*mm*).
+  - **Grösse** logarithmisch von 0,02 bis 1 (Thomas, 12.11.2026). Grund: Linear lag der typische Bereich der Atome (0,05 bis
+    0,2) auf nur 15 % des Reglers. Die Grösse des Objekts in „Ebenengruppen“ bleibt linear.
+- **Modus „Muster entwerfen“** (Format von Link und Speicher im README). Gruppe und Zelle bleiben fest wie in VESTA (Thomas,
+  11.11.2026): Man wählt die Gruppe, jedes Motiv und jeder Strich erscheint mit allen Operationen; die App bestimmt die
+  Symmetrie des Musters nicht, das ist Thema von „Gitter und Basis“. Grund: So erwartet man es vom Bau einer Struktur in
+  gegebener Gruppe (VESTA-Handbuch, Kap. 6).
+  - **Zustand:** eigenes Feld `entwurf`, unabhängig von `struktur`, damit ein Wechsel der Modi keinen der beiden Stände
+    verliert. Je Bahn ein **Vertreter**, die Bilder schreibt `js/bahnen.js` aus (dort auch die Orientierung der Bilder); nur
+    so bleibt eine Bahn beim Ziehen über eine spezielle Lage zusammen. Änderungen an einem Bild gehen über die
+    Umkehroperation an den Vertreter. Startentwurf leer in *p*4*mm* (Thomas, 12.11.2026).
   - **Zusammenfallende Bilder** (Konzept, Abschn. 2, Punkt 14): Bilder, die sich unterscheiden (Motiv, Farbe, Grösse, Lage,
-    Orientierung; `gleichesMotiv` mit der Toleranz der Bestimmung), bleiben alle; gleiche erscheinen einmal (das erste in
-    der Reihenfolge der ITA, also der Vertreter, wenn er darunter ist). Ein Motiv ohne die Lagesymmetrie seiner Lage zeigt
-    dort mehrere Bilder übereinander (in einem Kristall wäre das Fehlordnung); die Kenndaten nennen sie („davon *n*
-    überlagert“, Kasten „Überlagerte Bilder“, `passtNichtZurLage`, `ueberlagerung`). Das Atom und ein Motiv mit der
-    Lagesymmetrie erscheinen auf der Lage einmal. Grund: Zusammenfallen ist hier keine Bestimmung, sondern ein Bild des
-    Entwurfs; nichts wird umgedeutet.
-  - **Tafeln und Kenndaten:** Tafel A und B zeichnen den Entwurf mit den Bausteinen von „Gitter und Basis“, mit einer festen
-    Bestimmung (`festeBestimmung`: die gewählte Gruppe, konventionelle Zelle = gegebene, Ursprung 0, 0; `strukturTafelA` mit
-    dem Parameter `gegeben`). Die Kenndaten (`entwurfHTML`) zeigen die Gruppe, je Motiv Wyckoff-Lage, Lagesymmetrie und
-    Bilder je Zelle und sagen, dass nichts bestimmt wird.
-  - **Orientierung der Bilder:** Drehanteil *K* der Operation kartesisch (`kartMatrix`): *D*(*w*′) *S*^*s*′ = *K* *D*(*w*)
-    *S*^*s* mit der Drehung *D* und der Spiegelung *S* an der eigenen *y*-Achse, also *s*′ = *s* XOR (det *K* < 0); *w*′ aus dem
-    Bild der *y*-Achse des Motivs (zweite Spalte), die *S* festlässt. Motiv, Farbe, Grösse und Winkel gelten für die ganze
-    Bahn. Ziehen an einem Bild verschiebt den Vertreter über die Umkehroperation (`vertreterVon`); ist ein Bild gewählt, zeigen
-    Winkel und „gespiegelt“ das Bild, und Änderungen gehen ebenso über die Umkehroperation an den Vertreter. Einrasten zuerst
-    auf spezielle Lagen (`lage()`, Toleranz in Pixeln wie in „Ebenengruppen“), sonst auf das 1/12-Raster. Liegt ein gewähltes
-    Bild auf einer speziellen Lage, zeigt die Auswahl das dort gezeichnete Bild (`sichtbareOp`; Review #134).
-  - **Wechsel der Gruppe** (`gruppeWechseln`): Vertreter bleiben mit Bruchkoordinaten, Motiv, Winkel und Farbe, die Bilder
-    entstehen neu; die Striche bleiben. Das Gitter bleibt, wenn es zum System passt (`gitterZurGruppe`, innerhalb der
-    Genauigkeit des Links, dann exakt), sonst gilt das Startgitter des Systems; im Bereich der Regler (`GITTER_BEREICH`)
-    bleibt ein Gitterregler frei, wo das System es freigibt (in *p*2*mm* auch *b* = *a*). Gesperrt (mit Grund), wenn die
-    Grenze überschritten würde. Das Gitter wird nicht je System gemerkt (Thomas, 12.11.2026): Man legt meist Motive an und
-    vergleicht die Muster in verschiedenen Gruppen; ein mitgeführtes Gitter je System wäre mehr Zustand und Bedienung, als
-    der Vergleich braucht.
-  - **Übergang aus „Gitter und Basis“** (Knopf „In „Muster entwerfen“ weiterbearbeiten“, `uebernahmeVon`): Die bestimmte
-    Gruppe steht im Entwurf in der Aufstellung nach ITA. Weicht die konventionelle Zelle oder der Ursprung ab, rechnet die
-    Übernahme die Struktur um (*b*/*a*, γ, Lagen, Winkel und Grösse der Motive); mit anderer Zelle dreht sich das Bild, weil
-    *b* immer waagrecht liegt, mit anderem Ursprung verschiebt es sich nur. Die Kenndaten nennen die Umstellung. Unter den
-    Vorgaben betrifft das `dreieck3`, `fisch` (Ursprung) und `drittel`, `flecht` (Zelle). Liefert die Bestimmung eine
-    linkshändige Zelle (z. B. −*a*, *b*; je nach Rundung schon bei γ = 60°), wird sie vorher rechtshändig gemacht (*a*′ → −*a*′,
-    hexagonal *a*′ ↔ *b*′), sonst wäre das Bild gespiegelt. Liegen danach Metrik oder Grösse eines Motivs ausserhalb der
-    Regler oder ist die Grenze überschritten, ist der Knopf gesperrt, mit Grund. Die Struktur in „Gitter und Basis“ bleibt
-    unverändert. Die Übernahme ersetzt den Entwurf samt
-    Strichen (Hinweis unter dem Knopf, sobald der Entwurf Bahnen oder Striche hat), die Wahl der Bindungen kommt mit. Einen
-    Weg zurück gibt es nicht: Striche liessen sich in „Gitter und Basis“ nicht darstellen.
-  - **Grenze:** `BASIS_GRENZE` = 48 gilt für die ausgeschriebenen Bilder. Ein Vertreter zählt mit der Zähligkeit der
-    allgemeinen Lage, wo er auch liegt (`bahnGewicht`: *p*6*mm* 12, *c*2*mm* 8), damit Ziehen von einer speziellen Lage weg
-    die Grenze nie überschreiten kann und der Aufwand je Bild begrenzt bleibt (die Bestimmung in „Gitter und Basis“ kostete
-    bei 48 Windrädern 6 etwa 0,1 s, bei 96 etwa 0,36 s; gemessen 9.11.2026, Cloud). Beim Lesen aus Link und Speicher fallen
-    überzählige Vertreter am Ende weg, wie überzählige Motive in „Gitter und Basis“.
-  - **Ungültig aus Link oder Speicher** (Leitfaden Abschn. 5.2: nicht umdeuten): unbekannte oder fehlende Gruppe `g` ergibt
-    den leeren Startentwurf (auch Vertreter und Gitter des Links entfallen); ein Gitter, das nicht zum System der Gruppe
-    passt, das Startgitter des Systems (Vertreter und Anzeigen bleiben). Link und Speicher prüfen gleich (`pruefeEntwurf`).
-  - **Bindungen** (Thomas, 12.11.2026): Der Schalter „Bindungen (nächste Nachbarn)“ gilt wie in „Gitter und Basis“ (Startwert
-    an; Link `bind`, nur bei `0`). Grund: Ohne die Linien ist es schwer, bestimmte Gitter selbst zu entwerfen. Dieselbe
-    Rechnung (`bindungenBasis`) auf den ausgeschriebenen Bildern, also zwischen Atomen aller Bilder der Gruppe. Skript- und
-    Quizbilder geben `bindungen: false` ausdrücklich an.
-  - **Zeichnen:** Werkzeuge „Zeichnen“ und „Radieren“ neben „Wählen und ziehen“ und „Hinzufügen“ (sie schliessen sich aus,
-    die Auswahl wird aufgehoben, Leitfaden Abschn. 5.2); es gibt sie nur hier.
-    - **Zustand:** `striche` = Liste von `Strich { punkte: Vec2[], farbe }` (Typ in `js/motive.js`), Punkte in
-      Bruchkoordinaten der gegebenen (= konventionellen) Zelle, Farbe = Index der Atomsorte 0–3 wie bei den Motiven
-      (`motivFarben`; Thomas, 12.11.2026); Spiegelbilder bekommen keine eigene Farbe. Prüfung in `pruefeStriche`
-      (`js/zustand.js`: mindestens 2 Punkte je Strich, Punkte innerhalb ±10⁶, Farbe ausserhalb 0–3 ergibt 0, höchstens
-      `STRICH_GRENZE` Punkte, überzählige Striche am Anfang fallen weg).
-    - **Nur im Speicher, nicht im Link** (Thomas bestätigt, 12.11.2026): Die Zeichnung kann mehr als tausend Punkte haben.
-      Ein Link `m=entwurf&…` lässt die Striche davor stehen, wie der Speicher überhaupt Dinge behält, die der Link nicht trägt.
-    - **Zeichnung:** `strichSVG` (`js/struktur.js`) vervielfältigt jeden Strich mit allen Operationen der gewählten Gruppe
-      (`kopien`, `js/zeichnung.js`), unter den Motiven in Tafel A und B, auch als Tapete; Breite 2,6 (A, mit `k` bis 1,4) bzw. 2.
-      Radieren wirkt je Strich (`radieren` auf einem Strich), die Teile behalten die Farbe.
-    - **Bedienung:** Die Farbe ist die des Bereichs „Neues Motiv“ (`neu.farbe`). Werkzeuge, „Rückgängig“ und „Alle Striche
-      löschen“ in der Werkzeugleiste von Tafel A (#130, nächster Punkt). „Radieren“ ist gesperrt, solange es keine Striche
-      gibt, bleibt aber gewählt. Wechsel in einen anderen Modus wählt das Werkzeug ab.
-  - **Bedienung:** Reiter „Muster entwerfen“; Karte mit Gruppenwahl (Knöpfe je Kristallsystem wie in „Ebenengruppen“),
-    „Symmetrieelemente“ und „Asymmetrische Einheit“; darunter wie in „Gitter und Basis“ Basis und Gitter (Karte `nur-bau`)
-    sowie „Darstellung“. Ein leerer Entwurf wählt das Werkzeug „Hinzufügen“ von selbst (auch beim Öffnen eines Links).
-    „Metrik setzen“ und „Vorgabe“ gibt es nur in „Gitter und Basis“. Die Bedienung prüft ein Browserlauf
-    (`tools/entwurf-pruefen.mjs`), weil die Tests ohne Browser laufen (Leitfaden Abschn. 9); er läuft in der CI im Job `pdf`
-    mit, der Chromium schon hat.
-  - **Hilfen, Skript und Quiz:** Erste Schritte `einstieg-entwurf`, Experimente `entwurf-lage` (Fähnchen, dann Windrad
-    auf dem 4-zähligen Drehpunkt) und `entwurf-gruppen` (Fähnchen in allgemeiner Lage in *p*4, dann in *p*4*mm*); jedes
-    steht für sich (Leitfaden Abschn. 5.3). Die Zahl der Experimente
-    je Modus (8 bis 12) prüft der Test nur für „Ebenengruppen“ und „Gitter und Basis“. Das Quiz fragt allgemeine
-    Konventionen ab; die Bedingung „Motiv auf spezieller Lage braucht deren Lagesymmetrie“ prüfen schon Fragen zu Kap. 6.
-    Skript: Kap. 7 (Abb. 7.1b, c, 7.2a–c) und Kap. 9 (Abb. 9.1) laufen über `m=entwurf` mit einem Motiv in allgemeiner Lage
-    (Blatt, Tropfen, Ranke, Grösse 0,19; für *cm* 0,2, für *p*1 0,3), ohne Farbe nach Blickrichtung (`farb=0`) und als Tapete
-    (`tap=1`); in Abb. 7.1b und 9.1a (*p*4*gm*) liegt das Blatt bei (0,2 | 0,25), damit es mit seinem Spiegelbild wie ein
-    Schmetterling wirkt. Abb. 7.1a bleibt in „Ebenengruppen“. `appTafel` und das Quizbild zeichnen die Tapete im Entwurf ohne
-    Zelle (`zelle: !z.tapete`); die Skizze `conway` baut auf dem Entwurf auf (`ausgeschrieben`, `festeBestimmung`, Elemente
-    über der Tapete). Die Quizfrage `tk-1-02` zeigt Abb. 7.1b.
-- **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1): Die
-  Seitenleiste sagt, was da ist, Tafel A trägt, was man auf der Zeichnung tut. Gemessen am Laptop (1440 × 900, etwa 880 px
-  Platz) war die Seitenleiste 963 / 1515 / 1799 px hoch (Ebenengruppen / Gitter und Basis / Muster entwerfen), danach
-  947 / 1188 / 1227 px, mit eingeklappter „Basis“ 739 und 778 px.
-  - **Werkzeugleiste als Symbole** (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole): Pfeil (Wählen und ziehen),
-    + (Hinzufügen), Stift, Radiergummi; dann die Handlungen Rückgängig, „Gewähltes Motiv entfernen“ (× im gestrichelten Rahmen), „Alle Motive
-    löschen“ und „Alle Striche löschen“ (Papierkorb mit Dreieck bzw. Strich); Einrasten (Magnet) und Lupe als Schalter neben
-    dem Titel, in allen Modi (Thomas). Name im `aria-label`, Erklärung im Tooltip und im ⓘ von „Basis“ (Touch). Mit Text
-    passte die Leiste bei 530 px Tafelbreite nicht (Skizzen in der Sitzung). Kopf von Tafel A: Titel, Schalter, Export in
-    einer Zeile, darunter in den Modi mit Basis die Leiste (`.leiste`); der Untertitel bricht um, bevor der Export eine eigene
-    Zeile braucht (iPad). Auf dem iPad quer bei 1024 px bricht die Leiste mit Touch-Zielen von 40 px in zwei Zeilen um
-    (Kopf etwa 150 px; Review PR #158); eine Zeile ginge nur mit kleineren Zielen.
-  - **Rückgängig** (Thomas: für Motive und Striche; in beiden Modi mit Basis): je Modus ein Verlauf von Basis und Strichen,
-    ein Schritt je abgeschlossener Handlung, bis 50, nur für die Sitzung (`verlaeufe`, `beginnen`, `abschliessen` in
-    `js/struktur-ui.js`); Gruppe, Gitter und Anzeigen gehören nicht dazu (Seitenleiste). Wahl beim Umsetzen: Ein Verlauf
-    gehört zu einem Zustandsobjekt; Vorgabe, „Vorgabe wiederherstellen“, Übernahme und ein Link ersetzen es und beginnen
-    einen neuen. Die Wahl einer Gruppe im Entwurf behält ihn und verwirft nur die Stände, die unter der neuen Gruppe die
-    Grenze der Bilder überschritten (Thomas, 12.11.2026; zuerst leerte sie ihn, dann gingen auch die Zeichenschritte
-    verloren). Rückgängig ändert die Gruppe nicht; ein Stand aus einer anderen Gruppe erscheint unter der jetzigen. Der frühere
-    Rückfall „ohne Verlauf der letzte Strich“ entfällt. Kanonischer Stand (Felder sortiert), damit eine Änderung ohne Wirkung
-    kein Schritt ist; ein Klick zum Wählen rückt eine Lage nicht in die Zelle (nur nach Bewegung), weil Vorgaben Lagen
-    ausserhalb haben. Pfeiltasten an einem Regler ergeben je Taste einen Schritt. Einrasten auf 15° am Drehregler nur mit dem
-    Zeiger, sonst kämen die Pfeiltasten (±1°) nicht vom Fleck (Leitfaden Abschn. 5.4).
-  - **Zwei Löschknöpfe** (Thomas): „Alle Motive löschen“ (beide Modi) und „Alle Striche löschen“ (Entwurf).
-  - **Einrasten** ist ein Zustand für alle Modi (`z.einrasten`, Link `rast` jetzt in `GEMEINSAME_SCHALTER`; Wahl beim
-    Umsetzen, wie die Lupe). In „Ebenengruppen“ ruht es ohne Objekt; der Grund steht in der Legende.
-  - **Hinweise in der Seitenleiste** nur zum Zustand (`.hintline:empty` blendet leere aus): gesperrte Gruppen, gesperrte
-    Gitterregler, Grund und Folge von „Weiterbearbeiten“. Was ein Tippen auf die Zeichnung tut, sagt die Legende.
+    Orientierung), bleiben alle; gleiche erscheinen einmal. Ein Motiv ohne die Lagesymmetrie seiner Lage zeigt dort mehrere
+    Bilder übereinander (in einem Kristall wäre das Fehlordnung), und die Kenndaten nennen sie. Grund: Zusammenfallen ist hier
+    keine Bestimmung, sondern ein Bild des Entwurfs; nichts wird umgedeutet.
+  - **Wechsel der Gruppe:** Vertreter und Striche bleiben, die Bilder entstehen neu; das Gitter bleibt, wenn es zum System
+    passt, sonst gilt das Startgitter des Systems. Das Gitter wird nicht je System gemerkt (Thomas, 12.11.2026): Man legt
+    meist Motive an und vergleicht die Muster in verschiedenen Gruppen; ein Gitter je System wäre mehr Zustand und Bedienung,
+    als der Vergleich braucht.
+  - **Übergang aus „Gitter und Basis“** („In „Muster entwerfen“ weiterbearbeiten“): Die bestimmte Gruppe steht im Entwurf in
+    der Aufstellung nach ITA; weichen Zelle oder Ursprung ab, wird die Struktur umgerechnet, und die Kenndaten nennen die
+    Umstellung. Eine linkshändige Zelle aus der Bestimmung wird vorher rechtshändig gemacht, sonst wäre das Bild gespiegelt.
+    Die Übernahme ersetzt den Entwurf samt Strichen (Hinweis unter dem Knopf). Einen Weg zurück gibt es nicht: Striche
+    liessen sich in „Gitter und Basis“ nicht darstellen.
+  - **Grenze** von 48 ausgeschriebenen Bildern (`BASIS_GRENZE`); ein Vertreter zählt mit der Zähligkeit der allgemeinen Lage,
+    wo er auch liegt, damit Ziehen von einer speziellen Lage weg die Grenze nie überschreitet. Grund für 48: Die Bestimmung in
+    „Gitter und Basis“ kostete bei 48 Motiven etwa 0,1 s, bei 96 etwa 0,36 s (9.11.2026).
+  - **Ungültig aus Link oder Speicher** (Leitfaden Abschn. 5.2): Unbekannte oder fehlende Gruppe ergibt den leeren
+    Startentwurf, ein Gitter, das nicht zum System passt, das Startgitter des Systems; Link und Speicher prüfen gleich.
+  - **Bindungen** wie in „Gitter und Basis“, standardmässig an (Thomas, 12.11.2026): Ohne die Linien ist es schwer, bestimmte
+    Gitter selbst zu entwerfen. Skript- und Quizbilder geben `bindungen: false` ausdrücklich an.
+  - **Zeichnen** (Werkzeuge „Zeichnen“ und „Radieren“, nur in diesem Modus): Striche in Bruchkoordinaten der Zelle, mit allen
+    Operationen der Gruppe vervielfältigt, Farbe wie bei den Motiven (Thomas, 12.11.2026). **Nur im Speicher, nicht im Link**
+    (Thomas, 12.11.2026): Eine Zeichnung kann mehr als tausend Punkte haben; ein Link lässt die Striche stehen.
+  - **Prüfung der Bedienung** im Browser (`tools/entwurf-pruefen.mjs`, CI-Job `pdf`), weil die Tests ohne Browser laufen.
+  - **Hilfen, Skript und Quiz:** Die Zahl der Experimente je Modus (8 bis 12) prüft der Test nur für „Ebenengruppen“ und
+    „Gitter und Basis“. Das Quiz fragt allgemeine Konventionen ab; dass ein Motiv auf spezieller Lage deren Lagesymmetrie
+    braucht, prüfen schon Fragen zu Kap. 6. Abbildungen in Kap. 7 und 9 laufen über `m=entwurf` mit einem Motiv in allgemeiner
+    Lage als Tapete; Abb. 7.1a bleibt in „Ebenengruppen“.
+- **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1, Messung in
+  der `CLAUDE.md` von common und im Issue):
+  - **Werkzeugleiste als Symbole** über Tafel A (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole), Einrasten und
+    Lupe als Schalter neben dem Titel, in allen Modi (Thomas). Mit Text passte die Leiste bei 530 px Tafelbreite nicht. Auf
+    dem iPad quer (1024 px) bricht sie mit Touch-Zielen von 40 px in zwei Zeilen um (Review PR #158); eine Zeile ginge nur
+    mit kleineren Zielen.
+  - **Rückgängig** für Motive und Striche (Thomas), je Modus ein Verlauf, nur für die Sitzung; Gruppe, Gitter und Anzeigen
+    gehören nicht dazu (sie stehen in der Seitenleiste). Wahl beim Umsetzen: Ein Verlauf gehört zu einem Zustandsobjekt;
+    Vorgabe, Übernahme und ein Link beginnen einen neuen. Die Wahl einer Gruppe im Entwurf behält ihn (Thomas, 12.11.2026:
+    sonst gingen die Zeichenschritte verloren) und verwirft nur Stände, die unter der neuen Gruppe die Grenze überschritten.
+    Einrasten auf 15° am Drehregler nur mit dem Zeiger, sonst kämen die Pfeiltasten (±1°) nicht vom Fleck (Leitfaden Abschn.
+    5.4).
+  - **Zwei Löschknöpfe** (Thomas): „Alle Motive löschen“ (beide Modi mit Basis) und „Alle Striche löschen“ (Entwurf).
+  - **Einrasten** ist ein Zustand für alle Modi (Wahl beim Umsetzen, wie die Lupe); in „Ebenengruppen“ ruht es ohne Objekt.
+  - **Hinweise in der Seitenleiste** nur zum Zustand (gesperrte Gruppen und Gitterregler, Grund und Folge von
+    „Weiterbearbeiten“); was ein Tippen auf die Zeichnung tut, sagt die Legende.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
