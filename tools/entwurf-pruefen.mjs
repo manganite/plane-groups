@@ -114,13 +114,14 @@ try {
   await page.reload(); await page.waitForTimeout(400);
   pruefe(await adresse() === a4 && (await text('#info')).includes('Überlagerte Bilder'), 'Neu laden: gleicher Zustand');
 
-  // 6. Übergang aus „Gitter und Basis“ mit Umstellung (Flechtverband: andere Zelle)
-  await oeffnen('#m=struktur&v=flecht');
+  // 6. Übergang aus „Gitter und Basis“ mit Umstellung (Flechtverband: andere Zelle); die Wahl „Bindungen“ geht mit
+  await oeffnen('#m=struktur&v=flecht&sbind=0');
   await page.locator('#sec-weiter > summary').click();
   await page.locator('#s-weiter').click();
   await page.waitForTimeout(300);
   pruefe((await adresse()).includes('m=entwurf&g=p4gm') && (await text('#info')).includes('gedreht'), 'Flechtverband: p4gm, Umstellung in den Kenndaten');
   pruefe(await page.locator('#tab-entwurf').getAttribute('aria-selected') === 'true', 'Übergang: Tab „Muster entwerfen“ gewählt');
+  pruefe(!(await page.locator('#e-bindungen').isChecked()) && (await adresse()).includes('bind=0'), 'Übergang: „Bindungen aus“ wird übernommen');
 
   // 7. Zeichnen und Radieren im Entwurf: Striche mit allen Operationen, Farbe der Atomsorte, Rückgängig, Alles löschen
   await oeffnen('#m=entwurf&g=p4mm');

@@ -621,7 +621,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-weiter').addEventListener('click', () => {
       const u = uebernahme();
       if ('grund' in u) return;
-      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae, bindungen: en().bindungen }; verlauf = [];
+      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae, bindungen: st().bindungen }; verlauf = [];
       umstellung = u.umstellung; z.modus = 'entwurf'; werkzeug = 'verschieben';
       aktualisieren();
     });
