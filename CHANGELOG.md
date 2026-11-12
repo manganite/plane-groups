@@ -6,6 +6,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-12
+
 ### Geändert
 
 - **Seitenleiste und Tafel** (crystallography-common#130, Entscheidung Thomas, 12.11.2026): Die Seitenleiste sagt, was da ist; über Tafel A steht, was man auf der Zeichnung tut. Am Laptop ist die Seitenleiste in „Gitter und Basis“ 1188 statt 1515 px hoch, in „Muster entwerfen“ 1227 statt 1799 px, mit eingeklappter „Basis“ 739 bzw. 778 px.
@@ -192,7 +194,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/manganite/plane-groups/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/manganite/plane-groups/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/manganite/plane-groups/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
