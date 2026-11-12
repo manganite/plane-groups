@@ -85,6 +85,19 @@ export const FREI = {
 
 /** Bereiche der Regler im Modus „Gitter und Basis“: die Gitterbereiche (GITTER_BEREICH) und die Grösse der Motive. @type {Record<'ba' | 'gamma' | 'groesse', [number, number]>} */
 export const STRUKTUR_BEREICH = { ...GITTER_BEREICH, groesse: [0.02, 1] };
+
+/** Schritte des Reglers für die Grösse der Motive: logarithmisch von STRUKTUR_BEREICH.groesse (Atome liegen meist zwischen 0,05 und 0,2); ein Schritt ändert die Grösse um 1,6 %, mehr als die Rundung auf drei Ziffern (höchstens 0,25 %), so läuft die Grösse im Zustand immer auf dieselbe Stellung zurück. */
+export const GROESSE_SCHRITTE = 250;
+/** Grösse zur Reglerstellung 0 … GROESSE_SCHRITTE, auf drei gültige Ziffern gerundet (kurze Adresse, Rücklauf stabil). @param {number} stellung */
+export function groesseVonRegler(stellung) {
+  const [lo, hi] = STRUKTUR_BEREICH.groesse;
+  return Number((lo * (hi / lo) ** (Math.min(Math.max(stellung, 0), GROESSE_SCHRITTE) / GROESSE_SCHRITTE)).toPrecision(3));
+}
+/** Reglerstellung (ganzzahlig) zur Grösse. @param {number} groesse */
+export function reglerVonGroesse(groesse) {
+  const [lo, hi] = STRUKTUR_BEREICH.groesse;
+  return Math.round(GROESSE_SCHRITTE * Math.log(Math.min(Math.max(groesse, lo), hi) / lo) / Math.log(hi / lo));
+}
 /** Höchste Nummer im Ablauf „Schritt für Schritt“ in Link und Speicher (die Anzeige begrenzt auf die Gruppe). */
 export const SCHRITT_GRENZE = 25;
 /** Höchstzahl der Motive in der Basis. */

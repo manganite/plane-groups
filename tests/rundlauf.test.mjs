@@ -3,7 +3,7 @@
 // und nach dem Neuladen gleich. Die Erwartungen stehen hier unabhängig vom Code (feste Listen und Bereiche).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { startzustand, hashVon, hashAnwenden, ausSpeicher, speicherStand, strukturStart, entwurfStart } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, ausSpeicher, speicherStand, strukturStart, entwurfStart, groesseVonRegler, reglerVonGroesse, GROESSE_SCHRITTE, STRUKTUR_BEREICH } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { grad } from '../js/zeichnung.js';
 import { ausgeschrieben } from '../js/bahnen.js';
@@ -284,4 +284,20 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   const z = ausSpeicher(JSON.parse('{"v":3,"z":{"__proto__":{"boese":1},"fremd":2,"gruppe":"p4"}}'));
   assert.equal(z.gruppe, 'p4');
   assert.ok(!('fremd' in z) && !('boese' in z) && Object.getPrototypeOf(z) === Object.prototype);
+});
+
+test('Regler der Motivgrösse: logarithmisch von 0,02 bis 1, Rücklauf stabil', () => {
+  const [lo, hi] = STRUKTUR_BEREICH.groesse;
+  assert.equal(groesseVonRegler(0), lo);
+  assert.equal(groesseVonRegler(GROESSE_SCHRITTE), hi);
+  let vorher = 0;
+  for (let i = 0; i <= GROESSE_SCHRITTE; i++) {
+    const g = groesseVonRegler(i);
+    assert.ok(g >= vorher && g >= lo && g <= hi, `Stellung ${i}: ${g}`);
+    assert.equal(reglerVonGroesse(g), i, `Rücklauf ${i}`); // die Grösse im Zustand setzt den Regler wieder auf dieselbe Stelle
+    vorher = g;
+  }
+  // der typische Bereich der Atome (0,05 bis 0,2) nimmt mehr als ein Drittel des Reglers ein (linear: 15 %)
+  assert.ok((reglerVonGroesse(0.2) - reglerVonGroesse(0.05)) / GROESSE_SCHRITTE > 0.35);
+  assert.equal(reglerVonGroesse(0.045) > 0 && reglerVonGroesse(0.045) < reglerVonGroesse(0.1), true);
 });

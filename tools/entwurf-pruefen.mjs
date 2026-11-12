@@ -177,6 +177,13 @@ try {
   await page.reload(); await page.waitForTimeout(400);
   pruefe(!(await page.locator('#e-bindungen').isChecked()), 'Bindungen aus überstehen das Neuladen');
 
+  // 9. Regler der Motivgrösse: logarithmisch, Mitte = Geometrisches Mittel von 0,02 und 1
+  await oeffnen('#m=entwurf&g=p4mm');
+  await page.locator('#s-groesse').evaluate((el) => { /** @type {HTMLInputElement} */ (el).value = '125'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await page.waitForTimeout(200);
+  pruefe((await text('#s-groesse-out')) === '0,141', `Grösse: Reglermitte ergibt 0,141 (${await text('#s-groesse-out')})`);
+  pruefe(await page.locator('#s-groesse').inputValue() === '125', 'Grösse: Regler bleibt stehen');
+
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {
   await browser.close();
