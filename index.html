@@ -24,9 +24,22 @@
 }
 .tabs button:disabled { opacity: 0.5; cursor: not-allowed; }
 .lg .sym-icon { flex: none; }
-/* Motivauswahl: kleine Bilder in den Farben der gewählten Atomsorte (--mf), je Zeile eine Eigensymmetrie */
-.motivwahl { --mf: var(--ink); }
-.motivwahl .sysrow { grid-template-columns: 114px minmax(0, 1fr); }
+/* Motivauswahl: ein Raster mit etwa 6 Knöpfen je Zeile, darüber je Eigensymmetrie eine kleine Überschrift (#130);
+   kleine Bilder in den Farben der gewählten Atomsorte (--mf) */
+.motivwahl { --mf: var(--ink); display: grid; gap: 4px; }
+.motivwahl .motivzeile { margin: 4px 0 0; font-size: 0.74rem; color: var(--muted); }
+.motivwahl .motivzeile:first-child { margin-top: 0; }
+.motivwahl .btns { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 4px; }
+/* Kopf von Tafel A (#130): Titel, Schalter (Einrasten, Lupe) und Export in einer Zeile; in den Modi mit Basis darunter
+   die Werkzeugleiste (Werkzeuge, Handlungen) als Symbole. Auf dem Telefon Umschalter und Schalter, darunter die Leiste. */
+.p-a .panel-head { justify-content: flex-start; }
+.p-a .panel-head .t { margin-right: auto; flex: 1 1 120px; min-width: 0; } /* der Untertitel bricht um, bevor der Export in eine eigene Zeile rutscht */
+.p-a .leiste { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.tools button.sym svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 719px) {
+  .p-a .figswitch { margin-right: auto; }
+  .p-a .leiste { gap: 4px 10px; }
+}
 .pgb.motivb { display: inline-flex; align-items: center; justify-content: center; padding: 2px; min-width: 40px; min-height: 40px; }
 .pgb.motivb[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 14%, var(--paper)); color: inherit; border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .motivsym { display: block; }
@@ -86,6 +99,9 @@ body:not(.modus-struktur):not(.modus-entwurf) .nur-bau { display: none !importan
 body.modus-struktur #bild-a, body.modus-entwurf #bild-a { cursor: grab; touch-action: manipulation; }
 body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a { cursor: copy; }
 body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { cursor: crosshair; touch-action: none; }
+/* Hinweise zum Zustand nur, wenn es einen gibt; Eigenschaften, die das Motiv nicht hat, fehlen (#130) */
+.hintline:empty { display: none; }
+.check[hidden] { display: none; }
 .farbwahl button { min-width: 40px; }
 .farbwahl .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: middle; }
 .farbwahl button[aria-pressed="true"] { background: var(--paper); color: var(--ink); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
@@ -163,24 +179,11 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
             <label for="s-winkel">Drehung</label><output id="s-winkel-out"></output>
             <input type="range" id="s-winkel" min="0" max="359" step="1">
           </div>
-          <label class="check" id="row-spiegel"><input type="checkbox" id="s-spiegel"><span>Gespiegelt<span class="why"></span></span></label>
-          <label class="check" id="row-fuge"><input type="checkbox" id="s-fuge"><span>Mit Fuge<span class="why"></span></span></label>
+          <label class="check" id="row-spiegel"><input type="checkbox" id="s-spiegel">Gespiegelt</label>
+          <label class="check" id="row-fuge"><input type="checkbox" id="s-fuge">Mit Fuge</label>
           <div class="range">
             <label for="s-groesse">Grösse</label><output id="s-groesse-out"></output>
             <input type="range" id="s-groesse" min="0" max="250" step="1">
-          </div>
-          <button class="resetbtn" id="s-entfernen" type="button">Gewähltes Motiv entfernen</button>
-          <label class="check"><input type="checkbox" id="s-einrasten">Einrasten (spezielle Lagen, Zwölftel der Zelle, 15°)</label>
-          <p class="hintline" id="s-basis-hint"></p>
-        </div>
-      </details>
-      <details class="sect nur-entwurf" id="sec-zeichnen" open>
-        <summary>Zeichnen<span class="sumhint">Striche mit allen Operationen</span></summary>
-        <div class="stack">
-          <p class="hintline" id="zeichnen-hint"></p>
-          <div class="seg seg-text" role="group" aria-label="Zeichnung">
-            <button type="button" id="zeichnen-zurueck">Rückgängig</button>
-            <button type="button" id="zeichnen-loeschen">Alles löschen</button>
           </div>
         </div>
       </details>
@@ -199,7 +202,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
             <button type="button" data-metrik="1,90"><i>b</i> = <i>a</i>, γ = 90°</button>
             <button type="button" data-metrik="1,120"><i>b</i> = <i>a</i>, γ = 120°</button>
           </div>
-          <p class="hintline" id="s-gitter-hint">Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.</p>
+          <p class="hintline" id="s-gitter-hint"></p>
         </div>
       </details>
       <details class="sect nur-struktur" id="sec-weiter">
@@ -220,14 +223,13 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
         <label class="check"><input type="checkbox" id="opt-objekt">Objekt in allgemeiner Lage</label>
         <label class="check"><input type="checkbox" id="opt-ae">Asymmetrische Einheit</label>
         <details class="subsect" id="sub-weitere">
-          <summary>Weitere Optionen <span class="subhint">Zellen, Form des Objekts, Einrasten, Bilder rund um die Zelle</span></summary>
+          <summary>Weitere Optionen <span class="subhint">Zellen, Form des Objekts, Bilder rund um die Zelle</span></summary>
           <div class="stack">
             <label class="check"><input type="checkbox" id="opt-zellen">2 × 2 Zellen</label>
             <div class="seg seg-text" id="seg-form" role="group" aria-label="Form des Objekts">
               <button type="button" data-form="fahne" aria-pressed="true">Fähnchen</button>
               <button type="button" data-form="komma" aria-pressed="false">Kreis mit Komma</button>
             </div>
-            <label class="check" id="row-einrasten"><input type="checkbox" id="opt-einrasten"><span>Einrasten auf spezielle Lagen<span class="why"></span></span></label>
             <label class="check" id="row-orbit"><input type="checkbox" id="opt-orbit"><span>Bilder rund um die Zelle (wie ITA)<span class="why"></span></span></label>
           </div>
         </details>
@@ -325,9 +327,12 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span><small id="sub-a"></small></span>
-        <div class="tools nur-bau" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button><button type="button" class="nur-entwurf" id="s-werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" class="nur-entwurf" id="s-werkzeug-radieren" aria-pressed="false">Radieren</button></div>
-        <div class="tools" role="group" aria-label="Ansicht von Tafel A"><button type="button" id="werkzeug-lupe" aria-pressed="false">Lupe</button></div>
-        <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-a" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-a" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-a" title="Bild als PNG-Datei speichern">PNG</button></div>
+        <div class="tools" role="group" aria-label="Schalter"><button type="button" class="sym" id="werkzeug-einrasten" aria-pressed="true" aria-label="Einrasten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button><button type="button" class="sym" id="werkzeug-lupe" aria-pressed="false" aria-label="Lupe"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button></div>
+        <div class="tools export"><button type="button" class="exportknopf" id="export-a">Export</button></div>
+        <div class="leiste nur-bau">
+          <div class="tools" role="group" aria-label="Werkzeug"><button type="button" class="sym" id="s-werkzeug-verschieben" aria-pressed="true" aria-label="Wählen und ziehen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l12 7.5-5.4 1.3L9.8 18z"/></svg></button><button type="button" class="sym" id="s-werkzeug-hinzufuegen" aria-pressed="false" aria-label="Hinzufügen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" class="sym nur-entwurf" id="s-werkzeug-zeichnen" aria-pressed="false" aria-label="Zeichnen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z"/><path d="M13.5 7l3 3"/></svg></button><button type="button" class="sym nur-entwurf" id="s-werkzeug-radieren" aria-pressed="false" aria-label="Radieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 20H20"/><path d="M4.6 15.4l9.8-9.8a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H8z"/><path d="M9.5 10.5l4.5 4.5"/></svg></button></div>
+          <div class="tools" role="group" aria-label="Bearbeiten"><button type="button" class="sym" id="rueckgaengig" aria-label="Rückgängig"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button type="button" class="sym" id="s-entfernen" aria-label="Gewähltes Motiv entfernen"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 3"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button><button type="button" class="sym" id="motive-loeschen" aria-label="Alle Motive löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M12 11l-2.2 5h4.4z"/></svg></button><button type="button" class="sym nur-entwurf" id="striche-loeschen" aria-label="Alle Striche löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M9.3 14c1-2 1.8 2 2.7 0s1.8-2 2.7 0"/></svg></button></div>
+        </div>
       </div>
       <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
       <div class="legend" id="legend"></div>
@@ -336,7 +341,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Muster<small>Ausschnitt</small></span>
-        <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-b" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-b" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-b" title="Bild als PNG-Datei speichern">PNG</button></div>
+        <div class="tools export"><button type="button" class="exportknopf" id="export-b">Export</button></div>
       </div>
       <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Muster der Ebenengruppe"></svg>
       <div class="panel-foot"><span class="nur-eg">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</span><span class="nur-struktur">Ausschnitt der Struktur; hervorgehoben ist die konventionelle Zelle.</span><span class="nur-entwurf">Ausschnitt des Entwurfs; hervorgehoben ist die Elementarzelle.</span></div>

@@ -52,7 +52,7 @@ test('Hilfeseite: Modi, abgebildete Bedienelemente und Bilder passen zur App (pr
 test('Tooltips: jedes Bedienelement mit id hat einen, kurz (pruefeTooltips, Leitfaden Abschn. 5.3)', async () => {
   const { pruefeTooltips } = await import('../lib/common/js/help.js');
   const { TIPS } = await import('../js/hilfetexte.js');
-  // Ausnahmen: selbsterklärende Links, Schliessen „×“, Export-Knöpfe mit Text
-  const ohne = ['help-open', 'intro-close', 'kopieren-a', 'svg-a', 'png-a', 'kopieren-b', 'svg-b', 'png-b'];
+  // Ausnahmen: selbsterklärende Links, Schliessen „×“, das Export-Menü (Leitfaden Abschn. 5.3)
+  const ohne = ['help-open', 'intro-close', 'export-a', 'export-b'];
   assert.deepEqual(pruefeTooltips(read('index.html'), TIPS, { ohne }), []);
 });

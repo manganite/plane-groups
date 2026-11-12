@@ -8,6 +8,7 @@
 // ein anderes Chromium mit CHROMIUM_PFAD=<Pfad>. Ende mit Code 1, wenn eine Prüfung scheitert.
 
 import { createRequire } from 'node:module';
+import { vorgabe } from '../js/vorgaben.js';
 import { fileURLToPath } from 'node:url';
 import { server } from './common/server.mjs';
 
@@ -123,11 +124,11 @@ try {
   pruefe(await page.locator('#tab-entwurf').getAttribute('aria-selected') === 'true', 'Übergang: Tab „Muster entwerfen“ gewählt');
   pruefe(!(await page.locator('#e-bindungen').isChecked()) && (await adresse()).includes('bind=0'), 'Übergang: „Bindungen aus“ wird übernommen');
 
-  // 7. Zeichnen und Radieren im Entwurf: Striche mit allen Operationen, Farbe der Atomsorte, Rückgängig, Alles löschen
+  // 7. Zeichnen und Radieren im Entwurf: Striche mit allen Operationen, Farbe der Atomsorte, Rückgängig, Alle Striche löschen
   await oeffnen('#m=entwurf&g=p4mm');
   const striche = () => page.locator('#bild-a g.striche path').count();
   const stricheB = () => page.locator('#bild-b g.striche path').count();
-  pruefe(await page.locator('#s-werkzeug-zeichnen').isVisible() && await page.locator('#sec-zeichnen').isVisible(), 'Zeichnen: Werkzeug und Abschnitt im Entwurf sichtbar');
+  pruefe(await page.locator('#s-werkzeug-zeichnen').isVisible() && await page.locator('#striche-loeschen').isVisible() && await page.locator('#striche-loeschen').isDisabled(), 'Zeichnen: Werkzeug und „Alle Striche löschen“ in der Tafel, gesperrt ohne Striche');
   await page.locator('#s-werkzeug-radieren').isDisabled().then((d) => pruefe(d, 'Radieren gesperrt, solange es keine Striche gibt'));
   await page.locator('#s-farbe button[data-farbe="2"]').click();
   await page.locator('#s-werkzeug-zeichnen').click();
@@ -150,23 +151,80 @@ try {
   const nR = await striche();
   pruefe(nR > nA, `Radieren teilt den Strich an allen Kopien (${nA} → ${nR} Pfade)`);
   pruefe(await page.locator('#bild-a g.striche path').evaluateAll((l) => new Set(l.map((e) => e.getAttribute('stroke'))).size) === 1, 'Teile behalten ihre Farbe');
-  await page.locator('#zeichnen-zurueck').click(); await page.waitForTimeout(200);
+  await page.locator('#rueckgaengig').click(); await page.waitForTimeout(200);
   pruefe(await striche() === nA, 'Rückgängig holt das Radieren zurück');
   // Motive und Striche zugleich
   await page.locator('#s-werkzeug-hinzufuegen').click();
   const m = await bildschirm([0.7, 0.6]); await page.mouse.click(m.x, m.y); await page.waitForTimeout(300);
   pruefe((await adresse()).includes('basis=') && await striche() === nA, 'Motiv und Striche nebeneinander');
+  // Die Wahl einer Gruppe behält den Verlauf (Thomas, 12.11.2026)
+  await page.locator('#e-picker [data-g="p4"]').click(); await page.waitForTimeout(300);
+  pruefe(await page.locator('#rueckgaengig').isEnabled(), 'Wahl einer Gruppe: Rückgängig bleibt frei');
+  await page.locator('#rueckgaengig').click(); await page.waitForTimeout(200);
+  pruefe(!(await adresse()).includes('basis=') && /[&#]g=p4(&|$)/.test(await adresse()), 'Rückgängig nach der Wahl einer Gruppe nimmt das Motiv zurück, die Gruppe bleibt');
+  pruefe(await striche() > 0, 'die Striche bleiben');
+  await page.locator('#e-picker [data-g="p4mm"]').click(); await page.waitForTimeout(300);
+  await page.mouse.click(m.x, m.y); await page.waitForTimeout(300);
   // Striche überstehen Neuladen (Speicher) und den Wechsel der Gruppe
   await page.reload(); await page.waitForTimeout(400);
   pruefe(await striche() === nA, 'Neu laden: Striche aus dem Speicher');
   await page.locator('#e-picker [data-g="p4gm"]').click(); await page.waitForTimeout(300);
   pruefe(await striche() >= 8, 'Wechsel der Gruppe behält die Striche (neu vervielfältigt)');
-  await page.locator('#zeichnen-loeschen').click(); await page.waitForTimeout(200);
-  pruefe(await striche() === 0, 'Alles löschen');
-  await page.locator('#zeichnen-zurueck').click(); await page.waitForTimeout(200);
+  await page.locator('#striche-loeschen').click(); await page.waitForTimeout(200);
+  pruefe(await striche() === 0 && (await adresse()).includes('basis='), 'Alle Striche löschen (die Motive bleiben)');
+  await page.locator('#rueckgaengig').click(); await page.waitForTimeout(200);
   pruefe(await striche() >= 8, 'Rückgängig holt die gelöschten Striche zurück');
   await page.locator('#tab-eg').click(); await page.waitForTimeout(200);
-  pruefe(await page.locator('#sec-zeichnen').isHidden() && await page.locator('#werkzeug-zeichnen').count() === 0, '„Ebenengruppen“ hat kein Zeichnen mehr');
+  pruefe(await page.locator('#s-werkzeug-zeichnen').isHidden() && await page.locator('#rueckgaengig').isHidden(), '„Ebenengruppen“ hat kein Zeichnen und kein Rückgängig');
+  pruefe(await page.locator('#werkzeug-einrasten').isVisible() && await page.locator('#werkzeug-lupe').isVisible() && await page.locator('#export-a').isVisible(), '„Ebenengruppen“: Einrasten, Lupe und Export in Tafel A');
+
+  // 7a. Rückgängig für Motive (#130): Hinzufügen, Ziehen und „Alle Motive löschen“ zurücknehmen; Einrasten als Schalter
+  await oeffnen('#m=struktur&v=dreieck1');
+  const basisAdr = async () => (await adresse()).match(/basis=([^&]*)/)?.[1] ?? '';
+  pruefe(await page.locator('#rueckgaengig').isDisabled(), 'Rückgängig gesperrt, solange nichts geändert ist');
+  await page.locator('#s-werkzeug-hinzufuegen').click();
+  const n1 = await bildschirm([0.6, 0.4]); await page.mouse.click(n1.x, n1.y); await page.waitForTimeout(250);
+  const nachHinzu = await basisAdr();
+  pruefe(nachHinzu !== '' && await page.locator('#rueckgaengig').isEnabled(), 'Hinzufügen: Rückgängig frei');
+  await page.locator('#motive-loeschen').click(); await page.waitForTimeout(250);
+  pruefe(await page.locator('#motive-loeschen').isDisabled(), 'Alle Motive löschen: danach gesperrt');
+  await page.locator('#rueckgaengig').click(); await page.waitForTimeout(250);
+  pruefe(await basisAdr() === nachHinzu, 'Rückgängig holt die gelöschten Motive zurück');
+  await page.locator('#rueckgaengig').click(); await page.waitForTimeout(250);
+  pruefe(!(await adresse()).includes('basis=') && await page.locator('#rueckgaengig').isDisabled(), 'Rückgängig nimmt auch das Hinzufügen zurück (wieder die Vorgabe)');
+  await page.locator('#werkzeug-einrasten').click(); await page.waitForTimeout(200);
+  pruefe(await page.locator('#werkzeug-einrasten').getAttribute('aria-pressed') === 'false' && (await adresse()).includes('rast=0'), 'Einrasten aus: aria-pressed und rast=0 in allen Modi');
+  await page.locator('#werkzeug-einrasten').click(); await page.waitForTimeout(200);
+  // Eigenschaften, die das Motiv nicht hat, fehlen (Leitfaden 5.2)
+  await page.locator('#s-werkzeug-hinzufuegen').click();
+  await page.locator('#s-motiv [data-motiv="quadrat"]').click(); await page.waitForTimeout(200);
+  pruefe(await page.locator('#s-spiegel').isHidden() && await page.locator('#s-fuge').isHidden(), 'Quadrat: „Gespiegelt“ und „Mit Fuge“ fehlen');
+  await page.locator('#s-motiv [data-motiv="fahne"]').click(); await page.waitForTimeout(200);
+  pruefe(await page.locator('#s-spiegel').isVisible() && await page.locator('#s-fuge').isHidden(), 'Fähnchen: „Gespiegelt“ da, „Mit Fuge“ fehlt');
+  // Keine Schritte ohne Wirkung (Review PR #158): Klick zum Wählen bei Lagen ausserhalb der Zelle, dieselbe Farbe nochmals
+  await oeffnen('#m=struktur&v=a488');
+  await page.locator('#s-werkzeug-verschieben').click();
+  // ein Motiv, dessen Lage in der Vorgabe ausserhalb der Zelle liegt, an seinem Bild in der Zelle antippen
+  const aussen = vorgabe('a488')?.basis.find((b) => b.p.some((v) => v < 0 || v >= 1));
+  const lageAussen = aussen ? aussen.p.map((v) => v - Math.floor(v)) : null;
+  pruefe(lageAussen !== null, 'a488 hat eine Lage ausserhalb der Zelle (Voraussetzung)');
+  if (lageAussen) { const t = await bildschirm(/** @type {[number, number]} */ (lageAussen)); await page.mouse.click(t.x, t.y); await page.waitForTimeout(250); }
+  pruefe((await text('#s-basis-titel')).startsWith('Gewähltes Motiv'), `Klick wählt ein Motiv (${await text('#s-basis-titel')})`);
+  pruefe(await page.locator('#rueckgaengig').isDisabled() && !(await adresse()).includes('basis='), 'Klick zum Wählen: kein Schritt, die Vorgabe bleibt');
+  await oeffnen('#m=entwurf&g=p4gm&basis=fahne,0,0.2,0.3,30');
+  await page.locator('#s-werkzeug-verschieben').click();
+  const f1 = await bildschirm([0.2, 0.3]); await page.mouse.click(f1.x, f1.y); await page.waitForTimeout(250);
+  await page.locator('#s-farbe button[data-farbe="0"]').click(); await page.waitForTimeout(200);
+  pruefe(await page.locator('#rueckgaengig').isDisabled(), 'Dieselbe Farbe nochmals: kein Schritt');
+  // Drehung per Tastatur trotz Einrasten
+  await page.locator('#s-winkel').focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press('ArrowRight');
+  await page.waitForTimeout(200);
+  pruefe(await page.locator('#s-winkel').inputValue() !== '30', `Drehung per Tastatur mit Einrasten (${await page.locator('#s-winkel').inputValue()}°)`);
+  // Export als Knopf mit Menü
+  await page.locator('#export-b').click(); await page.waitForTimeout(150);
+  pruefe(await page.locator('#export-b-menue [role="menuitem"]').count() === 3 && await page.locator('#export-b-menue').isVisible(), 'Export-Menü der Tafel B mit drei Einträgen');
+  await page.keyboard.press('Escape');
 
   // 8. Bindungen (nächste Nachbarn) im Entwurf: Schalter, Linien zwischen Atomen, Adresse
   await oeffnen('#m=entwurf&g=p4mm&basis=atom,0,1/10,1/5,0');
@@ -188,11 +246,11 @@ try {
   await oeffnen('#m=entwurf&g=p2mm&basis=ziegel,0,1/2,1/2,0,0.25');
   await page.locator('#s-werkzeug-verschieben').click();
   const mitte10 = await bildschirm([0.5, 0.5]); await page.mouse.click(mitte10.x, mitte10.y); await page.waitForTimeout(250);
-  pruefe(await page.locator('#s-fuge').isEnabled() && !(await page.locator('#s-fuge').isChecked()), 'Ziegel gewählt: „Mit Fuge“ wählbar, aus');
+  pruefe(await page.locator('#s-fuge').isVisible() && !(await page.locator('#s-fuge').isChecked()), 'Ziegel gewählt: „Mit Fuge“ da, aus');
   await page.locator('#s-fuge').check(); await page.waitForTimeout(250);
   pruefe((await adresse()).includes('ziegel,0,1/2,1/2,0,0.25,f'), 'Mit Fuge: „f“ in der Adresse');
   await page.locator('#s-motiv [data-motiv="insel"]').click(); await page.waitForTimeout(250);
-  pruefe(await page.locator('#s-fuge').isDisabled() && !(await adresse()).includes(',f'), 'Anderes Motiv: Schalter gesperrt, „f“ entfällt');
+  pruefe(await page.locator('#s-fuge').isHidden() && !(await adresse()).includes(',f'), 'Anderes Motiv: Schalter fehlt, „f“ entfällt');
 
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {

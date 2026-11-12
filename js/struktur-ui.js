@@ -27,6 +27,8 @@ import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from
 /** Vorlage für „Hinzufügen“ (groesse null: Grösse des Motivs). @typedef {{ motiv: string, farbe: number, winkel: Grad, groesse: number | null, spiegel?: true, fuge?: true }} Vorlage */
 
 const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
+/** Höchstzahl der Schritte für „Rückgängig“ je Modus. */
+const VERLAUF_GRENZE = 50;
 
 /**
  * ctx: { z, farben(), aktualisieren(), svgPunkt(e), coarse }.
@@ -41,9 +43,18 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   let strich = null;
   /** @type {Vec2 | null} */
   let radierStelle = null;
-  /** Verlauf für „Rückgängig“: Stand der Striche vor jedem Strich und jedem Radieren (nur im Speicher). */
-  /** @type {import('./motive.js').Strich[][]} */
-  let verlauf = [];
+  /**
+   * Verlauf für „Rückgängig“ (#130): je Modus der Stand von Basis und Strichen vor jeder abgeschlossenen Handlung
+   * (Hinzufügen, Ziehen, Entfernen, Löschen, Eigenschaften eines Motivs, Strich, Radieren), höchstens VERLAUF_GRENZE
+   * Schritte, nur für die Sitzung. Gruppe, Gitter und Anzeigen gehören nicht dazu (Seitenleiste: „was da ist“). Ein
+   * Verlauf gilt für ein Zustandsobjekt (von): Vorgabe, „Vorgabe wiederherstellen“, Übernahme und ein Link ersetzen es
+   * und beginnen damit einen neuen. Die Wahl einer Gruppe im Entwurf behält ihn, ohne die Stände, die unter der neuen
+   * Gruppe die Grenze der Bilder überschritten.
+   * @type {Record<'struktur' | 'entwurf', { von: object | null, schritte: string[] }>}
+   */
+  const verlaeufe = { struktur: { von: null, schritte: [] }, entwurf: { von: null, schritte: [] } };
+  /** Stand vor der laufenden Handlung und das Zustandsobjekt, zu dem er gehört. @type {{ stand: string, von: object } | null} */
+  let offen = null;
   /** @type {Vorlage} */
   let neu = { motiv: 'dreieck', farbe: 0, winkel: grad(0), groesse: null }; // Vorlage für „Hinzufügen“
   /** @type {number | null} */
@@ -53,13 +64,12 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   let modusAlt = 'eg'; // zuletzt abgeglichener Modus: Wechsel (auch der erste Abgleich nach dem Öffnen eines Links) hebt die Auswahl auf
   /** @type {{ zelle: import('../lib/common/js/typen.js').Mat2 | null, ursprung: Vec2 | null } | null} */
   let umstellung = null; // nach dem Übergang mit anderer Zelle oder anderem Ursprung, für die Kenndaten des Entwurfs (bis zur nächsten Wahl einer Gruppe)
-  let rasten = true;
   /** @type {Ansicht | null} */
   let ansicht = null; // Ansicht von Tafel A (zuletzt gezeichnet)
   /** @type {Ansicht | null} */
   let fest = null; // eingefrorene Ansicht während des Ziehens
-  /** @type {{ k: number, op: number, versatz: Vec2 } | null} */
-  let zug = null; // { k, op, versatz }
+  /** @type {{ k: number, op: number, versatz: Vec2, bewegt?: boolean } | null} */
+  let zug = null; // { k, op, versatz }; bewegt: gezogen oder neu gesetzt
   /** @type {string | undefined} */
   let letztes; // Symbol der letzten Zeichnung
   /** @type {string | null} */
@@ -118,9 +128,10 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       + '<option value="" disabled>eigene Struktur (verändert)</option>';
     // Motive nach eigener Symmetrie gebündelt (Konzept „Muster entwerfen“, Abschn. 2, Punkt 1): je Zeile eine Symmetrie,
     // je Motiv ein Knopf mit kleinem Bild; Name und Symmetrie im Tooltip und im Namen für Hilfstechnik
-    $('s-motiv').innerHTML = MOTIVZEILEN.map((zeile, i) => `<div class="sysrow"><span class="sys" id="s-motiv-z${i}">${zeile.name}</span><div class="btns" role="group" aria-labelledby="s-motiv-z${i}">${
+    // ein Raster je Zeile, der Name der Zeile als kleine Überschrift darüber (#130)
+    $('s-motiv').innerHTML = MOTIVZEILEN.map((zeile, i) => `<p class="motivzeile" id="s-motiv-z${i}">${zeile.name}</p><div class="btns" role="group" aria-labelledby="s-motiv-z${i}">${
       zeile.motive.map((k) => `<button class="pgb motivb" type="button" data-motiv="${k}" aria-pressed="false" aria-label="${MOTIVE[k].name}, Eigensymmetrie ${MOTIVE[k].symmetrie}" title="${MOTIVE[k].name} (${MOTIVE[k].symmetrie})">${motivSymbol(k, 'var(--mf)', 'var(--paper)')}</button>`).join('')
-    }</div></div>`).join('');
+    }</div>`).join('');
     // Gruppenwahl im Entwurf: Knöpfe je Kristallsystem wie in „Ebenengruppen“
     $('e-picker').innerHTML = [...new Set(EBENENGRUPPEN.map((d) => d.system))].map((sys) => `<div class="sysrow"><span class="sys">${SYSTEME[sys].name}</span><div class="btns">${
       EBENENGRUPPEN.filter((d) => d.system === sys).map((d) => `<button class="pgb" type="button" data-g="${d.symbol}" aria-pressed="false" title="Nr. ${d.nr}, Punktgruppe ${d.punktgruppe}">${symbolHTML(d.symbol)}</button>`).join('')
@@ -186,7 +197,6 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       eingabe('e-ae').checked = en().ae;
       eingabe('e-bindungen').checked = en().bindungen;
     }
-    eingabe('s-einrasten').checked = rasten;
     for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen'], ['s-werkzeug-zeichnen', 'zeichnen'], ['s-werkzeug-radieren', 'radieren']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
     if (istEntwurf()) strichAbgleichen();
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
@@ -201,28 +211,21 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const winkel = ((e.winkel ?? 0) % 360 + 360) % 360;
     eingabe('s-winkel').value = String(winkel);
     $('s-winkel-out').textContent = `${dezimal(winkel, 1, { kuerzen: true })}°`;
-    // gespiegelt: nur bei chiralen Motiven, sonst gesperrt (das Spiegelbild wäre dasselbe Motiv)
-    const spiegelbar = chiral(e.motiv);
+    // Eigenschaften, die das Motiv nicht hat, fehlen (Leitfaden Abschn. 5.2, #130): „Gespiegelt“ nur bei chiralen
+    // Motiven (das Spiegelbild eines achiralen wäre dasselbe), „Mit Fuge“ nur beim Ziegel
     eingabe('s-spiegel').checked = Boolean(e.spiegel);
-    eingabe('s-spiegel').disabled = !spiegelbar;
-    element('#row-spiegel .why').textContent = spiegelbar ? '' : 'nur bei Motiven ohne Spiegellinie (Fähnchen, Ornamente, Windräder)';
+    $('row-spiegel').hidden = !chiral(e.motiv);
     eingabe('s-fuge').checked = Boolean(e.fuge);
-    eingabe('s-fuge').disabled = !hatFuge(e.motiv);
-    element('#row-fuge .why').textContent = hatFuge(e.motiv) ? '' : 'nur beim Ziegel';
+    $('row-fuge').hidden = !hatFuge(e.motiv);
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
     eingabe('s-groesse').value = String(reglerVonGroesse(gr));
     $('s-groesse-out').textContent = dezimal(gr, 3);
     knopf('s-entfernen').disabled = gewaehlt === null;
-    knopf('s-entfernen').textContent = istEntwurf() ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen';
+    knopf('s-entfernen').setAttribute('aria-label', istEntwurf() ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen');
+    knopf('motive-loeschen').disabled = !s.basis.length;
+    knopf('rueckgaengig').disabled = !verlauf().length;
     $('s-basis-titel').textContent = gewaehlt === null ? 'Neues Motiv'
       : istEntwurf() ? `Gewähltes Motiv (Bahn ${gewaehlt + 1} von ${s.basis.length})` : `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})`;
-    $('s-basis-hint').textContent = zeichnet() ? 'Die Atomsorte (Farbe) gilt auch für neue Striche; ein Strich behält seine Farbe, bis er radiert wird.'
-      : werkzeug === 'hinzufuegen'
-      ? (!platz() ? `Die Basis ist voll (höchstens ${BASIS_GRENZE} Motive${istEntwurf() ? ', jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : ''}).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
-      : gewaehlt !== null ? (istEntwurf()
-        ? 'Die Einstellungen gelten für das gewählte Motiv und seine ganze Bahn. Ziehen verschiebt die Bahn; ins Leere tippen hebt die Auswahl auf.'
-        : 'Die Einstellungen gelten für das gewählte Motiv. Ziehen verschiebt es; ins Leere tippen hebt die Auswahl auf.')
-        : 'Motiv in der Struktur antippen, um es zu wählen und zu ziehen. Mit dem Werkzeug „Hinzufügen“ kommen neue Motive dazu.';
     for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
       eingabe(`s-${k}`).min = String(STRUKTUR_BEREICH[k][0]); eingabe(`s-${k}`).max = String(STRUKTUR_BEREICH[k][1]);
       eingabe(`s-${k}`).value = String(s[k]);
@@ -233,9 +236,9 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const frei = istEntwurf() ? FREI[ebenengruppe(en().gruppe).system] : ['ba', 'gamma'];
     eingabe('s-ba').disabled = !frei.includes('ba');
     eingabe('s-gamma').disabled = !frei.includes('gamma');
-    $('s-gitter-hint').innerHTML = istEntwurf()
-      ? `Das Gitter folgt dem Kristallsystem (${SYSTEME[ebenengruppe(en().gruppe).system].name}) der Gruppe ${symbolHTML(en().gruppe)}; gesperrt ist, was das System festlegt. Innerhalb des Systems bleibt die Symmetrie erhalten.`
-      : 'Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.';
+    // nur der Grund, wenn ein Regler gesperrt ist (Anleitung im ⓘ, #130)
+    $('s-gitter-hint').innerHTML = istEntwurf() && frei.length < 2
+      ? `Gesperrt ist, was das Kristallsystem (${SYSTEME[ebenengruppe(en().gruppe).system].name}) der Gruppe ${symbolHTML(en().gruppe)} festlegt.` : '';
     if (istEntwurf()) gruppeAbgleichen(); else weiterAbgleichen();
   }
 
@@ -249,8 +252,31 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Zeichnen und Radieren: nur im Entwurf. */
   const zeichnet = () => istEntwurf() && (werkzeug === 'zeichnen' || werkzeug === 'radieren');
   const punkteGezeichnet = () => en().striche.reduce((n, st) => n + st.punkte.length, 0);
-  const kopieStriche = () => en().striche.map((st) => ({ punkte: st.punkte.map((q) => /** @type {Vec2} */ ([...q])), farbe: st.farbe }));
-  const merken = () => { verlauf.push(kopieStriche()); if (verlauf.length > 50) verlauf.shift(); };
+  /** Verlauf des Modus, in dem man ist; neu, wenn das Zustandsobjekt ersetzt wurde. */
+  const verlauf = () => {
+    const v = verlaeufe[istEntwurf() ? 'entwurf' : 'struktur'];
+    if (v.von !== bau()) { v.von = bau(); v.schritte = []; }
+    return v.schritte;
+  };
+  /**
+   * Basis und Striche des Modus als Text (für Vergleich und Wiederherstellen), die Felder eines Motivs sortiert: aendern()
+   * baut einen Eintrag im Entwurf neu auf, eine Änderung ohne Wirkung wäre sonst ein Schritt (Review PR #158).
+   */
+  const stand = () => JSON.stringify({
+    basis: bau().basis.map((e) => Object.fromEntries(Object.entries(e).sort(([a], [b]) => (a < b ? -1 : 1)))),
+    striche: istEntwurf() ? en().striche : [],
+  });
+  /** Eine Handlung beginnt: Stand davor merken (einmal, auch wenn ein Regler viele Schritte meldet). */
+  const beginnen = () => { if (!offen) { verlauf(); offen = { stand: stand(), von: bau() }; } };
+  /** Die Handlung ist abgeschlossen: hat sich etwas geändert, ist der Stand davor ein Schritt im Verlauf. */
+  const abschliessen = () => {
+    if (!offen) return;
+    const o = offen; offen = null;
+    if (o.von !== bau() || o.stand === stand()) return;
+    const v = verlauf(); v.push(o.stand); if (v.length > VERLAUF_GRENZE) v.shift();
+  };
+  /** Eine Handlung auf einmal (Knöpfe, Auswahl). @param {() => void} f */
+  const handlung = (f) => { beginnen(); f(); abschliessen(); };
   /** Radius des Radierers in Pixeln der Tafel (520 breit). */
   const RADIER_PX = 12;
 
@@ -282,22 +308,15 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const alt = en().basis.length; const striche = en().striche.length;
     const inhalt = [alt ? `${alt} ${alt === 1 ? 'Bahn' : 'Bahnen'}` : '', striche ? `${striche} ${striche === 1 ? 'Strich' : 'Striche'}` : ''].filter(Boolean).join(' und ');
     $('s-weiter-hint').innerHTML = [
-      'Übernimmt die Struktur mit der bestimmten Gruppe in den Modus „Muster entwerfen“; dort bleiben Gruppe und Zelle fest. Einen Weg zurück gibt es nicht.',
       grund ? `Gesperrt: ${grund}` : '',
       !grund && inhalt ? `Ersetzt den bisherigen Entwurf (${inhalt} in ${symbolHTML(en().gruppe)}).` : '',
     ].filter(Boolean).join(' ');
   }
-  /** Werkzeuge Zeichnen und Radieren, Rückgängig, Alles löschen und der Hinweis (nur im Entwurf). */
+  /** Werkzeug Radieren und „Alle Striche löschen“ (nur im Entwurf): gesperrt, solange es keine Striche gibt. */
   function strichAbgleichen() {
     const n = en().striche.length;
     knopf('s-werkzeug-radieren').disabled = !n && werkzeug !== 'radieren';
-    knopf('zeichnen-zurueck').disabled = !n && !verlauf.length;
-    knopf('zeichnen-loeschen').disabled = !n;
-    $('zeichnen-hint').textContent = werkzeug === 'radieren'
-      ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
-      : werkzeug === 'zeichnen'
-        ? `Im Entwurf ziehen: Jeder Strich erscheint mit allen ${gruppe(en().gruppe).ordnung} Operationen der Gruppe je Zelle, auch im Muster, in der Farbe der gewählten Atomsorte; Spiegelbilder haben dieselbe Farbe.${punkteGezeichnet() >= STRICH_GRENZE - 50 ? ' Die Zeichnung ist fast voll; „Rückgängig“ oder „Alles löschen“ schafft Platz, Radieren ist dann eingeschränkt.' : ''}`
-        : 'Werkzeug „Zeichnen“ über dem Entwurf wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster. Striche und Motive lassen sich kombinieren.';
+    knopf('striche-loeschen').disabled = !n;
   }
 
   /** „Muster entwerfen“: Gruppenwahl; gesperrt, wo die Grenze überschritten würde (mit Grund). */
@@ -311,8 +330,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       b.disabled = zuViel;
     });
     $('e-picker-hint').textContent = grenze
-      ? `Gesperrte Gruppen: Mit ihnen wären es mehr als ${BASIS_GRENZE} Bilder (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).`
-      : 'Die Motive bleiben bei der Wahl einer anderen Gruppe erhalten; ihre Bilder entstehen unter der neuen Gruppe neu.';
+      ? `Gesperrte Gruppen: Mit ihnen wären es mehr als ${BASIS_GRENZE} Bilder (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).` : '';
   }
 
   // ---------------------------------------------------------------- Zeichnen
@@ -341,10 +359,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>asymmetrische Einheit mit Bildern, gleiche Händigkeit</span>`);
       if (gruppe(r.symbol).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
     }
-    items.push(zeichnet() ? `<span class="lg hint">${werkzeug === 'zeichnen' ? 'Ziehen: Strich zeichnen' : 'Über Striche ziehen: radieren'}</span>`
+    // was ein Tippen auf die Zeichnung tut, und der Grund, wenn es nichts tut (Leitfaden Abschn. 5.1, #130)
+    const voll = istEntwurf() && punkteGezeichnet() >= STRICH_GRENZE - 50;
+    items.push(zeichnet() ? `<span class="lg hint">${werkzeug === 'zeichnen' ? 'Ziehen: Strich zeichnen' : 'Über Striche ziehen: radieren'}${voll ? '; die Zeichnung ist fast voll' : ''}</span>`
       : werkzeug === 'hinzufuegen'
-      ? '<span class="lg hint"><span class="only-fine">Stelle anklicken: neues Motiv</span><span class="only-coarse">Stelle antippen: neues Motiv</span></span>'
-      : '<span class="lg hint">Motiv wählen und ziehen</span>');
+      ? (platz() ? '<span class="lg hint"><span class="only-fine">Stelle anklicken: neues Motiv</span><span class="only-coarse">Stelle antippen: neues Motiv</span></span>'
+        : `<span class="lg hint">Die Basis ist voll (höchstens ${BASIS_GRENZE} ${istEntwurf() ? 'Bilder; jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : 'Motive'})</span>`)
+      : `<span class="lg hint">${gewaehlt !== null ? (istEntwurf() ? 'Ziehen verschiebt die ganze Bahn' : 'Ziehen verschiebt das Motiv') : 'Motiv wählen und ziehen'}</span>`);
     $('legend').innerHTML = items.join('');
   }
 
@@ -367,7 +388,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   // ---------------------------------------------------------------- Zeiger
   /** Einrasten auf Vielfache von 1/12 der gegebenen Zelle (je Koordinate, mit Toleranz in Pixeln). @param {Vec2} p @returns {Vec2} */
   function raste(p) {
-    if (!rasten || !ansicht) return p;
+    if (!z.einrasten || !ansicht) return p;
     const M = metrik(bau());
     const tol = (coarse.matches ? 12 : 8) / (ansicht.s * Math.min(Math.hypot(...M.a), Math.hypot(...M.b)));
     return /** @type {Vec2} */ (p.map((v) => { const r = Math.round(v * 12) / 12; return Math.abs(v - r) < tol ? r : v; }));
@@ -378,7 +399,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
    */
   function rasteVertreter(p) {
     const g = festG();
-    if (!g || !rasten || !ansicht) return raste(p);
+    if (!g || !z.einrasten || !ansicht) return raste(p);
     const M = metrik(bau());
     const tol = (coarse.matches ? 14 : 9) / (ansicht.s * Math.min(Math.hypot(...M.a), Math.hypot(...M.b)));
     const l = lage(g, p, tol);
@@ -421,12 +442,12 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     if (zeichnet()) {
       if (werkzeug === 'zeichnen') {
         if (punkteGezeichnet() >= STRICH_GRENZE) return;
-        merken();
+        beginnen();
         strich = { punkte: [p], farbe: neu.farbe };
         en().striche.push(strich);
       } else {
         if (!en().striche.length) return;
-        merken();
+        beginnen();
         radierenAn(q);
       }
       fest = ansicht;
@@ -436,6 +457,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     if (werkzeug === 'hinzufuegen') {
       if (!platz()) return;
+      beginnen();
       /** @type {Basiseintrag} */
       const e0 = { motiv: neu.motiv, farbe: neu.farbe, p: rasteVertreter(p), winkel: neu.winkel };
       if (neu.groesse !== null) e0.groesse = neu.groesse;
@@ -443,11 +465,12 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (neu.fuge && hatFuge(neu.motiv)) e0.fuge = true;
       bau().basis.push(e0);
       gewaehlt = bau().basis.length - 1; gewaehltOp = 0;
-      zug = { k: gewaehlt, op: 0, versatz: [0, 0] };
+      zug = { k: gewaehlt, op: 0, versatz: [0, 0], bewegt: true };
     } else {
       const t = treffer(q);
       if (!t) { auswahlAufheben(); aktualisieren(); return; }
       gewaehlt = t.k; gewaehltOp = t.op;
+      beginnen();
       zug = { k: t.k, op: t.op, versatz: [t.bild[0] - p[0], t.bild[1] - p[1]] };
     }
     fest = ansicht;
@@ -481,6 +504,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     if (radierStelle) { radierenAn(svgPunkt(e)); nachziehen(); return true; }
     if (!zug) return false;
+    zug.bewegt = true;
     const p = /** @type {Ansicht} */ (fest).vonBild(svgPunkt(e)); // beim Ziehen eingefroren
     /** @type {Vec2} */
     const ziel = [p[0] + zug.versatz[0], p[1] + zug.versatz[1]];
@@ -504,15 +528,18 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
         if (fertig.length >= 2) en().striche[i] = { punkte: fertig, farbe: strich.farbe }; else en().striche.splice(i, 1);
       }
       strich = null; radierStelle = null; fest = null;
+      abschliessen();
       aktualisieren();
       return true;
     }
     if (!zug) return false;
     const e = bau().basis[zug.k];
-    e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
+    // in die Zelle, aber nur nach einer Bewegung: ein Klick zum Wählen ändert nichts (Lagen der Vorgaben liegen auch ausserhalb)
+    if (zug.bewegt) e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
     const g = festG();
     if (g) gewaehltOp = sichtbareOp(g, metrik(bau()), e, zug.op);
     zug = null; fest = null;
+    abschliessen();
     aktualisieren();
     return true;
   }
@@ -543,18 +570,31 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     for (const [id, feld] of /** @type {[string, 'elemente' | 'ae' | 'bindungen'][]} */ ([['e-elemente', 'elemente'], ['e-ae', 'ae'], ['e-bindungen', 'bindungen']])) {
       $(id).addEventListener('change', () => { en()[feld] = eingabe(id).checked; aktualisieren(); });
     }
-    $('s-einrasten').addEventListener('change', () => { rasten = eingabe('s-einrasten').checked; aktualisieren(); });
+    $('werkzeug-einrasten').addEventListener('click', () => { z.einrasten = !z.einrasten; aktualisieren(); });
     $('s-werkzeug-verschieben').addEventListener('click', () => { werkzeug = 'verschieben'; aktualisieren(); });
     // Zeichnen und Radieren schliessen sich mit Hinzufügen und Wählen aus; die Auswahl wird aufgehoben (Leitfaden Abschn. 5.2)
     for (const [id, w] of /** @type {[string, 'zeichnen' | 'radieren'][]} */ ([['s-werkzeug-zeichnen', 'zeichnen'], ['s-werkzeug-radieren', 'radieren']])) {
       $(id).addEventListener('click', () => { werkzeug = werkzeug === w ? 'verschieben' : w; auswahlAufheben(); aktualisieren(); });
     }
-    $('zeichnen-zurueck').addEventListener('click', () => {
-      const alt = verlauf.pop();
-      if (alt) en().striche = alt; else en().striche.pop();
+    // Handlungen auf der Zeichnung (Leitfaden Abschn. 5.2): Rückgängig, Löschen; gesperrt, solange es nichts zu tun gibt
+    $('rueckgaengig').addEventListener('click', () => {
+      offen = null;
+      const alt = verlauf().pop();
+      if (!alt) return;
+      const s = JSON.parse(alt);
+      bau().basis = s.basis;
+      if (istEntwurf()) en().striche = s.striche;
+      auswahlAufheben();
+      if (istEntwurf() && !en().basis.length && !zeichnet()) werkzeug = 'hinzufuegen'; // wie „Entfernen“ des letzten Motivs
       aktualisieren();
     });
-    $('zeichnen-loeschen').addEventListener('click', () => { merken(); en().striche = []; aktualisieren(); });
+    $('motive-loeschen').addEventListener('click', () => {
+      handlung(() => { bau().basis = []; });
+      auswahlAufheben();
+      if (istEntwurf()) werkzeug = 'hinzufuegen'; // wie beim Öffnen eines leeren Entwurfs
+      aktualisieren();
+    });
+    $('striche-loeschen').addEventListener('click', () => { handlung(() => { en().striche = []; }); aktualisieren(); });
     $('s-werkzeug-hinzufuegen').addEventListener('click', () => {
       werkzeug = werkzeug === 'hinzufuegen' ? 'verschieben' : 'hinzufuegen';
       // die Vorlage übernimmt das gewählte Motiv
@@ -568,39 +608,47 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-motiv').addEventListener('click', (ev) => {
       const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (ev.target).closest('[data-motiv]'));
       if (!b) return;
-      aendern((e) => {
+      handlung(() => aendern((e) => {
         e.motiv = /** @type {string} */ (b.dataset.motiv);
         if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
         // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Muster entwerfen“)
         if (!chiral(e.motiv)) delete e.spiegel;
         if (!hatFuge(e.motiv)) delete e.fuge; // ohne Fuge-Motiv gibt es nichts, was ruhen könnte
-      });
+      }));
       aktualisieren();
     });
     $('s-farbe').addEventListener('click', (ev) => {
       const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (ev.target).closest('[data-farbe]'));
       if (!b) return;
-      aendern((e) => { e.farbe = Number(b.dataset.farbe); });
+      handlung(() => aendern((e) => { e.farbe = Number(b.dataset.farbe); }));
       aktualisieren();
     });
+    let winkelMitZeiger = false;
+    $('s-winkel').addEventListener('pointerdown', () => { winkelMitZeiger = true; });
+    $('s-winkel').addEventListener('keydown', () => { winkelMitZeiger = false; });
     $('s-winkel').addEventListener('input', () => {
       let w = Number(eingabe('s-winkel').value);
-      if (rasten) { const r = Math.round(w / 15) * 15; if (Math.abs(w - r) < 2.5) w = r; }
+      // Einrasten auf 15° nur beim Ziehen mit dem Zeiger: Pfeiltasten (±1°) sprängen sonst zurück (Leitfaden 5.4, Review PR #158)
+      if (z.einrasten && winkelMitZeiger) { const r = Math.round(w / 15) * 15; if (Math.abs(w - r) < 2.5) w = r; }
+      beginnen(); // ein Schritt im Verlauf je Bewegung des Reglers (bis change)
       aendern((e) => { e.winkel = grad(w % 360); });
       aktualisieren();
     });
+    $('s-winkel').addEventListener('change', () => { abschliessen(); aktualisieren(); });
     $('s-spiegel').addEventListener('change', () => {
-      aendern((e) => { if (eingabe('s-spiegel').checked && chiral(e.motiv)) e.spiegel = true; else delete e.spiegel; });
+      handlung(() => aendern((e) => { if (eingabe('s-spiegel').checked && chiral(e.motiv)) e.spiegel = true; else delete e.spiegel; }));
       aktualisieren();
     });
     $('s-fuge').addEventListener('change', () => {
-      aendern((e) => { if (eingabe('s-fuge').checked && hatFuge(e.motiv)) e.fuge = true; else delete e.fuge; });
+      handlung(() => aendern((e) => { if (eingabe('s-fuge').checked && hatFuge(e.motiv)) e.fuge = true; else delete e.fuge; }));
       aktualisieren();
     });
-    $('s-groesse').addEventListener('input', () => { aendern((e) => { e.groesse = groesseVonRegler(Number(eingabe('s-groesse').value)); }); aktualisieren(); });
+    $('s-groesse').addEventListener('input', () => { beginnen(); aendern((e) => { e.groesse = groesseVonRegler(Number(eingabe('s-groesse').value)); }); aktualisieren(); });
+    $('s-groesse').addEventListener('change', () => { abschliessen(); aktualisieren(); });
     $('s-entfernen').addEventListener('click', () => {
       if (gewaehlt === null) return;
-      bau().basis.splice(gewaehlt, 1);
+      const k = gewaehlt;
+      handlung(() => { bau().basis.splice(k, 1); });
       auswahlAufheben();
       if (istEntwurf() && !en().basis.length) werkzeug = 'hinzufuegen'; // wie beim Öffnen eines leeren Entwurfs
       aktualisieren();
@@ -626,13 +674,17 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       const neuS = zurGruppe(/** @type {string} */ (b.dataset.g));
       if (!neuS) return;
       Object.assign(en(), neuS); gewaehltOp = 0; umstellung = null;
+      // Der Verlauf bleibt (auch für die Striche); verworfen werden nur Stände, die unter der neuen Gruppe die Grenze der
+      // Bilder überschritten (Thomas, 12.11.2026)
+      offen = null;
+      verlaeufe.entwurf.schritte = verlaeufe.entwurf.schritte.filter((st) => JSON.parse(st).basis.length * bahnGewicht(en().gruppe) <= BASIS_GRENZE);
       aktualisieren();
     });
     // Übergang: die Struktur mit der bestimmten Gruppe einmal in den Entwurf übernehmen, der bisherige Entwurf geht verloren
     $('s-weiter').addEventListener('click', () => {
       const u = uebernahme();
       if ('grund' in u) return;
-      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae, bindungen: st().bindungen }; verlauf = [];
+      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae, bindungen: st().bindungen };
       umstellung = u.umstellung; z.modus = 'entwurf'; werkzeug = 'verschieben';
       aktualisieren();
     });
