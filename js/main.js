@@ -192,7 +192,7 @@ function bedienungAbgleichen() {
   eingabe('opt-orbit').checked = z.orbit;
   eingabe('opt-orbit').disabled = !z.objekt;
   element('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
-  elemente('#seg-form button, #seg-ornament button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
+  elemente('#seg-form button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
   eingabe('v-farben').checked = z.farben;
   // Aufbau aus Erzeugenden
   const h = herkunft(gruppeVon(z.gruppe));
@@ -776,7 +776,7 @@ function init() {
     if (z.zellen === 1) z.punkt = /** @type {Vec2} */ (z.punkt.map(mod1));
     aktualisieren();
   });
-  elemente('#seg-form button, #seg-ornament button').forEach((b) => b.addEventListener('click', () => { z.form = /** @type {string} */ (b.dataset.form); aktualisieren(); }));
+  elemente('#seg-form button').forEach((b) => b.addEventListener('click', () => { z.form = /** @type {string} */ (b.dataset.form); aktualisieren(); }));
   for (const [k, i] of /** @type {[string, number][]} */ ([['x', 0], ['y', 1]])) {
     $(`obj-${k}`).addEventListener('input', () => {
       /** @type {Vec2} */

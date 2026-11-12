@@ -49,8 +49,8 @@ für diese App gilt.
   Tabelle neben dem Diagramm (Doppelung); Beispiele in drei Schritten: Muster ohne Zelle und Elemente (Abb. 8.2),
   gefundene Elemente ohne Zelle (Abb. 8.3, `strukturTafelB` mit `zelle: false, elemente: true`, nur im Skript),
   Zelle (Abb. 8.4); der Fehler „Farbe übersehen“ an einem der Beispiele (h-BN → *p*6*mm*). Sechstes Beispiel (Thomas): reine Drehgruppe *p*6 als
-  Ornament (Ranken aus Abb. 7.2a; Elemente über der Tapete mit `tafelB(…, { tapeteElemente })`; Abb. 8.4f
-  als Muster mit Zelle und nur deren Elementen, `nurZelle`, damit es aussieht wie a–e). Leitfrage 3 schlicht
+  Ornament (Ranken, Vorgabe `ranken` in „Gitter und Basis“, damit alle sechs Beispiele über denselben Modus laufen wie a–e;
+  seit 4c, früher Tapete im Modus „Ebenengruppen“ mit `tapeteElemente`, `nurZelle`). Leitfrage 3 schlicht
   „Gibt es eine Gleitspiegellinie?“ (Thomas, 6.11.2026): eine Ja/Nein-Frage wie die übrigen; Sandersons Wort
   „indecomposable“ wird nicht erklärt, was eine Gleitspiegellinie ist, steht in Abschn. 4.1. Wo das Diagramm fragt,
   haben die Nein-Gruppen gar keine Gleitspiegellinien (Test). Vorgabe „Dreiergruppen“ (*p*31*m*), Name ohne Gruppe. Dieselben Daten nutzen
@@ -140,6 +140,22 @@ für diese App gilt.
   `entwurf` mit Gruppenwahl, Regel für zusammenfallende Bilder, Kenndaten, Übergang; „Symmetrie festhalten“ entfällt (Bruch,
   Zustandsversion steigt); **4c** Ornamente aus „Ebenengruppen“ entfernen, Skript, Quiz, Experimente, Erste Schritte.
   **4b umgesetzt am 12.11.2026** (Wahl beim Umsetzen im Punkt „Modus „Muster entwerfen““ unten; `SPEICHER_VERSION` 3).
+  **4c umgesetzt am 12.11.2026** (Zu #136). Wahl beim Umsetzen (von Thomas zu bestätigen):
+    - **Form des Objekts** nur noch `fahne`, `komma` (`FORMEN` in `js/zustand.js` und `js/zeichnung.js`); ein Link oder Speicher mit
+      `form=blatt` o. ä. gilt als ungültig und ergibt das Fähnchen (wie jeder unbekannte Wert), `SPEICHER_VERSION` bleibt 3. Die
+      Knöpfe der Ornamente, ihr Tooltip und ihr Zeichencode als Objekt entfallen; `ORNAMENTE`, `ornamentSVG` bleiben für die Motive.
+    - **Skript:** Kap. 7 (Abb. 7.1b, c, 7.2a–c) und Kap. 9 (Abb. 9.1) laufen über `m=entwurf` mit einem Motiv in allgemeiner
+      Lage (Blatt, Tropfen, Ranke, Grösse 0,19; für *cm* 0,2, für *p*1 0,3), ohne Farbe nach Blickrichtung (`farb=0`) und als
+      Tapete (`tap=1`); in Abb. 7.1b und 9.1a (*p*4*gm*) liegt das Blatt bei (0,2 | 0,25), damit es mit seinem Spiegelbild wie ein
+      Schmetterling wirkt. Abb. 7.1a bleibt in „Ebenengruppen“. Kap. 8f (Abb. 8.2f, 8.3f, 8.4f) nutzt die neue Vorgabe `ranken`
+      in „Gitter und Basis“ (sechs Ranken in allgemeiner Lage von *p*6); `tapeteElemente` und `nurZelle` von `tafelB` entfallen.
+      `appTafel` und das Quizbild zeichnen die Tapete im Entwurf ohne Zelle (`zelle: !z.tapete`); die Skizze `conway` baut auf
+      dem Entwurf auf (`ausgeschrieben`, `festeBestimmung`, Elemente über der Tapete).
+    - **Quiz:** `tk-1-02` zeigt Abb. 7.1b (`B#m=entwurf&…`), keine neue Frage.
+    - **Erste Schritte und Experimente** für `entwurf`: `einstieg-entwurf` (3 Schritte), `entwurf-lage` (Fähnchen in allgemeiner
+      Lage, auf dem Drehpunkt, Windrad) ersetzt `festhalten-lage`, `entwurf-gruppen` (dasselbe Motiv in *p*4 und *p*4*mm*);
+      `festhalten-metrik` entfiel schon in 4b. Die Texte sind neu und zu prüfen. Die Zahl der Experimente je Modus prüft der Test nur
+      für „Ebenengruppen“ und „Gitter und Basis“ (8 bis 12).
   **4a umgesetzt am 12.11.2026** (#104). Wahl beim Umsetzen:
     - **Ornamente als Motive** `blatt`, `tropfen`, `ranke` (`MOTIVE` in `js/motive.js`, Form `ornament`): dieselben Pfade wie
       die Form des Objekts in „Ebenengruppen“ (`ORNAMENTE` in `js/zeichnung.js`, gezeichnet von `ornamentSVG`). Das Motiv
@@ -152,9 +168,8 @@ für diese App gilt.
       verschieben sich dadurch um eine Einheit (0,1 der Zelle bei Standardgrösse): Bedeutung der Lage geändert, Format
       gleich, `SPEICHER_VERSION` bleibt bis 4b (dort steigt sie ohnehin). Die Auswahl- und Greifzone liegt um den Fuss.
     - **Grundsatz Aufpunkt** (Thomas, 12.11.2026): Gleiche Objekte haben in allen Modi denselben Aufpunkt (Lage, Drehpunkt), sonst
-      ist das Verhalten für Nutzer intransparent. Fähnchen: Fuss in beiden Modi. Ornamente: Fuss als Form des Objekts in
-      „Ebenengruppen“, Mitte als Motiv; das gilt nur, bis die Ornamente in 4c „Ebenengruppen“ verlassen (danach gibt es sie
-      nur noch als Motive mit der Mitte als Aufpunkt). Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
+      ist das Verhalten für Nutzer intransparent. Fähnchen: Fuss in beiden Modi. Ornamente: nur noch Motive, Aufpunkt die
+      Mitte (seit 4c; vorher auch Form des Objekts in „Ebenengruppen“ mit dem Fuss). Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
     - **Kennzeichnende Punkte:** je Ornament 4 oder 5 Punkte auf seinen Pfaden (Fuss, Spitze, Ansatz, Mitte eines Bézier-Abschnitts; nicht dessen
       Kontrollpunkte, ein Test misst den Abstand), jeder mit eigener Art
       (`o0`, `o1` …). Eine Symmetrie müsste jeden Punkt auf sich selbst abbilden, und das tut bei drei Punkten, die nicht auf
@@ -166,8 +181,8 @@ für diese App gilt.
       Bild (`motivSymbol` in `js/struktur.js`, in der Farbe der gewählten Atomsorte über die CSS-Variable `--mf`), mindestens
       40 px; Name und Punktgruppe stehen im Tooltip und im `aria-label`, die Zeile als `aria-labelledby`, das ⓘ nennt die
       Zeilen. Das Menü `s-motiv` ist jetzt eine Gruppe von Knöpfen mit derselben Kennung.
-    - **Ornamente bleiben vorerst Form des Objekts** in „Ebenengruppen“ (bis 4c); die Skriptabbildungen ändern sich in 4a
-      nicht. Die gebündelte Auswahl gilt im Modus „Muster entwerfen“ (4b) mit denselben Bausteinen.
+    - **Ornamente blieben in 4a Form des Objekts** in „Ebenengruppen“ (4c entfernt sie dort, siehe unten). Die gebündelte
+      Auswahl gilt im Modus „Muster entwerfen“ (4b) mit denselben Bausteinen.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **Modus „Muster entwerfen“** (`entwurf`; Thomas, 9.–12.11.2026, #136, #121; Konzept `docs/konzept-muster-entwerfen.md`,
   Schritt 4b umgesetzt am 12.11.2026; Ort und Gründe unter „Modi und Umfang“; Format von Link und Speicher im README). Er
@@ -241,7 +256,7 @@ für diese App gilt.
 - **Quizbilder:** Symbole, Linien und Achsennamen einheitlich: `K_FRAGE` 1,8, `K_ANTWORT` 2,
   `K_MUSTER` 1,15, `K_SKIZZE` 1,25 (Kachel 1, sie füllt das Bild) in `js/quiz-bild.js`; Fähnchen nur im Muster (Tafel B) mit `K_MUSTER`,
   in Tafel A folgen sie dem Gitter (nächster Punkt). Atomgrösse in Strukturbildern bleibt vorerst.
-- **Grösse des Objekts im Gitter** (5.11.2026): Fähnchen, Komma und Ornament sind wie eine Zeichnung und
+- **Grösse des Objekts im Gitter** (5.11.2026): Fähnchen und Komma sind wie eine Zeichnung und
   die Motive der Basis im Gitter festgelegt (`objektMassstab` in `js/zeichnung.js`), in beiden Tafeln, in
   der Lupe und bei 2 × 2 Zellen im selben Verhältnis zur Zelle. Grund: In Bildpunkten war das Objekt im
   Muster 2- bis 3-mal so gross wie im Gerüst; ein Muster liess sich nicht gezielt aufbauen, besonders mit
@@ -295,7 +310,7 @@ für diese App gilt.
     lesbar. Abgesichert, weil `tests/struktur.test.mjs` jede Vorgabe gegen die erwartete Gruppe prüft.
   - Suche nach Kennung (`ebenengruppe(id)`, `vorgabe(id)`) bleibt in der Datendatei (Leitfaden Abschn. 9).
   - Kein Inhalt, bleibt im Code: Formen der Motive und Ornamente (`motive.js`, `ORNAMENTE`, `FAHNE` in
-    `zeichnung.js`; Zeichnungsgeometrie, Ort der Ornamente klärt #104), Schriften in `skizzen.js`, die
+    `zeichnung.js`; Zeichnungsgeometrie; die Ornamente bleiben dort, #104), Schriften in `skizzen.js`, die
     Link-Tabelle `STEREO_HASH` in `verweise.js` (Schnittstelle zur Stereo-App, nicht Fachinhalt).
   - `hilfe-daten.js` ist Code, keine Datendatei (Wahl beim Umsetzen, 8.11.2026): Sie stellt Modi, Erste Schritte und
     die Experimente zusammen und ordnet die erzeugten aus `experimente.js` ein (`findIndex`, `slice`). App und
@@ -333,7 +348,7 @@ für diese App gilt.
 
 - **Lokale Tests mit HTML-Fragmenten** laufen im Quirks-Modus; Fehler wie `<table>` in `<p>` zeigen sich
   erst im Standards-Modus.
-- **Ornamente** (z. B. „Blatt“) haben keine eigene Symmetrie (chiral; `ORNAMENTE` in `js/zeichnung.js`).
+- **Ornamente** (z. B. „Blatt“) haben keine eigene Symmetrie (chiral; `ORNAMENTE` in `js/zeichnung.js`); es gibt sie nur als Motive (`motive.js`), nicht mehr als Form des Objekts.
 - **Bücher, bekannte Fehler:**
   - Hoffmann Abb. 4.27 (cF(110)): richtig ist primitiv-rechteckig *a*/√2 × *a* (so auch sein Text S. 150).
   - Hoffmann Abb. 4.28 (hP(111)): das Netz ist zentriert-rechteckig, nicht schiefwinklig.

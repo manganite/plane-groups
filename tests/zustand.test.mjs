@@ -120,8 +120,8 @@ test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie i
   assert.equal(z.elemente, s.elemente);
   assert.equal(z.herkunft, false);
   // gültige Werte bleiben
-  const g = zustandPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'ranke', zellen: 2, elemente: false });
-  assert.deepEqual([g.aufbau, g.erkl, g.form, g.zellen, g.elemente], [3, 'm;1/4,0;0,1', 'ranke', 2, false]);
+  const g = zustandPruefen({ ...startzustand(), aufbau: 3, erkl: 'm;1/4,0;0,1', form: 'komma', zellen: 2, elemente: false });
+  assert.deepEqual([g.aufbau, g.erkl, g.form, g.zellen, g.elemente], [3, 'm;1/4,0;0,1', 'komma', 2, false]);
 });
 
 test('Erste Schritte: gespeicherte Modi lesen', () => {
