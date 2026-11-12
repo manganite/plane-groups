@@ -21,7 +21,7 @@ import { gruppe } from './symmetrie.js';
  * Entwurf im Modus „Muster entwerfen“ (#136): die Ebenengruppe (immer fest; ein eigenes Feld, nicht `gruppe` von
  * „Ebenengruppen“), das Gitter im System der Gruppe und je Bahn ein Vertreter (bahnen.js); elemente und ae sind
  * die Anzeigen von Tafel A.
- * @typedef {Gitter & { gruppe: string, basis: Basiseintrag[], striche: Strich[], elemente: boolean, ae: boolean }} EntwurfZustand
+ * @typedef {Gitter & { gruppe: string, basis: Basiseintrag[], striche: Strich[], elemente: boolean, ae: boolean, bindungen: boolean }} EntwurfZustand
  */
 /**
  * Zustand der App (Felder siehe startzustand()).
@@ -108,7 +108,7 @@ export const ENTWURF_START = 'p4mm';
 /** Entwurf im Modus „Muster entwerfen“: leer, in der Gruppe ENTWURF_START mit dem Startgitter ihres Systems. @param {string} [sym] @returns {EntwurfZustand} */
 export function entwurfStart(sym = ENTWURF_START) {
   const gi = GITTER_START[systemVon(sym)];
-  return { gruppe: sym, ba: gi.ba, gamma: gi.gamma, basis: [], striche: [], elemente: true, ae: false };
+  return { gruppe: sym, ba: gi.ba, gamma: gi.gamma, basis: [], striche: [], elemente: true, ae: false, bindungen: true };
 }
 
 /**
@@ -442,7 +442,7 @@ export function pruefeEntwurf(en) {
   const start = GITTER_START[systemVon(sym)];
   const ba = begrenzt(en.ba, STRUKTUR_BEREICH.ba) ?? start.ba; const gamma = begrenzt(en.gamma, STRUKTUR_BEREICH.gamma) ?? start.gamma;
   const gi = gitterZurGruppe(ba, gamma, sym) ?? start;
-  return { gruppe: sym, ba: gi.ba, gamma: grad(gi.gamma), basis: pruefeBasis(en.basis, bahnGewicht(sym)), striche: pruefeStriche(en.striche), elemente: en.elemente !== false, ae: en.ae === true };
+  return { gruppe: sym, ba: gi.ba, gamma: grad(gi.gamma), basis: pruefeBasis(en.basis, bahnGewicht(sym)), striche: pruefeStriche(en.striche), elemente: en.elemente !== false, ae: en.ae === true, bindungen: en.bindungen !== false };
 }
 
 /** @type {[string, StrukturSchalterfeld][]} */
@@ -469,7 +469,7 @@ function strukturHash(z, q) {
 
 /**
  * Link-Adresse im Modus „Muster entwerfen“: Gruppe (g), Gitter (ba, gamma nur, wo das System sie freigibt und sie vom
- * Startgitter abweichen), Vertreter (basis, wenn es welche gibt), Anzeigen (el, ae) und „Darstellung“.
+ * Startgitter abweichen), Vertreter (basis, wenn es welche gibt), Anzeigen (el, ae, bind) und „Darstellung“.
  * @param {Zustand} z @param {URLSearchParams} q
  */
 function entwurfHash(z, q) {
@@ -479,6 +479,7 @@ function entwurfHash(z, q) {
   if (en.basis.length) q.set('basis', basisText(en.basis));
   if (en.elemente !== s0.elemente) q.set('el', B(en.elemente));
   if (en.ae !== s0.ae) q.set('ae', B(en.ae));
+  if (en.bindungen !== s0.bindungen) q.set('bind', B(en.bindungen));
   const s = startzustand();
   for (const [k, f] of GEMEINSAME_SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
   if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
@@ -552,6 +553,7 @@ function hashLesen(z, hash) {
       if (q.has('basis')) en.basis = liesBasis(/** @type {string} */ (q.get('basis'))).slice(0, Math.floor(BASIS_GRENZE / bahnGewicht(en.gruppe)));
       if (q.has('el')) en.elemente = an(q.get('el'));
       if (q.has('ae')) en.ae = an(q.get('ae'));
+      if (q.has('bind')) en.bindungen = an(q.get('bind'));
     }
     for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
     en.striche = pruefeStriche(z.entwurf?.striche);

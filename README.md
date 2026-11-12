@@ -132,6 +132,7 @@ Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere
 | `basis` | je Bahn ein Vertreter, die App schreibt die Bilder aus (Format wie in „Gitter und Basis“); höchstens 48 Motive ausgeschrieben, überzählige am Ende entfallen. Beispiel: `m=entwurf&g=p4mm&basis=fahne,0,1/10,1/5,0` (acht Fähnchen) | **leer** |
 | `el` | Symmetrieelemente | `0`, **`1`** |
 | `ae` | asymmetrische Einheit | **`0`**, `1` |
+| `bind` | Bindungen zwischen nächsten Nachbarn (Atome aller Bilder) | `0`, **`1`** |
 | `farb`, `mel`, `tap`, `fuell`, `lupe`, `zoom` | „Darstellung“ und Lupe wie oben; `fuell` füllt die asymmetrische Einheit der gewählten Gruppe | wie oben |
 
 

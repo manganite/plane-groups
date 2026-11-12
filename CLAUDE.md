@@ -231,6 +231,7 @@ für diese App gilt.
   - **Ungültig aus Link oder Speicher** (Leitfaden Abschn. 5.2: nicht umdeuten): unbekannte oder fehlende Gruppe `g` ergibt den
     leeren Startentwurf (auch Vertreter und Gitter des Links entfallen); ein Gitter, das nicht zum System der Gruppe passt,
     das Startgitter des Systems (Vertreter und Anzeigen bleiben). Link und Speicher prüfen gleich (`pruefeEntwurf`).
+  - **Bindungen** (Thomas, 12.11.2026): Der Schalter „Bindungen (nächste Nachbarn)“ aus „Gitter und Basis“ gilt auch im Entwurf (`EntwurfZustand.bindungen`, Startwert an wie dort; Link `bind`, nur bei `0`). Grund: Ohne die Linien ist es schwer, bestimmte Gitter selbst zu entwerfen. Wahl beim Umsetzen: gleiche Rechnung (`bindungenBasis`) auf den ausgeschriebenen Bildern, also zwischen Atomen aller Bilder der Gruppe; der Übergang aus „Gitter und Basis“ übernimmt die Wahl; Skript- und Quizbilder (`quiz-bild.js`, `skript.js`) geben `bindungen: false` weiter ausdrücklich an. Der Browserlauf prüft es (Abschnitt 8).
   - **Zeichnen** (Schritt 5, umgesetzt am 12.11.2026; Wahl beim Umsetzen, von Thomas zu bestätigen): „Selbst zeichnen“ ist aus
     „Ebenengruppen“ in den Entwurf gezogen (Konzept, Abschn. 3.1); dort entfallen die Zustandsfelder `zeichnen`, `radieren`,
     `striche`, die Bedienelemente und der Abschnitt. Dort bleibt nur die gefüllte asymmetrische Einheit (`zeichnungSVG`).
