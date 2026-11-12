@@ -5,7 +5,7 @@
 //   node tools/entwurf-pruefen.mjs
 //
 // Braucht Playwright mit Chromium (npm install --no-save playwright && npx playwright install chromium);
-// ein anderes Chromium mit KONTRASTE_CHROME=<Pfad>. Ende mit Code 1, wenn eine Prüfung scheitert.
+// ein anderes Chromium mit CHROMIUM_PFAD=<Pfad>. Ende mit Code 1, wenn eine Prüfung scheitert.
 
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
@@ -23,7 +23,7 @@ const pruefe = (ok, was) => { console.log(`${ok ? '✓' : '✗'} ${was}`); if (!
 
 const srv = await server(ROOT);
 const basis = `http://127.0.0.1:${/** @type {import('node:net').AddressInfo} */ (srv.address()).port}/`;
-const chrome = process.env.KONTRASTE_CHROME;
+const chrome = process.env.CHROMIUM_PFAD;
 const browser = await chromium.launch(chrome ? { executablePath: chrome } : {});
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, serviceWorkers: 'block', reducedMotion: 'reduce' });
 const page = await ctx.newPage();

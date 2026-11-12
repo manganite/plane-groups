@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **Gemeinsame Grundlage** auf crystallography-common v0.17.0: Der Pfad eines vorhandenen Chromium für die Werkzeuge heisst `CHROMIUM_PFAD` statt `KONTRASTE_CHROME` und gilt jetzt auch für das Skript-PDF (`tools/skript-pdf.mjs`; crystallography-common#125). Eigene Werkzeuge: `tools/entwurf-pruefen.mjs` liest jetzt `CHROMIUM_PFAD`.
 - **Gleichschenkliges Dreieck schmaler** (#136, Wunsch von Thomas, 12.11.2026): Die Spitze ist jetzt etwa 28° statt 47°, damit sich das Motiv in der Auswahl klar vom gleichseitigen Dreieck unterscheidet. Betroffen sind alle Bilder mit diesem Dreieck: Dreiecksbeispiel (Skript Abb. 1.6, 4.8, 8.2a–8.4a, Quizbilder dazu, Hilfebilder), Abb. 3.1 und 3.6. Link-Adresse und Bestimmung bleiben gleich (die Punkte liegen weiter symmetrisch zur eigenen Spiegellinie).
 - **Hinweis beim Übergang in „Muster entwerfen“:** Er warnt jetzt auch, wenn der bisherige Entwurf nur Striche hat (die Übernahme ersetzt sie).
 
