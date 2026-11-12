@@ -79,4 +79,6 @@ test('Legende der Blickrichtungen: je Position mit Linien ein Eintrag, im schief
   assert.equal(legende('p2mm').length, 2);
   assert.ok(legende('p2mm')[0].includes(F.dir[1]) && legende('p2mm')[1].includes(F.dir[2]));
   assert.ok(legende('p4mm').every((e) => e.includes('Normale ∥')));
+  const g = gruppe('p2mm');
+  assert.ok(richtungenLegende(g.daten.system, elementeImBereich(g, 1).linien, F, ' (in <i>a</i>′, <i>b</i>′)').every((e) => e.includes('(in <i>a</i>′, <i>b</i>′)')));
 });

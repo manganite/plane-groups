@@ -95,12 +95,13 @@ export const richtungHTML = (d) => `[${d.map((x) => (x < 0 ? `<span class="ov">$
  * Linien der Gruppe stehen, die Farbe und die Richtungen der Normalen. Im schiefwinkligen System ohne Einträge.
  * Gemeinsam für „Ebenengruppen“ (main.js) und „Gitter und Basis“ (struktur-ui.js).
  * @param {System} system @param {readonly { normale: Vec2 }[]} linien @param {Farben} farben
+ * @param {string} [bezug] HTML hinter den Richtungen, z. B. wenn sie sich auf eine andere Zelle als die gegebene beziehen
  * @returns {string[]}
  */
-export function richtungenLegende(system, linien, farben) {
+export function richtungenLegende(system, linien, farben, bezug = '') {
   if (system === 'schiefwinklig') return [];
   const positionen = new Set(linien.map((l) => blickrichtung(system, l.normale)));
-  return [2, 3].filter((pos) => positionen.has(pos)).map((pos) => `<span class="lg"><i class="sw" style="background:${farben.dir[pos - 1]}"></i><span>Normale ∥ ${SYMMETRIERICHTUNGEN[system][pos - 2].map(richtungHTML).join(', ')}</span></span>`);
+  return [2, 3].filter((pos) => positionen.has(pos)).map((pos) => `<span class="lg"><i class="sw" style="background:${farben.dir[pos - 1]}"></i><span>Normale ∥ ${SYMMETRIERICHTUNGEN[system][pos - 2].map(richtungHTML).join(', ')}${bezug}</span></span>`);
 }
 
 /**

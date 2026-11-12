@@ -12,7 +12,7 @@ import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
 import { strukturStart, wieVorgabe, gitterZurGruppe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
 import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, mitGruppe, uebernahmeVon } from './bahnen.js';
-import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie } from './struktur.js';
+import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie, istGegeben } from './struktur.js';
 import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
 import { symbolHTML, dezimal, richtungenLegende } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from '../lib/common/js/seite.js';
@@ -279,7 +279,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       const linie = (dash) => `<svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.ink}" stroke-width="${dash ? 2 : 2.8}" ${dash ? 'stroke-dasharray="6 4"' : 'stroke-linecap="round"'}/></svg>`;
       if (arten.has('spiegel')) items.push(`<span class="lg">${linie(false)}Spiegellinie</span>`);
       if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
-      if (z.farben) items.push(...richtungenLegende(g.daten.system, el.linien, f));
+      if (z.farben) items.push(...richtungenLegende(g.daten.system, el.linien, f, istGegeben(r) ? '' : ' (in <i>a</i>′, <i>b</i>′)'));
     }
     if (r && st().ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
     if (r && z.aeFuell) {

@@ -317,7 +317,7 @@ const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 
  * Zustands und dieselben Schlüssel im Link; die übrigen Schalter von SCHALTER gehören nur zu „Ebenengruppen“.
  * @type {[string, Schalterfeld][]}
  */
-const GEMEINSAME_SCHALTER = [['farb', 'farben'], ['mel', 'musterElemente'], ['tap', 'tapete'], ['fuell', 'aeFuell'], ['lupe', 'lupe']];
+const GEMEINSAME_SCHALTER = SCHALTER.filter(([k]) => ['farb', 'mel', 'tap', 'fuell', 'lupe'].includes(k));
 
 /**
  * Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse][,m]; „m“: gespiegelt (nur bei

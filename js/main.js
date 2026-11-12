@@ -265,8 +265,8 @@ function bedienungAbgleichen() {
     : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
   $('fuell-hint').innerHTML = !z.aeFuell ? ''
     : z.modus === 'struktur'
-      ? (bestimmt ? `Kräftig: die asymmetrische Einheit der bestimmten Gruppe ${symbolHTML(bestimmt.symbol)}. Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen.` : '')
-      : `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`;
+      ? (bestimmt ? `Kräftig: die asymmetrische Einheit der bestimmten Gruppe ${symbolHTML(bestimmt.symbol)}. ${bestimmt.ordnung === 1 ? 'Sie füllt die konventionelle Zelle allein' : `Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen`}.` : '')
+      : `Kräftig: die asymmetrische Einheit. ${gruppeVon(z.gruppe).ordnung === 1 ? 'Sie füllt die Zelle allein' : `Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen`}; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`;
   eingabe('v-muster-el').checked = z.musterElemente;
   eingabe('v-tapete').checked = z.tapete;
   eingabe('v-muster-el').disabled = z.tapete;
