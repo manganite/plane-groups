@@ -63,6 +63,8 @@ function bildschirm(p) {
     const farben = /** @type {any} */ (new Proxy({}, { get: () => '#000' }));
     const { ansicht } = strukturTafelA(ausgeschrieben(s), { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, farben);
     const svg = /** @type {SVGSVGElement} */ (document.querySelector('#bild-a'));
+    // die Tafel ins Fenster holen: Je nach Länge der Seitenleiste scrollt die Seite beim Öffnen der Abschnitte
+    svg.scrollIntoView({ block: 'center' });
     const b = ansicht.zuBild(q);
     const pt = new DOMPoint(b[0], b[1]).matrixTransform(/** @type {DOMMatrix} */ (svg.getScreenCTM()));
     return { x: pt.x, y: pt.y };

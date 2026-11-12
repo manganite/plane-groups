@@ -23,7 +23,7 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
   - **Muster:** Ausschnitt des unendlichen Musters mit hervorgehobener Elementarzelle.
   - **Kenndaten wie eine ITA-Seite:** Symbole, Kristallsystem, Bravais-Gitter, Punktgruppe (mit Link in die App „Stereographische Projektion“: dort das Pedion mit Flächenmuster und Blick senkrecht auf die Fläche; das Muster zeigt genau diese Punktgruppe), Ursprung, asymmetrische Einheit, Symmetrieoperationen, Wyckoff-Lagen. Jede Wyckoff-Lage lässt sich mit „setzen“ direkt ansteuern.
   - **Gitterparameter** innerhalb des Kristallsystems frei: *b*/*a* (schiefwinklig, rechteckig), γ (schiefwinklig).
-  - **Selbst zeichnen:** Mit dem Werkzeug „Zeichnen“ im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, im Symmetriegerüst und im Muster (blau gleiche Händigkeit, orange Spiegelbild). Das Werkzeug „Radieren“ entfernt überfahrene Stücke, am Original und an allen Kopien zugleich; „Rückgängig“ macht Striche und Radieren rückgängig. „Asymmetrische Einheit füllen“ zeigt, dass ihre Bilder die Ebene ohne Lücken und Überlappungen pflastern. Die Striche bleiben im Browser gespeichert, stehen aber nicht in der Link-Adresse.
+  - **Selbst zeichnen:** Mit dem Werkzeug „Zeichnen“ im Symmetriegerüst ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, im Symmetriegerüst und im Muster (blau gleiche Händigkeit, orange Spiegelbild). Das Werkzeug „Radieren“ entfernt überfahrene Stücke, am Original und an allen Kopien zugleich; „Rückgängig“ macht Striche und Radieren rückgängig. Die Striche bleiben im Browser gespeichert, stehen aber nicht in der Link-Adresse.
   - **Schritt für Schritt:** Das Objekt wird mit jeder Symmetrieoperation einzeln abgebildet, in der Reihenfolge der Liste in ITA (bei zentrierten Gruppen mit (½, ½)+ als 1′, 2′, …), zuletzt mit den Gittertranslationen. Die Bilder liegen zuerst dort, wohin die Koordinaten der Liste zeigen, auch ausserhalb der Zelle; der Weg zeigt, wie die Operation wirkt. Ein Zähler nennt die verschiedenen Stellen: Auf einer speziellen Lage fallen Bilder zusammen, und am Ende bleibt die Zähligkeit der Wyckoff-Lage. In den Kenndaten ist die Zeile der aktuellen Operation markiert.
   - **Aufbau aus Erzeugenden:** Die Symmetrieelemente erscheinen Schritt für Schritt. Zuerst kommen die Erzeugenden nach ITA („Generators selected“), dann, was aus ihren Verknüpfungen mit den Gittertranslationen folgt. Neue Elemente sind hervorgehoben.
   - **„Herkunft der Elemente“** (Schalter im Abschnitt „Aufbau aus Erzeugenden“): Ein Element antippen zeigt, aus welchen zwei Operationen es folgt (*C* = *A* ∘ *B*). Das Fähnchen läuft die Schritte ab, die passende Regel wird genannt (z. B. „Spiegelung + Translation schräg zur Linie = Gleitspiegelung“), dazu die Herleitung aus den Erzeugenden. Ist das Element nur eine Gitterkopie eines anderen (z. B. die Drehpunkte an den Ecken der Zelle), zeigt die Erklärung stattdessen das Vorbild und die Verschiebung.
@@ -32,7 +32,9 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
   - **Symmetrie bestimmen:** Die App bestimmt die Ebenengruppe in der Standardaufstellung der ITA mit konventioneller Zelle (*a*′, *b*′) und Ursprung und zeigt darüber Symmetrieelemente und asymmetrische Einheit. Die Kenndaten nennen je Motiv Lage, Wyckoff-Lage und Lagesymmetrie und, nach einer Änderung, wie sich die Gruppe geändert hat. Ein Knopf öffnet die Gruppe im Modus „Ebenengruppen“.
   - **Vorgaben:** die fünf Bravais-Gitter; ein Dreiecksbeispiel in drei Stufen (pm → cm → p2mg); 2D-Materialien in Draufsicht (Graphen, h-BN, MoS₂ 1H, Kagome, Lieb-Gitter); die Archimedischen Parkettierungen 4.8.8, 3.4.6.4, 3.3.4.3.4 und 3.3.3.3.6 (chiral); Mauerwerk und Pflaster aus Ziegeln 2 : 1 (ohne Versatz, Läuferverband, um ein Drittel versetzt, Fischgrät- und Flechtverband); künstliches Spin-Eis (square, kagome, pinwheel). Bindungen zwischen nächsten Nachbarn wahlweise.
 
-- **Muster als Tapete und Ornamente:** Das Muster ohne Zelle und Elemente, einfarbig, mit Ornamenten (Blatt, Tropfen, Ranke) statt des Fähnchens; Vergrösserung des Musters und Grösse des Objekts frei. Eine **Lupe** vergrössert das Symmetriegerüst um das Objekt.
+- **Muster als Tapete und Ornamente:** Das Muster ohne Zelle und Elemente, mit Ornamenten (Blatt, Tropfen, Ranke) statt des Fähnchens; Vergrösserung des Musters und Grösse des Objekts frei.
+- **„Darstellung“ in beiden Modi:** nach Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete (in „Ebenengruppen“ einfarbig, in „Gitter und Basis“ in den Farben der Motive), die asymmetrische Einheit füllen (in „Gitter und Basis“ die der bestimmten Gruppe, ohne Motive nicht möglich) und die Vergrösserung des Musters.
+- **Lupe** (Schalter über dem Symmetriegerüst bzw. der Struktur, in beiden Modi): doppelte Vergrösserung um das Objekt, in „Gitter und Basis“ um das gewählte Motiv, ohne Wahl um die Mitte der Zelle.
 - **Kenndaten** mit Schoenflies-Symbol und Signatur nach Conway.
 - **Kopieren und Speichern** je Tafel: Bild in die Zwischenablage, als SVG oder PNG.
 - **Hilfen:** Erste Schritte je Modus beim ersten Aufruf, Experimente zum Vermuten und Ausprobieren, Tooltips und ⓘ-Erklärungen; „?“ führt zur [Hilfeseite](https://manganite.github.io/plane-groups/hilfe.html) mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente.
@@ -94,12 +96,12 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `og` | Grösse des Objekts (Faktor; im Gitter, in beiden Tafeln im selben Verhältnis zur Zelle) | 0.5–3, **1** |
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
 | `orbit` | Bilder rund um die Zelle (wie ITA) | **`0`**, `1` |
-| `fuell` | asymmetrische Einheit gefüllt und vervielfältigt | **`0`**, `1` |
-| `farb` | nach Blickrichtung färben | `0`, **`1`** |
-| `mel` | Symmetrieelemente im Muster | **`0`**, `1` |
-| `tap` | Muster als Tapete (ohne Zelle und Elemente, einfarbig) | **`0`**, `1` |
-| `zoom` | Vergrösserung des Musters | 0.5–3, **1** |
-| `lupe` | Lupe: Symmetriegerüst um das Objekt vergrössert | **`0`**, `1` |
+| `fuell` | asymmetrische Einheit gefüllt und vervielfältigt (in beiden Modi) | **`0`**, `1` |
+| `farb` | nach Blickrichtung färben (in beiden Modi) | `0`, **`1`** |
+| `mel` | Symmetrieelemente im Muster (in beiden Modi) | **`0`**, `1` |
+| `tap` | Muster als Tapete (ohne Zelle und Elemente; in „Ebenengruppen“ einfarbig; in beiden Modi) | **`0`**, `1` |
+| `zoom` | Vergrösserung des Musters (in beiden Modi) | 0.5–3, **1** |
+| `lupe` | Lupe: Symmetriegerüst bzw. Struktur um das Objekt vergrössert (in beiden Modi) | **`0`**, `1` |
 | `schritt` | Schritt für Schritt | **`0`** (aus), Operation `1` … *N* der Liste, *N* + 1 Gittertranslationen |
 | `aufbau` | Aufbau aus Erzeugenden | **`0`** (aus), Schritt `1`, `2`, … |
 | `herkunft` | „Herkunft der Elemente“ | **`0`**, `1` |
@@ -120,7 +122,7 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `szelle` | konventionelle Zelle | `0`, **`1`** |
 | `sae` | asymmetrische Einheit | **`0`**, `1` |
 | `sbind` | Bindungen zwischen nächsten Nachbarn | `0`, **`1`** |
-| `zoom` | Vergrösserung des Musters | 0.5–3, **1** |
+| `farb`, `mel`, `tap`, `fuell`, `lupe`, `zoom` | „Darstellung“ und Lupe: dieselben Schlüssel und Werte wie im Modus `eg` (oben); `fuell` füllt die asymmetrische Einheit der bestimmten Gruppe | wie oben |
 
 
 ## Konventionen

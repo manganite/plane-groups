@@ -110,6 +110,31 @@ für diese App gilt.
     Link und Speicher haben sich geändert (Bruch, MINOR, Leitfaden Abschn. 8): `brechen` und `frei` entfallen; `warum`
     heisst `herkunft` (Schlüssel mit neuer Bedeutung bekommen einen neuen Namen, hier nur der alte Name ersetzt, weil
     die Bedeutung dieselbe bleibt); die Speicherversion `SPEICHER_VERSION` steigt auf 2, ein Stand mit v1 wird verworfen.
+    **Schritt 3 („Darstellung“ und Lupe in allen Modi) umgesetzt am 12.11.2026** (Konzept, Abschn. 2, Punkte 2, 9, 11,
+    und Abschn. 3.4): Ein Abschnitt „Darstellung“ in eigener Karte unten in der Seitenleiste beider Modi (Nach
+    Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete, Asymmetrische Einheit füllen, Vergrösserung
+    des Musters); `s-zoom` entfällt, `opt-fuell` zog aus „Selbst zeichnen“ hierher. Die Felder des Zustands sind
+    dieselben in beiden Modi (`farben`, `musterElemente`, `tapete`, `aeFuell`, `lupe`, `zoomB`), im Link dieselben
+    Schlüssel (`farb`, `mel`, `tap`, `fuell`, `lupe`, `zoom`; `GEMEINSAME_SCHALTER` in `js/zustand.js`); die
+    Schalter nur von „Ebenengruppen“ (`el`, `obj`, `ae`, `rast`, `orbit`) stehen nicht im Link von „Gitter und Basis“.
+    Das ist kein Bruch (nur neue Schlüssel), `SPEICHER_VERSION` bleibt 2. Wahl beim Umsetzen:
+    - **Farben:** Der Startwert `farb=1` gilt jetzt auch in „Gitter und Basis“: Die Symmetrieelemente sind dort
+      standardmässig nach Blickrichtung gefärbt (Tafel A und, mit „Symmetrieelemente im Muster“, Muster). Die
+      Abbildungen im Skript und im Quiz geben `farben: false` ausdrücklich an und bleiben, wie sie waren.
+    - **Tapete** in „Gitter und Basis“ (Konzept, Punkt 13): ohne konventionelle Zelle und ohne Symmetrieelemente (wie in
+      „Ebenengruppen“ sperrt sie „Symmetrieelemente im Muster“, das gewählt bleibt); die Motive behalten ihre Farben,
+      die gefüllte asymmetrische Einheit ist einfarbig. Die Bindungen folgen weiter ihrem eigenen Schalter („Anzeigen“),
+      weil sie zur Struktur gehören, nicht zur Darstellung.
+    - **Füllen** in „Gitter und Basis“: die asymmetrische Einheit der bestimmten Gruppe mit allen Bildern, gezeichnet in
+      deren konventioneller Zelle (`aeFuellung` in `js/zeichnung.js`, dieselbe Rechnung wie in „Ebenengruppen“; der
+      Bereich der Bilder folgt aus dem Bild, `konvBereich` in `js/struktur.js`), in Tafel A und im Muster. Ohne Motive
+      gibt es keine bestimmte Gruppe: Der Schalter ist gesperrt, mit Grund, bleibt aber gewählt (Leitfaden Abschn. 5.2).
+    - **Lupe:** ein Schalter in eigener Gruppe über Tafel A (nicht mehr bei Zeichnen und Radieren), in beiden Modi
+      dieselbe Rechnung (`lupeAusschnitt` in `js/zeichnung.js`, LUPE-fache Vergrösserung). In „Gitter und Basis“ ist die
+      Mitte das gewählte, gezeichnete Motiv, ohne Wahl die Mitte der gegebenen Zelle; während des Ziehens bleibt der
+      Ausschnitt stehen (die schon vorhandene eingefrorene Ansicht `fest`) und folgt erst beim Loslassen. Tippt man ins
+      Leere, springt die Ansicht zur Mitte der Zelle (Wahl aufgehoben, wie in der Konzeptregel). Die Lupe ruht dort nie:
+      Erklärungen (`erklaerend`) gibt es nur in „Ebenengruppen“ und gelten nur dort (`z.modus === 'eg'`).
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
   Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des

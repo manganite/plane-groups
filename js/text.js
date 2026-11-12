@@ -1,6 +1,13 @@
 // Schreibweise der Kenndaten wie in ITA: Koordinaten mit Querstrich und Brüchen, Operationen,
 // Lagesymmetrie. Ohne DOM (Tests in Node).
 
+import { blickrichtung } from './zeichnung.js';
+import { SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
+
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
+/** @import { Farben } from './zeichnung.js' */
+/** @import { System } from './ebenengruppen.js' */
+
 /** @type {Record<string, string>} */
 const BRUECHE = { '1/2': '½', '1/3': '⅓', '2/3': '⅔', '1/4': '¼', '3/4': '¾', '1/6': '⅙', '5/6': '⅚' };
 
@@ -82,6 +89,20 @@ export function zahlText(v) {
  */
 /** @param {readonly number[]} d */
 export const richtungHTML = (d) => `[${d.map((x) => (x < 0 ? `<span class="ov">${-x}</span>` : String(x))).join('')}]`;
+
+/**
+ * Einträge der Legende für „Nach Blickrichtung färben“: je Position im Hermann-Mauguin-Symbol (2, 3), an der
+ * Linien der Gruppe stehen, die Farbe und die Richtungen der Normalen. Im schiefwinkligen System ohne Einträge.
+ * Gemeinsam für „Ebenengruppen“ (main.js) und „Gitter und Basis“ (struktur-ui.js).
+ * @param {System} system @param {readonly { normale: Vec2 }[]} linien @param {Farben} farben
+ * @param {string} [bezug] HTML hinter den Richtungen, z. B. wenn sie sich auf eine andere Zelle als die gegebene beziehen
+ * @returns {string[]}
+ */
+export function richtungenLegende(system, linien, farben, bezug = '') {
+  if (system === 'schiefwinklig') return [];
+  const positionen = new Set(linien.map((l) => blickrichtung(system, l.normale)));
+  return [2, 3].filter((pos) => positionen.has(pos)).map((pos) => `<span class="lg"><i class="sw" style="background:${farben.dir[pos - 1]}"></i><span>Normale ∥ ${SYMMETRIERICHTUNGEN[system][pos - 2].map(richtungHTML).join(', ')}${bezug}</span></span>`);
+}
 
 /**
  * Koordinaten als „(x, y)“. Enthält eine Koordinate ein Dezimalkomma, trennt ein Strichpunkt:

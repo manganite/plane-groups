@@ -312,6 +312,12 @@ export const speicherStand = (z) => ({ v: SPEICHER_VERSION, z });
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
 /** @type {[string, Schalterfeld][]} */
 const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete'], ['lupe', 'lupe']];
+/**
+ * „Darstellung“ und Lupe gelten in beiden Modi (Konzept „Muster entwerfen“, Schritt 3): dieselben Felder des
+ * Zustands und dieselben Schlüssel im Link; die übrigen Schalter von SCHALTER gehören nur zu „Ebenengruppen“.
+ * @type {[string, Schalterfeld][]}
+ */
+const GEMEINSAME_SCHALTER = SCHALTER.filter(([k]) => ['farb', 'mel', 'tap', 'fuell', 'lupe'].includes(k));
 
 /**
  * Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse][,m]; „m“: gespiegelt (nur bei
@@ -420,7 +426,9 @@ function strukturHash(z, q) {
     q.set('basis', basisText(st.basis));
   }
   for (const [k, f] of STRUKTUR_SCHALTER) if (st[f] !== s0[f]) q.set(k, B(st[f]));
-  if (z.zoomB !== startzustand().zoomB) q.set('zoom', kurz(z.zoomB, 3));
+  const s = startzustand();
+  for (const [k, f] of GEMEINSAME_SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
+  if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
 }
 
 /** Link-Adresse (Hash) zum Zustand. @param {Zustand} z */
@@ -475,6 +483,7 @@ function hashLesen(z, hash) {
       if (q.has('sg')) st.festeGruppe = /** @type {string} */ (q.get('sg'));
     }
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
+    for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
     z.struktur = st;
     z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
     return true;
