@@ -33,7 +33,11 @@ import { gruppe, mod1 } from './symmetrie.js';
 
 /** Toleranz für Lagen in Bruchteilen der Zelle (auch beim Zusammenfassen zu Vertretern, bahnen.js). */
 export const TOL = 1e-4;
-const TOL_METRIK = 1e-6; // relativ
+// Toleranz der Metrik, relativ zum Quadrat der längeren Achse. Sie fängt nur Rundungsfehler auf (gemessen höchstens
+// 6·10⁻¹⁶; die Translationen sind gerundet, siehe bestimme()) und liegt unter jeder Abweichung, die Regler und Link
+// ergeben, auch wo diese nur quadratisch wirkt: Die kleinste im Raster des Links hat b/a = 1,732 bei γ = 150°, 2,6·10⁻⁹
+// neben einem rhombischen Gitter (#126), die nächsten liegen bei 9·10⁻⁸ (tests/toleranzen.test.mjs).
+const TOL_METRIK = 1e-9;
 
 /** @type {(a: Mat2, b: Mat2) => Mat2} */
 const mat = (a, b) => [[a[0][0] * b[0][0] + a[0][1] * b[1][0], a[0][0] * b[0][1] + a[0][1] * b[1][1]], [a[1][0] * b[0][0] + a[1][1] * b[1][0], a[1][0] * b[0][1] + a[1][1] * b[1][1]]];
@@ -226,7 +230,8 @@ function ursprungKandidaten(R, v) {
       if (n < 1e-9) { out.push([0, 0]); continue; }
       const s = /** @type {Vec2} */ (vek(trans(M), w).map((x) => x / n)); // kleinste Lösung (Pseudoinverse, Rang 1)
       const pr = vek(M, s);
-      if (Math.abs(pr[0] - w[0]) < 1e-6 && Math.abs(pr[1] - w[1]) < 1e-6) out.push(s);
+      // lösbar bis auf die Toleranz der Lagen: Translationen tragen deren Abweichung (aus dem Link 10⁻⁶ je Lage)
+      if (Math.abs(pr[0] - w[0]) < TOL && Math.abs(pr[1] - w[1]) < TOL) out.push(s);
     }
   }
   return out;
@@ -271,7 +276,10 @@ export function bestimme(st) {
   const arten0 = nachArt(st.punkte);
   if (!arten0.length) return null;
   // 1. Translationen und kleinste Zelle
-  const T = translationenZu(arten0, [[1, 0], [0, 1]]);
+  // Die N Translationen bilden eine Gruppe der Ordnung N modulo Gitter; jede ist deshalb ein Vielfaches von 1/N. Gerundet
+  // tragen sie die Abweichung der Lagen (bis TOL, aus dem Link 10⁻⁶) nicht in die Metrik der kleinsten Zelle (#126).
+  const T1 = translationenZu(arten0, [[1, 0], [0, 1]]);
+  const T = T1.map((t) => /** @type {Vec2} */ (t.map((x) => mod1(Math.round(x * T1.length) / T1.length))));
   const P = reduziere(primitiveZelle(T, G0), G0);
   const Pi = inv(P);
   /** @param {Vec2} p */

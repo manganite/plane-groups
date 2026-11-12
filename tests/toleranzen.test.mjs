@@ -1,10 +1,10 @@
 // Toleranzen der Symmetriebestimmung (js/bestimmung.js, #120): Fälle knapp neben einer speziellen Metrik
 // oder Lage. Die kleinsten Unterschiede, die man eingeben kann, sind Regler (b/a in Schritten von 0,01,
 // γ in 0,5°, Lage in 0,001) und Link (b/a auf 0,001, γ auf 0,01°, Lagen auf 10⁻⁶; js/zustand.js). Ein
-// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage. Ausnahme: Wo eine Abweichung
-// von der speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten), gilt das
-// nur für den Regler, nicht für den Link (#126). Rundungsfehler (die Metrik aus cos und sin, 10⁻¹² relativ)
-// ergeben das höhere System, ein Abstand von 10⁻⁶ von einer speziellen Lage gilt als auf ihr.
+// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage, auch wo eine Abweichung von der
+// speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten, #126). Rundungsfehler
+// (die Metrik aus cos und sin, 10⁻¹² relativ) ergeben das höhere System, ein Abstand von 10⁻⁶ von einer
+// speziellen Lage gilt als auf ihr, auch in einer Überstruktur (gegebene Zelle grösser als die kleinste).
 //
 // Die erwarteten Gruppen sind von Hand hergeleitet (Kommentare), nicht mit dem Code der App gerechnet
 // (Leitfaden Abschn. 9). Die Gitter entstehen wie in der App mit metrik() (|a| = 1, |b| = b/a, Winkel γ).
@@ -60,13 +60,14 @@ for (const [name, faelle] of /** @type {[string, [number, number, string][]][]} 
   // b/a = √3, γ = 150°: |a + b|² = 1 + 3 + 2√3 cos 150° = 1 und a·(a + b) = 1 − 3/2 = −½, also a, a + b
   // gleich lang unter 120°: hexagonal. Mit b/a = √3 + ε ist die reduzierte Basis a, 2a + b mit
   // |2a + b|² = 1 + ε² und a·(2a + b) = ½ − √3 ε/2: schiefwinklig, aber nur um ε² von gleich langen Achsen
-  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), ergeben p2;
-  // 1,73 verlangt also eine Toleranz der Metrik unter etwa 4·10⁻⁶. Die Link-Werte 1,732 und 1,733 (ε² ≈ 3·10⁻⁹
-  // bzw. 10⁻⁶) liegen innerhalb der Toleranz und ergeben c2mm statt p2 (#126); sie fehlen deshalb hier.
+  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), und die Link-Werte
+  // 1,732 und 1,733 (ε² = 2,6·10⁻⁹ bzw. 9,0·10⁻⁷) ergeben p2. Für 1,732 muss die Toleranz der Metrik also unter
+  // 2,6·10⁻⁹ liegen (#126: mit 10⁻⁶ ergaben 1,732 und 1,733 c2mm).
   // Mit γ = 150,5° ist |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
   ['schief aufgestellt, hexagonal', [
     [Math.sqrt(3), 150, 'p6mm'],
-    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
+    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [1.732, 150, 'p2'], [1.733, 150, 'p2'],
+    [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
   ]],
 ])) {
   test(`Metrik knapp neben einer speziellen (${name}): niedrigeres System, genau auf dem Wert das höhere`, () => {
@@ -198,5 +199,51 @@ test('Zelle mit Rundungsfehlern gilt als die gegebene (c2mm in der Standardaufst
     assert.equal(r.symbol, 'c2mm', String(q));
     assert.ok(r.zelle.every((z, i) => z.every((x, j) => Math.abs(x - (i === j ? 1 : 0)) < 1e-12)), `${q}: Zelle ${JSON.stringify(r.zelle)}`);
     assert.ok(istGegeben(r), `${q}: gegebene Zelle`);
+  }
+});
+
+// --------------------------------------------------------------------------- Überstruktur
+// Die gegebene Zelle ist ein Vielfaches der kleinsten; die Lagen stehen wie im Link auf 6 Stellen (#126). Die
+// Translationen tragen dann Abweichungen von etwa 10⁻⁶ und dürfen weder die Metrik der kleinsten Zelle noch den
+// Ursprung verfälschen.
+
+/** @param {number} x */
+const sechsStellen = (x) => Math.round(x * 1e6) / 1e6;
+
+test('Überstruktur mit Lagen auf 6 Stellen: kleinste Zelle mit der richtigen Metrik', () => {
+  // a = b = 1, γ = 120°, Atome bei y = 0, 1/3, 2/3: kleinste Zelle a, u = b/3 (|u|² = 1/9, a·u = −1/6). Reduziert
+  // u, v = a + u mit |v|² = 1 + 1/9 − 1/3 = 7/9 und u·v = −1/6 + 1/9 = −1/18 = −|u|²/2: rhombisch, c2mm.
+  // a = b = 1, γ = 120°, Atome bei y = k/6: u = b/6 (|u|² = 1/36, a·u = −1/12), v = a + 3u mit u·v = −1/12 + 3/36 = 0
+  // und |v|² = 1 + 9/36 − 1/2 = 3/4 ≠ |u|²: rechteckig, p2mm.
+  for (const [n, erwartet] of /** @type {[number, string][]} */ ([[3, 'c2mm'], [6, 'p2mm']])) {
+    const punkte = Array.from({ length: n }, (_, k) => /** @type {Strukturpunkt} */ ({ p: [0, sechsStellen(k / n)], art: 'A' }));
+    assert.equal(symbol(1, 120, punkte), erwartet, `y = k/${n}`);
+  }
+});
+
+test('Überstruktur jeder Ebenengruppe mit Lagen auf 6 Stellen: dieselbe Gruppe, Zelle und Ursprung wie mit exakten Lagen', () => {
+  // Die Struktur ist dieselbe, nur die gegebene Zelle ist i × j-mal so gross: Die Gruppe bleibt; ihr Symbol hängt nicht
+  // von der Wahl der gegebenen Zelle ab. Motiv aus drei Punkten verschiedener Art in allgemeiner Lage wie oben.
+  for (const d of EBENENGRUPPEN) {
+    const g = gruppe(d.symbol);
+    const M = metrik(GITTER_START[d.system]);
+    for (const [i, j] of [[2, 1], [1, 3], [2, 2], [1, 6], [3, 2]]) {
+      /** @type {Strukturpunkt[]} */
+      const punkte = [];
+      for (const op of g.alle) {
+        for (const [dp, art] of /** @type {[Vec2, string][]} */ ([[[0, 0], 'A'], [[0.031, 0.007], 'B'], [[-0.004, 0.043], 'C']])) {
+          const p = anwenden(op, [0.083 + dp[0], 0.417 + dp[1]]);
+          for (let u = 0; u < i; u++) for (let v = 0; v < j; v++) punkte.push({ p: [(p[0] + u) / i, (p[1] + v) / j], art });
+        }
+      }
+      /** @param {Kartesisch<Vec2>} w @param {number} f */
+      const mal = (w, f) => /** @type {Kartesisch<Vec2>} */ ([f * w[0], f * w[1]]);
+      const exakt = /** @type {Bestimmung} */ (bestimme({ a: mal(M.a, i), b: mal(M.b, j), punkte }));
+      const r = bestimme({ a: mal(M.a, i), b: mal(M.b, j), punkte: punkte.map((q) => ({ p: /** @type {Vec2} */ (q.p.map(sechsStellen)), art: q.art })) });
+      assert.equal(exakt.symbol, d.symbol, `${d.symbol}, ${i} × ${j}, exakt`);
+      assert.equal(r?.symbol, d.symbol, `${d.symbol}, ${i} × ${j}`);
+      assert.ok(r && r.zelle.every((z, k) => z.every((x, l) => Math.abs(x - exakt.zelle[k][l]) < 1e-9)), `${d.symbol}, ${i} × ${j}: Zelle`);
+      assert.ok(r && r.ursprung.every((x, k) => Math.abs(x - exakt.ursprung[k]) < 1e-4), `${d.symbol}, ${i} × ${j}: Ursprung`);
+    }
   }
 });
