@@ -63,7 +63,7 @@ export const MOTIVE = {
   atom: { name: 'Atom', symmetrie: '∞m', groesse: 0.045, punkte: [[0, 0, 'a']], form: 'kreis' },
   fahne: {
     name: 'Fähnchen', symmetrie: '1', groesse: 0.1, form: 'fahne',
-    punkte: [[0, 1, 'f0'], [0, -1, 'f1'], [0.85, -0.6, 'f2'], [0, -0.2, 'f3']],
+    punkte: [[0, 0, 'f0'], [0, -2, 'f1'], [0.85, -1.6, 'f2'], [0, -1.2, 'f3']], // Fuss im Ursprung (die Lage), wie die Form des Objekts in „Ebenengruppen“
   },
   // Ornamente (#104): chiral wie das Fähnchen; die Pfade stehen in ORNAMENTE (zeichnung.js), eine lokale Einheit
   // sind ORNAMENT_EINHEIT Bildpunkte der Pfade (das Ornament ist etwa zwei Einheiten hoch)

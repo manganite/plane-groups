@@ -236,9 +236,9 @@ test('Spiegelbild: genau die chiralen Motive ändern sich, wenn man sie an der e
   // gespiegelt vor der Drehung: die Fahne zeigt nach −x, gedreht um 90° (im Uhrzeigersinn, y nach unten) nach −y
   const spitze = (/** @type {Partial<Basiseintrag>} */ e) => motivKart({ motiv: 'fahne', groesse: 1, ...e }).find((q) => q.art === 'f2')?.c;
   const nah = (/** @type {Vec2 | undefined} */ c, /** @type {Vec2} */ z) => assert.ok(c && Math.hypot(c[0] - z[0], c[1] - z[1]) < 1e-12, `${c} ≠ ${z}`);
-  nah(spitze({}), [0.85, -0.6]);
-  nah(spitze({ spiegel: true }), [-0.85, -0.6]);
-  nah(spitze({ spiegel: true, winkel: grad(90) }), [0.6, -0.85]);
+  nah(spitze({}), [0.85, -1.6]);
+  nah(spitze({ spiegel: true }), [-0.85, -1.6]);
+  nah(spitze({ spiegel: true, winkel: grad(90) }), [1.6, -0.85]);
 });
 
 test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm, ein Windrad und sein Bild unter (−x, y + ½) pg', () => {
