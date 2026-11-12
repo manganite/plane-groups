@@ -241,6 +241,18 @@ test('Spiegelbild: genau die chiralen Motive ändern sich, wenn man sie an der e
   nah(spitze({ spiegel: true, winkel: grad(90) }), [1.6, -0.85]);
 });
 
+test('Dreiecke: das gleichschenklige ist deutlich schmaler als das gleichseitige (in der Auswahl unterscheidbar)', () => {
+  // Winkel an der Spitze aus den Punkten, unabhängig vom Code: gleichseitig 60°, gleichschenklig höchstens 40°
+  /** @param {string} k */
+  const spitzenwinkel = (k) => {
+    const [[x0, y0], [x1, y1], [x2, y2]] = MOTIVE[k].punkte;
+    const u = [x1 - x0, y1 - y0]; const v = [x2 - x0, y2 - y0];
+    return (Math.acos((u[0] * v[0] + u[1] * v[1]) / Math.hypot(u[0], u[1]) / Math.hypot(v[0], v[1])) * 180) / Math.PI;
+  };
+  assert.ok(Math.abs(spitzenwinkel('dreieck3') - 60) < 1e-9);
+  assert.ok(spitzenwinkel('dreieck') <= 40, `Spitze ${spitzenwinkel('dreieck').toFixed(1)}°`);
+});
+
 test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm, ein Windrad und sein Bild unter (−x, y + ½) pg', () => {
   // pm (ITA): Spiegelung −x, y; a zeigt im Bild nach unten, b nach rechts, also kartesisch diag(1, −1) = Drehung 180° nach x → −x.
   // Bild eines Fähnchens mit Winkel w: gespiegelt, Winkel 180° − w (von Hand, nicht mit dem Code gerechnet).
@@ -538,7 +550,13 @@ test('Motivauswahl: jedes Motiv in genau einer Zeile, die Zeile nennt seine Eige
     const s = motivSymbol(k, 'var(--mf)', 'var(--paper)');
     assert.match(s, /^<svg class="motivsym" /); assert.ok(!/NaN|undefined/.test(s), k);
     assert.ok(/fill="var\(--mf\)"|stroke="var\(--mf\)"/.test(s), `${k}: Farbe der Atomsorte`);
+    // ganz im Feld: alle Punkte der Umrisse, Pfade (mit Kontrollpunkten) und Linien (beim Fähnchen lag die Fahne vorher oberhalb, nur die Stange war zu sehen)
+    const zahlen = [...s.matchAll(/ (?:d|points|x1|y1|x2|y2|cx|cy)="([^"]*)"/g)].flatMap((m) => (m[1].match(/-?[\d.]+/g) ?? []).map(Number));
+    assert.ok(zahlen.length >= 2, `${k}: Koordinaten gefunden`);
+    for (const z of zahlen) assert.ok(z >= 0 && z <= 30, `${k}: ${z} im Feld 0 … 30`);
   }
+  // das Fähnchen zeigt Stange und Fahne
+  assert.match(motivSymbol('fahne', 'x', 'y'), /<line [^>]*\/><polygon /);
 });
 
 test('Ornamente als Motive: kennzeichnende Punkte liegen auf den Pfaden, und die Zeichnung beginnt dort, wo motivKart den ersten Punkt hat', () => {

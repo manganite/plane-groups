@@ -148,10 +148,15 @@ export function motivSVG(e, p, A, M, farbe, papier, { auswahl = false } = {}) {
 export function motivSymbol(motiv, farbe, papier) {
   const M = metrik({ ba: 1, gamma: /** @type {Grad} */ (90) });
   const A = ansicht(M, [0, 0, 1, 1], SYMBOL, 0);
-  const mitte = /** @type {Vec2} */ ([0.5, 0.5]);
   // das Atom ist ein Kreis mit Radius groesse · s, die übrigen Motive reichen etwa eine Einheit weit
   const groesse = MOTIVE[motiv].form === 'kreis' ? 0.2 : 0.4;
-  return `<svg class="motivsym" width="${SYMBOL}" height="${SYMBOL}" viewBox="0 0 ${SYMBOL} ${SYMBOL}" aria-hidden="true" focusable="false">${motivSVG({ motiv, p: mitte, groesse }, mitte, A, M, farbe, papier)}</svg>`;
+  // die Mitte des Rechtecks um die Punkte in die Mitte des Felds: Das Fähnchen liegt mit dem Fuss auf der Lage und ragt
+  // zwei Einheiten nach oben; auf die Mitte gesetzt, läge die Fahne ausserhalb des Felds
+  const f = motivKart({ motiv, groesse }).map((q) => bruchVon(M, q.c));
+  /** @param {number} i */
+  const mittel = (i) => (Math.min(...f.map((q) => q[i])) + Math.max(...f.map((q) => q[i]))) / 2;
+  const p = /** @type {Vec2} */ ([0.5 - mittel(0), 0.5 - mittel(1)]);
+  return `<svg class="motivsym" width="${SYMBOL}" height="${SYMBOL}" viewBox="0 0 ${SYMBOL} ${SYMBOL}" aria-hidden="true" focusable="false">${motivSVG({ motiv, p, groesse }, p, A, M, farbe, papier)}</svg>`;
 }
 /** Seitenlänge des Symbols eines Motivs in der Auswahl, in Bildpunkten. */
 const SYMBOL = 30;

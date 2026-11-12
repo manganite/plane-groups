@@ -6,6 +6,17 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Gleichschenkliges Dreieck schmaler** (#136, Wunsch von Thomas, 12.11.2026): Die Spitze ist jetzt etwa 28° statt 47°, damit sich das Motiv in der Auswahl klar vom gleichseitigen Dreieck unterscheidet. Betroffen sind alle Bilder mit diesem Dreieck: Dreiecksbeispiel (Skript Abb. 1.6, 4.8, 8.2a–8.4a, Quizbilder dazu, Hilfebilder), Abb. 3.1 und 3.6. Link-Adresse und Bestimmung bleiben gleich (die Punkte liegen weiter symmetrisch zur eigenen Spiegellinie).
+- **Hinweis beim Übergang in „Muster entwerfen“:** Er warnt jetzt auch, wenn der bisherige Entwurf nur Striche hat (die Übernahme ersetzt sie).
+
+### Behoben
+
+- **Motivauswahl:** Der Knopf des Fähnchens zeigte nur die Stange; jetzt sitzt jedes Motiv mit der Mitte seines Umrisses im Feld (#136).
+- **Bestimmung bei *b*/*a* = 1,732 und 1,733, γ = 150°** (#126): Diese Link-Werte ergaben *c*2*mm* statt *p*2, weil das Gitter dort nur um das Quadrat der Abweichung von einem rhombischen entfernt ist und die Toleranz der Metrik (10⁻⁶) das überdeckte. Die Toleranz fängt jetzt nur noch Rundungsfehler auf (10⁻⁹); mit dem Regler waren die Fälle nicht erreichbar.
+- **Zelle mit Rundungsfehlern** (#125): Test dafür, dass eine konventionelle Zelle wie [[1, 0], [0, 0,9999999999999999]] als die gegebene gilt (behoben in 1.3.0).
+
 ## [1.3.0] - 2026-11-12
 
 Hinweis: Mit diesem Release ändern sich Link-Adressen und gespeicherte Stände (Bruch, MINOR): **alte Links gelten nicht mehr** (Näheres unter „Geändert“). Link und Speicher sind in der Entwicklung nicht stabil.

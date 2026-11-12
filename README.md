@@ -176,7 +176,7 @@ Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere
 | `lib/common/`, `tools/common/` | Gemeinsame Grundlage aus [crystallography-common](https://github.com/manganite/crystallography-common) als Kopie mit fester Version (`lib/common/MANIFEST.json`): Stile, Schriften, Hilfen, Quiz, Skript-Bausteine, Formatierung, Werkzeuge. Nicht von Hand ändern. |
 | `tests/` | Automatische Tests (Node, ohne Abhängigkeiten); gemeinsame Helfer der Tests in `tests/hilfen.mjs` |
 | `tsconfig.json` | Typprüfung mit TypeScript (JSDoc-Typen, kein Build-Schritt) |
-| `docs/` | Konzept der App (`konzept-2d-app.md`), Bilder für README und GitHub |
+| `docs/` | Konzepte der App (`konzept-2d-app.md`, `konzept-muster-entwerfen.md`), Bilder für README und GitHub |
 
 ### Gemeinsame Grundlage
 

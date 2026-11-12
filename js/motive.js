@@ -76,7 +76,7 @@ export const MOTIVE = {
   tropfen: { name: 'Tropfen', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'tropfen', punkte: ornamentPunkte('tropfen', [[0, -1], [-6.75, -10.5], [0, -20], [8.375, -16.5], [9, 2]]) },
   ranke: { name: 'Ranke', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'ranke', punkte: ornamentPunkte('ranke', [[0, 0], [11, -17], [15, -9], [3, -10], [-3, -21]]) },
   w2: { name: 'Windrad 2', symmetrie: '2', groesse: 0.1, punkte: windrad(2), form: 'polygon' },
-  dreieck: { name: 'Dreieck (gleichschenklig)', symmetrie: 'm', groesse: 0.12, punkte: [[0, -1, 's'], [0.7, 0.6, 'e'], [-0.7, 0.6, 'e']], form: 'polygon' },
+  dreieck: { name: 'Dreieck (gleichschenklig)', symmetrie: 'm', groesse: 0.12, punkte: [[0, -1, 's'], [0.4, 0.6, 'e'], [-0.4, 0.6, 'e']], form: 'polygon' }, // schmal (Spitze etwa 28°), damit es sich in der Auswahl klar vom gleichseitigen unterscheidet
   // Insel: abgerundetes Stäbchen wie die Nanomagnete künstlicher Spin-Eis- und Toroidal-Gitter (Länge : Breite
   // etwa 3 : 1, vgl. J. Lehmann, Toroidal Order in Magnetic Metamaterials, Springer Theses 2022, Abb. 6.2, S. 118:
   // 450 × 150 nm²); Punkte an den Enden und Seiten wie bisher
