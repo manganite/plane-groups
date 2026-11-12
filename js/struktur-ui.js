@@ -7,12 +7,12 @@
 // gehen über die Umkehroperation an den Vertreter (CLAUDE.md, „Symmetrie festhalten“).
 
 import { VORGABEN } from './vorgaben.js';
-import { MOTIVE, chiral } from './motive.js';
+import { MOTIVE, MOTIVZEILEN, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
 import { strukturStart, wieVorgabe, gitterZurGruppe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
 import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, mitGruppe, uebernahmeVon } from './bahnen.js';
-import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie, istGegeben } from './struktur.js';
+import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie, istGegeben, motivSymbol } from './struktur.js';
 import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
 import { symbolHTML, dezimal, richtungenLegende } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from '../lib/common/js/seite.js';
@@ -93,7 +93,11 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const gruppen = [...new Set(VORGABEN.map((v) => v.gruppe))];
     $('s-vorgabe').innerHTML = gruppen.map((g) => `<optgroup label="${g}">${VORGABEN.filter((v) => v.gruppe === g).map((v) => `<option value="${v.id}">${v.name}</option>`).join('')}</optgroup>`).join('')
       + '<option value="" disabled>eigene Struktur (verändert)</option>';
-    $('s-motiv').innerHTML = Object.entries(MOTIVE).map(([k, d]) => `<option value="${k}">${d.name} (${d.symmetrie})</option>`).join('');
+    // Motive nach eigener Symmetrie gebündelt (Konzept „Muster entwerfen“, Abschn. 2, Punkt 1): je Zeile eine Symmetrie,
+    // je Motiv ein Knopf mit kleinem Bild; Name und Symmetrie im Tooltip und im Namen für Hilfstechnik
+    $('s-motiv').innerHTML = MOTIVZEILEN.map((zeile, i) => `<div class="sysrow"><span class="sys" id="s-motiv-z${i}">${zeile.name}</span><div class="btns" role="group" aria-labelledby="s-motiv-z${i}">${
+      zeile.motive.map((k) => `<button class="pgb motivb" type="button" data-motiv="${k}" aria-pressed="false" aria-label="${MOTIVE[k].name}, Eigensymmetrie ${MOTIVE[k].symmetrie}" title="${MOTIVE[k].name} (${MOTIVE[k].symmetrie})">${motivSymbol(k, 'var(--mf)', 'var(--paper)')}</button>`).join('')
+    }</div></div>`).join('');
     $('s-farbe').innerHTML = FARBNAMEN.map((n, i) => `<button type="button" data-farbe="${i}" aria-pressed="false" aria-label="${n}" title="${n}"><i class="sw"></i></button>`).join('');
   }
 
@@ -140,7 +144,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
     const e = ziel();
     const f = motivFarben(farben());
-    auswahl('s-motiv').value = e.motiv;
+    $('s-motiv').style.setProperty('--mf', f[(e.farbe ?? 0) % f.length]);
+    $('s-motiv').querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.motiv === e.motiv)));
     $('s-farbe').querySelectorAll('button').forEach((b) => {
       b.setAttribute('aria-pressed', String(Number(b.dataset.farbe) === (e.farbe ?? 0)));
       /** @type {HTMLElement} */ (b.querySelector('.sw')).style.background = f[Number(b.dataset.farbe)];
@@ -152,7 +157,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const spiegelbar = chiral(e.motiv);
     eingabe('s-spiegel').checked = Boolean(e.spiegel);
     eingabe('s-spiegel').disabled = !spiegelbar;
-    element('#row-spiegel .why').textContent = spiegelbar ? '' : 'nur bei Motiven ohne Spiegellinie (Fähnchen, Windräder)';
+    element('#row-spiegel .why').textContent = spiegelbar ? '' : 'nur bei Motiven ohne Spiegellinie (Fähnchen, Ornamente, Windräder)';
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
     eingabe('s-groesse').value = String(gr);
     $('s-groesse-out').textContent = dezimal(gr, 3);
@@ -445,9 +450,11 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       }
       aktualisieren();
     });
-    $('s-motiv').addEventListener('change', () => {
+    $('s-motiv').addEventListener('click', (ev) => {
+      const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (ev.target).closest('[data-motiv]'));
+      if (!b) return;
       aendern((e) => {
-        e.motiv = auswahl('s-motiv').value;
+        e.motiv = /** @type {string} */ (b.dataset.motiv);
         if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
         // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Symmetrie festhalten“)
         if (!chiral(e.motiv)) delete e.spiegel;

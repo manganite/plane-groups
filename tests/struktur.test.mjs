@@ -2,11 +2,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { VORGABEN, vorgabe } from '../js/vorgaben.js';
-import { MOTIVE, motivKart, chiral } from '../js/motive.js';
-import { motivSVG, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
+import { MOTIVE, MOTIVZEILEN, motivKart, chiral } from '../js/motive.js';
+import { ORNAMENTE, ornamentMitte, ORNAMENT_EINHEIT } from '../js/zeichnung.js';
+import { motivSVG, motivSymbol, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, gitterZurGruppe } from '../js/zustand.js';
 import { ausgeschrieben } from '../js/bahnen.js';
-import { metrik, kart, LUPE } from '../js/zeichnung.js';
+import { metrik, kart, ansicht, bruchVon, LUPE } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
 import { grad } from '../js/zeichnung.js';
 
@@ -231,13 +232,13 @@ test('Spiegelbild: genau die chiralen Motive ändern sich, wenn man sie an der e
     const symmetrisch = d.punkte.every(([x, y, a]) => d.punkte.some(([u, v, b]) => a === b && Math.abs(u + x) < 1e-12 && Math.abs(v - y) < 1e-12));
     assert.equal(chiral(k), !symmetrisch, k);
   }
-  assert.deepEqual(Object.keys(MOTIVE).filter(chiral), ['fahne', 'w2', 'w3', 'w4', 'w6']);
+  assert.deepEqual(Object.keys(MOTIVE).filter(chiral), ['fahne', 'blatt', 'tropfen', 'ranke', 'w2', 'w3', 'w4', 'w6']);
   // gespiegelt vor der Drehung: die Fahne zeigt nach −x, gedreht um 90° (im Uhrzeigersinn, y nach unten) nach −y
   const spitze = (/** @type {Partial<Basiseintrag>} */ e) => motivKart({ motiv: 'fahne', groesse: 1, ...e }).find((q) => q.art === 'f2')?.c;
   const nah = (/** @type {Vec2 | undefined} */ c, /** @type {Vec2} */ z) => assert.ok(c && Math.hypot(c[0] - z[0], c[1] - z[1]) < 1e-12, `${c} ≠ ${z}`);
-  nah(spitze({}), [0.85, -0.6]);
-  nah(spitze({ spiegel: true }), [-0.85, -0.6]);
-  nah(spitze({ spiegel: true, winkel: grad(90) }), [0.6, -0.85]);
+  nah(spitze({}), [0.85, -1.6]);
+  nah(spitze({ spiegel: true }), [-0.85, -1.6]);
+  nah(spitze({ spiegel: true, winkel: grad(90) }), [1.6, -0.85]);
 });
 
 test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm, ein Windrad und sein Bild unter (−x, y + ½) pg', () => {
@@ -478,4 +479,98 @@ test('Link: „Darstellung“ und Lupe gelten in beiden Modi, mit denselben Schl
   // derselbe Link kommt unverändert wieder heraus
   const z2 = startzustand(); hashAnwenden(z2, h);
   assert.equal(hashVon(z2), h);
+});
+
+test('Ornamente als Motive (#104): jedes allein hat keine eigene Symmetrie, auch gespiegelt und gedreht', () => {
+  for (const k of ['blatt', 'tropfen', 'ranke']) {
+    const d = MOTIVE[k];
+    assert.equal(d.symmetrie, '1'); assert.ok(chiral(k));
+    assert.equal(new Set(d.punkte.map((p) => p[2])).size, d.punkte.length, `${k}: jede Art einmal`);
+    // mindestens drei Punkte, nicht alle auf einer Geraden (sonst wäre die Spiegelung an dieser Geraden eine Symmetrie)
+    const [p0, p1] = d.punkte;
+    assert.ok(d.punkte.slice(2).some((q) => Math.abs((p1[0] - p0[0]) * (q[1] - p0[1]) - (p1[1] - p0[1]) * (q[0] - p0[0])) > 1e-6), `${k}: nicht kollinear`);
+    for (const e of /** @type {Basiseintrag[]} */ ([{ motiv: k, p: [0.3, 0.2] }, { motiv: k, p: [0.3, 0.2], winkel: grad(37), spiegel: true }, { motiv: k, p: [0.5, 0.5], winkel: grad(90) }])) {
+      for (const gi of [{ ba: 1, gamma: grad(90) }, { ba: 1.4, gamma: grad(105) }]) {
+        const r = symmetrie({ ...gi, basis: [e] });
+        assert.equal(r.symbol, 'p1', `${k} ${JSON.stringify(e)}`);
+      }
+    }
+  }
+});
+
+test('Ornamente als Motive: Zeichnung folgt Lage, Drehung, Spiegelung und Grösse', () => {
+  const M = metrik({ ba: 1, gamma: grad(90) });
+  const A = ansicht(M, [0, 0, 1, 1], 520, 0);
+  /** @param {Partial<Basiseintrag>} e */
+  const svg = (e) => motivSVG({ motiv: 'blatt', farbe: 0, p: [0.5, 0.5], ...e }, [0.5, 0.5], A, M, '#00a', '#fff');
+  /** @param {string} s @returns {number[]} */
+  const zahlen = (s) => [...s.matchAll(/-?\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
+  const s0 = svg({});
+  assert.ok(!/NaN|undefined/.test(s0)); assert.match(s0, /<path /);
+  assert.notEqual(svg({ winkel: grad(90) }), s0);
+  assert.notEqual(svg({ spiegel: true }), s0);
+  // doppelte Grösse: doppelt so weit von der Mitte (Pfadpunkte relativ zum Mittelpunkt (260, 260) des Bildes)
+  const ab = (/** @type {string} */ s) => Math.max(...zahlen(s.match(/ d="([^"]+)"/)?.[1] ?? '').map((v) => Math.abs(v - 260)));
+  assert.ok(ab(svg({ groesse: 0.2 })) > 1.5 * ab(svg({ groesse: 0.1 })));
+});
+
+test('Motivauswahl: jedes Motiv in genau einer Zeile, die Zeile nennt seine Eigensymmetrie; Symbole zeichnen ohne Fehler', () => {
+  const alle = MOTIVZEILEN.flatMap((z) => z.motive);
+  assert.deepEqual([...alle].sort(), Object.keys(MOTIVE).sort(), 'jedes Motiv einmal');
+  /** @type {Record<string, (s: string) => boolean>} */
+  const REGEL = {
+    Atom: (s) => s === '∞m',
+    'Ohne Eigensymmetrie': (s) => s === '1',
+    'Nur Drehsymmetrie': (s) => s !== '1' && !s.includes('m'),
+    'Mit Spiegelsymmetrie': (s) => s.includes('m') && s !== '∞m',
+  };
+  assert.deepEqual(MOTIVZEILEN.map((z) => z.name), Object.keys(REGEL));
+  for (const z of MOTIVZEILEN) for (const k of z.motive) assert.ok(REGEL[z.name](MOTIVE[k].symmetrie), `${k} (${MOTIVE[k].symmetrie}) in „${z.name}“`);
+  for (const k of alle) {
+    const s = motivSymbol(k, 'var(--mf)', 'var(--paper)');
+    assert.match(s, /^<svg class="motivsym" /); assert.ok(!/NaN|undefined/.test(s), k);
+    assert.ok(/fill="var\(--mf\)"|stroke="var\(--mf\)"/.test(s), `${k}: Farbe der Atomsorte`);
+  }
+});
+
+test('Ornamente als Motive: kennzeichnende Punkte liegen auf den Pfaden, und die Zeichnung beginnt dort, wo motivKart den ersten Punkt hat', () => {
+  /** Abstand eines Punktes zu einem dicht abgetasteten Pfad (nur Bézier-Abschnitte M, L, Q, C) @param {string} ornament @param {Vec2} q */
+  const abstand = (ornament, q) => {
+    let best = Infinity;
+    for (const [befehle] of ORNAMENTE[ornament]) {
+      /** @type {Vec2} */ let cur = [0, 0];
+      for (const [c, ...ps] of befehle) {
+        if (c === 'Z') continue;
+        const ctrl = c === 'M' || c === 'L' ? [cur, ps[0]] : [cur, ...ps];
+        for (let i = 0; i <= 400; i++) {
+          const t = i / 400; const n = ctrl.length - 1;
+          // Bernstein-Polynome, Grad n (Linie, Q oder C)
+          const bin = (/** @type {number} */ k) => (n === 1 ? 1 : n === 2 ? [1, 2, 1][k] : [1, 3, 3, 1][k]);
+          const x = ctrl.reduce((s, p, k) => s + bin(k) * (1 - t) ** (n - k) * t ** k * p[0], 0);
+          const y = ctrl.reduce((s, p, k) => s + bin(k) * (1 - t) ** (n - k) * t ** k * p[1], 0);
+          best = Math.min(best, Math.hypot(x - q[0], y - q[1]));
+        }
+        cur = ps[ps.length - 1];
+      }
+    }
+    return best;
+  };
+  for (const k of ['blatt', 'tropfen', 'ranke']) {
+    const [mx, my] = ornamentMitte(k);
+    for (const [u, v] of MOTIVE[k].punkte) {
+      assert.ok(abstand(k, [u * ORNAMENT_EINHEIT + mx, v * ORNAMENT_EINHEIT + my]) < 0.05, `${k}: Punkt (${u.toFixed(2)}, ${v.toFixed(2)}) liegt nicht auf dem Pfad`);
+    }
+  }
+  // Zeichnung und Punkte gleich orientiert: der Anfang des ersten Pfades ist der erste Punkt (alle drei Ornamente)
+  for (const gi of [{ ba: 1, gamma: grad(90) }, { ba: 1.3, gamma: grad(110) }]) {
+    const M = metrik(gi); const A = ansicht(M, [0, 0, 1, 1], 520, 0);
+    for (const k of ['blatt', 'tropfen', 'ranke']) {
+      for (const o of /** @type {Partial<Basiseintrag>[]} */ ([{}, { winkel: grad(37), spiegel: true }, { winkel: grad(200), groesse: 0.17 }])) {
+        const e = { motiv: k, farbe: 0, p: /** @type {Vec2} */ ([0.5, 0.5]), ...o };
+        const m = motivSVG(e, e.p, A, M, '#00a', '#fff').match(/ d="M([-\d.]+),([-\d.]+)/);
+        const f = bruchVon(M, motivKart(e)[0].c); const soll = A.zuBild([e.p[0] + f[0], e.p[1] + f[1]]);
+        assert.ok(m && Math.hypot(Number(m[1]) - soll[0], Number(m[2]) - soll[1]) < 0.05, `${k} ${JSON.stringify(o)}`);
+      }
+    }
+  }
 });

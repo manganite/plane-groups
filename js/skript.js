@@ -223,7 +223,10 @@ function motiveSkizze(fig, f) {
     /** @type {Vec2} */
     const p = [Math.floor(k / 5) + 0.42, (k % 5) + 0.5];
     const groesse = id === 'insel' ? 0.34 : 0.27;
-    svg.push(motivSVG({ motiv: id, farbe: 0, p, winkel: grad(0), groesse }, p, A, M, farbe, f.paper));
+    // das Fähnchen liegt mit dem Fuss auf der Lage und ragt um 2 Einheiten nach oben: eine Einheit tiefer, damit es mittig bleibt
+    /** @type {Vec2} */
+    const pm = id === 'fahne' ? [p[0] + groesse, p[1]] : p;
+    svg.push(motivSVG({ motiv: id, farbe: 0, p: pm, winkel: grad(0), groesse }, pm, A, M, farbe, f.paper));
     const t = A.zuBild([p[0] + 0.43, p[1]]);
     const sym = MOTIVE[id].symmetrie.replace(/m/g, '<tspan font-style="italic">m</tspan>');
     svg.push(text(t, sym, `font-family="Source Serif 4, serif" font-size="22" fill="${f.ink}" text-anchor="middle"`));

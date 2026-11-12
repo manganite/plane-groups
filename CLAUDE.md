@@ -135,6 +135,39 @@ für diese App gilt.
       Ausschnitt stehen (die schon vorhandene eingefrorene Ansicht `fest`) und folgt erst beim Loslassen. Tippt man ins
       Leere, springt die Ansicht zur Mitte der Zelle (Wahl aufgehoben, wie in der Konzeptregel). Die Lupe ruht dort nie:
       Erklärungen (`erklaerend`) gibt es nur in „Ebenengruppen“ und gelten nur dort (`z.modus === 'eg'`).
+  **Schritt 4 in drei PRs** (Thomas, 12.11.2026; Grund: ein PR mit neuem Modus, Umbau von Skript und Quiz wäre zu gross zum
+  Prüfen): **4a** Ornamente als Motive und gebündelte Motivauswahl (kein Bruch von Link und Speicher); **4b** der Modus
+  `entwurf` mit Gruppenwahl, Regel für zusammenfallende Bilder, Kenndaten, Übergang; „Symmetrie festhalten“ entfällt (Bruch,
+  Zustandsversion steigt); **4c** Ornamente aus „Ebenengruppen“ entfernen, Skript, Quiz, Experimente, Erste Schritte.
+  **4a umgesetzt am 12.11.2026** (#104). Wahl beim Umsetzen:
+    - **Ornamente als Motive** `blatt`, `tropfen`, `ranke` (`MOTIVE` in `js/motive.js`, Form `ornament`): dieselben Pfade wie
+      die Form des Objekts in „Ebenengruppen“ (`ORNAMENTE` in `js/zeichnung.js`, gezeichnet von `ornamentSVG`). Das Motiv
+      liegt auf der Mitte des Rechtecks um die Pfadpunkte (`ornamentMitte`), nicht auf dem Fuss: Um die Mitte dreht es sich
+      und lässt sich greifen wie die übrigen Motive. Eine lokale Einheit sind `ORNAMENT_EINHEIT` = 13 Bildpunkte der Pfade
+      (das Ornament ist etwa zwei Einheiten hoch wie das Fähnchen), die Standardgrösse 0,1 wie beim Fähnchen.
+    - **Fähnchen: der Fuss ist die Lage** (Thomas, 12.11.2026): Anders als die übrigen Motive, deren Lage die Mitte ist, liegt
+      das Fähnchen mit dem Fuss auf der Lage und dreht sich um ihn, wie die Form des Objekts in „Ebenengruppen“ (Punkte `f0` …
+      um 1 Einheit nach oben verschoben, die Stange ragt 2 Einheiten nach oben). Gespeicherte Strukturen mit Fähnchen
+      verschieben sich dadurch um eine Einheit (0,1 der Zelle bei Standardgrösse): Bedeutung der Lage geändert, Format
+      gleich, `SPEICHER_VERSION` bleibt bis 4b (dort steigt sie ohnehin). Die Auswahl- und Greifzone liegt um den Fuss.
+    - **Grundsatz Aufpunkt** (Thomas, 12.11.2026): Gleiche Objekte haben in allen Modi denselben Aufpunkt (Lage, Drehpunkt), sonst
+      ist das Verhalten für Nutzer intransparent. Fähnchen: Fuss in beiden Modi. Ornamente: Fuss als Form des Objekts in
+      „Ebenengruppen“, Mitte als Motiv; das gilt nur, bis die Ornamente in 4c „Ebenengruppen“ verlassen (danach gibt es sie
+      nur noch als Motive mit der Mitte als Aufpunkt). Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
+    - **Kennzeichnende Punkte:** je Ornament 4 oder 5 Punkte auf seinen Pfaden (Fuss, Spitze, Ansatz, Mitte eines Bézier-Abschnitts; nicht dessen
+      Kontrollpunkte, ein Test misst den Abstand), jeder mit eigener Art
+      (`o0`, `o1` …). Eine Symmetrie müsste jeden Punkt auf sich selbst abbilden, und das tut bei drei Punkten, die nicht auf
+      einer Geraden liegen, nur die Identität; so täuschen sie keine Symmetrie vor. Der Test prüft Art, Lage auf dem Pfad, dass die Zeichnung
+      beim ersten Punkt beginnt (gleiche Orientierung wie `motivKart`) und dass jedes Ornament allein, gedreht und
+      gespiegelt, in verschiedenen Gittern *p*1 ergibt.
+    - **Motivauswahl:** `MOTIVZEILEN` (Daten, `js/motive.js`) ordnet die Motive den vier Zeilen zu (Atom; ohne Eigensymmetrie;
+      nur Drehsymmetrie; mit Spiegelsymmetrie), ein Test prüft die Zeilen gegen `symmetrie`. Die Knöpfe zeigen ein kleines
+      Bild (`motivSymbol` in `js/struktur.js`, in der Farbe der gewählten Atomsorte über die CSS-Variable `--mf`), mindestens
+      40 px; Name und Punktgruppe stehen im Tooltip und im `aria-label`, die Zeile als `aria-labelledby`, das ⓘ nennt die
+      Zeilen. Das Menü `s-motiv` ist jetzt eine Gruppe von Knöpfen mit derselben Kennung.
+    - **Ornamente bleiben vorerst Form des Objekts** in „Ebenengruppen“ (bis 4c); die Skriptabbildungen ändern sich in 4a
+      nicht. Die Gruppenwahl im Modus „Muster entwerfen“ kommt in 4b; die gebündelte Auswahl gilt dort mit denselben
+      Bausteinen.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **„Symmetrie festhalten“ in „Gitter und Basis“** (Thomas, 9.11.2026, #121; Ort und Gründe unter „Modi und
   Umfang“; Format von Link und Speicher im README). Mit „Wahl beim Umsetzen“ markiert, was aus dem Review des

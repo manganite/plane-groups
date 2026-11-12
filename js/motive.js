@@ -5,12 +5,12 @@
 //
 // Lokale Koordinaten: x nach rechts, y nach unten (wie das Bild); Drehung im Uhrzeigersinn.
 
-import { metrik, bruchVon } from './zeichnung.js';
+import { metrik, bruchVon, ORNAMENT_EINHEIT, ornamentMitte } from './zeichnung.js';
 
 /** @import { Vec2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
 /**
  * Motiv (siehe MOTIVE).
- * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'stab' | 'kreis' | 'fahne', deckkraft?: number }} Motiv
+ * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'stab' | 'kreis' | 'fahne' | 'ornament', deckkraft?: number, ornament?: string }} Motiv
  */
 /**
  * Eintrag der Basis: Motiv an der Lage p (Bruchkoordinaten), gedreht um winkel (Grad), mit
@@ -41,16 +41,35 @@ function windrad(n) {
 const vieleck = (n, start = -90) => Array.from({ length: n }, (_, k) => [...polar(1, start + (360 * k) / n), 'e']);
 
 /**
+ * Kennzeichnende Punkte eines Ornaments (#104) aus Punkten auf seinen Pfaden (Bildpunkte, Fuss im Ursprung; Anfang, Ende
+ * oder Mitte t = ½ eines Bézier-Abschnitts, nicht dessen Kontrollpunkte; tests/struktur.test.mjs misst den Abstand), in lokalen
+ * Koordinaten um die Mitte des Ornaments. Jeder Punkt hat eine eigene Art: Eine Symmetrie müsste jeden Punkt auf sich
+ * selbst abbilden, und das tut bei drei Punkten, die nicht auf einer Geraden liegen, nur die Identität. Ein Ornament
+ * hat also keine eigene Symmetrie (tests/struktur.test.mjs prüft es für jedes).
+ * @param {string} ornament @param {Vec2[]} px @returns {Motivpunkt[]}
+ */
+function ornamentPunkte(ornament, px) {
+  const [mx, my] = ornamentMitte(ornament);
+  return px.map(([x, y], k) => [(x - mx) / ORNAMENT_EINHEIT, (y - my) / ORNAMENT_EINHEIT, `o${k}`]);
+}
+
+/**
  * Motive: name, symmetrie (Punktgruppe der Ebene), groesse (Standard, kartesisch bei |a| = 1),
- * punkte (lokal, mit Art), form ('polygon' | 'stab' | 'kreis' | 'fahne'), deckkraft (Füllung, Standard 0,9).
+ * punkte (lokal, mit Art), form ('polygon' | 'stab' | 'kreis' | 'fahne' | 'ornament'; bei einem Ornament sagt
+ * `ornament`, welches aus ORNAMENTE in zeichnung.js), deckkraft (Füllung, Standard 0,9).
  * @type {Record<string, Motiv>}
  */
 export const MOTIVE = {
   atom: { name: 'Atom', symmetrie: '∞m', groesse: 0.045, punkte: [[0, 0, 'a']], form: 'kreis' },
   fahne: {
     name: 'Fähnchen', symmetrie: '1', groesse: 0.1, form: 'fahne',
-    punkte: [[0, 1, 'f0'], [0, -1, 'f1'], [0.85, -0.6, 'f2'], [0, -0.2, 'f3']],
+    punkte: [[0, 0, 'f0'], [0, -2, 'f1'], [0.85, -1.6, 'f2'], [0, -1.2, 'f3']], // Fuss im Ursprung (die Lage), wie die Form des Objekts in „Ebenengruppen“
   },
+  // Ornamente (#104): chiral wie das Fähnchen; die Pfade stehen in ORNAMENTE (zeichnung.js), eine lokale Einheit
+  // sind ORNAMENT_EINHEIT Bildpunkte der Pfade (das Ornament ist etwa zwei Einheiten hoch)
+  blatt: { name: 'Blatt', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'blatt', punkte: ornamentPunkte('blatt', [[0, 0], [4, -9], [13, -26], [2.875, -18.625]]) },
+  tropfen: { name: 'Tropfen', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'tropfen', punkte: ornamentPunkte('tropfen', [[0, -1], [-6.75, -10.5], [0, -20], [8.375, -16.5], [9, 2]]) },
+  ranke: { name: 'Ranke', symmetrie: '1', groesse: 0.1, form: 'ornament', ornament: 'ranke', punkte: ornamentPunkte('ranke', [[0, 0], [11, -17], [15, -9], [3, -10], [-3, -21]]) },
   w2: { name: 'Windrad 2', symmetrie: '2', groesse: 0.1, punkte: windrad(2), form: 'polygon' },
   dreieck: { name: 'Dreieck (gleichschenklig)', symmetrie: 'm', groesse: 0.12, punkte: [[0, -1, 's'], [0.7, 0.6, 'e'], [-0.7, 0.6, 'e']], form: 'polygon' },
   // Insel: abgerundetes Stäbchen wie die Nanomagnete künstlicher Spin-Eis- und Toroidal-Gitter (Länge : Breite
@@ -69,8 +88,21 @@ export const MOTIVE = {
 };
 
 /**
+ * Zeilen der Motivauswahl (Konzept „Muster entwerfen“, Abschn. 2, Punkt 1): die Motive nach ihrer eigenen Symmetrie. Ein
+ * Motiv erscheint auf einer speziellen Lage nur dann einmal, wenn es deren Lagesymmetrie hat; die Zeilen zeigen,
+ * welches Motiv wohin passt (tests/struktur.test.mjs prüft sie gegen `symmetrie`).
+ * @type {{ name: string, motive: string[] }[]}
+ */
+export const MOTIVZEILEN = [
+  { name: 'Atom', motive: ['atom'] },
+  { name: 'Ohne Eigensymmetrie', motive: ['fahne', 'blatt', 'tropfen', 'ranke'] },
+  { name: 'Nur Drehsymmetrie', motive: ['w2', 'w3', 'w4', 'w6'] },
+  { name: 'Mit Spiegelsymmetrie', motive: ['dreieck', 'ziegel', 'insel', 'dreieck3', 'quadrat', 'sechseck'] },
+];
+
+/**
  * Chirales Motiv: seine eigene Symmetrie hat keine Spiegellinie, das Spiegelbild ist ein anderes Motiv
- * (Fähnchen, Windräder). Nur bei ihnen wirkt „gespiegelt“.
+ * (Fähnchen, Ornamente, Windräder). Nur bei ihnen wirkt „gespiegelt“.
  * @param {string} motiv
  */
 export const chiral = (motiv) => !MOTIVE[motiv].symmetrie.includes('m');
@@ -80,11 +112,18 @@ export const chiral = (motiv) => !MOTIVE[motiv].symmetrie.includes('m');
  * @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse' | 'spiegel'>} e @returns {{ c: Kartesisch<Vec2>, art: string }[]}
  */
 export function motivKart(e) {
-  const d = MOTIVE[e.motiv];
-  const s = e.groesse ?? d.groesse;
+  return MOTIVE[e.motiv].punkte.map(([u, v, art]) => ({ c: lokalKart(e, [u, v]), art }));
+}
+
+/**
+ * Ein lokaler Punkt des Motivs (nicht nur einer der Punkte aus MOTIVE), gespiegelt, gedreht und skaliert wie in motivKart().
+ * @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse' | 'spiegel'>} e @param {Vec2} q @returns {Kartesisch<Vec2>}
+ */
+export function lokalKart(e, [u0, v]) {
+  const s = e.groesse ?? MOTIVE[e.motiv].groesse;
   const c = Math.cos(rad(e.winkel ?? 0)); const n = Math.sin(rad(e.winkel ?? 0));
-  const sx = e.spiegel ? -1 : 1;
-  return d.punkte.map(([u0, v, art]) => { const u = sx * u0; return { c: /** @type {Kartesisch<Vec2>} */ ([s * (c * u - n * v), s * (n * u + c * v)]), art }; });
+  const u = (e.spiegel ? -1 : 1) * u0;
+  return /** @type {Kartesisch<Vec2>} */ ([s * (c * u - n * v), s * (n * u + c * v)]);
 }
 
 /**
