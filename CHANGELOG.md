@@ -8,6 +8,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [1.4.0] - 2026-11-12
 
+Seitenleiste und Tafel neu geordnet: Werkzeugleiste als Symbole über Tafel A, Rückgängig für Motive und Striche, „Alle Motive löschen“, Einrasten in allen Modi, Export als Knopf mit Menü, Anleitungstexte im ⓘ und in der Legende; kürzere Tooltips; Experimente in „Muster entwerfen“ stehen für sich; schmaleres gleichschenkliges Dreieck; Bestimmung bei Gittern knapp neben einem speziellen; gemeinsame Grundlage v0.19.0. Link-Adressen und Speicher bleiben gültig.
+
 ### Geändert
 
 - **Seitenleiste und Tafel** (crystallography-common#130, Entscheidung Thomas, 12.11.2026): Die Seitenleiste sagt, was da ist; über Tafel A steht, was man auf der Zeichnung tut. Am Laptop ist die Seitenleiste in „Gitter und Basis“ 1188 statt 1515 px hoch, in „Muster entwerfen“ 1227 statt 1799 px, mit eingeklappter „Basis“ 739 bzw. 778 px.
