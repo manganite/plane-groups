@@ -114,10 +114,10 @@ für diese App gilt.
     sich ab, so täuschen sie keine Symmetrie vor (Test: jedes Ornament allein ergibt *p*1).
   - **Grundsatz Aufpunkt** (Thomas, 12.11.2026): Gleiche Objekte haben in allen Modi denselben Aufpunkt (Lage, Drehpunkt),
     sonst ist das Verhalten für Nutzer intransparent. Das Fähnchen liegt mit dem Fuss auf der Lage und dreht sich um ihn, die
-    übrigen Motive um ihre Mitte. Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
+    übrigen Motive liegen mit der Mitte auf der Lage und drehen sich um sie. Neue Objekte, die in mehreren Modi vorkommen, folgen dem Grundsatz.
   - **Spiegelbilder:** Ein Basiseintrag hat neben `winkel` das Feld `spiegel`, damit jede Orientierung darstellbar ist, auch
     die Bilder chiraler Motive unter Spiegel- und Gleitspiegellinien. Bei achiralen Motiven fehlen Feld und Schalter
-    „Gespiegelt“ (Leitfaden Abschn. 5.2, #130).
+    „Gespiegelt“ (Leitfaden Abschn. 5.2, #130); wechselt ein gespiegeltes Motiv zu einem achiralen, entfällt das Feld.
   - **Ziegel mit und ohne Fuge** (Thomas, 12.11.2026): Rechteck 2 : 1, ohne Fuge lückenlos; „Mit Fuge“ schrumpft es um einen
     Anteil seiner Grösse. Grund: Mit einer festen Fuge im Motiv waren die Fugen nur bei einer Grösse gleich breit und eine
     geschlossene Parkettierung nicht möglich. Die Kantenmitten sind Punkte der Bestimmung, weil die Ecken allein beim
@@ -143,11 +143,13 @@ für diese App gilt.
   - **Übergang aus „Gitter und Basis“** („In „Muster entwerfen“ weiterbearbeiten“): Die bestimmte Gruppe steht im Entwurf in
     der Aufstellung nach ITA; weichen Zelle oder Ursprung ab, wird die Struktur umgerechnet, und die Kenndaten nennen die
     Umstellung. Eine linkshändige Zelle aus der Bestimmung wird vorher rechtshändig gemacht, sonst wäre das Bild gespiegelt.
-    Die Übernahme ersetzt den Entwurf samt Strichen (Hinweis unter dem Knopf). Einen Weg zurück gibt es nicht: Striche
+    Liegen danach Metrik oder Grösse eines Motivs ausserhalb der Regler oder wäre die Grenze überschritten, ist der Knopf
+    gesperrt, mit Grund. Die Übernahme ersetzt den Entwurf samt Strichen (Hinweis unter dem Knopf). Einen Weg zurück gibt es nicht: Striche
     liessen sich in „Gitter und Basis“ nicht darstellen.
   - **Grenze** von 48 ausgeschriebenen Bildern (`BASIS_GRENZE`); ein Vertreter zählt mit der Zähligkeit der allgemeinen Lage,
-    wo er auch liegt, damit Ziehen von einer speziellen Lage weg die Grenze nie überschreitet. Grund für 48: Die Bestimmung in
-    „Gitter und Basis“ kostete bei 48 Motiven etwa 0,1 s, bei 96 etwa 0,36 s (9.11.2026).
+    wo er auch liegt, damit Ziehen von einer speziellen Lage weg die Grenze nie überschreitet. Die Grenze gilt für die
+    ausgeschriebenen Bilder, weil der Aufwand je Bild begrenzt bleiben soll (die Bestimmung in „Gitter und Basis“ kostete bei
+    48 Windrädern 6 etwa 0,1 s, bei 96 etwa 0,36 s; 9.11.2026).
   - **Ungültig aus Link oder Speicher** (Leitfaden Abschn. 5.2): Unbekannte oder fehlende Gruppe ergibt den leeren
     Startentwurf, ein Gitter, das nicht zum System passt, das Startgitter des Systems; Link und Speicher prüfen gleich.
   - **Bindungen** wie in „Gitter und Basis“, standardmässig an (Thomas, 12.11.2026): Ohne die Linien ist es schwer, bestimmte
@@ -160,8 +162,8 @@ für diese App gilt.
     „Gitter und Basis“. Das Quiz fragt allgemeine Konventionen ab; dass ein Motiv auf spezieller Lage deren Lagesymmetrie
     braucht, prüfen schon Fragen zu Kap. 6. Abbildungen in Kap. 7 und 9 laufen über `m=entwurf` mit einem Motiv in allgemeiner
     Lage als Tapete; Abb. 7.1a bleibt in „Ebenengruppen“.
-- **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1, Messung in
-  der `CLAUDE.md` von common und im Issue):
+- **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1; Höhen
+  der Seitenleiste vorher in der `CLAUDE.md` von common, nachher im Kommentar zu crystallography-common#130 und in PR #158):
   - **Werkzeugleiste als Symbole** über Tafel A (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole), Einrasten und
     Lupe als Schalter neben dem Titel, in allen Modi (Thomas). Mit Text passte die Leiste bei 530 px Tafelbreite nicht. Auf
     dem iPad quer (1024 px) bricht sie mit Touch-Zielen von 40 px in zwei Zeilen um (Review PR #158); eine Zeile ginge nur
