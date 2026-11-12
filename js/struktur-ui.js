@@ -1,24 +1,26 @@
-// Bedienung des Modus „Gitter und Basis“: Vorgaben, Motive setzen, ziehen, drehen; Gitter; „Symmetrie
-// festhalten“ (#121); Tafeln und Kenndaten (struktur.js). Der Zustand steht in z.struktur (zustand.js);
-// Werkzeug, Auswahl und das gewählte Motiv gelten nur in dieser Sitzung.
+// Bedienung der Modi „Gitter und Basis“ (Vorgaben, Motive setzen, ziehen, drehen; Gitter; Bestimmung der Gruppe) und
+// „Muster entwerfen“ (#136: Gruppe wählen, Motive setzen; die Gruppe ist fest, nichts wird bestimmt); Tafeln und Kenndaten
+// (struktur.js). Der Zustand steht in z.struktur bzw. z.entwurf (zustand.js); Werkzeug, Auswahl und das gewählte
+// Motiv gelten nur in dieser Sitzung und für beide Modi gemeinsam (bei jedem Wechsel der Modi wird die Auswahl aufgehoben).
 //
-// Mit festgehaltener Gruppe ist z.struktur.basis je Bahn ein Vertreter (bahnen.js). Gewählt ist dann ein
-// Bild: Vertreter k und Operation op (Nummer in g.alle); Regler zeigen das Bild, Änderungen und Ziehen
-// gehen über die Umkehroperation an den Vertreter (CLAUDE.md, „Symmetrie festhalten“).
+// Im Entwurf ist z.entwurf.basis je Bahn ein Vertreter (bahnen.js). Gewählt ist dann ein Bild: Vertreter k und
+// Operation op (Nummer in g.alle); Regler zeigen das Bild, Änderungen und Ziehen gehen über die Umkehroperation an den
+// Vertreter (CLAUDE.md, „Muster entwerfen“).
 
 import { VORGABEN } from './vorgaben.js';
 import { MOTIVE, MOTIVZEILEN, chiral } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
-import { strukturStart, wieVorgabe, gitterZurGruppe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
-import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, mitGruppe, uebernahmeVon } from './bahnen.js';
-import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie, istGegeben, motivSymbol } from './struktur.js';
+import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
+import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, gruppeWechseln, uebernahmeVon } from './bahnen.js';
+import { strukturTafelA, strukturTafelB, strukturHTML, entwurfHTML, festeBestimmung, motivFarben, strukturSymmetrie, istGegeben, motivSymbol } from './struktur.js';
 import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
 import { symbolHTML, dezimal, richtungenLegende } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from '../lib/common/js/seite.js';
 
 /** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
 /** @import { Zustand } from './zustand.js' */
+/** Gitter und Basis, gemeinsam für beide Modi. @typedef {{ ba: number, gamma: Grad, basis: Basiseintrag[] }} Bau */
 /** @import { Ansicht, Farben } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { Bestimmung } from './bestimmung.js' */
@@ -37,10 +39,12 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** @type {Vorlage} */
   let neu = { motiv: 'dreieck', farbe: 0, winkel: grad(0), groesse: null }; // Vorlage für „Hinzufügen“
   /** @type {number | null} */
-  let gewaehlt = null; // Index des gewählten Motivs in der Basis (mit festgehaltener Gruppe: des Vertreters)
-  let gewaehltOp = 0; // mit festgehaltener Gruppe: Nummer der Operation des gewählten Bildes in g.alle
+  let gewaehlt = null; // Index des gewählten Motivs in der Basis (im Entwurf: des Vertreters)
+  let gewaehltOp = 0; // im Entwurf: Nummer der Operation des gewählten Bildes in g.alle
+  /** @type {Zustand['modus']} */
+  let modusAlt = 'eg'; // zuletzt abgeglichener Modus: Wechsel (auch der erste Abgleich nach dem Öffnen eines Links) hebt die Auswahl auf
   /** @type {{ zelle: import('../lib/common/js/typen.js').Mat2 | null, ursprung: Vec2 | null } | null} */
-  let umstellung = null; // nach der Übernahme mit anderer Zelle oder anderem Ursprung, für die Kenndaten (bis zur nächsten Übernahme oder Wahl)
+  let umstellung = null; // nach dem Übergang mit anderer Zelle oder anderem Ursprung, für die Kenndaten des Entwurfs (bis zur nächsten Wahl einer Gruppe)
   let rasten = true;
   /** @type {Ansicht | null} */
   let ansicht = null; // Ansicht von Tafel A (zuletzt gezeichnet)
@@ -52,39 +56,50 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   let letztes; // Symbol der letzten Zeichnung
   /** @type {string | null} */
   let vorher = null; // Symbol vor der letzten Änderung (für den Hinweis in den Kenndaten)
+  /** Struktur in „Gitter und Basis“. */
   const st = () => z.struktur;
-  /** Festgehaltene Gruppe als Rechenobjekt oder null. */
-  const festG = () => (z.struktur.festeGruppe ? gruppe(z.struktur.festeGruppe) : null);
+  /** Entwurf in „Muster entwerfen“. */
+  const en = () => z.entwurf;
+  const istEntwurf = () => z.modus === 'entwurf';
+  /** Gitter und Basis des Modus, in dem man ist. @returns {Bau} */
+  const bau = () => (istEntwurf() ? z.entwurf : z.struktur);
+  /** Gruppe des Entwurfs als Rechenobjekt, in „Gitter und Basis“ null. */
+  const festG = () => (istEntwurf() ? gruppe(z.entwurf.gruppe) : null);
   /**
-   * Alle gezeichneten Motive mit Herkunft: Vertreter k und Operation op (ohne festgehaltene Gruppe: jedes Motiv
-   * mit op 0, der Identität).
+   * Alle gezeichneten Motive mit Herkunft: Vertreter k und Operation op (in „Gitter und Basis“: jedes Motiv mit op 0,
+   * der Identität).
    * @returns {{ bild: Basiseintrag, k: number, op: number }[]}
    */
   function motive() {
     const g = festG();
     if (!g) return st().basis.map((bild, k) => ({ bild, k, op: 0 }));
-    const M = metrik(st());
-    return st().basis.flatMap((e, k) => bilderMitOperation(g, M, e).map((b) => ({ ...b, k })));
+    const M = metrik(en());
+    return en().basis.flatMap((e, k) => bilderMitOperation(g, M, e).map((b) => ({ ...b, k })));
   }
-  /** Gezeichnete Struktur: mit festgehaltener Symmetrie die Bahnen der Vertreter ausgeschrieben. */
-  const gezeigt = () => ({ ...st(), basis: motive().map((m) => m.bild) });
+  /** Gezeichnete Struktur: im Entwurf die Bahnen der Vertreter ausgeschrieben, ohne Bindungen (die gehören zur Struktur). */
+  const gezeigt = () => (istEntwurf() ? { ...en(), bindungen: false, basis: motive().map((m) => m.bild) } : { ...st(), basis: motive().map((m) => m.bild) });
+  /** Ergebnis, das statt der Bestimmung gilt: im Entwurf die gewählte Gruppe, sonst undefined (bestimmen). @returns {import('./bestimmung.js').Bestimmung | undefined} */
+  const gewaehlteGruppe = () => (istEntwurf() ? festeBestimmung(en()) : undefined);
   /**
-   * Was Tafel A zeigt: die Anzeigen dieses Modus und „Darstellung“ (gemeinsam mit „Ebenengruppen“, z). Lupe: Mitte
-   * ist das gewählte Motiv (gz: die gezeichneten Motive, gewaehltGezeichnet), ohne Wahl die Mitte der gegebenen Zelle.
+   * Was Tafel A zeigt: die Anzeigen des Modus und „Darstellung“ (gemeinsam, z). Lupe: Mitte ist das gewählte, gezeichnete
+   * Motiv (gz: die gezeichneten Motive, gewaehltGezeichnet), ohne Wahl die Mitte der gegebenen Zelle.
    * @param {Basiseintrag[]} basis die gezeichneten Motive
    * @returns {import('./struktur.js').Anzeige}
    */
   function anzeigeA(basis) {
-    const s = st();
     const i = gewaehltGezeichnet();
     /** @type {Vec2} */
     const mitte = i !== null && basis[i] ? /** @type {Vec2} */ (basis[i].p.map(mod1)) : [0.5, 0.5];
-    return { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: z.farben, fuell: z.aeFuell, lupe: z.lupe ? mitte : null };
+    const gemeinsam = { farben: z.farben, fuell: z.aeFuell, lupe: z.lupe ? mitte : null };
+    // Entwurf: die Zelle ist die konventionelle (immer eingezeichnet), keine Bindungen
+    if (istEntwurf()) return { elemente: en().elemente, zelle: true, ae: en().ae, bindungen: false, ...gemeinsam };
+    const s = st();
+    return { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, ...gemeinsam };
   }
   /** Optionen von Tafel B aus „Darstellung“: Tapete ohne Zelle und Elemente, einfarbig gefüllt. */
   const optionenB = () => ({ zelle: !z.tapete, elemente: z.musterElemente && !z.tapete, richtungsfarben: z.farben, fuell: z.aeFuell, einfarbig: z.tapete });
   /** Ist für ein weiteres Motiv bzw. eine weitere Bahn Platz (BASIS_GRENZE)? */
-  const platz = () => (st().basis.length + 1) * bahnGewicht(st().festeGruppe) <= BASIS_GRENZE;
+  const platz = () => (bau().basis.length + 1) * (istEntwurf() ? bahnGewicht(en().gruppe) : 1) <= BASIS_GRENZE;
   /** Moduswahl als Tab-Muster (Leitfaden Abschn. 5.4); entsteht in init(). @type {{ markieren: (id: string) => void } | null} */
   let modi = null;
 
@@ -98,28 +113,32 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-motiv').innerHTML = MOTIVZEILEN.map((zeile, i) => `<div class="sysrow"><span class="sys" id="s-motiv-z${i}">${zeile.name}</span><div class="btns" role="group" aria-labelledby="s-motiv-z${i}">${
       zeile.motive.map((k) => `<button class="pgb motivb" type="button" data-motiv="${k}" aria-pressed="false" aria-label="${MOTIVE[k].name}, Eigensymmetrie ${MOTIVE[k].symmetrie}" title="${MOTIVE[k].name} (${MOTIVE[k].symmetrie})">${motivSymbol(k, 'var(--mf)', 'var(--paper)')}</button>`).join('')
     }</div></div>`).join('');
+    // Gruppenwahl im Entwurf: Knöpfe je Kristallsystem wie in „Ebenengruppen“
+    $('e-picker').innerHTML = [...new Set(EBENENGRUPPEN.map((d) => d.system))].map((sys) => `<div class="sysrow"><span class="sys">${SYSTEME[sys].name}</span><div class="btns">${
+      EBENENGRUPPEN.filter((d) => d.system === sys).map((d) => `<button class="pgb" type="button" data-g="${d.symbol}" aria-pressed="false" title="Nr. ${d.nr}, Punktgruppe ${d.punktgruppe}">${symbolHTML(d.symbol)}</button>`).join('')
+    }</div></div>`).join('');
     $('s-farbe').innerHTML = FARBNAMEN.map((n, i) => `<button type="button" data-farbe="${i}" aria-pressed="false" aria-label="${n}" title="${n}"><i class="sw"></i></button>`).join('');
   }
 
   /** Das gewählte Bild (mit festgehaltener Gruppe) bzw. Motiv, sonst null. @returns {Basiseintrag | null} */
   function gewaehltesBild() {
-    if (gewaehlt === null || !st().basis[gewaehlt]) return null;
+    if (gewaehlt === null || !bau().basis[gewaehlt]) return null;
     const g = festG();
-    return g ? bildUnter(g.alle[gewaehltOp], metrik(st()), st().basis[gewaehlt]) : st().basis[gewaehlt];
+    return g ? bildUnter(g.alle[gewaehltOp], metrik(bau()), bau().basis[gewaehlt]) : bau().basis[gewaehlt];
   }
   /** Was die Regler zeigen: das gewählte Bild bzw. Motiv oder die Vorlage für „Hinzufügen“. @returns {Basiseintrag | Vorlage} */
   const ziel = () => gewaehltesBild() ?? neu;
   /**
-   * Eine Änderung an dem, was die Regler zeigen. Mit festgehaltener Gruppe wird das gewählte Bild geändert und
+   * Eine Änderung an dem, was die Regler zeigen. Im Entwurf wird das gewählte Bild geändert und
    * über die Umkehroperation zum Vertreter zurückgerechnet; die Lage des Vertreters bleibt.
    * @param {(e: Basiseintrag | Vorlage) => void} aenderung
    */
   function aendern(aenderung) {
     const g = festG();
-    if (!g || gewaehlt === null || !st().basis[gewaehlt]) { aenderung(ziel()); return; }
+    if (!g || gewaehlt === null || !bau().basis[gewaehlt]) { aenderung(ziel()); return; }
     const b = /** @type {Basiseintrag} */ (gewaehltesBild());
     aenderung(b);
-    st().basis[gewaehlt] = { ...vertreterVon(g.alle[gewaehltOp], metrik(st()), b), p: st().basis[gewaehlt].p };
+    bau().basis[gewaehlt] = { ...vertreterVon(g.alle[gewaehltOp], metrik(bau()), b), p: bau().basis[gewaehlt].p };
   }
   /** Nummer des gewählten Bildes in der gezeichneten Liste (für die Markierung) oder null. */
   const gewaehltGezeichnet = () => {
@@ -129,16 +148,30 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   };
 
   function abgleichen() {
-    const s = st();
-    if (gewaehlt !== null && !s.basis[gewaehlt]) gewaehlt = null;
+    // Wechsel der Modi (Tab, Link, Erste Schritte): die Nummern der Auswahl gelten im anderen Modus nicht
+    if (z.modus !== modusAlt) {
+      modusAlt = z.modus; auswahlAufheben();
+      if (istEntwurf() && !en().basis.length) werkzeug = 'hinzufuegen'; // ein leerer Entwurf braucht als Erstes ein Motiv
+    }
+    const g0 = festG();
+    if (g0 && gewaehltOp >= g0.alle.length) gewaehltOp = 0;
+    if (gewaehlt !== null && !bau().basis[gewaehlt]) gewaehlt = null;
     document.body.classList.toggle('modus-struktur', z.modus === 'struktur');
-    modi?.markieren(z.modus === 'struktur' ? 'tab-struktur' : 'tab-eg');
-    if (z.modus !== 'struktur') return;
-    auswahl('s-vorgabe').value = wieVorgabe(s) ? s.vorgabe : '';
-    eingabe('s-elemente').checked = s.elemente;
-    eingabe('s-zelle').checked = s.zelle;
-    eingabe('s-ae').checked = s.ae;
-    eingabe('s-bindungen').checked = s.bindungen;
+    document.body.classList.toggle('modus-entwurf', istEntwurf());
+    modi?.markieren(z.modus === 'struktur' ? 'tab-struktur' : istEntwurf() ? 'tab-entwurf' : 'tab-eg');
+    if (z.modus === 'eg') return;
+    const s = bau();
+    if (!istEntwurf()) {
+      auswahl('s-vorgabe').value = wieVorgabe(st()) ? st().vorgabe : '';
+      eingabe('s-elemente').checked = st().elemente;
+      eingabe('s-zelle').checked = st().zelle;
+      eingabe('s-ae').checked = st().ae;
+      eingabe('s-bindungen').checked = st().bindungen;
+      knopf('s-zuruecksetzen').disabled = wieVorgabe(st());
+    } else {
+      eingabe('e-elemente').checked = en().elemente;
+      eingabe('e-ae').checked = en().ae;
+    }
     eingabe('s-einrasten').checked = rasten;
     for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
@@ -162,12 +195,12 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     eingabe('s-groesse').value = String(gr);
     $('s-groesse-out').textContent = dezimal(gr, 3);
     knopf('s-entfernen').disabled = gewaehlt === null;
-    knopf('s-entfernen').textContent = s.festeGruppe ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen';
+    knopf('s-entfernen').textContent = istEntwurf() ? 'Gewählte Bahn entfernen' : 'Gewähltes Motiv entfernen';
     $('s-basis-titel').textContent = gewaehlt === null ? 'Neues Motiv'
-      : s.festeGruppe ? `Gewähltes Motiv (Bahn ${gewaehlt + 1} von ${s.basis.length})` : `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})`;
+      : istEntwurf() ? `Gewähltes Motiv (Bahn ${gewaehlt + 1} von ${s.basis.length})` : `Gewähltes Motiv (Nr. ${gewaehlt + 1} von ${s.basis.length})`;
     $('s-basis-hint').textContent = werkzeug === 'hinzufuegen'
-      ? (!platz() ? `Die Basis ist voll (höchstens ${BASIS_GRENZE} Motive${s.festeGruppe ? ', jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : ''}).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
-      : gewaehlt !== null ? (s.festeGruppe
+      ? (!platz() ? `Die Basis ist voll (höchstens ${BASIS_GRENZE} Motive${istEntwurf() ? ', jede Bahn zählt mit der Zähligkeit der allgemeinen Lage' : ''}).` : 'Stelle in der Struktur antippen: Dort erscheint ein neues Motiv mit diesen Einstellungen; es lässt sich gleich weiterziehen.')
+      : gewaehlt !== null ? (istEntwurf()
         ? 'Die Einstellungen gelten für das gewählte Motiv und seine ganze Bahn. Ziehen verschiebt die Bahn; ins Leere tippen hebt die Auswahl auf.'
         : 'Die Einstellungen gelten für das gewählte Motiv. Ziehen verschiebt es; ins Leere tippen hebt die Auswahl auf.')
         : 'Motiv in der Struktur antippen, um es zu wählen und zu ziehen. Mit dem Werkzeug „Hinzufügen“ kommen neue Motive dazu.';
@@ -177,103 +210,79 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     }
     $('s-ba-out').textContent = dezimal(s.ba, 2);
     $('s-gamma-out').textContent = `${dezimal(s.gamma, 1)}°`;
-    // mit festgehaltener Gruppe folgt das Gitter dem Kristallsystem: nur die freien Parameter (wie im Modus „Ebenengruppen“)
-    const frei = s.festeGruppe ? FREI[ebenengruppe(s.festeGruppe).system] : ['ba', 'gamma'];
+    // im Entwurf folgt das Gitter dem Kristallsystem der Gruppe: nur die freien Parameter (wie in „Ebenengruppen“)
+    const frei = istEntwurf() ? FREI[ebenengruppe(en().gruppe).system] : ['ba', 'gamma'];
     eingabe('s-ba').disabled = !frei.includes('ba');
     eingabe('s-gamma').disabled = !frei.includes('gamma');
-    // „Metrik setzen“: gesperrt nur, was nicht zum System der festgehaltenen Gruppe passt
-    elemente('#s-metrik [data-metrik]', HTMLButtonElement).forEach((b) => { b.disabled = Boolean(s.festeGruppe) && !metrikPasst(b); });
-    $('s-gitter-hint').innerHTML = s.festeGruppe
-      ? `Symmetrie festgehalten (${symbolHTML(s.festeGruppe)}): Das Gitter folgt dem Kristallsystem (${SYSTEME[ebenengruppe(s.festeGruppe).system].name}); gesperrt ist, was das System festlegt.`
+    $('s-gitter-hint').innerHTML = istEntwurf()
+      ? `Das Gitter folgt dem Kristallsystem (${SYSTEME[ebenengruppe(en().gruppe).system].name}) der Gruppe ${symbolHTML(en().gruppe)}; gesperrt ist, was das System festlegt. Innerhalb des Systems bleibt die Symmetrie erhalten.`
       : 'Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.';
-    knopf('s-zuruecksetzen').disabled = wieVorgabe(s);
-    festAbgleichen();
+    if (istEntwurf()) gruppeAbgleichen(); else weiterAbgleichen();
   }
 
-  // ---------------------------------------------------------------- Symmetrie festhalten
-  /** Passt ein Knopf „Metrik setzen“ zum System der festgehaltenen Gruppe? @param {HTMLElement} b */
-  const metrikPasst = (b) => {
-    const sym = st().festeGruppe;
-    if (!sym) return true;
-    const [ba, gamma] = /** @type {string} */ (b.dataset.metrik).split(',').map(Number);
-    return gitterZurGruppe(ba, gamma, sym) !== null;
-  };
-  /** Übernahme der bestimmten Gruppe (bahnen.js). */
+  // ---------------------------------------------------------------- Gruppe, Übergang
+  /** Übergang aus „Gitter und Basis“ mit der bestimmten Gruppe (bahnen.js). */
   const uebernahme = () => { const s0 = gezeigt(); return uebernahmeVon(s0, strukturSymmetrie(s0), STRUKTUR_BEREICH, BASIS_GRENZE); };
-  /** Wahl einer Gruppe (bahnen.js): null, wenn die Grenze überschritten würde. @param {string} sym */
-  const zurGruppe = (sym) => mitGruppe(gezeigt(), sym, BASIS_GRENZE);
+  /** Wahl einer Gruppe im Entwurf (bahnen.js): null, wenn die Grenze überschritten würde. @param {string} sym */
+  const zurGruppe = (sym) => gruppeWechseln(en(), sym, BASIS_GRENZE);
   /** Auswahl zurücksetzen (die Nummern der Basis ändern sich). */
   const auswahlAufheben = () => { gewaehlt = null; gewaehltOp = 0; };
 
   /**
-   * Zwischenspeicher für festAbgleichen(): Übernahme und gesperrte Gruppen hängen nur von der Struktur ab. Sie
-   * kosten mehrere Reduktionen auf Vertreter; neu gerechnet wird erst, wenn die Struktur einen Moment ruht
-   * (beim Ziehen und an Reglern sonst bei jedem Schritt). Bis dahin gelten die alten Werte; die Knöpfe prüfen beim
-   * Klick ohnehin neu.
-   * @type {{ schluessel: string, ue: ReturnType<typeof uebernahme>, gesperrt: Set<string> } | null}
+   * Zwischenspeicher für weiterAbgleichen(): Der Übergang hängt nur von der Struktur ab. Er kostet eine Reduktion auf
+   * Vertreter; neu gerechnet wird erst, wenn die Struktur einen Moment ruht (beim Ziehen und an Reglern sonst bei jedem
+   * Schritt). Bis dahin gilt der alte Wert; der Knopf prüft beim Klick ohnehin neu.
+   * @type {{ schluessel: string, ue: ReturnType<typeof uebernahme> } | null}
    */
   let merker = null;
   /** @type {ReturnType<typeof setTimeout> | null} */
   let merkerUhr = null;
-  const merkerSchluessel = () => { const s = st(); return JSON.stringify([s.ba, s.gamma, s.basis, s.festeGruppe]); };
-  function merkerRechnen() {
-    const s = st();
-    merker = { schluessel: merkerSchluessel(), ue: uebernahme(),
-      gesperrt: new Set(s.festeGruppe ? EBENENGRUPPEN.map((d) => d.symbol).filter((sym) => sym !== s.festeGruppe && !zurGruppe(sym)) : []) };
-  }
-  /** War beim letzten Abgleich eine Gruppe festgehalten? (Abschnitt aufklappen, wenn eine dazukommt) */
-  let warFest = false;
-  function festAbgleichen() {
-    const s = st();
-    if (z.modus !== 'struktur') return;
-    // kommt eine festgehaltene Gruppe dazu (auch über eine Adresse in der laufenden App, z. B. Erste Schritte oder
-    // Experimente), den Abschnitt aufklappen, damit Schalter und Gruppenwahl zu sehen sind (Review #135)
-    if (s.festeGruppe && !warFest) /** @type {HTMLDetailsElement} */ ($('sec-sfest')).open = true;
-    warFest = Boolean(s.festeGruppe);
+  const merkerSchluessel = () => { const s = st(); return JSON.stringify([s.ba, s.gamma, s.basis]); };
+  const merkerRechnen = () => { merker = { schluessel: merkerSchluessel(), ue: uebernahme() }; };
+
+  /** „Gitter und Basis“: der Knopf „In ‚Muster entwerfen‘ weiterbearbeiten“ mit dem Grund, wenn er gesperrt ist (Leitfaden Abschn. 5.2). */
+  function weiterAbgleichen() {
     if (!merker) merkerRechnen();
     else if (merker.schluessel !== merkerSchluessel() && !zug) {
       if (merkerUhr) clearTimeout(merkerUhr);
-      merkerUhr = setTimeout(() => { merkerUhr = null; if (!zug && z.modus === 'struktur') { merkerRechnen(); festAbgleichen(); } }, 150);
+      merkerUhr = setTimeout(() => { merkerUhr = null; if (!zug && z.modus === 'struktur') { merkerRechnen(); weiterAbgleichen(); } }, 150);
     }
     const m = /** @type {NonNullable<typeof merker>} */ (merker);
-    const an = Boolean(s.festeGruppe);
-    eingabe('s-fest').checked = an;
     const r = strukturSymmetrie(gezeigt()); // aus dem Zwischenspeicher der Bestimmung (dieselbe wie für die Tafel)
-    // Einschalten übernimmt die bestimmte Gruppe; nur möglich, wenn die Übernahme geht
-    const einGrund = !an && 'grund' in m.ue ? m.ue.grund : '';
-    eingabe('s-fest').disabled = Boolean(einGrund);
-    element('#row-sfest .why').textContent = einGrund;
-    // Gruppenwahl: nur mit festgehaltener Symmetrie; gesperrt, wo die Grenze überschritten würde
+    const grund = 'grund' in m.ue ? m.ue.grund : '';
+    knopf('s-weiter').disabled = Boolean(grund) || !r;
+    knopf('s-weiter').innerHTML = r ? `In „Muster entwerfen“ weiterbearbeiten (${symbolHTML(r.symbol)})` : 'In „Muster entwerfen“ weiterbearbeiten';
+    const alt = en().basis.length;
+    $('s-weiter-hint').innerHTML = [
+      'Übernimmt die Struktur mit der bestimmten Gruppe in den Modus „Muster entwerfen“; dort bleiben Gruppe und Zelle fest. Einen Weg zurück gibt es nicht.',
+      grund ? `Gesperrt: ${grund}` : '',
+      !grund && alt ? `Ersetzt den bisherigen Entwurf (${alt} ${alt === 1 ? 'Bahn' : 'Bahnen'} in ${symbolHTML(en().gruppe)}).` : '',
+    ].filter(Boolean).join(' ');
+  }
+  /** „Muster entwerfen“: Gruppenwahl; gesperrt, wo die Grenze überschritten würde (mit Grund). */
+  function gruppeAbgleichen() {
     let grenze = false;
-    elemente('#s-picker .pgb', HTMLButtonElement).forEach((b) => {
+    elemente('#e-picker .pgb', HTMLButtonElement).forEach((b) => {
       const sym = /** @type {string} */ (b.dataset.g);
-      b.setAttribute('aria-pressed', String(sym === s.festeGruppe));
-      const zuViel = an && m.gesperrt.has(sym);
+      b.setAttribute('aria-pressed', String(sym === en().gruppe));
+      const zuViel = sym !== en().gruppe && !zurGruppe(sym);
       if (zuViel) grenze = true;
-      b.disabled = !an || zuViel;
+      b.disabled = zuViel;
     });
-    // Übernehmen: nur, wenn die bestimmte Gruppe eine andere ist
-    const anders = an && r !== null && r.symbol !== s.festeGruppe;
-    const ue = anders ? m.ue : null;
-    knopf('s-uebernehmen').disabled = !anders || Boolean(ue && 'grund' in ue);
-    knopf('s-uebernehmen').innerHTML = anders && r ? `Bestimmte Gruppe ${symbolHTML(r.symbol)} übernehmen` : 'Bestimmte Gruppe übernehmen';
-    // Gründe für gesperrte Knöpfe (Leitfaden Abschn. 5.2)
-    $('s-fest-hint').innerHTML = !an
-      ? 'Einschalten hält die bestimmte Gruppe fest; dann erscheint jedes gesetzte Motiv mit seiner ganzen Bahn. Gruppenwahl und Übernehmen wirken erst danach.'
-      : [
-        !anders ? 'Übernehmen: Die bestimmte Gruppe ist die festgehaltene.' : '',
-        ue && 'grund' in ue ? `Übernehmen gesperrt: ${ue.grund}` : '',
-        grenze ? `Gesperrte Gruppen: mehr als ${BASIS_GRENZE} Motive.` : '',
-      ].filter(Boolean).join(' ');
+    $('e-picker-hint').textContent = grenze
+      ? `Gesperrte Gruppen: Mit ihnen wären es mehr als ${BASIS_GRENZE} Bilder (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).`
+      : 'Die Motive bleiben bei der Wahl einer anderen Gruppe erhalten; ihre Bilder entstehen unter der neuen Gruppe neu.';
   }
 
   // ---------------------------------------------------------------- Zeichnen
   /** @param {Farben} f @param {Bestimmung | null} r */
   function legende(f, r) {
     const items = [];
-    items.push(`<span class="lg"><svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.line}" stroke-width="2"/></svg><span>gegebene Zelle <i>a</i>, <i>b</i></span></span>`);
-    if (r && st().zelle) items.push(`<span class="lg"><svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.accent}" stroke-width="2.6"/></svg><span>konventionelle Zelle <i>a</i>′, <i>b</i>′</span></span>`);
-    if (r && st().elemente) {
+    // Anzeigen des Modus; im Entwurf ist die Zelle die konventionelle (kein Paar gegebene/konventionelle Zelle)
+    const anz = istEntwurf() ? { elemente: en().elemente, zelle: false, ae: en().ae } : st();
+    items.push(`<span class="lg"><svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.line}" stroke-width="2"/></svg><span>${istEntwurf() ? 'Zelle' : 'gegebene Zelle'} <i>a</i>, <i>b</i></span></span>`);
+    if (r && anz.zelle) items.push(`<span class="lg"><svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.accent}" stroke-width="2.6"/></svg><span>konventionelle Zelle <i>a</i>′, <i>b</i>′</span></span>`);
+    if (r && anz.elemente) {
       const g = gruppe(r.symbol);
       const el = elementeImBereich(g, 1);
       /** Farbe der Drehpunkte: die der ersten Position, wenn nach Blickrichtung gefärbt wird. */
@@ -286,7 +295,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
       if (z.farben) items.push(...richtungenLegende(g.daten.system, el.linien, f, istGegeben(r) ? '' : ' (in <i>a</i>′, <i>b</i>′)'));
     }
-    if (r && st().ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
+    if (r && anz.ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
     if (r && z.aeFuell) {
       items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>asymmetrische Einheit mit Bildern, gleiche Händigkeit</span>`);
       if (gruppe(r.symbol).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
@@ -300,35 +309,35 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** @param {{ nurA?: boolean }} [optionen] */
   function zeichnen({ nurA = false } = {}) {
     const f = farben();
-    const s = st();
     const gz = gezeigt(); // Bahnen einmal ausschreiben, für beide Tafeln und die Kenndaten
-    const a = strukturTafelA(gz, anzeigeA(gz.basis), f, gewaehltGezeichnet(), fest);
+    const gegeben = gewaehlteGruppe(); // im Entwurf die gewählte Gruppe, sonst wird bestimmt
+    const a = strukturTafelA(gz, anzeigeA(gz.basis), f, gewaehltGezeichnet(), fest, gegeben);
     ansicht = a.ansicht;
     const r = a.ergebnis;
-    if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
+    if (!istEntwurf() && r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
     grafik('bild-a').innerHTML = a.svg;
     if (nurA) return;
     grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB, optionenB()).svg;
     legende(f, r);
-    $('info').innerHTML = strukturHTML(gz, r, vorher, f, festHinweisHTML(s, r, umstellung));
+    $('info').innerHTML = istEntwurf() ? entwurfHTML(en(), f, umstellung) : strukturHTML(gz, r, vorher, f);
   }
 
   // ---------------------------------------------------------------- Zeiger
   /** Einrasten auf Vielfache von 1/12 der gegebenen Zelle (je Koordinate, mit Toleranz in Pixeln). @param {Vec2} p @returns {Vec2} */
   function raste(p) {
     if (!rasten || !ansicht) return p;
-    const M = metrik(st());
+    const M = metrik(bau());
     const tol = (coarse.matches ? 12 : 8) / (ansicht.s * Math.min(Math.hypot(...M.a), Math.hypot(...M.b)));
     return /** @type {Vec2} */ (p.map((v) => { const r = Math.round(v * 12) / 12; return Math.abs(v - r) < tol ? r : v; }));
   }
   /**
-   * Lage eines Vertreters einrasten: mit festgehaltener Gruppe zuerst auf spezielle Lagen (Toleranz in Pixeln wie
+   * Lage eines Vertreters einrasten: im Entwurf zuerst auf spezielle Lagen (Toleranz in Pixeln wie
    * im Modus „Ebenengruppen“), sonst auf das 1/12-Raster. @param {Vec2} p @returns {Vec2}
    */
   function rasteVertreter(p) {
     const g = festG();
     if (!g || !rasten || !ansicht) return raste(p);
-    const M = metrik(st());
+    const M = metrik(bau());
     const tol = (coarse.matches ? 14 : 9) / (ansicht.s * Math.min(Math.hypot(...M.a), Math.hypot(...M.b)));
     const l = lage(g, p, tol);
     return l.allgemein ? raste(p) : [l.punkt[0] + Math.round(p[0] - l.punkt[0]), l.punkt[1] + Math.round(p[1] - l.punkt[1])];
@@ -373,8 +382,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       const e0 = { motiv: neu.motiv, farbe: neu.farbe, p: rasteVertreter(p), winkel: neu.winkel };
       if (neu.groesse !== null) e0.groesse = neu.groesse;
       if (neu.spiegel) e0.spiegel = true;
-      st().basis.push(e0);
-      gewaehlt = st().basis.length - 1; gewaehltOp = 0;
+      bau().basis.push(e0);
+      gewaehlt = bau().basis.length - 1; gewaehltOp = 0;
       zug = { k: gewaehlt, op: 0, versatz: [0, 0] };
     } else {
       const t = treffer(q);
@@ -396,21 +405,21 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const g = festG();
     if (g) {
       // gezogen wird ein Bild; der Vertreter folgt über die Umkehroperation, die ganze Bahn mit
-      const e0 = st().basis[zug.k];
-      const v = vertreterVon(g.alle[zug.op], metrik(st()), { ...bildUnter(g.alle[zug.op], metrik(st()), e0), p: ziel });
+      const e0 = bau().basis[zug.k];
+      const v = vertreterVon(g.alle[zug.op], metrik(bau()), { ...bildUnter(g.alle[zug.op], metrik(bau()), e0), p: ziel });
       e0.p = rasteVertreter(v.p);
-      // auf einer speziellen Lage ist nur ein Bild gezeichnet: die Auswahl zeigt dieses (gezogen wird weiter über zug.op)
-      gewaehltOp = sichtbareOp(g, metrik(st()), e0, zug.op);
-    } else st().basis[zug.k].p = raste(ziel);
+      // auf einer speziellen Lage fallen Bilder zusammen (dann ist nur eines gezeichnet): die Auswahl zeigt dieses (gezogen wird weiter über zug.op)
+      gewaehltOp = sichtbareOp(g, metrik(bau()), e0, zug.op);
+    } else bau().basis[zug.k].p = raste(ziel);
     if (!rahmen) { rahmen = true; requestAnimationFrame(() => { rahmen = false; if (zug) { abgleichen(); zeichnen({ nurA: true }); } }); }
     return true;
   }
   function up() {
     if (!zug) return false;
-    const e = st().basis[zug.k];
+    const e = bau().basis[zug.k];
     e.p = /** @type {Vec2} */ (e.p.map((v) => (Math.abs(v - Math.round(v)) < 1e-12 ? 0 : mod1(v))));
     const g = festG();
-    if (g) gewaehltOp = sichtbareOp(g, metrik(st()), e, zug.op);
+    if (g) gewaehltOp = sichtbareOp(g, metrik(bau()), e, zug.op);
     zug = null; fest = null;
     aktualisieren();
     return true;
@@ -422,6 +431,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     modi = modusTabs(element('.tabs'), $('inhalt'));
     $('tab-eg').addEventListener('click', () => { z.modus = 'eg'; aktualisieren(); });
     $('tab-struktur').addEventListener('click', () => { z.modus = 'struktur'; aktualisieren(); });
+    $('tab-entwurf').addEventListener('click', () => { z.modus = 'entwurf'; aktualisieren(); });
     $('s-vorgabe').addEventListener('change', () => {
       if (!auswahl('s-vorgabe').value) return;
       const alt = st();
@@ -437,6 +447,9 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     });
     for (const [id, feld] of /** @type {[string, 'elemente' | 'zelle' | 'ae' | 'bindungen'][]} */ ([['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']])) {
       $(id).addEventListener('change', () => { st()[feld] = eingabe(id).checked; aktualisieren(); });
+    }
+    for (const [id, feld] of /** @type {[string, 'elemente' | 'ae'][]} */ ([['e-elemente', 'elemente'], ['e-ae', 'ae']])) {
+      $(id).addEventListener('change', () => { en()[feld] = eingabe(id).checked; aktualisieren(); });
     }
     $('s-einrasten').addEventListener('change', () => { rasten = eingabe('s-einrasten').checked; aktualisieren(); });
     $('s-werkzeug-verschieben').addEventListener('click', () => { werkzeug = 'verschieben'; aktualisieren(); });
@@ -456,7 +469,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       aendern((e) => {
         e.motiv = /** @type {string} */ (b.dataset.motiv);
         if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
-        // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Symmetrie festhalten“)
+        // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Muster entwerfen“)
         if (!chiral(e.motiv)) delete e.spiegel;
       });
       aktualisieren();
@@ -480,63 +493,42 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-groesse').addEventListener('input', () => { aendern((e) => { e.groesse = Number(eingabe('s-groesse').value); }); aktualisieren(); });
     $('s-entfernen').addEventListener('click', () => {
       if (gewaehlt === null) return;
-      st().basis.splice(gewaehlt, 1);
+      bau().basis.splice(gewaehlt, 1);
       auswahlAufheben();
       aktualisieren();
     });
     for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
       $(`s-${k}`).addEventListener('input', () => {
         if (eingabe(`s-${k}`).disabled) return;
-        st()[k] = grad(Number(eingabe(`s-${k}`).value));
+        bau()[k] = grad(Number(eingabe(`s-${k}`).value));
         aktualisieren();
       });
     }
-    festInit();
     $('s-metrik').addEventListener('click', (ev) => {
       const b = /** @type {HTMLElement | null} */ (/** @type {Element} */ (ev.target).closest('[data-metrik]'));
-      if (!b || !metrikPasst(b)) return;
+      if (!b) return;
       const [ba, gamma] = /** @type {string} */ (b.dataset.metrik).split(',').map(Number);
       Object.assign(st(), { ba, gamma });
       aktualisieren();
     });
-  }
-
-  /** Struktur mit festgehaltener Gruppe übernehmen (Gitter, Vertreter, Gruppe), Anzeigen und Vorgabe bleiben. @param {{ ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe: string | null }} neuS */
-  function setzeStruktur(neuS) {
-    Object.assign(z.struktur, neuS);
-    auswahlAufheben();
-  }
-  function festInit() {
-    $('s-picker').innerHTML = [...new Set(EBENENGRUPPEN.map((d) => d.system))].map((sys) => `<div class="sysrow"><span class="sys">${SYSTEME[sys].name}</span><div class="btns">${
-      EBENENGRUPPEN.filter((d) => d.system === sys).map((d) => `<button class="pgb" type="button" data-g="${d.symbol}" aria-pressed="false" title="Nr. ${d.nr}, Punktgruppe ${d.punktgruppe}">${symbolHTML(d.symbol)}</button>`).join('')
-    }</div></div>`).join('');
-    $('s-fest').addEventListener('change', () => {
-      if (eingabe('s-fest').checked) {
-        const u = uebernahme();
-        if ('grund' in u) { eingabe('s-fest').checked = false; aktualisieren(); return; }
-        setzeStruktur(u.struktur); umstellung = u.umstellung;
-      } else {
-        // ausschalten: die Bahnen werden ausgeschrieben, die Struktur bleibt
-        setzeStruktur({ ba: st().ba, gamma: st().gamma, basis: gezeigt().basis, festeGruppe: null }); umstellung = null;
-      }
-      aktualisieren();
-    });
-    $('s-picker').addEventListener('click', (ev) => {
+    // Entwurf: andere Gruppe wählen (die Vertreter bleiben; die Auswahl zeigt wieder den Vertreter selbst)
+    $('e-picker').addEventListener('click', (ev) => {
       const b = /** @type {HTMLButtonElement | null} */ (/** @type {Element} */ (ev.target).closest('.pgb'));
-      if (!b || b.disabled || !st().festeGruppe || b.dataset.g === st().festeGruppe) return;
+      if (!b || b.disabled || b.dataset.g === en().gruppe) return;
       const neuS = zurGruppe(/** @type {string} */ (b.dataset.g));
       if (!neuS) return;
-      setzeStruktur(neuS); umstellung = null;
+      Object.assign(en(), neuS); gewaehltOp = 0; umstellung = null;
       aktualisieren();
     });
-    $('s-uebernehmen').addEventListener('click', () => {
+    // Übergang: die Struktur mit der bestimmten Gruppe einmal in den Entwurf übernehmen, der bisherige Entwurf geht verloren
+    $('s-weiter').addEventListener('click', () => {
       const u = uebernahme();
       if ('grund' in u) return;
-      setzeStruktur(u.struktur); umstellung = u.umstellung;
+      z.entwurf = { ...u.struktur, elemente: en().elemente, ae: en().ae };
+      umstellung = u.umstellung; z.modus = 'entwurf'; werkzeug = 'verschieben';
       aktualisieren();
     });
-    // aus Link oder Speicher festgehalten: Abschnitt aufklappen
-    if (st().festeGruppe) /** @type {HTMLDetailsElement} */ ($('sec-sfest')).open = true;
+    // Aus Link oder Speicher geöffnet mit Entwurf: nichts aufzuklappen; die Gruppenwahl steht offen in der Seitenleiste
   }
 
   /**
@@ -546,7 +538,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
    */
   function vorgabeZeigen(id, k = null) {
     const alt = st();
-    z.modus = 'struktur';
+    z.modus = 'struktur'; modusAlt = 'struktur';
     z.struktur = { ...strukturStart(id), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
     werkzeug = 'verschieben';
     gewaehlt = k; gewaehltOp = 0; umstellung = null;
@@ -556,13 +548,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
 
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). @param {Farben} f @param {string} tafel */
   function bild(f, tafel) {
-    const s = gezeigt();
-    if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s), z.zoomB, optionenB()).svg;
-    return strukturTafelA(s, anzeigeA(s.basis), f, null, ansicht).svg;
+    const s = gezeigt(); const r = gewaehlteGruppe();
+    if (tafel === 'b') return strukturTafelB(s, f, r === undefined ? strukturSymmetrie(s) : r, z.zoomB, optionenB()).svg;
+    return strukturTafelA(s, anzeigeA(s.basis), f, null, ansicht, r).svg;
   }
 
-  /** Die bestimmte Ebenengruppe der gezeichneten Struktur oder null (leere Basis), aus dem Zwischenspeicher. @returns {Bestimmung | null} */
-  const bestimmt = () => strukturSymmetrie(gezeigt());
+  /** Die Gruppe der gezeichneten Struktur: im Entwurf die gewählte, in „Gitter und Basis“ die bestimmte (null bei leerer Basis), aus dem Zwischenspeicher. @returns {Bestimmung | null} */
+  const bestimmt = () => gewaehlteGruppe() ?? strukturSymmetrie(gezeigt());
 
   return { init, abgleichen, zeichnen, bild, touchstart, down, move, up, vorgabeZeigen, werkzeugSetzen, bestimmt };
 }

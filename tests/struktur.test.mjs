@@ -5,7 +5,7 @@ import { VORGABEN, vorgabe } from '../js/vorgaben.js';
 import { MOTIVE, MOTIVZEILEN, motivKart, chiral } from '../js/motive.js';
 import { ORNAMENTE, ornamentMitte, ORNAMENT_EINHEIT } from '../js/zeichnung.js';
 import { motivSVG, motivSymbol, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
-import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, gitterZurGruppe } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, strukturStart, entwurfStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, pruefeEntwurf, gitterZurGruppe, bahnGewicht } from '../js/zustand.js';
 import { ausgeschrieben } from '../js/bahnen.js';
 import { metrik, kart, ansicht, bruchVon, LUPE } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
@@ -15,7 +15,7 @@ import { grad } from '../js/zeichnung.js';
 /** @import { Bestimmung } from '../js/bestimmung.js' */
 /** @import { Basiseintrag, Struktur } from '../js/motive.js' */
 /** @import { Vorgabe } from '../js/vorgaben.js' */
-/** @import { StrukturZustand } from '../js/zustand.js' */
+/** @import { StrukturZustand, EntwurfZustand } from '../js/zustand.js' */
 
 /** Symmetrie einer Struktur; die Tests erwarten immer ein Ergebnis. @param {Struktur} s */
 const symmetrie = (s) => /** @type {Bestimmung} */ (strukturSymmetrie(s));
@@ -281,39 +281,45 @@ test('Spiegelbild im Speicher und gegenüber der Vorgabe', () => {
   assert.equal(wieVorgabe(z), false, 'spiegel zählt beim Vergleich mit der Vorgabe');
 });
 
-test('Symmetrie festhalten im Link: sg mit Vertretern in basis=', () => {
+test('Muster entwerfen im Link: Gruppe, Gitter, Vertreter, Anzeigen', () => {
   const z = startzustand();
-  hashAnwenden(z, '#m=struktur&v=quadratisch&sg=p4mm&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0');
-  assert.equal(z.struktur.festeGruppe, 'p4mm');
-  assert.equal(z.struktur.basis.length, 1, 'ein Vertreter');
-  assert.equal(ausgeschrieben(z.struktur).basis.length, 8, 'ausgeschrieben: allgemeine Lage in p4mm');
-  assert.equal(symmetrie(ausgeschrieben(z.struktur)).symbol, 'p4mm');
-  assert.equal(wieVorgabe(z.struktur), false);
-  // geschrieben wird immer basis=, auch wenn die Vertreter der Vorgabe gleichen
-  const z2 = startzustand(); z2.modus = 'struktur'; z2.struktur = { ...strukturStart('quadratisch'), festeGruppe: 'p4mm' };
-  assert.match(hashVon(z2), /&sg=p4mm&ba=1&gamma=90&basis=atom,0,0,0,0/);
+  assert.equal(hashAnwenden(z, '#m=entwurf&g=p4mm&basis=fahne,0,1/10,1/5,0&el=0&ae=1'), true);
+  assert.equal(z.modus, 'entwurf');
+  assert.deepEqual([z.entwurf.gruppe, z.entwurf.basis.length, z.entwurf.elemente, z.entwurf.ae], ['p4mm', 1, false, true]);
+  assert.equal(ausgeschrieben(z.entwurf).basis.length, 8, 'ausgeschrieben: allgemeine Lage in p4mm');
+  assert.equal(strukturSymmetrie(ausgeschrieben(z.entwurf))?.symbol, 'p4mm');
+  assert.equal(hashVon(z), '#m=entwurf&g=p4mm&basis=fahne,0,1/10,1/5,0&el=0&ae=1');
+  // Startwerte stehen nicht im Link; der leere Entwurf auch nicht
+  const leer = startzustand(); leer.modus = 'entwurf';
+  assert.equal(hashVon(leer), '#m=entwurf&g=p4mm');
+  // das Gitter steht im Link nur, wo das System es freigibt und es vom Startgitter abweicht
+  const r = startzustand(); hashAnwenden(r, '#m=entwurf&g=cm&ba=1.6&gamma=90');
+  assert.deepEqual([r.entwurf.ba, r.entwurf.gamma], [1.6, 90]);
+  assert.equal(hashVon(r), '#m=entwurf&g=cm&ba=1.6');
+  // die Struktur aus „Gitter und Basis“ bleibt beim Öffnen des Links erhalten (wie das Gezeichnete)
+  const s = startzustand(); s.struktur = strukturStart('graphen');
+  hashAnwenden(s, '#m=entwurf&g=p6');
+  assert.equal(s.struktur.vorgabe, 'graphen');
 });
 
-test('Symmetrie festhalten im Link: ungültig → Struktur der Vorgabe, nicht festgehalten (nicht umgedeutet)', () => {
-  const v = strukturStart('quadratisch');
+test('Muster entwerfen im Link: ungültig → leerer Startentwurf (nicht umgedeutet)', () => {
+  const leer = entwurfStart();
   for (const h of [
-    '#m=struktur&v=quadratisch&sg=p7&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0', // unbekanntes Symbol
-    '#m=struktur&v=quadratisch&sg=p4mm', // sg ohne basis=
-    '#m=struktur&v=quadratisch&sg=p4mm&ba=1.3&gamma=90&basis=fahne,0,1/10,1/5,0', // Gitter passt nicht zum System
-    '#m=struktur&v=quadratisch&sg=p6&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0',
-    '#m=struktur&v=quadratisch&sg=p2mm&ba=1.2&gamma=95&basis=fahne,0,1/10,1/5,0',
+    '#m=entwurf', // ohne Gruppe
+    '#m=entwurf&g=p7&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0', // unbekanntes Symbol
+    '#m=entwurf&g=%3Cb%3E&basis=fahne,0,1/10,1/5,0',
   ]) {
     const z = startzustand(); hashAnwenden(z, h);
-    assert.equal(z.struktur.festeGruppe, null, h);
-    assert.deepEqual(z.struktur.basis, v.basis, h);
-    assert.deepEqual([z.struktur.ba, z.struktur.gamma], [1, 90], h);
+    assert.deepEqual(z.entwurf, leer, h);
   }
-  // ohne sg: basis= enthält alle Motive
-  const z = startzustand(); hashAnwenden(z, '#m=struktur&v=quadratisch&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0');
-  assert.deepEqual([z.struktur.festeGruppe, ausgeschrieben(z.struktur).basis.length], [null, 1]);
+  // Gitter, das nicht zum System passt: Startgitter des Systems, Vertreter bleiben
+  for (const h of ['#m=entwurf&g=p4mm&ba=1.3&gamma=90&basis=fahne,0,1/10,1/5,0', '#m=entwurf&g=p4mm&ba=1&gamma=95&basis=fahne,0,1/10,1/5,0']) {
+    const z = startzustand(); hashAnwenden(z, h);
+    assert.deepEqual([z.entwurf.ba, z.entwurf.gamma, z.entwurf.basis.length], [1, 90, 1], h);
+  }
 });
 
-test('Symmetrie festhalten: Gitter passt in der Genauigkeit des Links, dann exakt', () => {
+test('Gitter passt in der Genauigkeit des Links, dann exakt (gitterZurGruppe)', () => {
   assert.deepEqual(gitterZurGruppe(1.0004, 90.004, 'p4mm'), { ba: 1, gamma: 90 });
   assert.equal(gitterZurGruppe(1.0006, 90, 'p4mm'), null);
   assert.equal(gitterZurGruppe(1, 90.006, 'p4mm'), null);
@@ -323,27 +329,29 @@ test('Symmetrie festhalten: Gitter passt in der Genauigkeit des Links, dann exak
   assert.deepEqual(gitterZurGruppe(1.25, 105, 'p2'), { ba: 1.25, gamma: 105 }, 'schiefwinklig: jedes Gitter');
 });
 
-test('Symmetrie festhalten: Grenze nach allgemeiner Zähligkeit, im Link und im Speicher', () => {
+test('Muster entwerfen: Grenze nach allgemeiner Zähligkeit, im Link und im Speicher', () => {
   const sechs = Array.from({ length: 6 }, (_, k) => `atom,0,${k + 1}/20,1/7,0`).join(';');
-  const z = startzustand(); hashAnwenden(z, `#m=struktur&v=hexagonal&sg=p6mm&ba=1&gamma=120&basis=${sechs}`);
-  assert.equal(z.struktur.basis.length, 4, 'p6mm: 4 · 12 = 48');
-  assert.equal(z.struktur.basis[3].p[0], 4 / 20, 'überzählige am Ende fallen weg');
-  const s = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'zentriert', ba: 1.35, gamma: 90, festeGruppe: 'c2mm', basis: Array.from({ length: 9 }, (_, k) => ({ motiv: 'atom', p: [k / 20, 0.1] })) }));
+  const z = startzustand(); hashAnwenden(z, `#m=entwurf&g=p6mm&basis=${sechs}`);
+  assert.equal(z.entwurf.basis.length, 4, 'p6mm: 4 · 12 = 48');
+  assert.equal(z.entwurf.basis[3].p[0], 4 / 20, 'überzählige am Ende fallen weg');
+  const s = /** @type {EntwurfZustand} */ (pruefeEntwurf({ gruppe: 'c2mm', ba: 1.35, gamma: 90, basis: Array.from({ length: 9 }, (_, k) => ({ motiv: 'atom', p: [k / 20, 0.1] })) }));
   assert.equal(s.basis.length, 6, 'c2mm: 6 · 8 = 48');
+  assert.equal(bahnGewicht('p6mm'), 12); assert.equal(bahnGewicht('p1'), 1);
 });
 
-test('Symmetrie festhalten im Speicher', () => {
+test('Muster entwerfen im Speicher: Gruppe, Gitter, Vertreter prüfen', () => {
   const basis = [{ motiv: 'fahne', p: [0.1, 0.2], spiegel: true }];
-  const ok = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'graphen', ba: 1.0002, gamma: 120.001, festeGruppe: 'p6', basis }));
-  assert.deepEqual([ok.festeGruppe, ok.ba, ok.gamma, ok.basis.length], ['p6', 1, 120, 1]);
-  const alt = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'graphen', ba: 1, gamma: 120, basis }));
-  assert.equal(alt.festeGruppe, null, 'Speicher ohne Feld: nicht festgehalten');
-  for (const [fg, ba, gamma] of /** @type {[unknown, number, number][]} */ ([['p7', 1, 120], [5, 1, 120], ['p6', 1.2, 120], ['p6', 1, 90]])) {
-    const s = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'graphen', ba, gamma, festeGruppe: fg, basis, ae: true }));
-    assert.equal(s.festeGruppe, null, String(fg));
-    assert.deepEqual(s.basis, strukturStart('graphen').basis, `${fg}: Struktur der Vorgabe`);
-    assert.equal(s.ae, true, 'Anzeigen bleiben');
+  const ok = /** @type {EntwurfZustand} */ (pruefeEntwurf({ gruppe: 'p6', ba: 1.0002, gamma: 120.001, basis }));
+  assert.deepEqual([ok.gruppe, ok.ba, ok.gamma, ok.basis.length, ok.elemente, ok.ae], ['p6', 1, 120, 1, true, false]);
+  for (const en of [null, 'x', {}, { gruppe: 'p7', basis }, { gruppe: 5, basis }, { gruppe: 'p6' }, { gruppe: 'p6', basis: 'x' }]) assert.equal(pruefeEntwurf(en), null, JSON.stringify(en));
+  // Gitter passt nicht zum System: Startgitter, Anzeigen und Vertreter bleiben
+  for (const [sg, ba, gamma] of /** @type {[string, number, number][]} */ ([['p6', 1.2, 120], ['p6', 1, 90], ['p4mm', 1.2, 90]])) {
+    const e = /** @type {EntwurfZustand} */ (pruefeEntwurf({ gruppe: sg, ba, gamma, basis, ae: true }));
+    assert.deepEqual([e.ba, e.gamma, e.basis.length, e.ae], [entwurfStart(sg).ba, entwurfStart(sg).gamma, 1, true], `${sg} ${ba} ${gamma}`);
   }
+  // Anzeigen: nur false schaltet die Elemente aus, nur true die asymmetrische Einheit ein
+  const a = /** @type {EntwurfZustand} */ (pruefeEntwurf({ gruppe: 'p2', basis: [], elemente: 0, ae: 'ja' }));
+  assert.deepEqual([a.elemente, a.ae], [true, false]);
 });
 
 test('Struktur aus dem Speicher prüfen', () => {

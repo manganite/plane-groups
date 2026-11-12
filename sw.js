@@ -16,7 +16,6 @@ const FILES = [
   'hilfe/einstieg-struktur-1.png',
   'hilfe/einstieg-struktur-2.png',
   'hilfe/einstieg-struktur-3.png',
-  'hilfe/einstieg-struktur-4.png',
   'icons/apple-touch-icon.png',
   'icons/favicon.ico',
   'icons/favicon.svg',

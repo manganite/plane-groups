@@ -22,7 +22,7 @@ function gueltig(h) {
 }
 
 test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker bekannt', () => {
-  assert.deepEqual(pruefeAblaeufe([...ABLAEUFE, ...ERZEUGTE], { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER }), []);
+  assert.deepEqual(pruefeAblaeufe([...ABLAEUFE, ...ERZEUGTE], { hashGueltig: gueltig, modi: ['eg', 'struktur', 'entwurf'], anker: ANKER }), []);
   // Ziel (Thomas, 7.11.2026, #109): 8 bis 12 feste Experimente je Modus
   for (const m of ['eg', 'struktur']) {
     const n = ABLAEUFE.filter((a) => a.modus === m).length;
@@ -31,7 +31,7 @@ test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker beka
 });
 
 test('Erste Schritte: je Modus ein Ablauf mit 3–4 Bedienschritten, der letzte öffnet die Experimente', () => {
-  assert.deepEqual(pruefeAblaeufe(ERSTE_SCHRITTE, { hashGueltig: gueltig, modi: ['eg', 'struktur'], anker: ANKER, aktionen: ['hinzufuegen', 'experimente'] }), []);
+  assert.deepEqual(pruefeAblaeufe(ERSTE_SCHRITTE, { hashGueltig: gueltig, modi: ['eg', 'struktur', 'entwurf'], anker: ANKER, aktionen: ['hinzufuegen', 'experimente'] }), []);
   for (const m of ['eg', 'struktur']) {
     const a = ERSTE_SCHRITTE.filter((x) => x.modus === m);
     assert.equal(a.length, 1, m);
@@ -68,26 +68,6 @@ test('Lernexperimente: Beobachtungen stimmen mit der App (Zähligkeit, Operation
     assert.equal(strukturSymmetrie(zustand(adresse(id, i)).struktur)?.symbol, g, `${id} ${i}`);
   }
   assert.equal(vorgabe('graphen')?.basis.length, 2, 'Graphen: zwei Atome in der Basis');
-  // Symmetrie festhalten (#121): bestimmte Gruppe der ausgeschriebenen Struktur, Zahl der gezeichneten Motive
-  const { ausgeschrieben } = await import('../js/bahnen.js');
-  for (const [id, i, g, n] of /** @type {[string, number, string, number][]} */ ([['festhalten-lage', 0, 'p4', 4], ['festhalten-lage', 1, 'p1', 1], ['festhalten-lage', 2, 'p4', 1], ['festhalten-metrik', 0, 'p2mm', 1], ['festhalten-metrik', 1, 'p4mm', 1], ['festhalten-metrik', 2, 'p2mm', 4]])) {
-    const z = zustand(adresse(id, i));
-    assert.ok(z.struktur.festeGruppe, `${id} ${i}: festgehalten`);
-    const a = ausgeschrieben(z.struktur);
-    assert.equal(strukturSymmetrie(a)?.symbol, g, `${id} ${i}`);
-    assert.equal(a.basis.length, n, `${id} ${i}: Motive je Zelle`);
-    // kein Bild auf dem Rand der Zelle (Entscheidung Thomas, 7.11.2026, wie oben)
-    assert.ok(a.basis.every((e) => e.p.every((c) => c > 1e-6)), `${id} ${i}: Motiv auf dem Rand`);
-  }
-  // was die Beobachtungen aus den Kenndaten zitieren
-  {
-    const { festHinweisHTML } = await import('../js/struktur.js');
-    /** @param {string} id @param {number} i */
-    const hinweis = (id, i) => { const z = zustand(adresse(id, i)); return festHinweisHTML(z.struktur, strukturSymmetrie(ausgeschrieben(z.struktur))); };
-    assert.match(hinweis('festhalten-lage', 1).replace(/<span class="koord">([^<]*)<\/span>/g, '$1'), /Wyckoff-Lage 1<span class="wy">b<\/span> mit Lagesymmetrie 4\.\./);
-    assert.match(hinweis('festhalten-metrik', 1).replace(/<[^>]+>/g, ''), /Festgehalten ist p2mm, die Struktur hat aber p4mm/);
-    assert.match(ABLAEUFE.find((a) => a.id === 'festhalten-lage')?.schritte[1].beobachtung ?? '', /1<i>b<\/i> mit Lagesymmetrie 4\.\./);
-  }
   // Ausbau (#109): bestimmte Gruppen der Strukturen
   for (const [id, i, g] of /** @type {[string, number, string][]} */ ([['erniedrigen', 0, 'p4'], ['erniedrigen', 1, 'p2'], ['versatz', 0, 'c2mm'], ['versatz', 1, 'p2'], ['metrik', 0, 'c2mm'], ['farbe', 0, 'p3m1'], ['farbe', 1, 'p6mm'], ['gitterpunkte', 0, 'c2mm']])) {
     assert.equal(strukturSymmetrie(zustand(adresse(id, i)).struktur)?.symbol, g, `${id} ${i}`);
@@ -222,9 +202,7 @@ test('Lernexperimente: richtige Vermutung wie die App (Gruppe, Zähligkeit, Ante
   const text = (/** @type {string} */ s) => s.replace(/<[^>]+>/g, '');
   /** Gruppe als Wort in einer Vermutung. @param {string} g */
   const gruppeIn = (g) => new RegExp(`(^|[ (])${g}(\\)|$| )`);
-  const { ausgeschrieben } = await import('../js/bahnen.js');
-  // mit festgehaltener Symmetrie die ausgeschriebene Struktur, wie die App sie zeichnet und bestimmt
-  const STRUKTUR = (/** @type {ReturnType<typeof zustand>} */ z) => gruppeIn(/** @type {string} */ (strukturSymmetrie(ausgeschrieben(z.struktur))?.symbol));
+  const STRUKTUR = (/** @type {ReturnType<typeof zustand>} */ z) => gruppeIn(/** @type {string} */ (strukturSymmetrie(z.struktur)?.symbol));
   /** Wert, den die App zum Schritt zeigt, als Muster für die richtige Vermutung. @type {Record<string, (z: ReturnType<typeof zustand>) => RegExp>} */
   const wert = {
     'drehpunkte-p6': (z) => new RegExp(`^${elemente(gruppe(z.gruppe)).drehpunkte.find((d) => z.erkl?.endsWith(d.punkt.map((v) => (v === 0 ? '0' : v === 0.5 ? '1/2' : v < 0.5 ? '1/3' : '2/3')).join(',')))?.n}$`),
@@ -232,10 +210,6 @@ test('Lernexperimente: richtige Vermutung wie die App (Gruppe, Zähligkeit, Ante
     punktgruppe: (z) => new RegExp(`^${ebenengruppe(z.gruppe).punktgruppe}$`),
     gitterpunkte: (z) => new RegExp(`^${strukturSymmetrie(z.struktur)?.primitiv}$`),
     zentrierung: STRUKTUR, erniedrigen: STRUKTUR, metrik: STRUKTUR,
-    // erster Schritt: Zahl der gezeichneten Fähnchen; danach die Gruppe
-    'festhalten-lage': (z) => (z.struktur.basis[0].p[0] === 0.3 ? new RegExp(`^${ausgeschrieben(z.struktur).basis.length}$`) : STRUKTUR(z)),
-    // erster Schritt (rechteckig): Zahl der gezeichneten Atome; danach die Gruppe
-    'festhalten-metrik': (z) => (z.struktur.ba !== 1 ? new RegExp(`^${ausgeschrieben(z.struktur).basis.length}$`) : STRUKTUR(z)),
     // h-BN: Frage nach der Sechseckmitte (3-zählig), Graphen: nach der Gruppe
     farbe: (z) => (strukturSymmetrie(z.struktur)?.symbol === 'p3m1' ? /nur 3-zählig/ : STRUKTUR(z)),
   };
@@ -250,5 +224,5 @@ test('Lernexperimente: richtige Vermutung wie die App (Gruppe, Zähligkeit, Ante
       n++;
     }
   }
-  assert.ok(n >= 18, `${n} Schritte geprüft`);
+  assert.ok(n >= 12, `${n} Schritte geprüft`);
 });

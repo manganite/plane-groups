@@ -14,14 +14,19 @@ import { gruppe } from './symmetrie.js';
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { System } from './ebenengruppen.js' */
 /**
- * Struktur im Modus „Gitter und Basis“ mit den Schaltern ihrer Tafeln. festeGruppe: festgehaltene Ebenengruppe
- * („Symmetrie festhalten“, #121) oder null; dann ist basis je Bahn ein Vertreter (bahnen.js), sonst alle Motive.
- * @typedef {Gitter & { vorgabe: string, basis: Basiseintrag[], festeGruppe: string | null, elemente: boolean, zelle: boolean, ae: boolean, bindungen: boolean }} StrukturZustand
+ * Struktur im Modus „Gitter und Basis“ mit den Schaltern ihrer Tafeln: alle Motive der Basis.
+ * @typedef {Gitter & { vorgabe: string, basis: Basiseintrag[], elemente: boolean, zelle: boolean, ae: boolean, bindungen: boolean }} StrukturZustand
+ */
+/**
+ * Entwurf im Modus „Muster entwerfen“ (#136): die Ebenengruppe (immer fest; ein eigenes Feld, nicht `gruppe` von
+ * „Ebenengruppen“), das Gitter im System der Gruppe und je Bahn ein Vertreter (bahnen.js); elemente und ae sind
+ * die Anzeigen von Tafel A.
+ * @typedef {Gitter & { gruppe: string, basis: Basiseintrag[], elemente: boolean, ae: boolean }} EntwurfZustand
  */
 /**
  * Zustand der App (Felder siehe startzustand()).
  * @typedef {object} Zustand
- * @property {'eg' | 'struktur'} modus
+ * @property {'eg' | 'struktur' | 'entwurf'} modus
  * @property {string} gruppe
  * @property {Vec2} punkt
  * @property {boolean} elemente
@@ -48,6 +53,7 @@ import { gruppe } from './symmetrie.js';
  * @property {number[]} aeTeile
  * @property {Record<System, Gitter>} gitter
  * @property {StrukturZustand} struktur
+ * @property {EntwurfZustand} entwurf
  */
 /** Schalter des Zustands (Wahrheitswerte in der Adresse). @typedef {'elemente' | 'objekt' | 'ae' | 'farben' | 'einrasten' | 'musterElemente' | 'orbit' | 'aeFuell' | 'tapete' | 'lupe'} Schalterfeld */
 /** @typedef {'elemente' | 'zelle' | 'ae' | 'bindungen'} StrukturSchalterfeld */
@@ -97,18 +103,26 @@ const kopie = (x) => JSON.parse(JSON.stringify(x));
 /** Struktur im Modus „Gitter und Basis“ aus einer Vorgabe (vorgaben.js). @param {string} [id] @returns {StrukturZustand} */
 export function strukturStart(id = STRUKTUR_START) {
   const v = /** @type {import('./vorgaben.js').Vorgabe} */ (vorgabe(id) ?? vorgabe(STRUKTUR_START)); // STRUKTUR_START gibt es
-  return { vorgabe: v.id, ba: v.gitter.ba, gamma: v.gitter.gamma, basis: kopie(v.basis), festeGruppe: null, elemente: true, zelle: true, ae: false, bindungen: true };
+  return { vorgabe: v.id, ba: v.gitter.ba, gamma: v.gitter.gamma, basis: kopie(v.basis), elemente: true, zelle: true, ae: false, bindungen: true };
+}
+
+/** Gruppe des leeren Entwurfs. */
+export const ENTWURF_START = 'p4mm';
+/** Entwurf im Modus „Muster entwerfen“: leer, in der Gruppe ENTWURF_START mit dem Startgitter ihres Systems. @param {string} [sym] @returns {EntwurfZustand} */
+export function entwurfStart(sym = ENTWURF_START) {
+  const gi = GITTER_START[systemVon(sym)];
+  return { gruppe: sym, ba: gi.ba, gamma: gi.gamma, basis: [], elemente: true, ae: false };
 }
 
 /**
- * Gewicht eines Eintrags für BASIS_GRENZE: 1, mit festgehaltener Symmetrie die Zähligkeit der allgemeinen Lage, wo der
- * Vertreter auch liegt (CLAUDE.md, „Symmetrie festhalten“, Grenze).
- * @param {string | null} festeGruppe
+ * Gewicht eines Vertreters im Entwurf für BASIS_GRENZE: die Zähligkeit der allgemeinen Lage der Gruppe, wo der Vertreter
+ * auch liegt (CLAUDE.md, „Muster entwerfen“, Grenze).
+ * @param {string} sym
  */
-export const bahnGewicht = (festeGruppe) => (festeGruppe ? gruppe(festeGruppe).ordnung : 1);
+export const bahnGewicht = (sym) => gruppe(sym).ordnung;
 
 /**
- * Gitter passend zum System einer festgehaltenen Gruppe: mit den exakten Werten des Systems, oder null, wenn es
+ * Gitter passend zum System einer Gruppe: mit den exakten Werten des Systems, oder null, wenn es
  * nicht passt. „Passt“ heisst innerhalb der Genauigkeit des Links (b/a auf 0,0005, γ auf 0,005°).
  * @param {number} ba @param {number} gamma @param {string} symbol
  * @returns {Gitter | null}
@@ -126,8 +140,6 @@ export function gitterZurGruppe(ba, gamma, symbol) {
 /** Gleicht die Struktur (Gitter und Basis) noch ihrer Vorgabe? @param {StrukturZustand} st */
 export function wieVorgabe(st) {
   const v = vorgabe(st.vorgabe);
-  // mit festgehaltener Symmetrie sind es Vertreter, nicht die Motive der Vorgabe
-  if (st.festeGruppe) return false;
   if (!v || Math.abs(v.gitter.ba - st.ba) > 1e-9 || Math.abs(v.gitter.gamma - st.gamma) > 1e-9 || v.basis.length !== st.basis.length) return false;
   return v.basis.every((e, i) => {
     const f = st.basis[i];
@@ -174,6 +186,7 @@ export function startzustand() {
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
     struktur: strukturStart(), // Modus „Gitter und Basis“
+    entwurf: entwurfStart(), // Modus „Muster entwerfen“
   };
 }
 
@@ -240,7 +253,7 @@ const imFeld = (p) => zahlenpaar(p) && /** @type {number[]} */ (p).every((v) => 
 export function zustandPruefen(z) {
   const s = startzustand();
   if (!SYMBOLE.has(z.gruppe)) z.gruppe = s.gruppe;
-  if (z.modus !== 'eg' && z.modus !== 'struktur') z.modus = s.modus;
+  if (z.modus !== 'eg' && z.modus !== 'struktur' && z.modus !== 'entwurf') z.modus = s.modus;
   if (!imFeld(z.punkt)) z.punkt = s.punkt;
   for (const [, f] of SCHALTER) if (typeof z[f] !== 'boolean') z[f] = s[f];
   if (typeof z.herkunft !== 'boolean') z.herkunft = s.herkunft;
@@ -261,6 +274,7 @@ export function zustandPruefen(z) {
   z.striche = Array.isArray(z.striche) ? z.striche.filter((st) => Array.isArray(st) && st.length >= 2 && st.every(imFeld)) : [];
   while (z.striche.flat().length > STRICH_GRENZE) z.striche.shift();
   z.struktur = pruefeStruktur(z.struktur) ?? strukturStart();
+  z.entwurf = pruefeEntwurf(z.entwurf) ?? entwurfStart();
   return z;
 }
 
@@ -285,7 +299,7 @@ export function gitterPruefen(g) {
 }
 
 /**
- * Zustand aus dem Speicher des Browsers (JSON.parse von { v: 2, z }), geprüft mit zustandPruefen wie die
+ * Zustand aus dem Speicher des Browsers (JSON.parse von { v: 3, z }), geprüft mit zustandPruefen wie die
  * Link-Adresse. Ohne gültigen Stand der Startzustand. Gegenstück: speicherStand.
  * @param {unknown} gespeichert @returns {Zustand}
  */
@@ -302,9 +316,10 @@ export function ausSpeicher(gespeichert) {
 /**
  * Version des Speicherformats (Leitfaden Abschn. 8): steigt, wenn sich das Format ändert; ein Stand mit anderer
  * Version wird verworfen (Startzustand). 2: Feld `warum` heisst `herkunft`, `brechen` und `frei` entfallen
- * (v1.x hatte 1; Entscheidung dazu in CLAUDE.md).
+ * (v1.x hatte 1; Entscheidung dazu in CLAUDE.md). 3: neuer Modus „Muster entwerfen“ (Feld `entwurf`), die
+ * Struktur hat kein `festeGruppe` mehr („Symmetrie festhalten“ zog in den neuen Modus).
  */
-export const SPEICHER_VERSION = 2;
+export const SPEICHER_VERSION = 3;
 
 /** Stand für den Speicher des Browsers (Gegenstück zu ausSpeicher). @param {Zustand} z */
 export const speicherStand = (z) => ({ v: SPEICHER_VERSION, z });
@@ -368,32 +383,14 @@ export const umlauf = (w) => { const r = ((w % 360) + 360) % 360; return r >= 36
 export const zahlenpaar = (p) => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
 
 /**
- * Struktur aus dem Speicher des Browsers prüfen: gültige Kopie oder null. Anders als liesBasis()
- * bleiben die Zahlen unverändert (keine Rundung).
- * @param {unknown} st Eingabe aus dem Speicher des Browsers, unbekannten Aufbaus
- * @returns {StrukturZustand | null}
+ * Basis aus dem Speicher des Browsers prüfen: gültige Kopien, höchstens BASIS_GRENZE (ein Eintrag zählt mit gewicht).
+ * Anders als liesBasis() bleiben die Zahlen unverändert (keine Rundung).
+ * @param {unknown[]} liste @param {number} gewicht @returns {Basiseintrag[]}
  */
-export function pruefeStruktur(st) {
-  if (!istObjekt(st) || !Array.isArray(st.basis)) return null;
-  // wie im Link (hashLesen): fehlt ba oder γ oder ist keine Zahl, gilt 1 bzw. 90°
-  let ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba) ?? 1; let gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma) ?? 90;
-  const { vorgabe } = st;
-  const anzeige = { elemente: st.elemente !== false, zelle: st.zelle !== false, ae: st.ae === true, bindungen: st.bindungen !== false };
-  const vonVorgabe = typeof vorgabe === 'string' && VORGABEN.some((v) => v.id === vorgabe) ? vorgabe : STRUKTUR_START;
-  // festgehaltene Gruppe: unbekannt oder Gitter passt nicht zum System → Struktur der Vorgabe, nicht festgehalten
-  // (nicht umdeuten: die Vertreter gelten nie als ganze Basis; Leitfaden Abschn. 5.2)
-  const fg = st.festeGruppe ?? null;
-  /** @type {string | null} */
-  let festeGruppe = null;
-  if (fg !== null) {
-    const g = typeof fg === 'string' && SYMBOLE.has(fg) ? gitterZurGruppe(ba, gamma, fg) : null;
-    if (!g) return { ...strukturStart(vonVorgabe), ...anzeige };
-    festeGruppe = /** @type {string} */ (fg); ba = g.ba; gamma = g.gamma;
-  }
-  const gewicht = bahnGewicht(festeGruppe);
+function pruefeBasis(liste, gewicht) {
   /** @type {Basiseintrag[]} */
   const basis = [];
-  for (const e of /** @type {unknown[]} */ (st.basis)) {
+  for (const e of liste) {
     if ((basis.length + 1) * gewicht > BASIS_GRENZE) break;
     if (!istObjekt(e)) continue;
     const { motiv, p } = e, farbe = e.farbe ?? 0, winkel = e.winkel ?? 0;
@@ -405,7 +402,39 @@ export function pruefeStruktur(st) {
     const spiegel = e.spiegel === true && chiral(motiv);
     basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(umlauf(winkel)), ...(groesse === undefined ? {} : { groesse }), ...(spiegel ? { spiegel: true } : {}) });
   }
-  return { vorgabe: vonVorgabe, ba, gamma: grad(gamma), basis, festeGruppe, ...anzeige };
+  return basis;
+}
+
+/**
+ * Struktur aus dem Speicher des Browsers prüfen: gültige Kopie oder null.
+ * @param {unknown} st Eingabe aus dem Speicher des Browsers, unbekannten Aufbaus
+ * @returns {StrukturZustand | null}
+ */
+export function pruefeStruktur(st) {
+  if (!istObjekt(st) || !Array.isArray(st.basis)) return null;
+  // wie im Link (hashLesen): fehlt ba oder γ oder ist keine Zahl, gilt 1 bzw. 90°
+  const ba = begrenzt(st.ba, STRUKTUR_BEREICH.ba) ?? 1; const gamma = begrenzt(st.gamma, STRUKTUR_BEREICH.gamma) ?? 90;
+  const { vorgabe } = st;
+  const anzeige = { elemente: st.elemente !== false, zelle: st.zelle !== false, ae: st.ae === true, bindungen: st.bindungen !== false };
+  const vonVorgabe = typeof vorgabe === 'string' && VORGABEN.some((v) => v.id === vorgabe) ? vorgabe : STRUKTUR_START;
+  return { vorgabe: vonVorgabe, ba, gamma: grad(gamma), basis: pruefeBasis(st.basis, 1), ...anzeige };
+}
+
+/**
+ * Entwurf aus Speicher oder Link prüfen: gültige Kopie oder null. Unbekannte Gruppe: null (der leere Startentwurf;
+ * nicht umdeuten, Leitfaden Abschn. 5.2). Ein Gitter, das nicht zum System der Gruppe passt, wird das Startgitter des
+ * Systems (gitterZurGruppe: innerhalb der Genauigkeit des Links gilt der exakte Wert des Systems). Die Vertreter
+ * zählen mit der Zähligkeit der allgemeinen Lage; überzählige fallen am Ende weg.
+ * @param {unknown} en @returns {EntwurfZustand | null}
+ */
+export function pruefeEntwurf(en) {
+  if (!istObjekt(en) || !Array.isArray(en.basis)) return null;
+  const sym = en.gruppe;
+  if (typeof sym !== 'string' || !SYMBOLE.has(sym)) return null;
+  const start = GITTER_START[systemVon(sym)];
+  const ba = begrenzt(en.ba, STRUKTUR_BEREICH.ba) ?? start.ba; const gamma = begrenzt(en.gamma, STRUKTUR_BEREICH.gamma) ?? start.gamma;
+  const gi = gitterZurGruppe(ba, gamma, sym) ?? start;
+  return { gruppe: sym, ba: gi.ba, gamma: grad(gi.gamma), basis: pruefeBasis(en.basis, bahnGewicht(sym)), elemente: en.elemente !== false, ae: en.ae === true };
 }
 
 /** @type {[string, StrukturSchalterfeld][]} */
@@ -419,7 +448,6 @@ const STRUKTUR_SCHALTER = [['sel', 'elemente'], ['szelle', 'zelle'], ['sae', 'ae
 function strukturHash(z, q) {
   const st = z.struktur; const s0 = strukturStart();
   q.set('v', st.vorgabe);
-  if (st.festeGruppe) q.set('sg', st.festeGruppe);
   if (!wieVorgabe(st)) {
     q.set('ba', kurz(st.ba, 3));
     q.set('gamma', kurz(st.gamma, 2));
@@ -431,13 +459,30 @@ function strukturHash(z, q) {
   if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
 }
 
+/**
+ * Link-Adresse im Modus „Muster entwerfen“: Gruppe (g), Gitter (ba, gamma nur, wo das System sie freigibt und sie vom
+ * Startgitter abweichen), Vertreter (basis, wenn es welche gibt), Anzeigen (el, ae) und „Darstellung“.
+ * @param {Zustand} z @param {URLSearchParams} q
+ */
+function entwurfHash(z, q) {
+  const en = z.entwurf; const s0 = entwurfStart(); const sys = systemVon(en.gruppe); const start = GITTER_START[sys];
+  q.set('g', en.gruppe);
+  for (const k of FREI[sys]) if (Math.abs(en[k] - start[k]) > 1e-9) q.set(k, kurz(en[k], k === 'ba' ? 3 : 2));
+  if (en.basis.length) q.set('basis', basisText(en.basis));
+  if (en.elemente !== s0.elemente) q.set('el', B(en.elemente));
+  if (en.ae !== s0.ae) q.set('ae', B(en.ae));
+  const s = startzustand();
+  for (const [k, f] of GEMEINSAME_SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
+  if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
+}
+
 /** Link-Adresse (Hash) zum Zustand. @param {Zustand} z */
 export function hashVon(z) {
   const s = startzustand();
   const q = new URLSearchParams();
   q.set('m', z.modus);
-  if (z.modus === 'struktur') {
-    strukturHash(z, q);
+  if (z.modus === 'struktur' || z.modus === 'entwurf') {
+    if (z.modus === 'struktur') strukturHash(z, q); else entwurfHash(z, q);
     return '#' + q.toString().replace(/%2F/g, '/').replace(/%3B/g, ';').replace(/%2C/g, ',');
   }
   q.set('g', z.gruppe);
@@ -467,9 +512,9 @@ function hashLesen(z, hash) {
   const q = new URLSearchParams(String(hash).replace(/^#/, ''));
   if (!q.has('m')) return false;
   const s = startzustand();
-  // Gezeichnetes steht nicht im Link und bleibt beim Öffnen eines Links erhalten, ebenso die
-  // Struktur im anderen Modus
-  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), striche: Array.isArray(z.striche) ? z.striche : [], struktur: z.struktur ?? s.struktur });
+  // Gezeichnetes steht nicht im Link und bleibt beim Öffnen eines Links erhalten, ebenso Struktur und Entwurf
+  // des anderen Modus
+  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), striche: Array.isArray(z.striche) ? z.striche : [], struktur: z.struktur ?? s.struktur, entwurf: z.entwurf ?? s.entwurf });
   if (q.get('m') === 'eg') z.modus = 'eg';
   if (q.get('m') === 'struktur') {
     // Modus „Gitter und Basis“: Vorgabe, darauf Gitter und Basis aus dem Link
@@ -479,12 +524,29 @@ function hashLesen(z, hash) {
       st.basis = liesBasis(/** @type {string} */ (q.get('basis')));
       st.ba = zahlBegrenzt(q.get('ba'), ...STRUKTUR_BEREICH.ba) ?? 1;
       st.gamma = grad(zahlBegrenzt(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? 90);
-      // festgehaltene Gruppe nur zusammen mit basis=; geprüft wird sie in pruefeStruktur (über zustandPruefen)
-      if (q.has('sg')) st.festeGruppe = /** @type {string} */ (q.get('sg'));
     }
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
     for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
     z.struktur = st;
+    z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+    return true;
+  }
+  if (q.get('m') === 'entwurf') {
+    // Modus „Muster entwerfen“: Gruppe, darauf Gitter und Vertreter aus dem Link; geprüft in pruefeEntwurf (über
+    // zustandPruefen): unbekannte Gruppe oder ein Gitter, das nicht zum System passt, ergeben den Startwert
+    z.modus = 'entwurf';
+    const sym = q.get('g');
+    const bekannt = sym !== null && SYMBOLE.has(sym);
+    const en = entwurfStart(bekannt ? sym : ENTWURF_START);
+    if (bekannt) { // unbekannte oder fehlende Gruppe: der leere Startentwurf, wie im Speicher (nicht umdeuten)
+      en.ba = zahlBegrenzt(q.get('ba'), ...STRUKTUR_BEREICH.ba) ?? en.ba;
+      en.gamma = grad(zahlBegrenzt(q.get('gamma'), ...STRUKTUR_BEREICH.gamma) ?? en.gamma);
+      if (q.has('basis')) en.basis = liesBasis(/** @type {string} */ (q.get('basis'))).slice(0, Math.floor(BASIS_GRENZE / bahnGewicht(en.gruppe)));
+      if (q.has('el')) en.elemente = an(q.get('el'));
+      if (q.has('ae')) en.ae = an(q.get('ae'));
+    }
+    for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
+    z.entwurf = en;
     z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
     return true;
   }

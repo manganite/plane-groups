@@ -89,14 +89,14 @@ function hellFarben() {
 function bildSVG(tafel) {
   const f = hellFarben();
   let inhalt;
-  if (z.modus === 'struktur') inhalt = sUI.bild(f, tafel);
+  if (z.modus !== 'eg') inhalt = sUI.bild(f, tafel);
   else inhalt = tafel === 'a' ? tafelA(z.gruppe, z, f, { phase }).svg : tafelB(z.gruppe, z, f).svg;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520" width="520" height="520">${inhalt}</svg>`;
 }
 /** Dateiname ohne Endung, z. B. p4gm-symmetriegeruest oder struktur-graphen-muster. @param {string} tafel */
 function bildName(tafel) {
-  const was = z.modus === 'struktur' ? `struktur-${z.struktur.vorgabe && wieVorgabe(z.struktur) ? z.struktur.vorgabe : 'eigene'}` : z.gruppe;
-  const teil = tafel === 'b' ? 'muster' : z.modus === 'struktur' ? 'struktur' : 'symmetriegeruest';
+  const was = z.modus === 'struktur' ? `struktur-${z.struktur.vorgabe && wieVorgabe(z.struktur) ? z.struktur.vorgabe : 'eigene'}` : z.modus === 'entwurf' ? `entwurf-${z.entwurf.gruppe}` : z.gruppe;
+  const teil = tafel === 'b' ? 'muster' : z.modus === 'struktur' ? 'struktur' : z.modus === 'entwurf' ? 'entwurf' : 'symmetriegeruest';
   return `${was}-${teil}`;
 }
 /** Schriften als data:-URLs, damit sie im gerasterten SVG wirken (ein Bild lädt keine fremden Dateien). */
@@ -249,9 +249,9 @@ function bedienungAbgleichen() {
   document.body.classList.toggle('radieren', z.radieren);
   knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
   knopf('zeichnen-loeschen').disabled = !z.striche.length;
-  // Füllen: wirkt, wo es eine Gruppe gibt; in „Gitter und Basis“ die bestimmte, ohne Basis also keine
-  const bestimmt = z.modus === 'struktur' ? sUI.bestimmt() : null;
-  const fuellGrund = z.modus === 'struktur' ? (bestimmt ? '' : 'nur mit bestimmter Ebenengruppe (die Basis ist leer)') : ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
+  // Füllen: wirkt, wo es eine Gruppe gibt; in „Gitter und Basis“ die bestimmte, ohne Basis also keine, im Entwurf die gewählte
+  const bestimmt = z.modus !== 'eg' ? sUI.bestimmt() : null;
+  const fuellGrund = z.modus !== 'eg' ? (bestimmt ? '' : 'nur mit bestimmter Ebenengruppe (die Basis ist leer)') : ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
   eingabe('opt-fuell').checked = z.aeFuell;
   eingabe('opt-fuell').disabled = fuellGrund !== '';
   element('#row-fuell .why').textContent = fuellGrund;
@@ -264,8 +264,8 @@ function bedienungAbgleichen() {
     ? `Zeichnen und Radieren ruhen, ${SOLANGE_ERKLAERT}; die Zeichnung ist im Symmetriegerüst ausgeblendet, im Muster bleibt sie.`
     : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
   $('fuell-hint').innerHTML = !z.aeFuell ? ''
-    : z.modus === 'struktur'
-      ? (bestimmt ? `Kräftig: die asymmetrische Einheit der bestimmten Gruppe ${symbolHTML(bestimmt.symbol)}. ${bestimmt.ordnung === 1 ? 'Sie füllt die konventionelle Zelle allein' : `Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen`}.` : '')
+    : z.modus !== 'eg'
+      ? (bestimmt ? `Kräftig: die asymmetrische Einheit der ${z.modus === 'entwurf' ? 'gewählten' : 'bestimmten'} Gruppe ${symbolHTML(bestimmt.symbol)}. ${bestimmt.ordnung === 1 ? 'Sie füllt die konventionelle Zelle allein' : `Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen`}.` : '')
       : `Kräftig: die asymmetrische Einheit. ${gruppeVon(z.gruppe).ordnung === 1 ? 'Sie füllt die Zelle allein' : `Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen`}; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`;
   eingabe('v-muster-el').checked = z.musterElemente;
   eingabe('v-tapete').checked = z.tapete;
@@ -327,7 +327,7 @@ const sUI = strukturUI({ z, farben, aktualisieren: () => aktualisieren(), svgPun
 let erklaerung = null;
 let phase = 3;
 function zeichnen() {
-  if (z.modus === 'struktur') { ansichtA = null; $('sub-a').textContent = 'gegebene und konventionelle Zelle'; sUI.zeichnen(); return; }
+  if (z.modus !== 'eg') { ansichtA = null; $('sub-a').textContent = z.modus === 'struktur' ? 'gegebene und konventionelle Zelle' : 'Elementarzelle'; sUI.zeichnen(); return; }
   const f = farben();
   const a = tafelAJetzt(f);
   ansichtA = a.ansicht;
@@ -680,12 +680,12 @@ function strichBeenden() {
 function zeigerEinrichten() {
   const svg = grafik('bild-a');
   svg.addEventListener('touchstart', (e) => {
-    if (z.modus === 'struktur') { sUI.touchstart(e); return; }
+    if (z.modus !== 'eg') { sUI.touchstart(e); return; }
     if (z.zeichnen || z.radieren || naheObjekt(e)) e.preventDefault();
   }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
-    if (z.modus === 'struktur') { sUI.down(e); return; }
+    if (z.modus !== 'eg') { sUI.down(e); return; }
     if (z.zeichnen) { strichBeginnen(e); return; }
     if (z.radieren) { if (!ansichtA) return; merken(); grafik('bild-a').setPointerCapture(e.pointerId); radierenAn(e); return; }
     if (herkunftAktiv()) { elementWaehlen(e); return; }
@@ -717,7 +717,7 @@ function zeigerEinrichten() {
   svg.addEventListener('pointercancel', loslassen);
   // Touch: Antippen setzt das Objekt an die Stelle
   svg.addEventListener('click', (e) => {
-    if (z.modus === 'struktur' || (herkunftAktiv()) || z.zeichnen || z.radieren || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
+    if (z.modus !== 'eg' || (herkunftAktiv()) || z.zeichnen || z.radieren || !z.objekt || /** @type {PointerEvent} */ (e).pointerType === 'mouse' || bewegt || ziehen) return;
     const p = /** @type {Ansicht} */ (ansichtA).vonBild(svgPunkt(e));
     if (p.every((v) => v >= -0.02 && v <= z.zellen + 0.02)) setzePunkt(p);
   });
@@ -876,6 +876,8 @@ function init() {
   try { gesehen = introGesehen(localStorage.getItem(INTRO)); } catch { /* ohne Speicher weiter */ }
   /** @type {Set<string>} */
   const ueberLink = new Set(location.hash.length > 1 ? [z.modus] : []);
+  /** Gibt es Erste Schritte für den Modus? („Muster entwerfen“ bekommt sie mit 4c.) */
+  const hatIntro = () => ERSTE_SCHRITTE.some((a) => a.modus === z.modus);
   /** @param {boolean} an */
   const intro = (an) => { $('intro').hidden = !an; if (!an) einstieg.liste(); };
   const introZu = () => {
@@ -903,7 +905,7 @@ function init() {
     if (z.modus === introModus) return;
     introModus = z.modus;
     einstieg.modus(z.modus); experimente.modus(z.modus);
-    intro(!gesehen.has(z.modus) && !ueberLink.has(z.modus));
+    intro(hatIntro() && !gesehen.has(z.modus) && !ueberLink.has(z.modus));
   };
   $('intro-close').addEventListener('click', introZu);
   // Von der Hilfeseite: „In der App ausprobieren“ startet ein Experiment (index.html?experiment=<id>#…)
