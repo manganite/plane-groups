@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-12
+
+Hinweis: Mit diesem Release ändern sich Link-Adressen und gespeicherte Stände (Bruch, MINOR): **alte Links gelten nicht mehr** (Näheres unter „Geändert“). Link und Speicher sind in der Entwicklung nicht stabil.
+
 ### Hinzugefügt
 
 - **Ziegel mit und ohne Fuge** (#136, Wunsch von Thomas, 12.11.2026): Der Ziegel ist jetzt ein Rechteck 2 : 1, seine Grösse die halbe Länge; im Läuferverband (*a* = *b* = 1) füllt Grösse 0,5 sein Raster lückenlos, so lassen sich geschlossene Parkettierungen bauen. Neu der Schalter „Mit Fuge“ (nur beim Ziegel): Das Rechteck schrumpft rundum um 5 % der Länge, die Fugen sind überall gleich breit. Die Vorgaben „Mauerwerk und Pflaster“ und die Abbildungen im Skript sehen aus wie vorher (ein Test prüft die Ecken), tragen aber jetzt Grösse = halbe Rasterlänge (Läuferverband 0,5 statt 0,475) und den Schalter. Link-Adresse: optionales letztes Feld `f` je Motiv in `basis=`. **Hinweis:** Ein alter Link oder Speicher mit Ziegeln (Grösse 0,95 · halbe Rasterlänge, ohne `f`) zeigt jetzt kürzere Ziegel ohne Fuge; das Format bleibt gleich, `SPEICHER_VERSION` auch (wie beim Fähnchen in 4a). Die Kantenmitten des Ziegels sind eigene Punkte der Bestimmung, damit sie bei lückenlosen Ziegeln stimmt (sonst *p*4*mm* statt *c*2*mm* im Läuferverband). Texte (Tooltip) neu, von Thomas zu prüfen.
@@ -165,7 +169,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/manganite/plane-groups/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/manganite/plane-groups/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/manganite/plane-groups/compare/v1.0.0...v1.0.1

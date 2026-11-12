@@ -1,7 +1,7 @@
 // Service Worker: hält alle Dateien der App für den Offline-Betrieb vor (z. B. im Hörsaal ohne WLAN).
 // Je Version ein eigener Cache; eine neue Version wird beim nächsten Öffnen geladen, alte Caches
 // werden entfernt. VERSION muss mit js/version.js übereinstimmen (tests/release.test.mjs).
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const CACHE = `ebenengruppen-${VERSION}`; // Präfix je App eindeutig wählen und nicht ändern: activate löscht alte Caches nach dem Präfix
 const FILES = [
   './',
