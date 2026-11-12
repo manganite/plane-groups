@@ -10,13 +10,13 @@ import { metrik, bruchVon, ORNAMENT_EINHEIT, ornamentMitte } from './zeichnung.j
 /** @import { Vec2, Grad, Kartesisch } from '../lib/common/js/typen.js' */
 /**
  * Motiv (siehe MOTIVE).
- * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'stab' | 'kreis' | 'fahne' | 'ornament', deckkraft?: number, ornament?: string }} Motiv
+ * @typedef {{ name: string, symmetrie: string, groesse: number, punkte: [number, number, string][], form: 'polygon' | 'stab' | 'kreis' | 'fahne' | 'ornament', deckkraft?: number, ornament?: string, fuge?: [number, number] }} Motiv
  */
 /**
  * Eintrag der Basis: Motiv an der Lage p (Bruchkoordinaten), gedreht um winkel (Grad), mit
  * eigener Grösse und Farbe (Nummer). spiegel: an der eigenen y-Achse gespiegelt, vor der Drehung;
  * nur bei chiralen Motiven (chiral()), sonst fehlt das Feld (die übrigen sind zu dieser Achse symmetrisch).
- * @typedef {{ motiv: string, p: Vec2, winkel?: Grad, groesse?: number, farbe?: number, spiegel?: true }} Basiseintrag
+ * @typedef {{ motiv: string, p: Vec2, winkel?: Grad, groesse?: number, farbe?: number, spiegel?: true, fuge?: true }} Basiseintrag
  */
 /**
  * Gezeichneter Strich im Modus „Muster entwerfen“: Punkte in Bruchkoordinaten der gegebenen Zelle und Farbe (Nummer der
@@ -87,9 +87,11 @@ export const MOTIVE = {
   quadrat: { name: 'Quadrat', symmetrie: '4mm', groesse: 0.09, punkte: vieleck(4, -45), form: 'polygon' },
   w6: { name: 'Windrad 6', symmetrie: '6', groesse: 0.1, punkte: windrad(6), form: 'polygon' },
   sechseck: { name: 'Sechseck', symmetrie: '6mm', groesse: 0.1, punkte: vieleck(6, 0), form: 'polygon' },
-  // Ziegel im Format 2 : 1 mit Fuge: 1,9 × 0,9 Einheiten in einem Raster von 2 × 1 (Kap. 7);
-  // heller gefüllt, damit die Symmetrieelemente auf den grossen Flächen sichtbar bleiben
-  ziegel: { name: 'Ziegel', symmetrie: '2mm', groesse: 0.12, deckkraft: 0.45, punkte: [[1, 0.9 / 1.9, 'e'], [-1, 0.9 / 1.9, 'e'], [-1, -0.9 / 1.9, 'e'], [1, -0.9 / 1.9, 'e']], form: 'polygon' },
+  // Ziegel im Format 2 : 1, die Grösse ist die halbe Länge: ohne Fuge füllt er sein Raster von 2 × 1 Einheiten lückenlos.
+  // Mit Fuge (Schalter) 1,9 × 0,9 Einheiten im Raster 2 × 1 (Kap. 7), also gleich breite Fugen von 0,1 Einheiten
+  // (`fuge`: Faktoren für die lokalen Punkte, 1,9/2 und 0,9/1). Die Kantenmitten (s) halten die Bestimmung richtig,
+  // wenn die Ziegel ohne Fuge aneinanderstossen: Allein die Ecken ergäben dann beim Läuferverband ein Quadratgitter (p4mm). Heller gefüllt, damit die Symmetrieelemente auf den grossen Flächen sichtbar bleiben
+  ziegel: { name: 'Ziegel', symmetrie: '2mm', groesse: 0.12, deckkraft: 0.45, punkte: [[1, 0.5, 'e'], [0, 0.5, 's'], [-1, 0.5, 'e'], [-1, 0, 's'], [-1, -0.5, 'e'], [0, -0.5, 's'], [1, -0.5, 'e'], [1, 0, 's']], form: 'polygon', fuge: [0.95, 0.9] },
 };
 
 /**
@@ -112,12 +114,16 @@ export const MOTIVZEILEN = [
  */
 export const chiral = (motiv) => !MOTIVE[motiv].symmetrie.includes('m');
 
+/** Hat das Motiv eine Fuge, die sich schalten lässt (Ziegel)? @param {string} motiv */
+export const hatFuge = (motiv) => Boolean(MOTIVE[motiv].fuge);
+
 /**
  * Lokale Punkte eines Basiseintrags, gespiegelt (an der eigenen y-Achse, x → −x), gedreht und skaliert (kartesisch).
- * @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse' | 'spiegel'>} e @returns {{ c: Kartesisch<Vec2>, art: string }[]}
+ * @param {Pick<Basiseintrag, 'motiv' | 'winkel' | 'groesse' | 'spiegel' | 'fuge'>} e @returns {{ c: Kartesisch<Vec2>, art: string }[]}
  */
 export function motivKart(e) {
-  return MOTIVE[e.motiv].punkte.map(([u, v, art]) => ({ c: lokalKart(e, [u, v]), art }));
+  const f = e.fuge ? MOTIVE[e.motiv].fuge ?? [1, 1] : [1, 1]; // Fuge: das Rechteck schrumpft um gleich breite Fugen
+  return MOTIVE[e.motiv].punkte.map(([u, v, art]) => ({ c: lokalKart(e, [u * f[0], v * f[1]]), art }));
 }
 
 /**

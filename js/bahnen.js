@@ -75,6 +75,7 @@ export function bildUnter(op, M, e, name = '') {
   const bild = { motiv: e.motiv, p: /** @type {Vec2} */ (anwenden(op, e.p).map(mod1)), ...ausOrientierung(mal(K, orientierung(e)), e.motiv) };
   if (e.farbe !== undefined) bild.farbe = e.farbe;
   if (e.groesse !== undefined) bild.groesse = e.groesse;
+  if (e.fuge) bild.fuge = true;
   return bild;
 }
 
@@ -139,7 +140,7 @@ export const ausschreiben = (g, M, vertreter) => vertreter.flatMap((e) => motivB
  * @param {Basiseintrag} a @param {Basiseintrag} b @param {number} [tol]
  */
 export function gleichesMotiv(a, b, tol = TOL_BESTIMMUNG) {
-  if (a.motiv !== b.motiv || (a.farbe ?? 0) !== (b.farbe ?? 0)) return false;
+  if (a.motiv !== b.motiv || (a.farbe ?? 0) !== (b.farbe ?? 0) || Boolean(a.fuge) !== Boolean(b.fuge)) return false;
   const ga = a.groesse ?? MOTIVE[a.motiv].groesse; const gb = b.groesse ?? MOTIVE[b.motiv].groesse;
   if (Math.abs(ga - gb) > 1e-9 || abstandMod(a.p, b.p) >= tol) return false;
   // Punkte relativ zur Mitte (kartesisch, |a| = 1), mit derselben Toleranz wie die Lage, mindestens 1e-6 der Grösse
@@ -231,6 +232,7 @@ export function umrechnen(st, r) {
     /** @type {Basiseintrag} */
     const neu = { motiv: e.motiv, p, ...ausOrientierung(mal(Q, orientierung(e)), e.motiv), groesse: (e.groesse ?? MOTIVE[e.motiv].groesse) * s };
     if (e.farbe !== undefined) neu.farbe = e.farbe;
+    if (e.fuge) neu.fuge = true;
     // ist die gegebene Zelle eine Überzelle der konventionellen, fallen Motive modulo des neuen Gitters zusammen
     if (!basis.some((x) => gleichesMotiv(x, neu, TOL_BESTIMMUNG))) basis.push(neu);
   }

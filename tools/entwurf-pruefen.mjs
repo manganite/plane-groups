@@ -184,6 +184,16 @@ try {
   pruefe((await text('#s-groesse-out')) === '0,141', `Grösse: Reglermitte ergibt 0,141 (${await text('#s-groesse-out')})`);
   pruefe(await page.locator('#s-groesse').inputValue() === '125', 'Grösse: Regler bleibt stehen');
 
+  // 10. Ziegel: Schalter „Mit Fuge“ (nur beim Ziegel wählbar), Adresse trägt „f“
+  await oeffnen('#m=entwurf&g=p2mm&basis=ziegel,0,1/2,1/2,0,0.25');
+  await page.locator('#s-werkzeug-verschieben').click();
+  const mitte10 = await bildschirm([0.5, 0.5]); await page.mouse.click(mitte10.x, mitte10.y); await page.waitForTimeout(250);
+  pruefe(await page.locator('#s-fuge').isEnabled() && !(await page.locator('#s-fuge').isChecked()), 'Ziegel gewählt: „Mit Fuge“ wählbar, aus');
+  await page.locator('#s-fuge').check(); await page.waitForTimeout(250);
+  pruefe((await adresse()).includes('ziegel,0,1/2,1/2,0,0.25,f'), 'Mit Fuge: „f“ in der Adresse');
+  await page.locator('#s-motiv [data-motiv="insel"]').click(); await page.waitForTimeout(250);
+  pruefe(await page.locator('#s-fuge').isDisabled() && !(await adresse()).includes(',f'), 'Anderes Motiv: Schalter gesperrt, „f“ entfällt');
+
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {
   await browser.close();

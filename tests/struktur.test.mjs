@@ -582,3 +582,33 @@ test('Ornamente als Motive: kennzeichnende Punkte liegen auf den Pfaden, und die
     }
   }
 });
+
+test('Ziegel mit Fuge: gleich breite Fugen, Vorgaben sehen aus wie vorher; ohne Fuge lückenlos', () => {
+  // frühere Form: Punkte (±1, ±0,9/1,9) · 0,95 u (Grösse 0,95 u); jetzt Grösse u mit Fuge
+  for (const id of ['reihen', 'laeufer', 'drittel', 'fisch', 'flecht']) {
+    const v = /** @type {Vorgabe} */ (vorgabe(id));
+    assert.ok(v, id);
+    for (const e of v.basis) {
+      assert.equal(e.fuge, true, `${id}: mit Fuge`);
+      const u = /** @type {number} */ (e.groesse);
+      const alt = [[1, 0.9 / 1.9], [-1, 0.9 / 1.9], [-1, -0.9 / 1.9], [1, -0.9 / 1.9]].map(([x, y]) => [0.95 * u * x, 0.95 * u * y]);
+      const neu = motivKart({ ...e, winkel: grad(0) }).filter((q) => q.art === 'e').map((q) => q.c); // die Ecken
+      assert.equal(neu.length, 4);
+      neu.forEach((c, i) => { assert.ok(Math.hypot(c[0] - alt[i][0], c[1] - alt[i][1]) < 1e-12, `${id}: Punkt ${i}`); });
+      // Fuge 0,1 u in beiden Richtungen: Länge 2u − 0,1 u, Breite u − 0,1 u
+      assert.ok(Math.abs(Math.abs(neu[0][0] - neu[1][0]) - 1.9 * u) < 1e-12 && Math.abs(Math.abs(neu[0][1] - neu[3][1]) - 0.9 * u) < 1e-12, `${id}: Mass`);
+    }
+  }
+  // ohne Fuge füllt der Ziegel (Grösse = halbe Länge) sein Raster von 2 : 1 lückenlos
+  const k = motivKart({ motiv: 'ziegel', winkel: grad(0), groesse: 0.5 }).filter((q) => q.art === 'e').map((q) => q.c);
+  assert.deepEqual([Math.abs(k[0][0] - k[1][0]), Math.abs(k[0][1] - k[3][1])], [1, 0.5]);
+  // Läuferverband mit Grösse 0,5 ohne Fuge: weiterhin c2mm
+  const laeufer = /** @type {Vorgabe} */ (vorgabe('laeufer'));
+  const ohne = { ...laeufer, basis: laeufer.basis.map((e) => ({ motiv: e.motiv, farbe: e.farbe, p: e.p, winkel: e.winkel, groesse: 0.5 })) };
+  assert.equal(/** @type {Bestimmung} */ (strukturSymmetrie({ ...laeufer.gitter, basis: ohne.basis })).symbol, 'c2mm');
+  // Link: „f“ nach „m“, nur beim Ziegel; Rücklauf
+  const text = basisText([{ motiv: 'ziegel', farbe: 0, p: [0.5, 0], winkel: grad(0), groesse: 0.5, fuge: true }, { motiv: 'fahne', farbe: 0, p: [0, 0], winkel: grad(0), spiegel: true, fuge: true }]);
+  assert.equal(text, 'ziegel,0,1/2,0,0,0.5,f;fahne,0,0,0,0,m');
+  assert.deepEqual(liesBasis(text).map((e) => [e.motiv, Boolean(e.fuge), Boolean(e.spiegel)]), [['ziegel', true, false], ['fahne', false, true]]);
+  assert.equal(liesBasis('atom,0,0,0,0,f')[0].fuge, undefined, 'nur der Ziegel hat eine Fuge');
+});
