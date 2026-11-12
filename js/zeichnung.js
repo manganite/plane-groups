@@ -487,7 +487,7 @@ export function aeTeileSVG(g, auswahl, A, n, farben, teil = 'flaeche') {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Selbst zeichnen: Striche und die asymmetrische Einheit, vervielfältigt mit allen Operationen
+// Zeichnung im Entwurf: Striche (strichSVG in struktur.js) und die asymmetrische Einheit, vervielfältigt mit allen Operationen
 // ---------------------------------------------------------------------------------------------
 
 /** Grenzen für gezeichnete Striche (Bruchkoordinaten): Punkte je Zeichnung und Mindestabstand. */
