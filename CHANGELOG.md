@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-12
+
+Hinweis: Mit diesem Release ändern sich Link-Adressen und gespeicherte Stände (Bruch, MINOR): **alte Links gelten nicht mehr** (Näheres unter „Geändert“). Link und Speicher sind in der Entwicklung nicht stabil.
+
 ### Hinzugefügt
 
 - **Ziegel mit und ohne Fuge** (#136, Wunsch von Thomas, 12.11.2026): Der Ziegel ist jetzt ein Rechteck 2 : 1, seine Grösse die halbe Länge; im Läuferverband (*a* = *b* = 1) füllt Grösse 0,5 sein Raster lückenlos, so lassen sich geschlossene Parkettierungen bauen. Neu der Schalter „Mit Fuge“ (nur beim Ziegel): Das Rechteck schrumpft rundum um 5 % der Länge, die Fugen sind überall gleich breit. Die Vorgaben „Mauerwerk und Pflaster“ und die Abbildungen im Skript sehen aus wie vorher (ein Test prüft die Ecken), tragen aber jetzt Grösse = halbe Rasterlänge (Läuferverband 0,5 statt 0,475) und den Schalter. Link-Adresse: optionales letztes Feld `f` je Motiv in `basis=`. **Hinweis:** Ein alter Link oder Speicher mit Ziegeln (Grösse 0,95 · halbe Rasterlänge, ohne `f`) zeigt jetzt kürzere Ziegel ohne Fuge; das Format bleibt gleich, `SPEICHER_VERSION` auch (wie beim Fähnchen in 4a). Die Kantenmitten des Ziegels sind eigene Punkte der Bestimmung, damit sie bei lückenlosen Ziegeln stimmt (sonst *p*4*mm* statt *c*2*mm* im Läuferverband). Texte (Tooltip) neu, von Thomas zu prüfen.
@@ -18,11 +22,6 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 - **Hilfeseite:** Der Modus „Muster entwerfen“ steht in der Liste der Modi (Erste Schritte und Experimente: siehe unten).
 - **Motive spiegeln** (#121, Vorarbeit für „Muster entwerfen“): Im Modus „Gitter und Basis“ lassen sich Fähnchen und Windräder mit „Gespiegelt“ als Spiegelbild setzen (gespiegelt vor der Drehung, beim Fähnchen an der Stange). So lassen sich Muster mit Spiegel- und Gleitspiegellinien auch aus chiralen Motiven bauen. Bei den übrigen Motiven ist der Schalter gesperrt, weil ihr Spiegelbild dasselbe Motiv ist. Die Kenndaten nennen gespiegelte Motive. Link-Adresse: optionales letztes Feld `m` je Motiv in `basis=` (ohne `m` nicht gespiegelt).
 - **„Darstellung“, Füllen und Lupe in beiden Modi** (#136, Schritt 3): Im Modus „Gitter und Basis“ gibt es jetzt den Abschnitt „Darstellung“ wie in „Ebenengruppen“: Symmetrieelemente nach Blickrichtung färben (Tafel A und Muster), Symmetrieelemente im Muster, Muster als Tapete (ohne Zelle und Elemente; die Motive behalten ihre Farben), die asymmetrische Einheit der bestimmten Gruppe füllen (Tafel A und Muster; ohne Motive gesperrt, mit Grund) und die Vergrösserung des Musters. Die **Lupe** über dem Symmetriegerüst bzw. der Struktur wirkt auch dort: doppelte Vergrösserung um das gewählte Motiv, ohne Wahl um die Mitte der Zelle; beim Ziehen bleibt der Ausschnitt stehen. Im Link stehen dieselben Schlüssel wie in „Ebenengruppen“ (`farb`, `mel`, `tap`, `fuell`, `lupe`, `zoom`).
-
-### Behoben
-
-- **CI, Deploy und Release ohne apt** (crystallography-common#128): Der Browser für das Skript-PDF wird ohne `--with-deps` installiert, also ohne Systempakete über `apt`; am 11.11.2026 scheiterten die Jobs mehrfach, weil der Runner die Paketquellen von Ubuntu nicht erreichte. Alle Zeichen des Skripts ausserhalb der eigenen Schriften deckt die Schrift DejaVu des Runners ab (geprüft in der CI).
-- **Zentrierte Gitter in „Gitter und Basis“:** Ist die gegebene Zelle schon die konventionelle, zeigt die Struktur keine zweite Zelle *a*′, *b*′ mehr, auch wenn die Bestimmung sie wegen Rundungsfehlern als 0,9999999999999999-faches liefert (bei *cm* und *c*2*mm* aus selbst gebauten Strukturen).
 
 ### Geändert
 
@@ -39,6 +38,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Behoben
 
+- **CI, Deploy und Release ohne apt** (crystallography-common#128): Der Browser für das Skript-PDF wird ohne `--with-deps` installiert, also ohne Systempakete über `apt`; am 11.11.2026 scheiterten die Jobs mehrfach, weil der Runner die Paketquellen von Ubuntu nicht erreichte. Alle Zeichen des Skripts ausserhalb der eigenen Schriften deckt die Schrift DejaVu des Runners ab (geprüft in der CI).
+- **Zentrierte Gitter in „Gitter und Basis“:** Ist die gegebene Zelle schon die konventionelle, zeigt die Struktur keine zweite Zelle *a*′, *b*′ mehr, auch wenn die Bestimmung sie wegen Rundungsfehlern als 0,9999999999999999-faches liefert (bei *cm* und *c*2*mm* aus selbst gebauten Strukturen).
 - **Gemeinsame Grundlage** auf crystallography-common v0.15.1: Tooltips erscheinen auch auf Laptops mit Touchscreen, wenn mit Maus oder Tastatur gearbeitet wird (vorher blieben sie aus, wenn der Browser den Touchscreen als primäres Zeigegerät meldete; crystallography-common#114).
 
 ## [1.2.0] - 2026-11-08
@@ -165,7 +166,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/manganite/plane-groups/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/manganite/plane-groups/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/manganite/plane-groups/compare/v1.0.0...v1.0.1
