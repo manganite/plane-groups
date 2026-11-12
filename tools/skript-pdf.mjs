@@ -2,7 +2,8 @@
 //
 //   node tools/skript-pdf.mjs [Ausgabedatei] [--base https://…/]
 //
-// Braucht Playwright mit Chromium (npm install --no-save playwright && npx playwright install chromium).
+// Braucht Playwright mit Chromium (npm install --no-save playwright && npx playwright install chromium); mit
+// CHROMIUM_PFAD=<Pfad> ein vorhandener Chromium.
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

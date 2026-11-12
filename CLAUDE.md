@@ -235,8 +235,9 @@ für diese App gilt.
     „Metrik setzen“ und „Vorgabe“ gibt es nur in „Gitter und Basis“. Die Bedienung prüft ein Browserlauf
     (`tools/entwurf-pruefen.mjs`), weil die Tests ohne Browser laufen (Leitfaden Abschn. 9); er läuft in der CI im Job `pdf`
     mit, der Chromium schon hat.
-  - **Hilfen, Skript und Quiz:** Erste Schritte `einstieg-entwurf`, Experimente `entwurf-lage` (Fähnchen in allgemeiner
-    Lage, auf dem Drehpunkt, Windrad) und `entwurf-gruppen` (dasselbe Motiv in *p*4 und *p*4*mm*). Die Zahl der Experimente
+  - **Hilfen, Skript und Quiz:** Erste Schritte `einstieg-entwurf`, Experimente `entwurf-lage` (Fähnchen, dann Windrad
+    auf dem 4-zähligen Drehpunkt) und `entwurf-gruppen` (Fähnchen in allgemeiner Lage in *p*4, dann in *p*4*mm*); jedes
+    steht für sich (Leitfaden Abschn. 5.3). Die Zahl der Experimente
     je Modus (8 bis 12) prüft der Test nur für „Ebenengruppen“ und „Gitter und Basis“. Das Quiz fragt allgemeine
     Konventionen ab; die Bedingung „Motiv auf spezieller Lage braucht deren Lagesymmetrie“ prüfen schon Fragen zu Kap. 6.
     Skript: Kap. 7 (Abb. 7.1b, c, 7.2a–c) und Kap. 9 (Abb. 9.1) laufen über `m=entwurf` mit einem Motiv in allgemeiner Lage
