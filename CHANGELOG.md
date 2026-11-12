@@ -14,8 +14,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 ### Behoben
 
 - **Motivauswahl:** Der Knopf des Fähnchens zeigte nur die Stange; jetzt sitzt jedes Motiv mit der Mitte seines Umrisses im Feld (#136).
-- **Bestimmung bei *b*/*a* = 1,732 und 1,733, γ = 150°** (#126): Diese Link-Werte ergaben *c*2*mm* statt *p*2, weil das Gitter dort nur um das Quadrat der Abweichung von einem rhombischen entfernt ist und die Toleranz der Metrik (10⁻⁶) das überdeckte. Die Toleranz fängt jetzt nur noch Rundungsfehler auf (10⁻⁹); mit dem Regler waren die Fälle nicht erreichbar.
-- **Zelle mit Rundungsfehlern** (#125): Test dafür, dass eine konventionelle Zelle wie [[1, 0], [0, 0,9999999999999999]] als die gegebene gilt (behoben in 1.3.0).
+- **Zelle mit Rundungsfehlern** (#125): Der Fehler war schon mit 1.3.0 behoben (dort unter „Zentrierte Gitter“); neu ist ein Test mit den Fällen aus dem Issue.
 
 ## [1.3.0] - 2026-11-12
 

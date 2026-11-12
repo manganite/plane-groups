@@ -196,7 +196,8 @@ für diese App gilt.
     Vorgaben betrifft das `dreieck3`, `fisch` (Ursprung) und `drittel`, `flecht` (Zelle). Liefert die Bestimmung eine
     linkshändige Zelle (z. B. −*a*, *b*; je nach Rundung schon bei γ = 60°), wird sie vorher rechtshändig gemacht (*a*′ → −*a*′,
     hexagonal *a*′ ↔ *b*′), sonst wäre das Bild gespiegelt. Liegen danach Metrik oder Grösse eines Motivs ausserhalb der
-    Regler oder ist die Grenze überschritten, ist der Knopf gesperrt, mit Grund. Die Übernahme ersetzt den Entwurf samt
+    Regler oder ist die Grenze überschritten, ist der Knopf gesperrt, mit Grund. Die Struktur in „Gitter und Basis“ bleibt
+    unverändert. Die Übernahme ersetzt den Entwurf samt
     Strichen (Hinweis unter dem Knopf, sobald der Entwurf Bahnen oder Striche hat), die Wahl der Bindungen kommt mit. Einen
     Weg zurück gibt es nicht: Striche liessen sich in „Gitter und Basis“ nicht darstellen.
   - **Grenze:** `BASIS_GRENZE` = 48 gilt für die ausgeschriebenen Bilder. Ein Vertreter zählt mit der Zähligkeit der
@@ -326,7 +327,8 @@ für diese App gilt.
   `display: inline-table`). Keine Blockelemente in Frage- und Erklärtexten (Test): Ein `<table>`
   schliesst das umgebende `<p>` in Prüfliste und Moodle-Export.
 - Hilfen in `js/quiz-bank.js`: `ov()` Querstrich, `sym()` Symbol kursiv, `LZ` sammelt die Lernziele.
-- Bindungen aus der periodischen Zelle (`bindungenBasis`): Der Aufwand wächst nur linear mit der Zahl der Atome im Bild.
+- Bindungen aus der periodischen Zelle (`bindungenBasis`): einmal je Paar von Atomen der Basis bestimmt und auf die Bilder
+  übertragen; der Aufwand wächst nur linear mit der Zahl der Zellen im Bild.
 - **Link-Adressen** sind Schnittstelle (Leitfaden Abschn. 8), aber noch nicht stabil: Die App ist in Entwicklung, ein
   Bruch von Link oder Speicher ist erlaubt (MINOR, im CHANGELOG unter „Geändert“ mit Hinweis), alter Code zum Umrechnen
   entfällt; stabil werden sie mit der endgültigen Form der App (Entscheidung Thomas, noch offen). Die Werte stehen in `js/zustand.js`

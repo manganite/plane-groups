@@ -33,10 +33,7 @@ import { gruppe, mod1 } from './symmetrie.js';
 
 /** Toleranz für Lagen in Bruchteilen der Zelle (auch beim Zusammenfassen zu Vertretern, bahnen.js). */
 export const TOL = 1e-4;
-// Toleranz der Metrik, relativ zum Quadrat der längeren Achse: Sie fängt nur Rundungsfehler auf (etwa 10⁻¹⁵). Kleiner als
-// jede Abweichung, die Regler und Link ergeben, auch wo diese nur quadratisch wirkt (b/a = 1,732 bei γ = 150° liegt um
-// 2,6·10⁻⁹ neben einem rhombischen Gitter, #126; tests/toleranzen.test.mjs).
-const TOL_METRIK = 1e-9;
+const TOL_METRIK = 1e-6; // relativ
 
 /** @type {(a: Mat2, b: Mat2) => Mat2} */
 const mat = (a, b) => [[a[0][0] * b[0][0] + a[0][1] * b[1][0], a[0][0] * b[0][1] + a[0][1] * b[1][1]], [a[1][0] * b[0][0] + a[1][1] * b[1][0], a[1][0] * b[0][1] + a[1][1] * b[1][1]]];

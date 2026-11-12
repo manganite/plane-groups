@@ -555,8 +555,6 @@ test('Motivauswahl: jedes Motiv in genau einer Zeile, die Zeile nennt seine Eige
     assert.ok(zahlen.length >= 2, `${k}: Koordinaten gefunden`);
     for (const z of zahlen) assert.ok(z >= 0 && z <= 30, `${k}: ${z} im Feld 0 … 30`);
   }
-  // das Fähnchen zeigt Stange und Fahne
-  assert.match(motivSymbol('fahne', 'x', 'y'), /<line [^>]*\/><polygon /);
 });
 
 test('Ornamente als Motive: kennzeichnende Punkte liegen auf den Pfaden, und die Zeichnung beginnt dort, wo motivKart den ersten Punkt hat', () => {

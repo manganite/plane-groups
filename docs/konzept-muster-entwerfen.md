@@ -1,26 +1,24 @@
 # Konzept: dritter Modus „Muster entwerfen“
 
 > **Status (12.11.2026): umgesetzt, wird nicht mehr nachgeführt.** Freigegeben von Thomas am 11.11.2026, umgesetzt in
-> den Schritten von Abschn. 5 (PRs #138 und #140 bis #151, Release 1.3.0) und im Abschluss von #136.
+> den Schritten von Abschn. 5 (PRs #138 bis #151, dazu Wünsche von Thomas, Release 1.3.0) und im Abschluss von #136.
+> Verweise im Text auf Stellen in `CLAUDE.md` gelten dem damaligen Stand.
 >
-> **Wo es jetzt steht:** Entscheidungen mit Gründen und die Wahl beim Umsetzen in `CLAUDE.md` (Abschnitt „Modi und
-> Umfang“, Punkt „Modus „Muster entwerfen““); Link-Adresse und Speicher im `README.md`; Änderungen je Version im
+> **Wo es jetzt steht:** Entscheidungen mit Gründen in `CLAUDE.md`, Abschnitt „Entscheidungen“, Punkte „Modi und Umfang“,
+> „Motive“ und „Modus „Muster entwerfen““; Link-Adresse und Speicher im `README.md`; Änderungen je Version im
 > `CHANGELOG.md` (1.3.0). Bei Widerspruch gelten `CLAUDE.md` und der `LEITFADEN.md` von crystallography-common.
 >
-> **Umgesetzt wie beschrieben:** Abschn. 2, Punkte 1 bis 15; Abschn. 3 und 4.
->
-> **Überholt oder anders umgesetzt:**
+> **Umgesetzt** wie beschrieben (Abschn. 2 bis 4), bis auf diese Abweichungen:
 > - Striche stehen nur im Browserspeicher, nicht in der Link-Adresse (Abschn. 3.3; Thomas bestätigt, 12.11.2026).
 > - Das Experiment `festhalten-metrik` (Abschn. 2, Punkt 12, und Abschn. 4) entfiel ersatzlos; `festhalten-lage` wurde
 >   `entwurf-lage`, neu kam `entwurf-gruppen` dazu.
 > - Die Texte von `warum` stehen in `js/herkunft-text.js` (Abschn. 4); der Browserlauf heisst `tools/entwurf-pruefen.mjs`.
 > - Ornamente als Motive haben ihren Aufpunkt in der Mitte, das Fähnchen den Fuss in allen Modi (Grundsatz „gleiche Objekte,
 >   gleicher Aufpunkt“, Thomas, 12.11.2026).
-> - Beim Wechsel der Gruppe wird das Gitter nicht je System gemerkt (Abschn. 3.3; Thomas, 12.11.2026). Der Startentwurf
->   ist leer, in *p*4*mm*.
-> - Dazugekommen (Thomas, 12.11.2026): Bindungen auch im Entwurf, logarithmischer Regler der Motivgrösse, Ziegel mit und
->   ohne Fuge, ein schmaleres gleichschenkliges Dreieck.
-> - Die Befunde #125 und #126 (Abschn. 4) sind behoben.
+>
+> **Präzisiert und dazugekommen** (Thomas, 12.11.2026): Beim Wechsel der Gruppe wird das Gitter nicht je System gemerkt;
+> der Startentwurf ist leer, in *p*4*mm*; Bindungen auch im Entwurf, logarithmischer Regler der Motivgrösse, Ziegel mit und
+> ohne Fuge, ein schmaleres gleichschenkliges Dreieck. Der Befund #125 (Abschn. 4) ist behoben, #126 bleibt offen (Issue).
 
 ## 1. Anlass
 

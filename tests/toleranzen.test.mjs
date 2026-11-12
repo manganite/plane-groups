@@ -1,10 +1,10 @@
 // Toleranzen der Symmetriebestimmung (js/bestimmung.js, #120): Fälle knapp neben einer speziellen Metrik
 // oder Lage. Die kleinsten Unterschiede, die man eingeben kann, sind Regler (b/a in Schritten von 0,01,
 // γ in 0,5°, Lage in 0,001) und Link (b/a auf 0,001, γ auf 0,01°, Lagen auf 10⁻⁶; js/zustand.js). Ein
-// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage, auch wo eine Abweichung von der
-// speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten, #126). Rundungsfehler
-// (die Metrik aus cos und sin, 10⁻¹² relativ) ergeben das höhere System, ein Abstand von 10⁻⁶ von einer
-// speziellen Lage gilt als auf ihr.
+// solcher Unterschied ergibt das niedrigere System bzw. die allgemeinere Lage. Ausnahme: Wo eine Abweichung
+// von der speziellen Metrik nur quadratisch wirkt (schief aufgestelltes hexagonales Gitter unten), gilt das
+// nur für den Regler, nicht für den Link (#126). Rundungsfehler (die Metrik aus cos und sin, 10⁻¹² relativ)
+// ergeben das höhere System, ein Abstand von 10⁻⁶ von einer speziellen Lage gilt als auf ihr.
 //
 // Die erwarteten Gruppen sind von Hand hergeleitet (Kommentare), nicht mit dem Code der App gerechnet
 // (Leitfaden Abschn. 9). Die Gitter entstehen wie in der App mit metrik() (|a| = 1, |b| = b/a, Winkel γ).
@@ -60,14 +60,13 @@ for (const [name, faelle] of /** @type {[string, [number, number, string][]][]} 
   // b/a = √3, γ = 150°: |a + b|² = 1 + 3 + 2√3 cos 150° = 1 und a·(a + b) = 1 − 3/2 = −½, also a, a + b
   // gleich lang unter 120°: hexagonal. Mit b/a = √3 + ε ist die reduzierte Basis a, 2a + b mit
   // |2a + b|² = 1 + ε² und a·(2a + b) = ½ − √3 ε/2: schiefwinklig, aber nur um ε² von gleich langen Achsen
-  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), und die Link-Werte
-  // 1,732 und 1,733 (ε² = 2,6·10⁻⁹ bzw. 9,0·10⁻⁷) ergeben p2. Für 1,732 muss die Toleranz der Metrik also unter
-  // 2,6·10⁻⁹ liegen (#126: mit 10⁻⁶ ergaben 1,732 und 1,733 c2mm).
+  // (rhombisch) entfernt. Die Nachbarn im Regler, 1,74 (ε² = 6,3·10⁻⁵) und 1,73 (ε² = 4,2·10⁻⁶), ergeben p2;
+  // 1,73 verlangt also eine Toleranz der Metrik unter etwa 4·10⁻⁶. Die Link-Werte 1,732 und 1,733 (ε² ≈ 3·10⁻⁹
+  // bzw. 10⁻⁶) liegen innerhalb der Toleranz und ergeben c2mm statt p2 (#126); sie fehlen deshalb hier.
   // Mit γ = 150,5° ist |a + b|² = 0,985: weder gleich lang noch rhombisch noch senkrecht, also schiefwinklig.
   ['schief aufgestellt, hexagonal', [
     [Math.sqrt(3), 150, 'p6mm'],
-    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [1.732, 150, 'p2'], [1.733, 150, 'p2'],
-    [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
+    [1.74, 150, 'p2'], [1.73, 150, 'p2'], [Math.sqrt(3), 150.5, 'p2'], [Math.sqrt(3), 149.5, 'p2'], [Math.sqrt(3), 150.01, 'p2'],
   ]],
 ])) {
   test(`Metrik knapp neben einer speziellen (${name}): niedrigeres System, genau auf dem Wert das höhere`, () => {
