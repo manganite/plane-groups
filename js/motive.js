@@ -1,7 +1,7 @@
 // Motive für den Modus „Gitter und Basis“ (Konzept §3.2): je eine Form mit eigener Symmetrie.
 // Ein Motiv besteht aus Punkten (lokal, kartesisch, Radius etwa 1) mit Art; diese Punkte gehen in
 // die Symmetriebestimmung (bestimmung.js) ein, ihre Symmetrie ist die des Motivs. Gezeichnet wird
-// die Form (Polygon, Ellipse, Kreis oder Fähnchen) aus denselben Koordinaten.
+// die Form (Polygon, Stäbchen, Kreis oder Fähnchen) aus denselben Koordinaten.
 //
 // Lokale Koordinaten: x nach rechts, y nach unten (wie das Bild); Drehung im Uhrzeigersinn.
 
@@ -54,7 +54,8 @@ export const MOTIVE = {
   w2: { name: 'Windrad 2', symmetrie: '2', groesse: 0.1, punkte: windrad(2), form: 'polygon' },
   dreieck: { name: 'Dreieck (gleichschenklig)', symmetrie: 'm', groesse: 0.12, punkte: [[0, -1, 's'], [0.7, 0.6, 'e'], [-0.7, 0.6, 'e']], form: 'polygon' },
   // Insel: abgerundetes Stäbchen wie die Nanomagnete künstlicher Spin-Eis- und Toroidal-Gitter (Länge : Breite
-  // etwa 3 : 1, vgl. Lehmann 2022, Abb. 6.2: 450 × 150 nm²); Punkte an den Enden und Seiten wie bisher
+  // etwa 3 : 1, vgl. J. Lehmann, Toroidal Order in Magnetic Metamaterials, Springer Theses 2022, Abb. 6.2, S. 118:
+  // 450 × 150 nm²); Punkte an den Enden und Seiten wie bisher
   insel: { name: 'Insel (länglich)', symmetrie: '2mm', groesse: 0.15, punkte: [[1, 0, 'e'], [0, 0.32, 's'], [-1, 0, 'e'], [0, -0.32, 's']], form: 'stab' },
   w3: { name: 'Windrad 3', symmetrie: '3', groesse: 0.1, punkte: windrad(3), form: 'polygon' },
   dreieck3: { name: 'Dreieck (gleichseitig)', symmetrie: '3m', groesse: 0.1, punkte: vieleck(3), form: 'polygon' },

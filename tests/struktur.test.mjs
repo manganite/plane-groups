@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { VORGABEN, vorgabe } from '../js/vorgaben.js';
 import { MOTIVE, motivKart, chiral } from '../js/motive.js';
-import { strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
+import { motivSVG, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, gitterZurGruppe } from '../js/zustand.js';
 import { ausgeschrieben } from '../js/bahnen.js';
 import { metrik, kart } from '../js/zeichnung.js';
@@ -367,4 +367,21 @@ test('Bindungen: nächste Nachbarn je Zelle, auch bei kleiner Vergrösserung sch
   const { svg } = strukturTafelB(s, FARBEN, strukturSymmetrie(s), 0.5);
   assert.ok(performance.now() - t < 2000);
   assert.match(svg, /<path d="M[^"]+L/);
+});
+
+test('Insel: abgerundetes Stäbchen mit Enden bei ±1 und Seiten bei ±0,32 (in Einheiten der Grösse)', () => {
+  const M = metrik({ ba: 1, gamma: grad(90) });
+  const s = 100;
+  /** @type {import('../js/zeichnung.js').Ansicht} */
+  const A = { s, groesse: 520, zuBild: (p) => { const c = kart(M, p); return [s * c[0], s * c[1]]; }, vonBild: (q) => q };
+  const g = MOTIVE.insel.groesse;
+  for (const [winkel, ex, ey] of /** @type {[number, number, number][]} */ ([[0, 1, 0.32], [90, 0.32, 1]])) {
+    const svg = motivSVG({ motiv: 'insel', p: [0, 0], winkel: grad(winkel) }, [0, 0], A, M, '#000', '#fff');
+    const pts = /** @type {RegExpMatchArray} */ (svg.match(/points="([^"]+)"/))[1].split(' ').map((t) => t.split(',').map(Number));
+    assert.equal(new Set(pts.map((q) => q.join())).size, pts.length, 'keine doppelten Punkte');
+    assert.equal(pts.length, 30);
+    /** @param {number} i */
+    const max = (i) => Math.max(...pts.map((q) => Math.abs(q[i]))) / (s * g);
+    assert.ok(Math.abs(max(0) - ex) < 0.01 && Math.abs(max(1) - ey) < 0.01, `Ausdehnung bei ${winkel}°: ${max(0)}, ${max(1)}`);
+  }
 });
