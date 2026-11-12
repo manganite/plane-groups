@@ -14,7 +14,7 @@ import { strukturStart, wieVorgabe, gitterZurGruppe, STRUKTUR_BEREICH, BASIS_GRE
 import { bilderMitOperation, bildUnter, vertreterVon, sichtbareOp, mitGruppe, uebernahmeVon } from './bahnen.js';
 import { strukturTafelA, strukturTafelB, strukturHTML, festHinweisHTML, motivFarben, strukturSymmetrie } from './struktur.js';
 import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
-import { symbolHTML, dezimal } from './text.js';
+import { symbolHTML, dezimal, richtungenLegende } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from '../lib/common/js/seite.js';
 
 /** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
@@ -68,6 +68,21 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   }
   /** Gezeichnete Struktur: mit festgehaltener Symmetrie die Bahnen der Vertreter ausgeschrieben. */
   const gezeigt = () => ({ ...st(), basis: motive().map((m) => m.bild) });
+  /**
+   * Was Tafel A zeigt: die Anzeigen dieses Modus und „Darstellung“ (gemeinsam mit „Ebenengruppen“, z). Lupe: Mitte
+   * ist das gewählte Motiv (gz: die gezeichneten Motive, gewaehltGezeichnet), ohne Wahl die Mitte der gegebenen Zelle.
+   * @param {Basiseintrag[]} basis die gezeichneten Motive
+   * @returns {import('./struktur.js').Anzeige}
+   */
+  function anzeigeA(basis) {
+    const s = st();
+    const i = gewaehltGezeichnet();
+    /** @type {Vec2} */
+    const mitte = i !== null && basis[i] ? /** @type {Vec2} */ (basis[i].p.map(mod1)) : [0.5, 0.5];
+    return { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: z.farben, fuell: z.aeFuell, lupe: z.lupe ? mitte : null };
+  }
+  /** Optionen von Tafel B aus „Darstellung“: Tapete ohne Zelle und Elemente, einfarbig gefüllt. */
+  const optionenB = () => ({ zelle: !z.tapete, elemente: z.musterElemente && !z.tapete, richtungsfarben: z.farben, fuell: z.aeFuell, einfarbig: z.tapete });
   /** Ist für ein weiteres Motiv bzw. eine weitere Bahn Platz (BASIS_GRENZE)? */
   const platz = () => (st().basis.length + 1) * bahnGewicht(st().festeGruppe) <= BASIS_GRENZE;
   /** Moduswahl als Tab-Muster (Leitfaden Abschn. 5.4); entsteht in init(). @type {{ markieren: (id: string) => void } | null} */
@@ -120,8 +135,6 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     eingabe('s-zelle').checked = s.zelle;
     eingabe('s-ae').checked = s.ae;
     eingabe('s-bindungen').checked = s.bindungen;
-    eingabe('s-zoom').value = String(z.zoomB);
-    $('s-zoom-out').textContent = `${dezimal(z.zoomB, 2)} ×`;
     eingabe('s-einrasten').checked = rasten;
     for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
     document.body.classList.toggle('hinzufuegen', werkzeug === 'hinzufuegen');
@@ -256,15 +269,23 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     items.push(`<span class="lg"><svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.line}" stroke-width="2"/></svg><span>gegebene Zelle <i>a</i>, <i>b</i></span></span>`);
     if (r && st().zelle) items.push(`<span class="lg"><svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.accent}" stroke-width="2.6"/></svg><span>konventionelle Zelle <i>a</i>′, <i>b</i>′</span></span>`);
     if (r && st().elemente) {
-      const el = elementeImBereich(gruppe(r.symbol), 1);
-      for (const n of [...new Set(el.drehpunkte.map((d) => d.n))].sort()) items.push(`<span class="lg"><svg class="sym-icon" width="22" height="22" viewBox="0 0 22 22">${drehSymbol(n, [11, 11], f.ink, f.paper)}</svg>${n}-zähliger Drehpunkt</span>`);
+      const g = gruppe(r.symbol);
+      const el = elementeImBereich(g, 1);
+      /** Farbe der Drehpunkte: die der ersten Position, wenn nach Blickrichtung gefärbt wird. */
+      const farbe1 = z.farben ? f.dir[0] : f.ink;
+      for (const n of [...new Set(el.drehpunkte.map((d) => d.n))].sort()) items.push(`<span class="lg"><svg class="sym-icon" width="22" height="22" viewBox="0 0 22 22">${drehSymbol(n, [11, 11], farbe1, f.paper)}</svg>${n}-zähliger Drehpunkt</span>`);
       const arten = new Set(el.linien.map((l) => l.art));
       /** @param {boolean} dash */
       const linie = (dash) => `<svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.ink}" stroke-width="${dash ? 2 : 2.8}" ${dash ? 'stroke-dasharray="6 4"' : 'stroke-linecap="round"'}/></svg>`;
       if (arten.has('spiegel')) items.push(`<span class="lg">${linie(false)}Spiegellinie</span>`);
       if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
+      if (z.farben) items.push(...richtungenLegende(g.daten.system, el.linien, f));
     }
     if (r && st().ae) items.push(`<span class="lg"><i class="sw" style="background:${f.crystal}"></i>asymmetrische Einheit</span>`);
+    if (r && z.aeFuell) {
+      items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>asymmetrische Einheit mit Bildern, gleiche Händigkeit</span>`);
+      if (gruppe(r.symbol).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
+    }
     items.push(werkzeug === 'hinzufuegen'
       ? '<span class="lg hint"><span class="only-fine">Stelle anklicken: neues Motiv</span><span class="only-coarse">Stelle antippen: neues Motiv</span></span>'
       : '<span class="lg hint">Motiv wählen und ziehen</span>');
@@ -276,13 +297,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const f = farben();
     const s = st();
     const gz = gezeigt(); // Bahnen einmal ausschreiben, für beide Tafeln und die Kenndaten
-    const a = strukturTafelA(gz, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, gewaehltGezeichnet(), fest);
+    const a = strukturTafelA(gz, anzeigeA(gz.basis), f, gewaehltGezeichnet(), fest);
     ansicht = a.ansicht;
     const r = a.ergebnis;
     if (r?.symbol !== letztes) { vorher = letztes ?? null; letztes = r?.symbol; }
     grafik('bild-a').innerHTML = a.svg;
     if (nurA) return;
-    grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB).svg;
+    grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB, optionenB()).svg;
     legende(f, r);
     $('info').innerHTML = strukturHTML(gz, r, vorher, f, festHinweisHTML(s, r, umstellung));
   }
@@ -412,7 +433,6 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     for (const [id, feld] of /** @type {[string, 'elemente' | 'zelle' | 'ae' | 'bindungen'][]} */ ([['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']])) {
       $(id).addEventListener('change', () => { st()[feld] = eingabe(id).checked; aktualisieren(); });
     }
-    $('s-zoom').addEventListener('input', () => { z.zoomB = Number(eingabe('s-zoom').value); aktualisieren(); });
     $('s-einrasten').addEventListener('change', () => { rasten = eingabe('s-einrasten').checked; aktualisieren(); });
     $('s-werkzeug-verschieben').addEventListener('click', () => { werkzeug = 'verschieben'; aktualisieren(); });
     $('s-werkzeug-hinzufuegen').addEventListener('click', () => {
@@ -530,9 +550,12 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Tafel A oder B in den Farben f, ohne Markierung der Auswahl (Bildexport). @param {Farben} f @param {string} tafel */
   function bild(f, tafel) {
     const s = gezeigt();
-    if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s), z.zoomB).svg;
-    return strukturTafelA(s, { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, farben: false }, f, null, ansicht).svg;
+    if (tafel === 'b') return strukturTafelB(s, f, strukturSymmetrie(s), z.zoomB, optionenB()).svg;
+    return strukturTafelA(s, anzeigeA(s.basis), f, null, ansicht).svg;
   }
 
-  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up, vorgabeZeigen, werkzeugSetzen };
+  /** Die bestimmte Ebenengruppe der gezeichneten Struktur oder null (leere Basis), aus dem Zwischenspeicher. @returns {Bestimmung | null} */
+  const bestimmt = () => strukturSymmetrie(gezeigt());
+
+  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up, vorgabeZeigen, werkzeugSetzen, bestimmt };
 }

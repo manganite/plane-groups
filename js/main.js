@@ -7,14 +7,14 @@ import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE } from './hilfetexte.js';
 import { EXPERIMENTE } from './hilfe-daten.js';
 import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
-import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
+import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, blickrichtung, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, radieren, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, vereinfachen, STRICH_GRENZE, radieren, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './herkunft-text.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, wieVorgabe, ausSpeicher, speicherStand, introGesehen } from './zustand.js';
 import { strukturUI } from './struktur-ui.js';
-import { koordHTML, opHTML, lageHTML, symbolHTML, zahlText, koordText, dezimal, richtungHTML } from './text.js';
+import { koordHTML, opHTML, lageHTML, symbolHTML, zahlText, koordText, dezimal, richtungenLegende } from './text.js';
 import { stereoLink, stereoHinweis } from './verweise.js';
 import { schrittHTML } from './schritte.js';
 import { schoenfliesHTML, CONWAY, CONWAY_HINWEIS } from './symbole.js';
@@ -236,7 +236,7 @@ function bedienungAbgleichen() {
   document.body.classList.toggle('herkunft', herkunftAktiv());
   // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): Werkzeuge Zeichnen und Radieren aus,
   // die Lupe ruht (bleibt gewählt); Zeichnung und Lupe kommen beim Verlassen zurück
-  const ruhig = erklaerend(z);
+  const ruhig = z.modus === 'eg' && erklaerend(z);
   if (ruhig) { z.zeichnen = false; z.radieren = false; }
   knopf('werkzeug-zeichnen').disabled = ruhig;
   knopf('werkzeug-lupe').disabled = ruhig;
@@ -249,9 +249,12 @@ function bedienungAbgleichen() {
   document.body.classList.toggle('radieren', z.radieren);
   knopf('zeichnen-zurueck').disabled = !z.striche.length && !verlauf.length;
   knopf('zeichnen-loeschen').disabled = !z.striche.length;
+  // Füllen: wirkt, wo es eine Gruppe gibt; in „Gitter und Basis“ die bestimmte, ohne Basis also keine
+  const bestimmt = z.modus === 'struktur' ? sUI.bestimmt() : null;
+  const fuellGrund = z.modus === 'struktur' ? (bestimmt ? '' : 'nur mit bestimmter Ebenengruppe (die Basis ist leer)') : ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
   eingabe('opt-fuell').checked = z.aeFuell;
-  eingabe('opt-fuell').disabled = ruhig;
-  element('#row-fuell .why').textContent = ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
+  eingabe('opt-fuell').disabled = fuellGrund !== '';
+  element('#row-fuell .why').textContent = fuellGrund;
   const punkteGezeichnet = z.striche.flat().length;
   $('zeichnen-hint').textContent = z.radieren
     ? 'Über die Striche ziehen: Der Radiergummi entfernt die überfahrenen Stücke, am Original und an allen Kopien zugleich. „Rückgängig“ holt sie zurück.'
@@ -260,9 +263,10 @@ function bedienungAbgleichen() {
     : ruhig
     ? `Zeichnen und Radieren ruhen, ${SOLANGE_ERKLAERT}; die Zeichnung ist im Symmetriegerüst ausgeblendet, im Muster bleibt sie.`
     : 'Werkzeug „Zeichnen“ über dem Symmetriegerüst wählen und ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, auch im Muster.';
-  $('fuell-hint').textContent = z.aeFuell
-    ? `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`
-    : '';
+  $('fuell-hint').innerHTML = !z.aeFuell ? ''
+    : z.modus === 'struktur'
+      ? (bestimmt ? `Kräftig: die asymmetrische Einheit der bestimmten Gruppe ${symbolHTML(bestimmt.symbol)}. Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen.` : '')
+      : `Kräftig: die asymmetrische Einheit. Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`;
   eingabe('v-muster-el').checked = z.musterElemente;
   eingabe('v-tapete').checked = z.tapete;
   eingabe('v-muster-el').disabled = z.tapete;
@@ -354,12 +358,7 @@ function legende(f) {
     const linie = (dash) => `<svg width="24" height="10" viewBox="0 0 24 10"><line x1="1" y1="5" x2="23" y2="5" stroke="${f.ink}" stroke-width="${dash ? 2 : 2.8}" ${dash ? 'stroke-dasharray="6 4"' : 'stroke-linecap="round"'}/></svg>`;
     if (arten.has('spiegel')) items.push(`<span class="lg">${linie(false)}Spiegellinie</span>`);
     if (arten.has('gleit')) items.push(`<span class="lg">${linie(true)}Gleitspiegellinie</span>`);
-    if (z.farben && sys !== 'schiefwinklig') {
-      const positionen = new Set(el.linien.map((l) => blickrichtung(sys, l.normale)));
-      for (const pos of [2, 3]) {
-        if (positionen.has(pos)) items.push(`<span class="lg"><i class="sw" style="background:${f.dir[pos - 1]}"></i><span>Normale ∥ ${SYMMETRIERICHTUNGEN[sys][pos - 2].map(richtungHTML).join(', ')}</span></span>`);
-      }
-    }
+    if (z.farben) items.push(...richtungenLegende(sys, el.linien, f));
   }
   if (z.objekt) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);

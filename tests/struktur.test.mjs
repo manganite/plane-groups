@@ -6,7 +6,7 @@ import { MOTIVE, motivKart, chiral } from '../js/motive.js';
 import { motivSVG, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, gitterZurGruppe } from '../js/zustand.js';
 import { ausgeschrieben } from '../js/bahnen.js';
-import { metrik, kart } from '../js/zeichnung.js';
+import { metrik, kart, LUPE } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
 import { grad } from '../js/zeichnung.js';
 
@@ -384,4 +384,98 @@ test('Insel: abgerundetes Stäbchen mit Enden bei ±1 und Seiten bei ±0,32 (in 
     const max = (i) => Math.max(...pts.map((q) => Math.abs(q[i]))) / (s * g);
     assert.ok(Math.abs(max(0) - ex) < 0.01 && Math.abs(max(1) - ey) < 0.01, `Ausdehnung bei ${winkel}°: ${max(0)}, ${max(1)}`);
   }
+});
+
+// „Darstellung“ und Lupe in „Gitter und Basis“ (Konzept „Muster entwerfen“, Schritt 3)
+
+/** Anzahl der Teile eines SVG-Textes. @param {string} svg @param {RegExp} re */
+const anzahl = (svg, re) => (svg.match(re) ?? []).length;
+
+test('Füllen: Tafel A und B zeigen die asymmetrische Einheit der bestimmten Gruppe mit allen Bildern', () => {
+  for (const v of VORGABEN) {
+    const s = st(v.id);
+    const r = symmetrie(s);
+    const an = { elemente: false, zelle: true, ae: false, bindungen: false };
+    const ohne = strukturTafelA(s, an, FARBEN);
+    const mit = strukturTafelA(s, { ...an, fuell: true }, FARBEN);
+    assert.ok(!mit.svg.includes('NaN'), v.id);
+    // ein Urbild (kräftig) im Bild; zusammen mindestens so viele Bilder, wie die Gruppe Operationen je Zelle hat
+    assert.equal(anzahl(mit.svg, /fill-opacity="0\.45"/g) - anzahl(ohne.svg, /fill-opacity="0\.45"/g), 1, `${v.id}: ein Urbild`);
+    assert.ok(anzahl(mit.svg, /fill-opacity="0\.16"/g) >= r.ordnung - 1, `${v.id}: ${r.ordnung} Bilder je konventioneller Zelle`);
+    const b = strukturTafelB(s, FARBEN, r, 1, { fuell: true });
+    assert.ok(!b.svg.includes('NaN'), v.id);
+    assert.ok(anzahl(b.svg, /fill-opacity="0\.16"/g) >= r.ordnung - 1, `${v.id}: Tafel B`);
+  }
+});
+
+test('Füllen: gleiche Händigkeit und Spiegelbild in zwei Farben, in der Tapete in einer', () => {
+  const s = st('graphen'); // p6mm: mit Spiegelbildern
+  const r = symmetrie(s);
+  const farbig = strukturTafelB(s, FARBEN, r, 1, { fuell: true }).svg;
+  assert.ok(farbig.includes(`fill="${FARBEN.upper}" fill-opacity="0.16"`) && farbig.includes(`fill="${FARBEN.accent2}" fill-opacity="0.16"`));
+  const tapete = strukturTafelB(s, FARBEN, r, 1, { fuell: true, einfarbig: true }).svg;
+  assert.ok(tapete.includes(`fill="${FARBEN.upper}" fill-opacity="0.16"`));
+  assert.ok(!tapete.includes(`fill="${FARBEN.accent2}" fill-opacity="0.16"`), 'ohne eigene Farbe für Spiegelbilder');
+});
+
+test('Füllen: die Bilder liegen in der konventionellen Zelle, auch wenn sie von der gegebenen abweicht', () => {
+  // zentrierte Zelle: die konventionelle Zelle hat doppelte Fläche; das Urbild liegt in deren Ursprungszelle
+  const s = st('zentriert');
+  const r = symmetrie(s);
+  assert.notEqual(r.primitiv, 1);
+  const mit = strukturTafelA(s, { elemente: false, zelle: true, ae: false, bindungen: false, fuell: true }, FARBEN);
+  assert.ok(anzahl(mit.svg, /fill-opacity="0\.16"/g) >= r.ordnung - 1);
+});
+
+test('Lupe: LUPE-fache Vergrösserung um das Motiv, die Mitte bleibt in der Bildmitte', () => {
+  const s = st('graphen');
+  const an = { elemente: true, zelle: true, ae: true, bindungen: true };
+  const normal = strukturTafelA(s, an, FARBEN);
+  const mitte = /** @type {Vec2} */ ([0.5, 0.5]);
+  const lupe = strukturTafelA(s, { ...an, lupe: mitte }, FARBEN);
+  assert.ok(Math.abs(lupe.ansicht.s / normal.ansicht.s - LUPE) < 1e-9, 'Massstab LUPE-mal grösser');
+  const q = lupe.ansicht.zuBild(mitte);
+  assert.ok(Math.abs(q[0] - 260) < 1 && Math.abs(q[1] - 260) < 1, `Mitte bei ${q}`);
+  // ein eingefrorener Ausschnitt (beim Ziehen) gilt unverändert
+  const fest = strukturTafelA(s, { ...an, lupe: [0.1, 0.1] }, FARBEN, null, lupe.ansicht);
+  assert.equal(fest.ansicht, lupe.ansicht);
+  assert.ok(!lupe.svg.includes('NaN'));
+});
+
+test('Lupe: auch am Rand und in einer nicht reduzierten Zelle bleibt der Ausschnitt im Bild', () => {
+  for (const id of ['zentriert', 'schiefwinklig', 'quadratisch']) {
+    const s = st(id);
+    for (const mitte of /** @type {Vec2[]} */ ([[0, 0], [0.99, 0.01], [0.5, 0.5], [1, 1]])) {
+      const l = strukturTafelA(s, { elemente: true, zelle: true, lupe: mitte }, FARBEN);
+      const n = strukturTafelA(s, { elemente: true, zelle: true }, FARBEN);
+      assert.ok(Math.abs(l.ansicht.s / n.ansicht.s - LUPE) < 1e-9, `${id} ${mitte}`);
+      assert.ok(!l.svg.includes('NaN'));
+    }
+  }
+});
+
+test('Tafel B: Symmetrieelemente in den Farben der Blickrichtung nur auf Wunsch', () => {
+  const s = st('quadratisch'); // p4mm
+  const r = symmetrie(s);
+  const bunt = strukturTafelB(s, FARBEN, r, 1, { elemente: true, richtungsfarben: true }).svg;
+  const grau = strukturTafelB(s, FARBEN, r, 1, { elemente: true }).svg;
+  assert.ok(FARBEN.dir.some((c) => bunt.includes(c)));
+  assert.ok(!FARBEN.dir.some((c) => grau.includes(c)));
+});
+
+test('Link: „Darstellung“ und Lupe gelten in beiden Modi, mit denselben Schlüsseln', () => {
+  const z = startzustand();
+  hashAnwenden(z, '#m=struktur&v=graphen&farb=0&mel=1&tap=1&fuell=1&lupe=1&zoom=2');
+  assert.deepEqual([z.farben, z.musterElemente, z.tapete, z.aeFuell, z.lupe, z.zoomB], [false, true, true, true, true, 2]);
+  const h = hashVon(z);
+  for (const k of ['farb=0', 'mel=1', 'tap=1', 'fuell=1', 'lupe=1', 'zoom=2']) assert.ok(h.includes(k), `${k} in ${h}`);
+  // Schalter nur von „Ebenengruppen“ stehen nicht im Link des anderen Modus
+  z.elemente = false; z.objekt = false; z.ae = true; z.orbit = true; z.einrasten = false;
+  assert.ok(!/[&#](el|obj|ae|orbit|rast)=/.test(hashVon(z)), hashVon(z));
+  // Startwerte bleiben aus dem Link
+  const z0 = startzustand(); z0.modus = 'struktur';
+  assert.equal(hashVon(z0), `#m=struktur&v=${z0.struktur.vorgabe}`);
+  // derselbe Link kommt unverändert wieder heraus
+  const z2 = startzustand(); hashAnwenden(z2, h);
+  assert.equal(hashVon(z2), h);
 });

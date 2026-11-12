@@ -4,7 +4,7 @@
 // Symmetrieelementen und asymmetrischer Einheit der gefundenen Gruppe, Tafel B einen grösseren
 // Ausschnitt.
 
-import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, f2, pt } from './zeichnung.js';
+import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, lupeAusschnitt, f2, pt } from './zeichnung.js';
 import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
@@ -21,8 +21,10 @@ import { SYSTEME, BRAVAIS } from './ebenengruppen.js';
 /** @import { System } from './ebenengruppen.js' */
 /** Bereich [[lo, hi], [lo, hi]] in Bruchkoordinaten. @typedef {[[number, number], [number, number]]} Bereich */
 /**
- * Was Tafel A zeigt; farben: Symmetrieelemente in den Farben der Blickrichtungen, k: Grösse der Symbole.
- * @typedef {{ elemente?: boolean, zelle?: boolean, ae?: boolean, bindungen?: boolean, farben?: boolean, k?: number }} Anzeige
+ * Was Tafel A zeigt; farben: Symmetrieelemente in den Farben der Blickrichtungen, k: Grösse der Symbole, fuell: die
+ * asymmetrische Einheit der bestimmten Gruppe mit allen Bildern gefüllt, lupe: Mitte der Lupe (Bruchkoordinaten der
+ * gegebenen Zelle; ohne Angabe keine Lupe).
+ * @typedef {{ elemente?: boolean, zelle?: boolean, ae?: boolean, bindungen?: boolean, farben?: boolean, k?: number, fuell?: boolean, lupe?: Vec2 | null }} Anzeige
  */
 
 
@@ -49,11 +51,24 @@ const ZULETZT = [];
 
 /** Bruchkoordinaten (gegebene Zelle) eines Punktes x in der konventionellen Zelle des Ergebnisses. @type {(r: Bestimmung, x: Vec2) => Vec2} */
 export const ausKonventionell = (r, x) => [r.ursprung[0] + r.zelle[0][0] * x[0] + r.zelle[0][1] * x[1], r.ursprung[1] + r.zelle[1][0] * x[0] + r.zelle[1][1] * x[1]];
-/** Umgekehrt: Lage p (gegebene Zelle) in der konventionellen Zelle, in [0, 1). @param {Bestimmung} r @param {Vec2} p @returns {Vec2} */
-export function inKonventionell(r, p) {
+/** Umgekehrt: Punkt p (gegebene Zelle) in Bruchkoordinaten der konventionellen Zelle, ohne Reduktion auf [0, 1). @param {Bestimmung} r @param {Vec2} p @returns {Vec2} */
+function konvRoh(r, p) {
   const Z = r.zelle; const d = Z[0][0] * Z[1][1] - Z[0][1] * Z[1][0];
   const v = [p[0] - r.ursprung[0], p[1] - r.ursprung[1]];
-  return /** @type {Vec2} */ ([(Z[1][1] * v[0] - Z[0][1] * v[1]) / d, (-Z[1][0] * v[0] + Z[0][0] * v[1]) / d].map(mod1));
+  return [(Z[1][1] * v[0] - Z[0][1] * v[1]) / d, (-Z[1][0] * v[0] + Z[0][0] * v[1]) / d];
+}
+/** Umgekehrt: Lage p (gegebene Zelle) in der konventionellen Zelle, in [0, 1). @param {Bestimmung} r @param {Vec2} p @returns {Vec2} */
+export function inKonventionell(r, p) {
+  return /** @type {Vec2} */ (konvRoh(r, p).map(mod1));
+}
+/**
+ * Bereich [lo, hi]² in Bruchkoordinaten der konventionellen Zelle, der das ganze Bild der Ansicht A (gegebene Zelle)
+ * abdeckt; für die Bilder der asymmetrischen Einheit.
+ * @param {Bestimmung} r @param {Ansicht} A @returns {[number, number]}
+ */
+function konvBereich(r, A) {
+  const alle = /** @type {Vec2[]} */ ([[0, 0], [A.groesse, 0], [0, A.groesse], [A.groesse, A.groesse]]).flatMap((q) => konvRoh(r, A.vonBild(q)));
+  return [Math.floor(Math.min(...alle)) - 1, Math.ceil(Math.max(...alle)) + 1];
 }
 
 /**
@@ -230,7 +245,10 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
     if (r) for (const c of /** @type {Vec2[]} */ ([[0, 0], [1, 0], [0, 1], [1, 1]])) ecken.push(ausKonventionell(r, c));
     const cs = ecken.map((p) => kart(M, p));
     const rand = 0.3;
-    A0 = ansicht(M, [Math.min(...cs.map((c) => c[0])) - rand, Math.min(...cs.map((c) => c[1])) - rand, Math.max(...cs.map((c) => c[0])) + rand, Math.max(...cs.map((c) => c[1])) + rand], 520, 20);
+    /** @type {[number, number, number, number]} */
+    const box = [Math.min(...cs.map((c) => c[0])) - rand, Math.min(...cs.map((c) => c[1])) - rand, Math.max(...cs.map((c) => c[0])) + rand, Math.max(...cs.map((c) => c[1])) + rand];
+    // Lupe: der Ausschnitt LUPE-mal kleiner um die Mitte, ohne Rand (wie Tafel A von „Ebenengruppen“)
+    A0 = anzeige.lupe ? ansicht(M, lupeAusschnitt(M, box, 20, anzeige.lupe), 520, 0) : ansicht(M, box, 520, 20);
   }
   const A = A0;
   const gegeben = r && istGegeben(r);
@@ -255,6 +273,10 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
       const ae = r.gruppe.ae.ecken.map((p) => pt(Ak.zuBild(p))).join(' ');
       teile.push(`<polygon points="${ae}" fill="${farben.crystal}" fill-opacity="0.6" stroke="${farben.accent}" stroke-width="1.4" stroke-dasharray="5 3"/>`);
     }
+    if (anzeige.fuell) {
+      const [lo, hi] = konvBereich(r, A);
+      teile.push(...aeFuellung(gruppe(r.symbol), Ak, lo, hi, farben, null, true));
+    }
     if (anzeige.zelle) teile.push(`<polygon class="konv-zelle" points="${zelle}" fill="none" stroke="${farben.accent}" stroke-width="2.2"/>`);
   }
   if (anzeige.bindungen) teile.push(bindungenSVG(st, A, M, bildBereich(A), farben.muted));
@@ -271,12 +293,14 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
 
 /**
  * Tafel B: grösserer Ausschnitt der Struktur, konventionelle Zelle hervorgehoben; zoom > 1 zeigt einen kleineren Ausschnitt grösser.
- * Für das Skript (Kap. 8) lassen sich die Zelle weglassen und die Symmetrieelemente über das ganze Muster legen.
+ * Zelle weglassen (zelle) und Symmetrieelemente über das ganze Muster legen (elemente, im Skript Kap. 8 und mit
+ * „Symmetrieelemente im Muster“ der App); richtungsfarben: die Elemente in den Farben ihrer Blickrichtung; fuell: die
+ * asymmetrische Einheit der bestimmten Gruppe mit allen Bildern gefüllt, einfarbig (Tapete) in einer Farbe.
  * @param {Struktur} st @param {Farben} farben @param {Bestimmung | null} r @param {number} [zoom]
- * @param {{ zelle?: boolean, elemente?: boolean }} [optionen]
+ * @param {{ zelle?: boolean, elemente?: boolean, richtungsfarben?: boolean, fuell?: boolean, einfarbig?: boolean }} [optionen]
  * @returns {{ svg: string, ansicht: Ansicht }}
  */
-export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true, elemente = false } = {}) {
+export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true, elemente = false, richtungsfarben = false, fuell = false, einfarbig = false } = {}) {
   const M = metrik(st);
   const mitte = kart(M, [0.5, 0.5]);
   const w = (4.4 * Math.max(1, st.ba)) / zoom;
@@ -292,6 +316,10 @@ export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true
     const Ak = konvAnsicht(A, r);
     const zelle = /** @type {Vec2[]} */ ([[0, 0], [1, 0], [1, 1], [0, 1]]).map((p) => pt(Ak.zuBild(p))).join(' ');
     teile.push(`<polygon points="${zelle}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
+  }
+  if (r && fuell) {
+    const [lo1, hi1] = konvBereich(r, A);
+    teile.push(...aeFuellung(gruppe(r.symbol), konvAnsicht(A, r), lo1, hi1, farben, einfarbig ? farben.upper : null, true));
   }
   if (st.bindungen !== false) teile.push(bindungenSVG(st, A, M, [[lo, hi], [lo, hi]], farben.muted));
   teile.push(basisSVG(st, A, M, [[lo, hi], [lo, hi]], farben));
@@ -317,7 +345,7 @@ export function strukturTafelB(st, farben, r, zoom = 1, { zelle: mitZelle = true
         if (imBild(st[0]) || imBild(st[1]) || imBild([(st[0][0] + st[1][0]) / 2, (st[0][1] + st[1][1]) / 2])) alle.linien.push({ ...l, strecke: st });
       }
     }
-    teile.push(elementeSVG(g, alle, Ak, farben, false));
+    teile.push(elementeSVG(g, alle, Ak, farben, richtungsfarben));
   }
   teile.push('</g>');
   teile.push(`<rect x="10" y="10" width="500" height="500" rx="6" fill="none" stroke="${farben.line}" stroke-width="1"/>`);

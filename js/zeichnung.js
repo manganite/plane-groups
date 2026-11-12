@@ -597,6 +597,38 @@ export function radieren(striche, g, M, p, r) {
 }
 
 /**
+ * Liegt eine Punktfolge (Bruchkoordinaten) zumindest teilweise im Bild der Ansicht A? Mit etwas Rand.
+ * @param {Ansicht} A @param {Vec2[]} pts
+ */
+function imBild(A, pts) {
+  let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
+  for (const p of pts) { const q = A.zuBild(p); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }
+  return x1 >= -10 && x0 <= A.groesse + 10 && y1 >= -10 && y0 <= A.groesse + 10;
+}
+
+/**
+ * Die asymmetrische Einheit der Gruppe und ihre Bilder im Bereich [lo, hi]², als SVG-Elemente: Sie pflastern die
+ * Ebene ohne Lücken und Überlappungen. Das Urbild ist kräftiger. Gleiche Händigkeit in `farben.upper`, Spiegelbilder
+ * in `farben.accent2`, oder alle in einer Farbe (einfarbig, z. B. für die Tapete). Gemeinsam für „Ebenengruppen“
+ * (zeichnungSVG) und „Gitter und Basis“ (struktur.js, dort mit der Ansicht der konventionellen Zelle).
+ * @param {Gruppe} g @param {Ansicht} A @param {number} lo @param {number} hi @param {Farben} farben
+ * @param {string | null} [einfarbig] @param {boolean} [nurSichtbar] Kopien ganz ausserhalb des Bildes weglassen
+ * @returns {string[]}
+ */
+export function aeFuellung(g, A, lo, hi, farben, einfarbig = null, nurSichtbar = false) {
+  /** @type {string[]} */
+  const teile = [];
+  /** @param {Vec2[]} pts */
+  const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
+  for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
+    if (nurSichtbar && !imBild(A, k.punkte)) continue;
+    const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
+    teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
+  }
+  return teile;
+}
+
+/**
  * SVG der Striche und der gefüllten asymmetrischen Einheit im Bereich [lo, hi]².
  * @param {Gruppe} g @param {Ansicht} A @param {Zustand} z @param {number} lo @param {number} hi @param {Farben} farben
  * @param {number} [massstab] @param {string | null} [einfarbig] @param {boolean} [nurSichtbar]
@@ -607,20 +639,8 @@ function zeichnungSVG(g, A, z, lo, hi, farben, massstab = 1, einfarbig = null, n
   const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
   // nurSichtbar: Kopien, deren Umriss ganz ausserhalb des Bildes liegt, weglassen
   /** @param {Vec2[]} pts */
-  const sichtbar = (pts) => {
-    if (!nurSichtbar) return true;
-    let x0 = Infinity; let y0 = Infinity; let x1 = -Infinity; let y1 = -Infinity;
-    for (const p of pts) { const q = A.zuBild(p); x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]); y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]); }
-    return x1 >= -10 && x0 <= A.groesse + 10 && y1 >= -10 && y0 <= A.groesse + 10;
-  };
-  if (z.aeFuell) {
-    // asymmetrische Einheit und ihre Bilder: Sie pflastern die Ebene ohne Lücken und Überlappungen
-    for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
-      if (!sichtbar(k.punkte)) continue;
-      const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
-      teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
-    }
-  }
+  const sichtbar = (pts) => !nurSichtbar || imBild(A, pts);
+  if (z.aeFuell) teile.push(...aeFuellung(g, A, lo, hi, farben, einfarbig, nurSichtbar));
   for (const strich of z.striche ?? []) {
     if (strich.length < 2) continue;
     for (const k of kopien(g, strich, lo, hi)) {
@@ -735,6 +755,26 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
 export const LUPE = 2;
 
 /**
+ * Ausschnitt der Lupe (kartesisch): LUPE-mal kleiner als das, was die Tafel ohne Lupe zeigt (box samt Rand in
+ * Bildpunkten), um die Mitte (Bruchkoordinaten); ist der Ausschnitt grösser als die Ansicht, liegt er in deren Mitte.
+ * Gemeinsam für Tafel A von „Ebenengruppen“ und von „Gitter und Basis“; dort mit `rand` 0 gezeichnet.
+ * @param {Metrik} M @param {Box} box @param {number} randOhneLupe Rand der Tafel ohne Lupe in Bildpunkten
+ * @param {Vec2} mitte @returns {Box}
+ */
+export function lupeAusschnitt(M, box, randOhneLupe, mitte) {
+  const e = (randOhneLupe * Math.max(box[2] - box[0], box[3] - box[1])) / (520 - 2 * randOhneLupe);
+  const gross = /** @type {Box} */ ([box[0] - e, box[1] - e, box[2] + e, box[3] + e]);
+  const c = kart(M, mitte);
+  const w = (gross[2] - gross[0]) / LUPE; const h = (gross[3] - gross[1]) / LUPE;
+  const s0 = Math.max(w, h);
+  // Bildmitte so, dass der Ausschnitt in der ganzen Ansicht bleibt (ist er grösser, in deren Mitte)
+  /** @param {number} m @param {number} lo @param {number} hi */
+  const lage = (m, lo, hi) => (s0 >= hi - lo ? (lo + hi) / 2 : Math.min(Math.max(m, lo + s0 / 2), hi - s0 / 2));
+  const mx = lage(c[0], gross[0], gross[2]); const my = lage(c[1], gross[1], gross[3]);
+  return [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
+}
+
+/**
  * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript); bei z.lupe lupeMitte
  * (Bruchkoordinaten der Bildmitte, sonst die Stelle des Objekts) oder lupeBox (fester Ausschnitt
  * aus einem früheren Ergebnis, während einer Geste). Das Ergebnis enthält lupeBox.
@@ -788,18 +828,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb dessen, was die Tafel ohne Lupe zeigt
   // (Ausschnitt samt Rand in Bildpunkten); so vergrössert sie genau LUPE-fach
   if (lupe && lupeBox) box = lupeBox;
-  else if (lupe) {
-    const e = (randOhneLupe * Math.max(box[2] - box[0], box[3] - box[1])) / (520 - 2 * randOhneLupe);
-    box = [box[0] - e, box[1] - e, box[2] + e, box[3] + e];
-    const c = kart(M, lupeMitte ?? ausgangsstelle(z.punkt, n));
-    const w = (box[2] - box[0]) / LUPE; const h = (box[3] - box[1]) / LUPE;
-    const s0 = Math.max(w, h);
-    // Bildmitte so, dass der Ausschnitt in der ganzen Ansicht bleibt (ist er grösser, in deren Mitte)
-    /** @param {number} m @param {number} lo @param {number} hi */
-    const lage = (m, lo, hi) => (s0 >= hi - lo ? (lo + hi) / 2 : Math.min(Math.max(m, lo + s0 / 2), hi - s0 / 2));
-    const mx = lage(c[0], box[0], box[2]); const my = lage(c[1], box[1], box[3]);
-    box = [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
-  }
+  else if (lupe) box = lupeAusschnitt(M, box, randOhneLupe, lupeMitte ?? ausgangsstelle(z.punkt, n));
   const rand = lupe ? 0 : randOhneLupe;
   const A = ansicht(M, box, 520, rand);
   // Objekt im Gitter (objektMassstab), während einer Erklärung fest wie bei „Schritt für Schritt“ (k: Skript, Quiz)

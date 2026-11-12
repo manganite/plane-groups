@@ -92,6 +92,12 @@ function beispiele() {
   const z = startzustand();
   z.modus = 'struktur'; z.struktur = strukturStart('graphen'); z.struktur.ba = 1.3; z.struktur.basis.pop();
   out.push(z);
+  // „Darstellung“ und Lupe in „Gitter und Basis“ (Schlüssel farb, mel, tap, fuell, lupe, zoom wie in „Ebenengruppen“)
+  for (const v of [{ farben: false }, { musterElemente: true, tapete: true }, { aeFuell: true, lupe: true, zoomB: 1.7 }, { farben: false, musterElemente: true, tapete: true, aeFuell: true, lupe: true, zoomB: 0.6 }]) {
+    const zd = startzustand();
+    zd.modus = 'struktur'; zd.struktur = strukturStart('quadratisch'); Object.assign(zd, v);
+    out.push(zd);
+  }
   // gespiegelte Motive (Link-Feld m)
   const zs = startzustand();
   zs.modus = 'struktur'; zs.struktur = strukturStart('dreieck1');
