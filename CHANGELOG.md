@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-12
+
+Seitenleiste und Tafel neu geordnet: Werkzeugleiste als Symbole über Tafel A, Rückgängig für Motive und Striche, „Alle Motive löschen“, Einrasten in allen Modi, Export als Knopf mit Menü, Anleitungstexte im ⓘ und in der Legende; kürzere Tooltips; Experimente in „Muster entwerfen“ stehen für sich; schmaleres gleichschenkliges Dreieck; Bestimmung bei Gittern knapp neben einem speziellen; gemeinsame Grundlage v0.19.0. Link-Adressen und Speicher bleiben gültig.
+
 ### Geändert
 
 - **Seitenleiste und Tafel** (crystallography-common#130, Entscheidung Thomas, 12.11.2026): Die Seitenleiste sagt, was da ist; über Tafel A steht, was man auf der Zeichnung tut. Am Laptop ist die Seitenleiste in „Gitter und Basis“ 1188 statt 1515 px hoch, in „Muster entwerfen“ 1227 statt 1799 px, mit eingeklappter „Basis“ 739 bzw. 778 px.
@@ -27,6 +31,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Behoben
 
+- **Drehregler mit der Tastatur** (crystallography-common#130): Mit eingeschaltetem Einrasten rastete der Winkel auch bei den Pfeiltasten auf 15°, ein Schritt von 0° auf 1° sprang zurück auf 0°. Jetzt rastet er nur beim Ziehen mit dem Zeiger.
+- **Wählen ohne Verschieben:** Ein Klick zum Wählen rückte ein Motiv, das ausserhalb der Zelle lag (z. B. in Vorgaben), in die Zelle und änderte damit Basis und Link. Jetzt geschieht das nur, wenn das Motiv gezogen wird.
 - **Motivauswahl:** Der Knopf des Fähnchens zeigte nur die Stange; jetzt sitzt jedes Motiv mit der Mitte seines Umrisses im Feld (#136).
 - **Bestimmung bei Gittern knapp neben einem speziellen** (#126): Link-Werte, deren Gitter weniger als 10⁻⁶ neben einem speziellen liegt, ergaben das höhere System, z. B. *b*/*a* = 1,732, γ = 150° *c*2*mm* statt *p*2 (dort wirkt die Abweichung nur quadratisch); im Raster des Links sind es 43 Werte. Die Toleranz der Metrik fängt jetzt nur noch Rundungsfehler auf (10⁻⁹ statt 10⁻⁶). Mit dem Regler waren die Fälle nicht erreichbar.
 - **Überstrukturen mit Lagen aus dem Link** (#126): Ist die gegebene Zelle grösser als die kleinste und stehen die Lagen auf 6 Stellen (Link), ergab die Bestimmung oft eine zu niedrige Gruppe oder keine. Die Translationen der kleinsten Zelle werden jetzt gerundet, der Ursprung bis zur Toleranz der Lagen gesucht.
@@ -192,7 +198,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/manganite/plane-groups/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/manganite/plane-groups/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/manganite/plane-groups/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/manganite/plane-groups/compare/v1.0.1...v1.1.0
