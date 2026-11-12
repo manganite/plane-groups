@@ -6,7 +6,7 @@
 
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB } from './zeichnung.js';
-import { strukturTafelA, strukturTafelB } from './struktur.js';
+import { strukturTafelA, strukturTafelB, festeBestimmung } from './struktur.js';
 import { ausgeschrieben } from './bahnen.js';
 import { dreieck3m, punktgruppe, kachel } from './skizzen.js';
 
@@ -69,9 +69,15 @@ export function bildInhalt(angabe, f, opt = {}) {
   const z = startzustand();
   if (!hashAnwenden(z, hash)) return null;
   if (z.modus === 'struktur') {
-    const st = ausgeschrieben(z.struktur); // mit festgehaltener Gruppe (sg=) die Bahnen ausgeschrieben, wie in der App
+    const st = z.struktur;
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false, k: gross ?? K_FRAGE }, f);
     return tafel === 'b' ? strukturTafelB(st, f, a.ergebnis, z.zoomB).svg : a.svg;
+  }
+  if (z.modus === 'entwurf') {
+    const st = { ...ausgeschrieben(z.entwurf), bindungen: false }; // die Bahnen der Vertreter ausgeschrieben, wie in der App
+    const r = festeBestimmung(z.entwurf);
+    const a = strukturTafelA(st, { elemente: z.entwurf.elemente, zelle: true, ae: z.entwurf.ae, bindungen: false, farben: false, k: gross ?? K_FRAGE }, f, null, null, r);
+    return tafel === 'b' ? strukturTafelB(st, f, r, z.zoomB).svg : a.svg;
   }
   // Tafel A: Symbole in allen Fragebildern gleich gross (K_FRAGE), in Antwortbildern grösser; das Fähnchen
   // im selben Verhältnis zur Zelle wie in der App. Tafel B (Muster): eigene, kleinere Grösse für Symbole

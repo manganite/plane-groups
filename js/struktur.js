@@ -1,4 +1,5 @@
-// Modus „Gitter und Basis“ (Konzept §3.2): Tafeln und Kenndaten, ohne DOM.
+// Modi „Gitter und Basis“ (Konzept §3.2) und „Muster entwerfen“ (Konzept „Muster entwerfen“, Abschn. 3.3): Tafeln und
+// Kenndaten, ohne DOM.
 // Struktur = Gitter (b/a, γ wie metrik()) und Basis aus Motiven (motive.js). Die Symmetrie wird
 // mit bestimme() (bestimmung.js) bestimmt; Tafel A zeigt die Struktur mit konventioneller Zelle,
 // Symmetrieelementen und asymmetrischer Einheit der gefundenen Gruppe, Tafel B einen grösseren
@@ -8,7 +9,7 @@ import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuel
 import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, lokalKart, strukturPunkte } from './motive.js';
-import { passtNichtZurLage } from './bahnen.js';
+import { passtNichtZurLage, bilderMitOperation, ueberlagerung } from './bahnen.js';
 import { vektorText } from './herkunft-text.js';
 import { koordText, lageHTML, symbolHTML } from './text.js';
 import { schoenfliesHTML } from './symbole.js';
@@ -35,8 +36,8 @@ export const motivFarben = (f) => [f.upper, f.accent2, f.dir[1], f.dir[0]];
 /** Symmetrie der Struktur st = { ba, gamma, basis }: Ergebnis von bestimme() oder null. @param {Struktur} st */
 export function strukturSymmetrie(st) {
   if (!st.basis.length) return null;
-  // Zwischenspeicher: dieselbe Struktur wird je Änderung mehrfach bestimmt (Tafel, Bedienung von „Symmetrie
-  // festhalten“); die Bestimmung ist der teuerste Schritt (CLAUDE.md, „Symmetrie festhalten“, Grenze)
+  // Zwischenspeicher: dieselbe Struktur wird je Änderung mehrfach bestimmt (Tafel, Kenndaten, Bedienung); die
+  // Bestimmung ist der teuerste Schritt (CLAUDE.md, „Muster entwerfen“, Grenze)
   const schluessel = JSON.stringify([st.ba, st.gamma, st.basis]);
   const alt = ZULETZT.find((x) => x.schluessel === schluessel);
   if (alt) return alt.r;
@@ -45,6 +46,16 @@ export function strukturSymmetrie(st) {
   ZULETZT.unshift({ schluessel, r });
   ZULETZT.length = Math.min(ZULETZT.length, 4);
   return r;
+}
+/**
+ * Die gewählte Gruppe eines Entwurfs als Ergebnis wie von bestimme(): konventionelle Zelle = gegebene Zelle, Ursprung
+ * bei 0, 0 (die Gruppe steht im Entwurf in der Aufstellung nach ITA). Damit zeichnen Tafel A und B den Entwurf mit
+ * denselben Bausteinen wie eine bestimmte Struktur; die Punkte der Struktur fehlen (nichts wird bestimmt).
+ * @param {{ ba: number, gamma: Grad, gruppe: string }} en @returns {Bestimmung}
+ */
+export function festeBestimmung(en) {
+  const g = gruppe(en.gruppe); const M = metrik(en);
+  return { symbol: en.gruppe, gruppe: g.daten, ordnung: g.ordnung, system: g.daten.system, a: M.a, b: M.b, zelle: [[1, 0], [0, 1]], ursprung: [0, 0], punkte: [], primitiv: 1 };
 }
 /** Zuletzt bestimmte Strukturen (höchstens 4). Das Ergebnis wird nirgends verändert. @type {{ schluessel: string, r: Bestimmung | null }[]} */
 const ZULETZT = [];
@@ -253,11 +264,12 @@ function achsenSVG(Az, namen, farbe, papier, groesse) {
  * @param {Struktur} st @param {Anzeige} anzeige @param {Farben} farben
  * @param {number | null} [auswahl] Nummer des ausgewählten Basiseintrags
  * @param {Ansicht | null} [fest]
+ * @param {Bestimmung | null} [gegeben] Ergebnis, das statt der Bestimmung gilt (Entwurf: festeBestimmung)
  * @returns {{ svg: string, ansicht: Ansicht, ergebnis: Bestimmung | null }}
  */
-export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null) {
+export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null, gegeben = undefined) {
   const M = metrik(st);
-  const r = strukturSymmetrie(st);
+  const r = gegeben === undefined ? strukturSymmetrie(st) : gegeben;
   let A0 = fest;
   if (!A0) {
     /** @type {Vec2[]} */
@@ -271,7 +283,7 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
     A0 = anzeige.lupe ? ansicht(M, lupeAusschnitt(M, box, 20, anzeige.lupe), 520, 0) : ansicht(M, box, 520, 20);
   }
   const A = A0;
-  const gegeben = r && istGegeben(r);
+  const istZelle = r && istGegeben(r);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   // Gitter der gegebenen Zellen (dünn) im ganzen Bild
   const [[lo0, hi0], [lo1, hi1]] = bildBereich(A, 1);
@@ -279,7 +291,7 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   const linie = (p, q) => { const [a, b] = [A.zuBild(p), A.zuBild(q)]; return `<line x1="${f2(a[0])}" y1="${f2(a[1])}" x2="${f2(b[0])}" y2="${f2(b[1])}" stroke="${farben.line}" stroke-width="1"/>`; };
   for (let i = Math.floor(lo0); i <= Math.ceil(hi0); i++) teile.push(linie([i, lo1], [i, hi1]));
   for (let j = Math.floor(lo1); j <= Math.ceil(hi1); j++) teile.push(linie([lo0, j], [hi0, j]));
-  if (!gegeben) {
+  if (!istZelle) {
     // gestrichelt neben der konventionellen Zelle; ohne sie ist die gegebene Zelle die einzige
     const poly = /** @type {Vec2[]} */ ([[0, 0], [1, 0], [1, 1], [0, 1]]).map((p) => pt(A.zuBild(p))).join(' ');
     teile.push(anzeige.zelle || !r
@@ -306,8 +318,8 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null)
   // Achsen: gegebene Zelle a, b; konventionelle a′, b′ (nur wenn verschieden)
   // Beschriftung der Achsen wie in Tafel A der Ebenengruppen (zeichnung.js): wächst mit der Symbolgrösse k
   const schrift = f2(19 * Math.min(anzeige.k ?? 1, 1.4));
-  teile.push(achsenSVG(A, ['a', 'b'], gegeben || !anzeige.zelle ? farben.accent : farben.muted, farben.paper, schrift));
-  if (r && !gegeben && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, farben.paper, schrift));
+  teile.push(achsenSVG(A, ['a', 'b'], istZelle || !anzeige.zelle ? farben.accent : farben.muted, farben.paper, schrift));
+  if (r && !istZelle && anzeige.zelle) teile.push(achsenSVG(konvAnsicht(A, r), ['a′', 'b′'], farben.accent, farben.paper, schrift));
   return { svg: teile.join(''), ansicht: A, ergebnis: r };
 }
 
@@ -400,40 +412,54 @@ export function zellText(z) {
 }
 
 /**
- * Hinweis der Kenndaten mit festgehaltener Gruppe (CLAUDE.md, „Symmetrie festhalten“), HTML. st: Zustand mit den
- * Vertretern; r: Bestimmung der ausgeschriebenen Struktur; umstellung: nach der Übernahme die neue Zelle in
- * Vielfachen der vorherigen und der neue Ursprung (sonst null).
- * Weicht die Bestimmung ab: Motive, deren eigene Symmetrie nicht zur Lage passt (dann fehlt Symmetrie; die bestimmte
- * Gruppe ist deshalb nicht immer eine Untergruppe, das Gitter kann zugleich Symmetrie hinzufügen), sonst zufällige
- * Zusatzsymmetrie.
- * @param {Struktur & { festeGruppe: string | null }} st @param {Bestimmung | null} r
- * @param {{ zelle: Mat2 | null, ursprung: Vec2 | null } | null} [umstellung]
+ * Kenndaten im Modus „Muster entwerfen“ (HTML), wie eine Atomliste: die gewählte Gruppe, je Motiv seine Lage (Wyckoff-Lage,
+ * Zähligkeit, Lagesymmetrie) und die Zahl seiner Bilder. Überlagern sich Bilder, weil dem Motiv die Lagesymmetrie in seiner
+ * Ausrichtung fehlt, steht dabei, wie viele verschiedene an jeder Stelle liegen (in einem Kristall wäre das Fehlordnung).
+ * Es wird nichts bestimmt: Was das Muster tatsächlich für eine Symmetrie hat, zeigt „Gitter und Basis“.
+ * @param {import('./zustand.js').EntwurfZustand} en @param {Farben} farben
+ * @param {{ zelle: Mat2 | null, ursprung: Vec2 | null } | null} [umstellung] nach dem Übergang aus „Gitter und Basis“: die neue
+ * Zelle in Vielfachen der vorherigen und der neue Ursprung
  */
-export function festHinweisHTML(st, r, umstellung = null) {
-  if (!st.festeGruppe || !r) return '';
-  const g = gruppe(st.festeGruppe);
-  const M = metrik(st);
-  const fg = symbolHTML(st.festeGruppe);
-  const teile = [];
+export function entwurfHTML(en, farben, umstellung = null) {
+  const g = gruppe(en.gruppe); const d = g.daten; const M = metrik(en);
+  const f = motivFarben(farben);
+  const teile = [`
+    <div class="info-head">
+      <div class="hm-big">${symbolHTML(en.gruppe)}</div>
+      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>gewählt, nicht bestimmt · <button class="linkbtn" type="button" data-zu-eg="${en.gruppe}">im Modus „Ebenengruppen“ ansehen</button></span></div>
+    </div>`];
   if (umstellung && (umstellung.zelle || umstellung.ursprung)) {
     const zelle = umstellung.zelle ? zellText(umstellung.zelle) : null;
-    teile.push(`<p class="note">Bei der Übernahme auf die konventionelle Zelle nach ITA umgestellt: ${[
+    teile.push(`<p class="note">Beim Übergang auf die konventionelle Zelle nach ITA umgestellt: ${[
       zelle ? `${zelle} der vorherigen Zelle` : '',
       umstellung.ursprung ? `neuer Ursprung bei ${koordText(umstellung.ursprung)} der vorherigen Zelle` : '',
     ].filter(Boolean).join(', ')}. ${zelle ? 'Das Bild ist dabei gedreht, weil <i>b</i>′ waagrecht liegt.' : 'Das Bild ist dabei nur verschoben.'}</p>`);
   }
-  const unpassend = st.basis.filter((e) => passtNichtZurLage(g, M, e));
-  if (unpassend.length) {
-    const liste = unpassend.map((e) => {
-      const l = lage(g, e.p, 1e-4);
-      return `<li>${MOTIVE[e.motiv].name}${e.spiegel ? ', gespiegelt' : ''}, eigene Symmetrie ${lageHTML(MOTIVE[e.motiv].symmetrie)}: auf ${koordText(l.punkt)}, Wyckoff-Lage ${l.zaehligkeit}<span class="wy">${l.buchstabe}</span> mit Lagesymmetrie ${lageHTML(l.symbol)}</li>`;
-    }).join('');
-    teile.push(`<div class="erklaerbox"><strong>Festgehalten ist ${fg}, die Struktur hat ${symbolHTML(r.symbol)}.</strong> Diese Motive passen nicht zu ihrer Lage:<ul>${liste}</ul>Ein Motiv auf einer speziellen Lage muss mindestens deren Lagesymmetrie haben und so ausgerichtet sein, dass seine Symmetrieelemente auf denen der Lage liegen. Sonst fehlt der Struktur diese Symmetrie.</div>`);
-  } else if (r.symbol !== st.festeGruppe) {
-    teile.push(`<div class="erklaerbox"><strong>Festgehalten ist ${fg}, die Struktur hat aber ${symbolHTML(r.symbol)}.</strong> Sie hat mehr Symmetrie als festgehalten: zufällig, durch das Gitter oder die Lagen der Motive. „Bestimmte Gruppe übernehmen“ hält ${symbolHTML(r.symbol)} fest.</div>`);
-  } else {
-    teile.push(`<p class="note">Symmetrie festgehalten: ${fg}. Jedes Motiv erscheint mit seiner ganzen Bahn.</p>`);
+  teile.push(`<dl class="facts">
+      <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
+      <div><dt>Punktgruppe</dt><dd>${symbolHTML(d.punktgruppe)} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>
+      <div><dt>Operationen je Zelle</dt><dd class="num">${g.ordnung}</dd></div>
+    </dl>`);
+  if (!en.basis.length) {
+    teile.push('<p>Der Entwurf ist leer: Mit „Hinzufügen“ ein Motiv in die Zelle setzen. Es erscheint mit allen Operationen der Gruppe.</p>');
+    return teile.join('');
   }
+  const zeilen = en.basis.map((e) => {
+    const l = lage(g, e.p, 1e-4);
+    const bilder = bilderMitOperation(g, M, e).length;
+    const mehr = ueberlagerung(g, M, e);
+    return `<tr><td><i class="sw" style="background:${f[(e.farbe ?? 0) % f.length]}"></i> ${MOTIVE[e.motiv].name}${e.spiegel ? ' (gespiegelt)' : ''}</td><td>${lageHTML(MOTIVE[e.motiv].symmetrie)}</td>
+      <td>${koordText(e.p.map(mod1))}</td><td class="num">${l.zaehligkeit} <span class="wy">${l.buchstabe}</span></td><td>${lageHTML(l.symbol)}</td>
+      <td class="num">${bilder}${mehr > 1 ? `, davon ${mehr} überlagert` : ''}</td></tr>`;
+  }).join('');
+  teile.push(`<h3>Motive</h3>
+    <div class="tabwrap"><table class="itatab"><thead><tr><th>Motiv</th><th>Eigene Symmetrie</th><th>Lage (<i>x</i>, <i>y</i>)</th><th>Wyckoff-Lage</th><th>Lagesymmetrie</th><th>Bilder je Zelle</th></tr></thead><tbody>${zeilen}</tbody></table></div>`);
+  const unpassend = en.basis.filter((e) => passtNichtZurLage(g, M, e));
+  if (unpassend.length) {
+    const liste = unpassend.map((e) => `<li>${MOTIVE[e.motiv].name}${e.spiegel ? ', gespiegelt' : ''}: ${ueberlagerung(g, M, e)} verschiedene Bilder an derselben Stelle</li>`).join('');
+    teile.push(`<div class="erklaerbox"><strong>Überlagerte Bilder.</strong> Diese Motive haben die Lagesymmetrie ihrer Lage nicht in ihrer Ausrichtung:<ul>${liste}</ul>Ihre Bilder fallen auf dieselbe Stelle, aber nicht aufeinander; in einem Kristall wäre das Fehlordnung. Ein Motiv mit mindestens der Lagesymmetrie, passend ausgerichtet, erscheint dort nur einmal.</div>`);
+  }
+  teile.push('<p class="note">Gruppe und Zelle bleiben fest, die App bestimmt die Symmetrie des Musters nicht. Was ein Muster tatsächlich für eine Symmetrie hat, zeigt der Modus „Gitter und Basis“.</p>');
   return teile.join('');
 }
 
@@ -441,9 +467,8 @@ export function festHinweisHTML(st, r, umstellung = null) {
  * Kenndaten (HTML). st: Struktur; r: Ergebnis; vorher: Symbol vor der letzten Änderung (oder
  * null); farben: Motivfarben. Knopf data-zu-eg öffnet die Gruppe im Modus „Ebenengruppen“.
  * @param {Struktur} st @param {Bestimmung | null} r @param {string | null} vorher @param {Farben} farben
- * @param {string} [hinweis] HTML nach dem Hinweis auf die Änderung (festgehaltene Symmetrie, struktur-ui.js)
  */
-export function strukturHTML(st, r, vorher, farben, hinweis = '') {
+export function strukturHTML(st, r, vorher, farben) {
   if (!r) return '<p>Die Basis ist leer: Mit „Hinzufügen“ ein Motiv in die Struktur setzen.</p>';
   const d = r.gruppe;
   const f = motivFarben(farben);
@@ -462,7 +487,7 @@ export function strukturHTML(st, r, vorher, farben, hinweis = '') {
       <div class="hm-big">${symbolHTML(r.symbol)}</div>
       <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button></span></div>
     </div>
-    ${aenderung}${hinweis}
+    ${aenderung}
     <dl class="facts">
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
       <div><dt>Punktgruppe</dt><dd>${symbolHTML(d.punktgruppe)} <span class="muted" title="Schoenflies-Symbol der Punktgruppe">(${schoenfliesHTML(d.punktgruppe)})</span></dd></div>

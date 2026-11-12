@@ -19,6 +19,7 @@ export const HILFE = {
   modi: [
     { id: 'eg', name: 'Ebenengruppen', hash: '#m=eg' },
     { id: 'struktur', name: 'Gitter und Basis', hash: '#m=struktur' },
+    { id: 'entwurf', name: 'Muster entwerfen', hash: '#m=entwurf' },
   ],
   ersteSchritte: ERSTE_SCHRITTE,
   experimente: EXPERIMENTE,

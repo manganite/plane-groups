@@ -1,4 +1,4 @@
-// „Symmetrie festhalten“ (#121): Bahnen von Motiven, Vertreter und Umrechnung auf die konventionelle Zelle.
+// Bahnen von Motiven, Vertreter und Umrechnung auf die konventionelle Zelle (#121; seit #136 für den Modus „Muster entwerfen“).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
@@ -7,8 +7,8 @@ import { metrik, kart, grad } from '../js/zeichnung.js';
 import { GITTER_START, STRUKTUR_BEREICH } from '../js/zustand.js';
 import { VORGABEN } from '../js/vorgaben.js';
 import { MOTIVE, chiral } from '../js/motive.js';
-import { strukturSymmetrie, istGegeben, festHinweisHTML } from '../js/struktur.js';
-import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar, bilderMitOperation, bildUnter, vertreterVon, passtNichtZurLage, sichtbareOp, mitGruppe, uebernahmeVon } from '../js/bahnen.js';
+import { strukturSymmetrie, istGegeben, entwurfHTML, festeBestimmung } from '../js/struktur.js';
+import { orientierung, ausOrientierung, motivBahn, ausschreiben, vertreter, gleichesMotiv, umrechnen, darstellbar, bilderMitOperation, bildUnter, vertreterVon, passtNichtZurLage, sichtbareOp, gruppeWechseln, ueberlagerung, uebernahmeVon } from '../js/bahnen.js';
 import { basisText, liesBasis } from '../js/zustand.js';
 
 /** @import { Mat2, Vec2 } from '../lib/common/js/typen.js' */
@@ -16,6 +16,8 @@ import { basisText, liesBasis } from '../js/zustand.js';
 /** @import { Basiseintrag, Struktur } from '../js/motive.js' */
 /** @import { Bestimmung } from '../js/bestimmung.js' */
 
+/** @type {import('../js/zeichnung.js').Farben} */
+const FARBEN = { paper: '#fff', ink: '#000', muted: '#888', line: '#ccc', accent: '#a00', accent2: '#0a0', upper: '#00a', crystal: '#eef', dir: ['#a0a', '#0aa', '#aa0'], fc3: '#333', fc4: '#444' };
 /** Symmetrie einer Struktur (die Tests erwarten immer ein Ergebnis). @param {Struktur} s */
 const symmetrie = (s) => /** @type {Bestimmung} */ (strukturSymmetrie(s));
 /** Allgemeine Lage: die Wyckoff-Lage mit der grössten Zähligkeit. @param {import('../js/symmetrie.js').Gruppe} g */
@@ -72,7 +74,7 @@ test('jede Wyckoff-Lage aller 17 Gruppen: ein Atom darauf hat so viele Bilder wi
   assert.equal(n, 72, 'Wyckoff-Lagen aller 17 Ebenengruppen (ITA)');
 });
 
-test('zusammenfallende Bilder: nur eines bleibt; passt die eigene Symmetrie nicht zur Lage, ergibt sich eine niedrigere Gruppe', () => {
+test('zusammenfallende Bilder: gleiche einmal; passt die eigene Symmetrie nicht zur Lage, bleiben die verschiedenen alle', () => {
   const R = GITTER_START.rechteckig; const MR = metrik(R);
   const S = GITTER_START.schiefwinklig; const MS = metrik(S);
   // p2, Lage 1a (0, 0): Windrad 2 passt (Symmetrie 2), Fähnchen nicht
@@ -80,17 +82,16 @@ test('zusammenfallende Bilder: nur eines bleibt; passt die eigene Symmetrie nich
   assert.equal(w2.length, 1);
   assert.equal(symmetrie({ ...S, basis: w2 }).symbol, 'p2');
   const f = motivBahn(gruppe('p2'), MS, { motiv: 'fahne', farbe: 0, p: [0, 0], winkel: grad(40) });
-  assert.equal(f.length, 1, 'nur das Bild der Identität');
-  assert.deepEqual([f[0].winkel, f[0].spiegel], [40, undefined]);
-  assert.equal(symmetrie({ ...S, basis: f }).symbol, 'p1');
+  assert.equal(f.length, 2, 'das Bild der Identität und das um 180° gedrehte: verschieden, am selben Ort');
+  assert.deepEqual(f.map((b) => [b.winkel, b.spiegel]), [[40, undefined], [220, undefined]]);
+  assert.equal(passtNichtZurLage(gruppe('p2'), MS, { motiv: 'fahne', farbe: 0, p: [0, 0], winkel: grad(40) }), true);
   // pm, Lage 1a (0, y) auf der Spiegellinie: gleichschenkliges Dreieck passt nur, wenn seine Spiegellinie auf der Linie liegt.
   // Die Linie verläuft in Richtung b (waagrecht); die eigene Spiegellinie des Dreiecks ist seine y-Achse, nach 90° waagrecht.
   // (Bei 0° stünde sie senkrecht; ein einzelnes Dreieck ergäbe dann pm in anderer Aufstellung, deshalb 45°.)
   const quer = motivBahn(gruppe('pm'), MR, { motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(90) });
   const schief = motivBahn(gruppe('pm'), MR, { motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(45) });
-  assert.deepEqual([quer.length, schief.length], [1, 1]);
+  assert.deepEqual([quer.length, schief.length], [1, 2], 'passend ausgerichtet ein Bild, sonst auch das Spiegelbild');
   assert.equal(symmetrie({ ...R, basis: quer }).symbol, 'pm');
-  assert.equal(symmetrie({ ...R, basis: schief }).symbol, 'p1');
 });
 
 test('Bilder eines gedrehten, gespiegelten Fähnchens in p4: Winkel um je 90° weiter, nie gespiegelt', () => {
@@ -250,11 +251,11 @@ test('Vertreter nach einem Link: auf 6 Stellen gerundete Koordinaten fallen zusa
   }
 });
 
-test('Toleranzen: Bahn und Bestimmung gleich (ein Fähnchen 2e-6 neben dem Drehpunkt bleibt ein Bild)', () => {
+test('Toleranzen: Bahn und Bestimmung gleich (ein Windrad 2 2e-6 neben dem Drehpunkt bleibt ein Bild)', () => {
   const S = GITTER_START.schiefwinklig;
-  const f = motivBahn(gruppe('p2'), metrik(S), { motiv: 'fahne', farbe: 0, p: [2e-6, 0], winkel: grad(10) });
+  const f = motivBahn(gruppe('p2'), metrik(S), { motiv: 'w2', farbe: 0, p: [2e-6, 0], winkel: grad(10) });
   assert.equal(f.length, 1);
-  assert.equal(symmetrie({ ...S, basis: f }).symbol, 'p1');
+  assert.equal(symmetrie({ ...S, basis: f }).symbol, 'p2');
 });
 
 test('Bahn: Gitter passt nicht zum System → Fehler statt falscher Orientierung', () => {
@@ -356,22 +357,59 @@ test('sichtbareOp: auf einer speziellen Lage zeigt die Auswahl das gezeichnete B
   /** @type {Basiseintrag} */
   const allg = { motiv: 'fahne', farbe: 0, p: [0.13, 0.29], winkel: grad(30) };
   for (let op = 0; op < g.alle.length; op++) assert.equal(sichtbareOp(g, M, allg, op), op, 'allgemeine Lage: jedes Bild gezeichnet');
-  // auf ½, ½ (Lage 1b, 4mm) fallen alle Bilder zusammen; gezeichnet ist nur das der Identität
+  // auf ½, ½ (Lage 1b, 4mm) liegen alle Bilder des Fähnchens an einem Ort, aber verschieden: alle gezeichnet
   /** @type {Basiseintrag} */
   const speziell = { ...allg, p: [0.5, 0.5] };
-  assert.equal(motivBahn(g, M, speziell).length, 1);
-  for (let op = 0; op < g.alle.length; op++) assert.equal(sichtbareOp(g, M, speziell, op), 0);
+  assert.equal(motivBahn(g, M, speziell).length, 8);
+  for (let op = 0; op < g.alle.length; op++) assert.equal(sichtbareOp(g, M, speziell, op), op);
+  // ein Quadrat dort: alle Bilder gleich, gezeichnet ist nur das der Identität
+  /** @type {Basiseintrag} */
+  const quadrat = { motiv: 'quadrat', farbe: 0, p: [0.5, 0.5], winkel: grad(0) };
+  assert.equal(motivBahn(g, M, quadrat).length, 1);
+  for (let op = 0; op < g.alle.length; op++) assert.equal(sichtbareOp(g, M, quadrat, op), 0);
 });
 
-test('mitGruppe: gezeichnete Motive unter einer anderen Gruppe auf Vertreter zurückgeführt, Gitter nach dem System', () => {
+test('gruppeWechseln: Vertreter bleiben, Gitter nach dem System, Grenze nach allgemeiner Zähligkeit', () => {
   const v = /** @type {import('../js/vorgaben.js').Vorgabe} */ (VORGABEN.find((x) => x.id === 'kagome'));
-  const gez = { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis };
-  const p6 = mitGruppe(gez, 'p6', 48);
-  assert.ok(p6 && p6.basis.length === 1 && p6.festeGruppe === 'p6' && p6.ba === 1 && p6.gamma === 120);
-  assert.equal(mitGruppe(gez, 'p6mm', 11), null, 'eine Bahn × 12 > 11: Grenze');
-  // rechteckig: b/a bleibt, γ = 90°
-  const r = mitGruppe({ ba: 1.3, gamma: grad(100), basis: [{ motiv: 'atom', farbe: 0, p: [0.2, 0.3], winkel: grad(0) }] }, 'pm', 48);
+  const en = { ba: v.gitter.ba, gamma: v.gitter.gamma, basis: v.basis.slice(0, 1) };
+  const p6 = gruppeWechseln(en, 'p6', 48);
+  assert.ok(p6 && p6.basis === en.basis && p6.gruppe === 'p6' && p6.ba === 1 && p6.gamma === 120);
+  assert.equal(gruppeWechseln(en, 'p6mm', 11), null, 'ein Vertreter × 12 > 11: Grenze');
+  assert.ok(gruppeWechseln(en, 'p6mm', 12), 'genau an der Grenze');
+  // rechteckig: b/a bleibt, γ = 90°; passt das Gitter nicht zum System, gilt das Startgitter des Systems
+  const r = gruppeWechseln({ ba: 1.3, gamma: grad(90), basis: [{ motiv: 'atom', farbe: 0, p: [0.2, 0.3], winkel: grad(0) }] }, 'pm', 48);
   assert.deepEqual(r && [r.ba, r.gamma, r.basis.length], [1.3, 90, 1]);
+  const q = gruppeWechseln({ ba: 1.3, gamma: grad(100), basis: [] }, 'p4mm', 48);
+  assert.deepEqual(q && [q.ba, q.gamma], [GITTER_START.quadratisch.ba, GITTER_START.quadratisch.gamma]);
+});
+
+test('Zusammenfallende Bilder: verschiedene bleiben alle, gleiche einmal (Konzept „Muster entwerfen“, Punkt 14)', () => {
+  const g = gruppe('p4mm'); const M = metrik(GITTER_START.quadratisch);
+  // Fähnchen auf dem 4-zähligen Drehpunkt: die vier Drehbilder fallen auf einen Ort, sind aber verschiedene Bilder
+  /** @type {Basiseintrag} */
+  const f = { motiv: 'fahne', farbe: 0, p: [0, 0], winkel: grad(0) };
+  assert.equal(bilderMitOperation(g, M, f).length, 8, 'alle 8 verschieden (chirales Fähnchen, 4mm hat 8 Operationen)');
+  assert.equal(ueberlagerung(g, M, f), 8);
+  assert.equal(passtNichtZurLage(g, M, f), true);
+  // Quadrat auf der Lage 4mm: alle Bilder gleich, ein Bild
+  /** @type {Basiseintrag} */
+  const q = { motiv: 'quadrat', farbe: 0, p: [0, 0], winkel: grad(0) };
+  assert.equal(bilderMitOperation(g, M, q).length, 1);
+  assert.equal(ueberlagerung(g, M, q), 1);
+  assert.equal(passtNichtZurLage(g, M, q), false);
+  // Quadrat um 45° gedreht auf der Mitte (Lage 4mm): ebenfalls dasselbe Quadrat
+  assert.equal(bilderMitOperation(g, M, { ...q, winkel: grad(45) }).length, 1);
+  // Windrad 4 auf dem Drehpunkt: die 4 Drehungen decken es, die 4 Spiegelungen ergeben das Spiegelbild
+  /** @type {Basiseintrag} */
+  const w = { motiv: 'w4', farbe: 0, p: [0, 0], winkel: grad(0) };
+  assert.equal(bilderMitOperation(g, M, w).length, 2, 'Windrad und sein Spiegelbild');
+  // Atom auf einer allgemeinen Lage: 8 Bilder an 8 Orten, keine Überlagerung
+  /** @type {Basiseintrag} */
+  const a = { motiv: 'atom', farbe: 0, p: [0.1, 0.2], winkel: grad(0) };
+  assert.equal(bilderMitOperation(g, M, a).length, 8);
+  assert.equal(ueberlagerung(g, M, a), 1);
+  // das erste Bild ist das der Identität (Vertreter zuerst)
+  assert.ok(bilderMitOperation(g, M, w)[0].op === 0 && gleichesMotiv(bilderMitOperation(g, M, w)[0].bild, w));
 });
 
 test('uebernahmeVon: Umstellung der Zelle bzw. nur des Ursprungs, Gründe', () => {
@@ -385,32 +423,43 @@ test('uebernahmeVon: Umstellung der Zelle bzw. nur des Ursprungs, Gründe', () =
   assert.ok('struktur' in d && d.umstellung.zelle !== null, 'drittel: andere Zelle');
   assert.ok('struktur' in o && o.umstellung.zelle === null && o.umstellung.ursprung !== null, 'dreieck3: nur der Ursprung');
   assert.deepEqual('struktur' in o && o.umstellung.ursprung, [0.25, 0.25]);
-  assert.ok('struktur' in k && k.umstellung.zelle === null && k.umstellung.ursprung === null && k.struktur.festeGruppe === 'p6mm');
+  assert.ok('struktur' in k && k.umstellung.zelle === null && k.umstellung.ursprung === null && k.struktur.gruppe === 'p6mm');
   assert.deepEqual(uebernahmeVon({ ba: 1, gamma: grad(90), basis: [] }, null, STRUKTUR_BEREICH, 48), { grund: 'Die Basis ist leer.' });
   const kv = /** @type {import('../js/vorgaben.js').Vorgabe} */ (VORGABEN.find((x) => x.id === 'kagome'));
   const kg = { ba: kv.gitter.ba, gamma: kv.gitter.gamma, basis: kv.basis };
   assert.ok('grund' in uebernahmeVon(kg, symmetrie(kg), STRUKTUR_BEREICH, 11), 'Grenze');
 });
 
-test('festHinweisHTML: Motiv passt nicht zur Lage, zufällige Zusatzsymmetrie, Umstellung', () => {
+test('entwurfHTML: leer, Lage und Bilder je Zelle, überlagerte Bilder, Umstellung', () => {
   const R = GITTER_START.rechteckig;
-  // pm, Dreieck auf der Spiegellinie (0, y), um 45° gedreht: eigene Symmetrie m, aber falsch ausgerichtet
-  const st = { ...R, festeGruppe: 'pm', basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(45) }]) };
-  const r = symmetrie({ ...st, basis: ausschreiben(gruppe('pm'), metrik(R), st.basis) });
-  const h = festHinweisHTML(st, r);
-  assert.match(h, /passen nicht zu ihrer Lage/);
-  assert.match(h, /Wyckoff-Lage 1<span class="wy">a<\/span>/);
-  assert.match(h, /so ausgerichtet/);
-  assert.doesNotMatch(h, /hat aber nur/);
-  // p2mm mit b/a = 1: mehr Symmetrie als festgehalten (p4mm)
-  const q = { ba: 1, gamma: grad(90), festeGruppe: 'p2mm', basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'atom', farbe: 0, p: [0, 0], winkel: grad(0) }]) };
-  const rq = symmetrie({ ...q, basis: ausschreiben(gruppe('p2mm'), metrik(q), q.basis) });
-  assert.equal(rq.symbol, 'p4mm');
-  assert.match(festHinweisHTML(q, rq), /mehr Symmetrie als festgehalten/);
+  /** @param {string} h */
+  const klar = (h) => h.replace(/<[^>]+>/g, '');
+  // leerer Entwurf: Gruppe und Facts, Hinweis zum Hinzufügen, keine Tabelle
+  const leer = entwurfHTML({ ...R, gruppe: 'pm', basis: [], elemente: true, ae: false }, FARBEN);
+  assert.match(leer, /Der Entwurf ist leer/); assert.doesNotMatch(leer, /<table/);
+  assert.match(klar(leer), /gewählt, nicht bestimmt/);
+  // pm, Dreieck auf der Spiegellinie (0, y), um 45° gedreht: eigene Symmetrie m, aber falsch ausgerichtet → überlagert
+  const en = { ...R, gruppe: 'pm', elemente: true, ae: false, basis: /** @type {Basiseintrag[]} */ ([{ motiv: 'dreieck', farbe: 0, p: [0, 0.3], winkel: grad(45) }]) };
+  const h = entwurfHTML(en, FARBEN);
+  assert.match(h, /Überlagerte Bilder/);
+  assert.match(h, /Wyckoff-Lage|1 <span class="wy">a<\/span>/);
+  assert.match(klar(h), /2, davon 2 überlagert/);
+  assert.match(klar(h), /Gruppe und Zelle bleiben fest/);
+  // passendes Motiv: ein Bild auf der Lage, keine Überlagerung
+  const ok = entwurfHTML({ ...en, basis: [{ motiv: 'atom', farbe: 0, p: [0, 0.3], winkel: grad(0) }] }, FARBEN);
+  assert.doesNotMatch(ok, /Überlagerte Bilder/); assert.match(klar(ok), /1 a\s*\.m\.\s*1/);
   // Umstellung: Zelle → gedreht; nur Ursprung → verschoben
-  assert.match(festHinweisHTML(q, rq, { zelle: [[1, 1], [-1, 1]], ursprung: null }), /gedreht/);
-  const nurU = festHinweisHTML(q, rq, { zelle: null, ursprung: [0.25, 0.25] });
+  const q = { ...GITTER_START.quadratisch, gruppe: 'p4mm', elemente: true, ae: false, basis: [] };
+  assert.match(entwurfHTML(q, FARBEN, { zelle: [[1, 1], [-1, 1]], ursprung: null }), /gedreht/);
+  const nurU = entwurfHTML(q, FARBEN, { zelle: null, ursprung: [0.25, 0.25] });
   assert.match(nurU, /nur verschoben/); assert.doesNotMatch(nurU, /gedreht/);
+  assert.doesNotMatch(entwurfHTML(q, FARBEN, null), /umgestellt/);
+});
+
+test('festeBestimmung: die gewählte Gruppe in der gegebenen Zelle, ohne Elemente der Bestimmung', () => {
+  const r = festeBestimmung({ ...GITTER_START.hexagonal, gruppe: 'p31m' });
+  assert.equal(r.symbol, 'p31m'); assert.equal(r.ordnung, gruppe('p31m').ordnung);
+  assert.deepEqual([r.zelle, r.ursprung, r.primitiv, r.punkte], [[[1, 0], [0, 1]], [0, 0], 1, []]);
 });
 
 test('passtNichtZurLage: hexagonal, Dreieck auf der Lage 3m von p3m1', () => {

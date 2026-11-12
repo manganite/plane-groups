@@ -1,6 +1,6 @@
-// „Symmetrie festhalten“ im Modus „Gitter und Basis“ (#121): Bahnen von Motiven unter einer
-// Ebenengruppe, Vertreter je Bahn und Umrechnung auf die konventionelle Zelle einer bestimmten Gruppe.
-// Entscheidungen in CLAUDE.md („Symmetrie festhalten“ in „Gitter und Basis“).
+// Modus „Muster entwerfen“ (#136; vorher „Symmetrie festhalten“ in „Gitter und Basis“, #121): Bahnen von Motiven unter
+// einer Ebenengruppe, Vertreter je Bahn und Umrechnung auf die konventionelle Zelle einer bestimmten Gruppe (Übergang
+// aus „Gitter und Basis“). Entscheidungen in CLAUDE.md („Muster entwerfen“) und im Konzept.
 //
 // Die Gruppe steht in der gegebenen Zelle in der Aufstellung nach ITA. Orientierung eines Motivs:
 // O = D(winkel) · S^spiegel mit der Drehung D (im Uhrzeigersinn, y nach unten, wie motivKart) und der
@@ -12,6 +12,7 @@ import { ebenengruppe } from './ebenengruppen.js';
 import { TOL as TOL_BESTIMMUNG } from './bestimmung.js';
 import { metrik, kart, kartMatrix, grad } from './zeichnung.js';
 import { MOTIVE, motivKart, chiral } from './motive.js';
+import { GITTER_START, gitterZurGruppe } from './zustand.js';
 
 /** @import { Vec2, Mat2, Grad } from '../lib/common/js/typen.js' */
 /** @import { Gruppe, Op } from './symmetrie.js' */
@@ -50,10 +51,12 @@ const mal = (A, B) => [[A[0][0] * B[0][0] + A[0][1] * B[1][0], A[0][0] * B[0][1]
 const abstandMod = (p, q) => Math.max(...[0, 1].map((i) => { const d = p[i] - q[i]; return Math.abs(d - Math.round(d)); }));
 
 /**
- * Bahn eines Motivs: seine Bilder unter den Operationen der Gruppe, Lagen in [0, 1)². Fallen Bilder
- * auf derselben Lage zusammen (spezielle Lage, mit der Toleranz der Bestimmung), bleibt nur das erste, also das Bild der Identität
- * (Operationen in der Reihenfolge von g.alle, die Identität zuerst). Das erste Bild ist der Eintrag
- * selbst, mit seiner Lage in [0, 1)². Das Gitter M muss zum System der Gruppe passen, sonst ein Fehler.
+ * Bahn eines Motivs: seine Bilder unter den Operationen der Gruppe, Lagen in [0, 1)². Bilder, die zusammenfallen
+ * (gleichesMotiv(): gleiches Motiv, gleiche Lage, gleiche Orientierung, mit der Toleranz der Bestimmung), kommen nur
+ * einmal vor, das erste in der Reihenfolge von g.alle (die Identität zuerst, also der Vertreter). Bilder auf derselben
+ * Lage, die sich in der Orientierung unterscheiden, bleiben alle: Sie überlagern sich (Konzept „Muster entwerfen“,
+ * Abschn. 2, Punkt 14). Das erste Bild ist der Eintrag selbst, mit seiner Lage in [0, 1)². Das Gitter M muss zum
+ * System der Gruppe passen, sonst ein Fehler.
  * @type {(g: Gruppe, M: Metrik, e: Basiseintrag) => Basiseintrag[]}
  */
 export const motivBahn = (g, M, e) => bilderMitOperation(g, M, e).map((b) => b.bild);
@@ -83,16 +86,16 @@ export function bilderMitOperation(g, M, e) {
   /** @type {{ bild: Basiseintrag, op: number }[]} */
   const out = [];
   g.alle.forEach((op, i) => {
-    const p = /** @type {Vec2} */ (anwenden(op, e.p).map(mod1));
-    if (out.some((b) => abstandMod(b.bild.p, p) < TOL_BESTIMMUNG)) return;
-    out.push({ bild: bildUnter(op, M, e, g.daten.symbol), op: i });
+    const bild = bildUnter(op, M, e, g.daten.symbol);
+    if (out.some((b) => gleichesMotiv(b.bild, bild))) return;
+    out.push({ bild, op: i });
   });
   return out;
 }
 
 /**
  * Vertreter, dessen Bild unter der Operation op das Motiv b ist (Umkehrung von bildUnter(); Lage in [0, 1)²).
- * Damit gehen Ziehen und Bearbeiten eines Bildes an den Vertreter (CLAUDE.md, „Symmetrie festhalten“).
+ * Damit gehen Ziehen und Bearbeiten eines Bildes an den Vertreter (CLAUDE.md, „Muster entwerfen“).
  * @param {Op} op @param {Metrik} M @param {Basiseintrag} b @returns {Basiseintrag}
  */
 export function vertreterVon(op, M, b) {
@@ -106,7 +109,7 @@ export function vertreterVon(op, M, b) {
 
 /**
  * Passt das Motiv eines Vertreters nicht zur Lagesymmetrie? Dann bildet eine Operation seine Lage auf sich ab,
- * aber das Motiv auf ein anderes (CLAUDE.md, „Zusammenfallende Bilder“); die Bestimmung ergibt eine kleinere Gruppe.
+ * aber das Motiv auf ein anderes; seine Bilder überlagern sich (CLAUDE.md, „Muster entwerfen“, Zusammenfallende Bilder).
  * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e
  */
 export function passtNichtZurLage(g, M, e) {
@@ -115,6 +118,16 @@ export function passtNichtZurLage(g, M, e) {
     const q = /** @type {Vec2} */ (anwenden(op, p).map(mod1));
     return abstandMod(q, p) < TOL_BESTIMMUNG && !gleichesMotiv(bildUnter(op, M, { ...e, p }), { ...e, p });
   });
+}
+
+/**
+ * Wie viele verschiedene Bilder eines Vertreters liegen an seiner Lage? 1, ausser das Motiv passt nicht zur
+ * Lagesymmetrie: dann überlagern sich mehrere (in einem Kristall wäre das Fehlordnung); für die Kenndaten.
+ * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e
+ */
+export function ueberlagerung(g, M, e) {
+  const p = /** @type {Vec2} */ (e.p.map(mod1));
+  return bilderMitOperation(g, M, e).filter((b) => abstandMod(b.bild.p, p) < TOL_BESTIMMUNG).length;
 }
 
 /** Alle Motive der Struktur: die Bahnen der Vertreter nacheinander. @param {Gruppe} g @param {Metrik} M @param {Basiseintrag[]} vertreter */
@@ -136,7 +149,7 @@ export function gleichesMotiv(a, b, tol = TOL_BESTIMMUNG) {
 }
 
 /**
- * Vertreter je Bahn (beim Einschalten von „Symmetrie festhalten“): Jedes Motiv wird Vertreter, ausser
+ * Vertreter je Bahn (beim Übergang aus „Gitter und Basis“, uebernahmeVon): Jedes Motiv wird Vertreter, ausser
  * es ist schon Bild eines früheren Vertreters (gleichesMotiv()). Verglichen wird mit der Toleranz der
  * Bestimmung, und ein Vertreter rastet mit ihr auf eine spezielle Lage ein: Was die Bestimmung als
  * symmetrisch erkennt, fällt so ganz zusammen. Bei der bestimmten Gruppe einer Struktur bleibt je Bahn
@@ -226,7 +239,7 @@ export function umrechnen(st, r) {
 
 /**
  * Lässt sich eine umgerechnete Struktur mit den Reglern von „Gitter und Basis“ darstellen? Sonst ist die
- * Übernahme gesperrt (CLAUDE.md, „Symmetrie festhalten“): Metrik und Grösse jedes Motivs im Bereich.
+ * Übernahme gesperrt (CLAUDE.md, „Muster entwerfen“): Metrik und Grösse jedes Motivs im Bereich.
  * @param {{ ba: number, gamma: number, basis: Basiseintrag[] }} u
  * @param {{ ba: [number, number], gamma: [number, number], groesse: [number, number] }} bereich (STRUKTUR_BEREICH)
  */
@@ -238,61 +251,49 @@ export function darstellbar(u, bereich) {
 }
 
 /**
- * Struktur zum Zeichnen und Bestimmen: mit festgehaltener Gruppe die Bahnen der Vertreter ausgeschrieben, sonst
- * unverändert. Das Gitter passt dann zum System der Gruppe (pruefeStruktur, gitterZurGruppe in zustand.js).
- * @template {{ ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe?: string | null }} S
+ * Entwurf zum Zeichnen: die Bahnen der Vertreter ausgeschrieben. Das Gitter passt zum System der Gruppe
+ * (pruefeEntwurf, gitterZurGruppe in zustand.js).
+ * @template {{ ba: number, gamma: Grad, basis: Basiseintrag[], gruppe: string }} S
  * @param {S} st @returns {S}
  */
 export function ausgeschrieben(st) {
-  if (!st.festeGruppe) return st;
-  return { ...st, basis: ausschreiben(gruppe(st.festeGruppe), metrik(st), st.basis) };
+  return { ...st, basis: ausschreiben(gruppe(st.gruppe), metrik(st), st.basis) };
 }
 
 // ---------------------------------------------------------------- Bedienung (struktur-ui.js), testbar ohne Seite
 
 /**
- * Operation, unter der das Bild eines Vertreters gezeichnet ist, das an derselben Lage liegt wie sein Bild unter op.
- * Fallen auf einer speziellen Lage Bilder zusammen, ist nur das erste gezeichnet (motivBahn); eine Auswahl muss
- * dann dieses zeigen, sonst zeigten die Regler ein unsichtbares Bild.
+ * Operation, unter der das Bild eines Vertreters gezeichnet ist, das mit dem Bild unter op zusammenfällt. Fallen
+ * Bilder zusammen, ist nur das erste gezeichnet (motivBahn); eine Auswahl muss dieses zeigen, sonst zeigten die Regler
+ * ein unsichtbares Bild. Das erste ist der Vertreter, wenn er darunter ist, sonst das mit der ersten Operation der ITA.
  * @param {Gruppe} g @param {Metrik} M @param {Basiseintrag} e @param {number} op Nummer in g.alle
  */
 export function sichtbareOp(g, M, e, op) {
-  const p = /** @type {Vec2} */ (anwenden(g.alle[op], e.p).map(mod1));
-  return bilderMitOperation(g, M, e).find((b) => abstandMod(b.bild.p, p) < TOL_BESTIMMUNG)?.op ?? op;
+  const bild = bildUnter(g.alle[op], M, e);
+  return bilderMitOperation(g, M, e).find((b) => gleichesMotiv(b.bild, bild))?.op ?? op;
 }
 
 /**
- * Gitter im System einer Gruppe: die freien Parameter bleiben, die übrigen nach dem System (bei der Wahl einer Gruppe).
- * @param {{ ba: number, gamma: number }} gi @param {string} sym @returns {{ ba: number, gamma: Grad }}
- */
-export function gitterImSystem(gi, sym) {
-  const sys = ebenengruppe(sym).system;
-  if (sys === 'schiefwinklig') return { ba: gi.ba, gamma: grad(gi.gamma) };
-  if (sys === 'rechteckig') return { ba: gi.ba, gamma: grad(90) };
-  return { ba: 1, gamma: grad(sys === 'hexagonal' ? 120 : 90) };
-}
-
-/**
- * Wahl einer Gruppe sym (CLAUDE.md, „Symmetrie festhalten“, Bedienung): die gezeichneten Motive werden unter der
- * neuen Gruppe auf Vertreter reduziert, wie beim Einschalten; das Gitter folgt dem System. null, wenn die Grenze
+ * Wahl einer anderen Gruppe sym im Entwurf (Konzept „Muster entwerfen“, Abschn. 3.3): Die Vertreter bleiben mit
+ * Bruchkoordinaten, Motiv, Winkel und Farbe erhalten, ihre Bilder entstehen unter der neuen Gruppe neu. Das Gitter
+ * bleibt, wenn es zum System passt (gitterZurGruppe), sonst gilt das Startgitter des Systems. null, wenn die Grenze
  * überschritten würde.
- * @param {{ ba: number, gamma: number, basis: Basiseintrag[] }} gezeichnet @param {string} sym @param {number} grenze
- * @returns {{ ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe: string } | null}
+ * @param {{ ba: number, gamma: number, basis: Basiseintrag[] }} entwurf @param {string} sym @param {number} grenze
+ * @returns {{ ba: number, gamma: Grad, basis: Basiseintrag[], gruppe: string } | null}
  */
-export function mitGruppe(gezeichnet, sym, grenze) {
-  const gi = gitterImSystem(gezeichnet, sym);
-  const g = gruppe(sym);
-  const basis = vertreter(g, metrik(gi), gezeichnet.basis);
-  return basis.length * g.ordnung <= grenze ? { ...gi, basis, festeGruppe: sym } : null;
+export function gruppeWechseln(entwurf, sym, grenze) {
+  const gi = gitterZurGruppe(entwurf.ba, entwurf.gamma, sym) ?? GITTER_START[ebenengruppe(sym).system];
+  if (entwurf.basis.length * gruppe(sym).ordnung > grenze) return null;
+  return { ba: gi.ba, gamma: grad(gi.gamma), basis: entwurf.basis, gruppe: sym };
 }
 
 /**
- * Übernahme der bestimmten Gruppe r (Einschalten und „Bestimmte Gruppe übernehmen“): falls nötig umgerechnet auf
+ * Übergang aus „Gitter und Basis“ in „Muster entwerfen“ mit der bestimmten Gruppe r: falls nötig umgerechnet auf
  * konventionelle Zelle und Ursprung nach ITA, dann je Bahn ein Vertreter. Mit der Umstellung für die Kenndaten
  * (zelle: Zelle in Vielfachen der vorherigen oder '', ursprung: neuer Ursprung oder null), oder { grund }.
  * @param {{ ba: number, gamma: Grad, basis: Basiseintrag[] }} gezeichnet @param {Bestimmung | null} r
  * @param {{ ba: [number, number], gamma: [number, number], groesse: [number, number] }} bereich @param {number} grenze
- * @returns {{ struktur: { ba: number, gamma: Grad, basis: Basiseintrag[], festeGruppe: string }, umstellung: { zelle: Mat2 | null, ursprung: Vec2 | null } } | { grund: string }}
+ * @returns {{ struktur: { ba: number, gamma: Grad, basis: Basiseintrag[], gruppe: string }, umstellung: { zelle: Mat2 | null, ursprung: Vec2 | null } } | { grund: string }}
  */
 export function uebernahmeVon(gezeichnet, r, bereich, grenze) {
   if (!r) return { grund: 'Die Basis ist leer.' };
@@ -310,6 +311,6 @@ export function uebernahmeVon(gezeichnet, r, bereich, grenze) {
   }
   const g = gruppe(r.symbol);
   const basis = vertreter(g, metrik(u), u.basis);
-  if (basis.length * g.ordnung > grenze) return { grund: `Mit festgehaltener Symmetrie wären es mehr als ${grenze} Motive (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).` };
-  return { struktur: { ba: u.ba, gamma: u.gamma, basis, festeGruppe: r.symbol }, umstellung };
+  if (basis.length * g.ordnung > grenze) return { grund: `Im Entwurf wären es mehr als ${grenze} Motive (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).` };
+  return { struktur: { ba: u.ba, gamma: u.gamma, basis, gruppe: r.symbol }, umstellung };
 }

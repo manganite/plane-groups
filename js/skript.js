@@ -10,7 +10,7 @@ import { versionEintragen, offline, elemente } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
 import { startzustand, hashAnwenden } from './zustand.js';
 import { tafelA, tafelB, metrik, kart, ansicht, f2, pt, grad } from './zeichnung.js';
-import { strukturTafelA, strukturTafelB, motivSVG, motivFarben } from './struktur.js';
+import { strukturTafelA, strukturTafelB, motivSVG, motivFarben, festeBestimmung } from './struktur.js';
 import { ausgeschrieben } from './bahnen.js';
 import { MOTIVE } from './motive.js';
 import { pfeilspitze, linie, text, SERIF, SANS, dreieck3m, punktgruppe, kachel, flussdiagramm } from './skizzen.js';
@@ -59,10 +59,16 @@ function appTafel(fig, f) {
   const z = zustandVon(app);
   const b = fig.dataset.tafel === 'b';
   if (z.modus === 'struktur') {
-    const st = ausgeschrieben(z.struktur); // mit festgehaltener Gruppe (sg=) die Bahnen ausgeschrieben, wie in der App
+    const st = z.struktur;
     const a = strukturTafelA(st, { elemente: st.elemente, zelle: st.zelle, ae: st.ae, bindungen: st.bindungen, farben: false }, f);
     // data-zelle="0": ohne konventionelle Zelle; data-elemente="1": Symmetrieelemente im Muster (Kap. 8)
     return b ? strukturTafelB(st, f, a.ergebnis, z.zoomB, { zelle: fig.dataset.zelle !== '0', elemente: fig.dataset.elemente === '1' }).svg : a.svg;
+  }
+  if (z.modus === 'entwurf') {
+    const st = { ...ausgeschrieben(z.entwurf), bindungen: false }; // die Bahnen der Vertreter ausgeschrieben, wie in der App
+    const r = festeBestimmung(z.entwurf);
+    const a = strukturTafelA(st, { elemente: z.entwurf.elemente, zelle: true, ae: z.entwurf.ae, bindungen: false, farben: false }, f, null, null, r);
+    return b ? strukturTafelB(st, f, r, z.zoomB, { zelle: fig.dataset.zelle !== '0', elemente: fig.dataset.elemente === '1' }).svg : a.svg;
   }
   // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
   const k = /[#&]og=/.test(app) ? 1 : symbolGroesse(fig, b);

@@ -78,9 +78,14 @@ body.zeichnen #bild-a, body.radieren #bild-a { cursor: crosshair; touch-action: 
 .lagebox strong { color: var(--accent); }
 .lagebox p { margin: 6px 0 0; }
 /* Modus „Gitter und Basis“ */
-body.modus-struktur .nur-eg, body:not(.modus-struktur) .nur-struktur { display: none !important; }
-body.modus-struktur #bild-a { cursor: grab; touch-action: manipulation; }
-body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
+/* Modi: „Ebenengruppen“ (nur-eg), „Gitter und Basis“ (nur-struktur), „Muster entwerfen“ (nur-entwurf); nur-bau: die beiden
+   Modi, in denen man Motive setzt (Basis, Gitter, Werkzeuge) */
+body.modus-struktur .nur-eg, body.modus-entwurf .nur-eg { display: none !important; }
+body:not(.modus-struktur) .nur-struktur { display: none !important; }
+body:not(.modus-entwurf) .nur-entwurf { display: none !important; }
+body:not(.modus-struktur):not(.modus-entwurf) .nur-bau { display: none !important; }
+body.modus-struktur #bild-a, body.modus-entwurf #bild-a { cursor: grab; touch-action: manipulation; }
+body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a { cursor: copy; }
 .farbwahl button { min-width: 40px; }
 .farbwahl .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: middle; }
 .farbwahl button[aria-pressed="true"] { background: var(--paper); color: var(--ink); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
@@ -95,6 +100,7 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
   <div class="tabs" role="tablist" aria-label="Modus">
     <button id="tab-eg" role="tab" aria-selected="true">Ebenengruppen</button>
     <button id="tab-struktur" role="tab" aria-selected="false">Gitter und Basis</button>
+    <button id="tab-entwurf" role="tab" aria-selected="false">Muster entwerfen</button>
   </div>
   <div class="headtools">
     <a class="linkcopy" href="skript.html">Skript</a>
@@ -134,7 +140,18 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
       </section>
     </div>
 
-    <div class="card nur-struktur">
+    <div class="card nur-entwurf">
+      <section id="ctl-entwurf" class="stack">
+        <h2>Ebenengruppe</h2>
+        <div id="e-picker" class="picker" role="group" aria-label="Ebenengruppe des Entwurfs wählen"></div>
+        <p class="hintline" id="e-picker-hint"></p>
+        <p class="group-title">Anzeigen</p>
+        <label class="check"><input type="checkbox" id="e-elemente">Symmetrieelemente</label>
+        <label class="check"><input type="checkbox" id="e-ae">Asymmetrische Einheit</label>
+      </section>
+    </div>
+
+    <div class="card nur-bau">
       <details class="sect" id="sec-basis" open>
         <summary>Basis<span class="sumhint">Motive wählen, setzen, drehen, spiegeln</span></summary>
         <div class="stack">
@@ -155,15 +172,6 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
           <p class="hintline" id="s-basis-hint"></p>
         </div>
       </details>
-      <details class="sect" id="sec-sfest">
-        <summary>Symmetrie festhalten<span class="sumhint">Struktur in gegebener Ebenengruppe aufbauen</span></summary>
-        <div class="stack">
-          <label class="check" id="row-sfest"><input type="checkbox" id="s-fest"><span>Symmetrie festhalten<span class="why"></span></span></label>
-          <div id="s-picker" class="picker" role="group" aria-label="Festgehaltene Ebenengruppe wählen"></div>
-          <button class="resetbtn" id="s-uebernehmen" type="button">Bestimmte Gruppe übernehmen</button>
-          <p class="hintline" id="s-fest-hint"></p>
-        </div>
-      </details>
       <details class="sect" id="sec-sgitter">
         <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
@@ -175,11 +183,18 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
             <label for="s-gamma">γ</label><output id="s-gamma-out"></output>
             <input type="range" id="s-gamma" min="60" max="150" step="0.5">
           </div>
-          <div class="seg seg-text" id="s-metrik" role="group" aria-label="Metrik setzen">
+          <div class="seg seg-text nur-struktur" id="s-metrik" role="group" aria-label="Metrik setzen">
             <button type="button" data-metrik="1,90"><i>b</i> = <i>a</i>, γ = 90°</button>
             <button type="button" data-metrik="1,120"><i>b</i> = <i>a</i>, γ = 120°</button>
           </div>
           <p class="hintline" id="s-gitter-hint">Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form. Die Symmetrie folgt aus Gitter und Basis zusammen.</p>
+        </div>
+      </details>
+      <details class="sect nur-struktur" id="sec-weiter">
+        <summary>Weiterbearbeiten<span class="sumhint">Struktur mit ihrer Gruppe entwerfen</span></summary>
+        <div class="stack">
+          <button class="resetbtn" id="s-weiter" type="button">In „Muster entwerfen“ weiterbearbeiten</button>
+          <p class="hintline" id="s-weiter-hint"></p>
         </div>
       </details>
     </div>
@@ -311,9 +326,9 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
   <div class="figs">
     <figure class="panel p-a">
       <div class="panel-head">
-        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
-        <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><small id="sub-a"></small></span>
-        <div class="tools nur-struktur" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button></div>
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
+        <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span><small id="sub-a"></small></span>
+        <div class="tools nur-bau" role="group" aria-label="Werkzeug"><button type="button" id="s-werkzeug-verschieben" aria-pressed="true">Wählen und ziehen</button><button type="button" id="s-werkzeug-hinzufuegen" aria-pressed="false">Hinzufügen</button></div>
         <div class="tools nur-eg" role="group" aria-label="Zeichnen und Radieren"><button type="button" id="werkzeug-zeichnen" aria-pressed="false">Zeichnen</button><button type="button" id="werkzeug-radieren" aria-pressed="false">Radieren</button></div>
         <div class="tools" role="group" aria-label="Ansicht von Tafel A"><button type="button" id="werkzeug-lupe" aria-pressed="false">Lupe</button></div>
         <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-a" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-a" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-a" title="Bild als PNG-Datei speichern">PNG</button></div>
@@ -323,12 +338,12 @@ body.modus-struktur.hinzufuegen #bild-a { cursor: copy; }
     </figure>
     <figure class="panel p-b">
       <div class="panel-head">
-        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
+        <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Muster<small>Ausschnitt</small></span>
         <div class="tools export" role="group" aria-label="Bild exportieren"><button type="button" id="kopieren-b" title="Bild in die Zwischenablage kopieren">Kopieren</button><button type="button" id="svg-b" title="Bild als SVG-Datei speichern">SVG</button><button type="button" id="png-b" title="Bild als PNG-Datei speichern">PNG</button></div>
       </div>
       <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Muster der Ebenengruppe"></svg>
-      <div class="panel-foot"><span class="nur-eg">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</span><span class="nur-struktur">Ausschnitt der Struktur; hervorgehoben ist die konventionelle Zelle.</span></div>
+      <div class="panel-foot"><span class="nur-eg">Ausschnitt des unendlichen Musters; hervorgehoben ist die Elementarzelle.</span><span class="nur-struktur">Ausschnitt der Struktur; hervorgehoben ist die konventionelle Zelle.</span><span class="nur-entwurf">Ausschnitt des Entwurfs; hervorgehoben ist die Elementarzelle.</span></div>
     </figure>
   </div>
 
