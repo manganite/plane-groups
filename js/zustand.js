@@ -60,7 +60,7 @@ import { gruppe } from './symmetrie.js';
 
 
 /** Formen des Objekts (wie FORMEN in zeichnung.js; tests/zustand.test.mjs prüft die Übereinstimmung). */
-export const FORMEN = ['fahne', 'komma', 'blatt', 'tropfen', 'ranke'];
+export const FORMEN = ['fahne', 'komma'];
 
 /** Gittermetrik je Kristallsystem: b/a und γ (Grad). Frei nur, wo das System es erlaubt. @type {Record<System, Gitter>} */
 export const GITTER_START = /** @type {Record<System, Gitter>} */ ({
@@ -166,10 +166,10 @@ export function startzustand() {
     objekt: true, // Objekt mit allen Bildern
     ae: false, // asymmetrische Einheit
     zellen: 1, // 1 oder 2 (2 × 2 Zellen) in Tafel A
-    form: 'fahne', // eine der FORMEN: Fähnchen, Kreis mit Komma (ITA) oder ein Ornament
+    form: 'fahne', // eine der FORMEN: Fähnchen oder Kreis mit Komma (ITA)
     tapete: false, // Muster (Tafel B) als Tapete: ohne Zelle und Elemente, einfarbig
     zoomB: 1, // Vergrösserung des Musters (Tafel B): kleinerer Ausschnitt, alles grösser (ZOOM_BEREICH)
-    objGroesse: 1, // Grösse des Objekts (Fähnchen, Ornament) in beiden Tafeln (OBJ_BEREICH)
+    objGroesse: 1, // Grösse des Objekts (Fähnchen, Komma) in beiden Tafeln (OBJ_BEREICH)
     farben: true, // nach Blickrichtung färben
     einrasten: true,
     lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt

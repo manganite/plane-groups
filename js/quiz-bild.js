@@ -77,7 +77,7 @@ export function bildInhalt(angabe, f, opt = {}) {
     const st = { ...ausgeschrieben(z.entwurf), bindungen: false }; // die Bahnen der Vertreter ausgeschrieben, wie in der App
     const r = festeBestimmung(z.entwurf);
     const a = strukturTafelA(st, { elemente: z.entwurf.elemente, zelle: true, ae: z.entwurf.ae, bindungen: false, farben: false, k: gross ?? K_FRAGE }, f, null, null, r);
-    return tafel === 'b' ? strukturTafelB(st, f, r, z.zoomB).svg : a.svg;
+    return tafel === 'b' ? strukturTafelB(st, f, r, z.zoomB, { zelle: !z.tapete, einfarbig: z.tapete, richtungsfarben: z.farben, fuell: z.aeFuell }).svg : a.svg;
   }
   // Tafel A: Symbole in allen Fragebildern gleich gross (K_FRAGE), in Antwortbildern grösser; das Fähnchen
   // im selben Verhältnis zur Zelle wie in der App. Tafel B (Muster): eigene, kleinere Grösse für Symbole

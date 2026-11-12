@@ -270,7 +270,7 @@ export function aufbauElemente(g, n, schritt) {
 /** Fähnchen in Bildpunkten, Fuss im Ursprung: Stange nach oben, Fahne nach rechts. */
 /** @type {{ stange: Vec2[], fahne: Vec2[] }} */
 const FAHNE = { stange: [[0, 0], [0, -22]], fahne: [[0, -22], [11, -17], [0, -12]] };
-/** Grösste Ausdehnung eines Objekts (Fähnchen, Komma, Ornament) vom Fusspunkt, in Bildpunkten bei Massstab 1. */
+/** Grösste Ausdehnung eines Objekts (Fähnchen, Komma) vom Fusspunkt, in Bildpunkten bei Massstab 1. */
 const REICHWEITE = 30;
 /** Umriss aller Formen des Objekts ungedreht, Fuss im Ursprung, in Bildpunkten bei Massstab 1: [x0, y0, x1, y1] (Treffer beim Ziehen). */
 export const OBJEKT_UMRISS = /** @type {const} */ ([-10, -27, 20, 4]);
@@ -393,17 +393,16 @@ export function ornamentSVG(form, T, farbe, papier, massstab) {
   }).join('');
 }
 
-/** Formen des Objekts: Fähnchen, Kreis mit Komma (ITA) und die Ornamente. */
-export const FORMEN = ['fahne', 'komma', ...Object.keys(ORNAMENTE)];
+/** Formen des Objekts: Fähnchen und Kreis mit Komma (ITA). Die Ornamente gibt es nur als Motive (motive.js). */
+export const FORMEN = ['fahne', 'komma'];
 
 /**
- * SVG eines Objekts (Fähnchen, Kreis mit Komma oder Ornament) am Bildpunkt q, gedreht/gespiegelt mit Mc.
+ * SVG eines Objekts (Fähnchen oder Kreis mit Komma) am Bildpunkt q, gedreht/gespiegelt mit Mc.
  * @param {string} form @param {Vec2} q @param {Mat2} Mc @param {boolean} eigentlich @param {string} farbe @param {string} papier @param {number} [massstab]
  */
 export function objektSVG(form, q, Mc, eigentlich, farbe, papier, massstab = 1) {
   /** @param {Vec2} v @returns {Vec2} */
   const T = (v) => [q[0] + massstab * (Mc[0][0] * v[0] + Mc[0][1] * v[1]), q[1] + massstab * (Mc[1][0] * v[0] + Mc[1][1] * v[1])];
-  if (ORNAMENTE[form]) return ornamentSVG(form, T, farbe, papier, massstab);
   if (form === 'komma') {
     const r = 7 * massstab;
     const komma = eigentlich ? '' : (() => {
@@ -1167,12 +1166,11 @@ function kopieSVG(g, M, A, d, phase, farben, form, n) {
 
 /**
  * Tafel B: Muster. Ein quadratischer Ausschnitt des unendlichen Musters, die Elementarzelle
- * hervorgehoben, Symmetrieelemente wahlweise. Nur im Skript (Kap. 8): tapeteElemente zeichnet die Elemente auch über der
- * Tapete, nurZelle nur die Elemente der hervorgehobenen Zelle (wie Tafel A im Modus „Gitter und Basis“).
- * @param {string} id @param {Zustand} z @param {Farben} farben @param {{ k?: number, tapeteElemente?: boolean, nurZelle?: boolean }} [optionen]
+ * hervorgehoben, Symmetrieelemente wahlweise.
+ * @param {string} id @param {Zustand} z @param {Farben} farben @param {{ k?: number }} [optionen]
  * @returns {{ svg: string, ansicht: Ansicht }}
  */
-export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle = false } = {}) {
+export function tafelB(id, z, farben, { k = 1 } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const M = metrik(z.gitter[sys]);
@@ -1196,12 +1194,11 @@ export function tafelB(id, z, farben, { k = 1, tapeteElemente = false, nurZelle 
   const teile = [`<defs><clipPath id="ausschnitt"><rect x="10" y="10" width="500" height="500" rx="6"/></clipPath></defs>`,
     `<rect width="520" height="520" fill="${farben.paper}"/>`, '<g clip-path="url(#ausschnitt)">'];
   if (!tapete) teile.push(`<polygon points="${zellPoly(A, 0, 0)}" fill="${farben.crystal}" fill-opacity="0.35" stroke="${farben.accent}" stroke-width="2"/>`);
-  if (z.musterElemente && (!tapete || tapeteElemente)) {
+  if (z.musterElemente && !tapete) {
     const e = elementeImBereich(g, 1);
     /** @type {Elementauswahl} */
     const alle = { drehpunkte: [], linien: [] };
-    const [i0, i1] = nurZelle ? [0, 1] : [lo, hi];
-    for (let i = i0; i < i1; i++) for (let j = i0; j < i1; j++) {
+    for (let i = lo; i < hi; i++) for (let j = lo; j < hi; j++) {
       for (const d of e.drehpunkte) alle.drehpunkte.push({ ...d, punkt: [d.punkt[0] + i, d.punkt[1] + j] });
       for (const l of e.linien) alle.linien.push({ ...l, strecke: /** @type {[Vec2, Vec2]} */ (l.strecke.map((q) => [q[0] + i, q[1] + j])) });
     }

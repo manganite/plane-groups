@@ -33,7 +33,7 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
   - **Vorgaben:** die fünf Bravais-Gitter; ein Dreiecksbeispiel in drei Stufen (pm → cm → p2mg); 2D-Materialien in Draufsicht (Graphen, h-BN, MoS₂ 1H, Kagome, Lieb-Gitter); die Archimedischen Parkettierungen 4.8.8, 3.4.6.4, 3.3.4.3.4 und 3.3.3.3.6 (chiral); Mauerwerk und Pflaster aus Ziegeln 2 : 1 (ohne Versatz, Läuferverband, um ein Drittel versetzt, Fischgrät- und Flechtverband); künstliches Spin-Eis (square, kagome, pinwheel). Bindungen zwischen nächsten Nachbarn wahlweise.
 
 - **Modus „Muster entwerfen“** (#136): Ein eigenes Muster in einer gegebenen Ebenengruppe gestalten. Die Gruppe wählt man (Knöpfe je Kristallsystem); Gruppe und Zelle bleiben fest, die App bestimmt die Symmetrie nicht. Motive wie in „Gitter und Basis“ (dieselbe Auswahl, Farben, Grösse, Drehen, Spiegeln, Einrasten auf Drehpunkte und Spiegellinien) erscheinen sofort mit allen Bildern der Gruppe; Ziehen, Drehen und Entfernen eines Bildes wirken auf das Motiv (den Vertreter seiner Bahn). Gleiche Bilder erscheinen einmal, verschiedene bleiben alle: Ein Motiv ohne die Lagesymmetrie ihrer Lage zeigt dort mehrere Bilder übereinander. Die Kenndaten stehen wie bei einer Atomliste: je Motiv Wyckoff-Lage, Lagesymmetrie, Zahl der Bilder (und der überlagerten). Das Gitter folgt dem Kristallsystem der Gruppe. Aus „Gitter und Basis“ führt „In „Muster entwerfen“ weiterbearbeiten“ mit der bestimmten Gruppe hinüber (nötigenfalls umgestellt auf konventionelle Zelle und Ursprung nach ITA). Höchstens 48 Motive, je Vertreter mit der Zähligkeit der allgemeinen Lage gezählt.
-- **Muster als Tapete und Ornamente:** Das Muster ohne Zelle und Elemente, mit Ornamenten (Blatt, Tropfen, Ranke) statt des Fähnchens; Vergrösserung des Musters und Grösse des Objekts frei.
+- **Muster als Tapete:** Das Muster ohne Zelle und Elemente; Vergrösserung des Musters frei. Ornamente (Blatt, Tropfen, Ranke) gibt es als Motive in „Muster entwerfen“ und „Gitter und Basis“.
 - **„Darstellung“ in allen Modi:** nach Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete (in „Ebenengruppen“ einfarbig, in „Gitter und Basis“ in den Farben der Motive), die asymmetrische Einheit füllen (in „Gitter und Basis“ die der bestimmten Gruppe, ohne Motive nicht möglich) und die Vergrösserung des Musters.
 - **Lupe** (Schalter über dem Symmetriegerüst bzw. der Struktur, in allen Modi): doppelte Vergrösserung um das Objekt, in „Gitter und Basis“ um das gewählte Motiv, ohne Wahl um die Mitte der Zelle.
 - **Kenndaten** mit Schoenflies-Symbol und Signatur nach Conway.
@@ -93,7 +93,7 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `obj` | Objekt in allgemeiner Lage | `0`, **`1`** |
 | `ae` | asymmetrische Einheit | **`0`**, `1` |
 | `zellen` | Zellen im Symmetriegerüst | **`1`**, `2` (2 × 2) |
-| `form` | Form des Objekts | **`fahne`**, `komma` (Kreis mit Komma wie ITA), Ornamente `blatt`, `tropfen`, `ranke` |
+| `form` | Form des Objekts | **`fahne`**, `komma` (Kreis mit Komma wie ITA) |
 | `og` | Grösse des Objekts (Faktor; im Gitter, in beiden Tafeln im selben Verhältnis zur Zelle) | 0.5–3, **1** |
 | `rast` | Einrasten auf spezielle Lagen | `0`, **`1`** |
 | `orbit` | Bilder rund um die Zelle (wie ITA) | **`0`**, `1` |

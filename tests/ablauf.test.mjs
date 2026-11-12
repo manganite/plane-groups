@@ -32,7 +32,7 @@ test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker beka
 
 test('Erste Schritte: je Modus ein Ablauf mit 3–4 Bedienschritten, der letzte öffnet die Experimente', () => {
   assert.deepEqual(pruefeAblaeufe(ERSTE_SCHRITTE, { hashGueltig: gueltig, modi: ['eg', 'struktur', 'entwurf'], anker: ANKER, aktionen: ['hinzufuegen', 'experimente'] }), []);
-  for (const m of ['eg', 'struktur']) {
+  for (const m of ['eg', 'struktur', 'entwurf']) {
     const a = ERSTE_SCHRITTE.filter((x) => x.modus === m);
     assert.equal(a.length, 1, m);
     assert.ok(a[0].schritte.length >= 3 && a[0].schritte.length <= 4, m);

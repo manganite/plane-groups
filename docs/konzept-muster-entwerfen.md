@@ -237,7 +237,7 @@ README und `CLAUDE.md` (Leitfaden Abschn. 8). Im Einzelnen:
 2. Abbau: „Symmetrie brechen“ in „Ebenengruppen“, Auslöschungen samt Daten und Kasten in Kap. 6, Altlasten nach
    crystallography-common#126; ein Gitterbereich für alle Modi.
 3. „Darstellung“ in allen Modi, mit Füllen; Lupe in allen Modi.
-4. (**4a** und **4b umgesetzt am 12.11.2026**; Wahl beim Umsetzen in `CLAUDE.md`, Punkt „Modus „Muster entwerfen““. In drei PRs, Thomas, 12.11.2026: **4a** Ornamente als Motive und gebündelte Motivauswahl; **4b** neuer Modus, Regel für
+4. (**4a**, **4b** und **4c umgesetzt am 12.11.2026**; Wahl beim Umsetzen in `CLAUDE.md`, Punkt „Modus „Muster entwerfen““. In drei PRs, Thomas, 12.11.2026: **4a** Ornamente als Motive und gebündelte Motivauswahl; **4b** neuer Modus, Regel für
    zusammenfallende Bilder, Kenndaten, Übergang, „Symmetrie festhalten“ entfernen; **4c** Ornamente aus „Ebenengruppen“,
    Skript, Quiz, Experimente, Erste Schritte.) Neuer Modus mit Gruppenwahl, gebündelter Motivauswahl (auch in „Gitter und Basis“, schliesst #104), Ornamenten als
    Motiven, Regel für zusammenfallende Bilder (Abschn. 2, Punkt 14), Gitter; „Symmetrie festhalten“ aus „Gitter und Basis“ entfernen; Übergang; Ornamente aus „Ebenengruppen“ samt

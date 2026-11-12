@@ -93,6 +93,8 @@ export const VORGABEN = [
 
   // Muster (#86, Skript Kap. 8): Dreiergruppen um die Gitterpunkte auf der Lage 3c von p31m, (x, 0), (0, x), (−x, −x)
   { id: 'dreiergruppen', gruppe: 'Muster', name: 'Dreiergruppen', gitter: H, basis: /** @type {Vec2[]} */ ([[0.3, 0], [0, 0.3], [-0.3, -0.3]]).map((p) => atom(p)), erwartet: 'p31m' },
+  // Ranken in allgemeiner Lage von p6 (Abb. 8.2f; früher als Tapete im Modus „Ebenengruppen“): die sechs Bilder einer Ranke, je um 60° gedreht
+  { id: 'ranken', gruppe: 'Muster', name: 'Ranken', gitter: H, basis: p6([0.12, 0.31]).map((p, k) => ({ motiv: 'ranke', farbe: 0, p, winkel: grad([0, 240, 120, 180, 60, 300][k]), groesse: 0.19 })), erwartet: 'p6' },
 ];
 
 /** @param {string} id */

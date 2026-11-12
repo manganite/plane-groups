@@ -68,11 +68,12 @@ function appTafel(fig, f) {
     const st = { ...ausgeschrieben(z.entwurf), bindungen: false }; // die Bahnen der Vertreter ausgeschrieben, wie in der App
     const r = festeBestimmung(z.entwurf);
     const a = strukturTafelA(st, { elemente: z.entwurf.elemente, zelle: true, ae: z.entwurf.ae, bindungen: false, farben: false }, f, null, null, r);
-    return b ? strukturTafelB(st, f, r, z.zoomB, { zelle: fig.dataset.zelle !== '0', elemente: fig.dataset.elemente === '1' }).svg : a.svg;
+    // Tapete (tap=1) ohne Zelle und einfarbig wie in der App; die Elemente nur mit data-elemente="1" (auch über der Tapete)
+    return b ? strukturTafelB(st, f, r, z.zoomB, { zelle: fig.dataset.zelle !== '0' && !z.tapete, elemente: fig.dataset.elemente === '1', richtungsfarben: z.farben, fuell: z.aeFuell, einfarbig: z.tapete }).svg : a.svg;
   }
   // Mit Grösse des Objekts (og) in der Adresse zeigt die Abbildung genau, was die App zeigt
   const k = /[#&]og=/.test(app) ? 1 : symbolGroesse(fig, b);
-  return b ? tafelB(z.gruppe, z, f, { k, tapeteElemente: fig.dataset.elemente === '1', nurZelle: fig.dataset.elemente === 'zelle' }).svg : tafelA(z.gruppe, z, f, { k }).svg;
+  return b ? tafelB(z.gruppe, z, f, { k }).svg : tafelA(z.gruppe, z, f, { k }).svg;
 }
 
 // ------------------------------------------------------------------ Skizzen
@@ -282,15 +283,18 @@ function spurenSkizze(fig, f) {
 
 /**
  * Merkmale nach Conway (Kap. 9) an einem Ornamentmuster: die Tapete der App mit ihren Symmetrieelementen
- * (data-app wie bei einer Abbildung der App, mit tap=1 und mel=1), darüber die Merkmale wie bei Conway:
+ * (data-app wie bei einer Abbildung der App, Modus „Muster entwerfen“ mit tap=1; die Elemente zeichnet die Skizze selbst), darüber die Merkmale wie bei Conway:
  * alle Markierungen in einer Farbe (accent2), weil die Motive schon blau sind.
  * data-variante: '4*2' (p4gm), '*x' (cm) oder 'o' (p1).
  * @param {HTMLElement} fig @param {SkriptFarben} f
  */
 function conwaySkizze(fig, f) {
   const z = zustandVon(/** @type {string} */ (fig.dataset.app));
-  const r = tafelB(z.gruppe, z, f, { k: 1, tapeteElemente: true });
+  const en = z.entwurf;
+  // das Muster des Modus „Muster entwerfen“ als Tapete, mit den Symmetrieelementen darüber (die App sperrt sie bei der Tapete)
+  const r = strukturTafelB({ ...ausgeschrieben(en), bindungen: false }, f, festeBestimmung(en), z.zoomB, { zelle: false, elemente: true, richtungsfarben: false, einfarbig: z.tapete });
   const A = r.ansicht;
+  const vertreter = en.basis[0].p; // Lage des Motivs, dessen Bilder das Muster bilden
   // eine Markierungsfarbe, deutlich verschieden vom Blau der Motive
   const farbe = f.accent2;
   /** @typedef {import('../lib/common/js/typen.js').Vec2} Vec2 */
@@ -311,7 +315,7 @@ function conwaySkizze(fig, f) {
     const [a, b] = [bild(p), bild(q)]; const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
     return schrift([(a[0] + b[0]) / 2 - d * (b[1] - a[1]) / l, (a[1] + b[1]) / 2 + d * (b[0] - a[0]) / l], t);
   };
-  const g = gruppe(z.gruppe);
+  const g = gruppe(en.gruppe);
   const teile = [r.svg];
   const v = fig.dataset.variante;
   if (v === '4*2') {
@@ -329,16 +333,16 @@ function conwaySkizze(fig, f) {
     const gl = /** @type {import('./symmetrie.js').Op} */ (g.alle.find((o) => art(o).art === 'gleit'));
     const sp = symmetrieElemente(g).linien.filter((l) => l.art === 'spiegel' && Math.abs(l.richtung[0]) < 1e-9);
     const x0 = sp.map((l) => l.punkt[0]).filter((x) => x > 0.25).sort((a, b) => a - b)[0];
-    const xr = z.punkt[0] - Math.floor(z.punkt[0]);
+    const xr = vertreter[0] - Math.floor(vertreter[0]);
     /** @type {Vec2} */
-    const p = [xr > 0.5 ? 1 - xr : xr, z.punkt[1]];
+    const p = [xr > 0.5 ? 1 - xr : xr, vertreter[1]];
     const q = anwenden(gl, p);
     /** @type {[Vec2, Vec2]} */
     const s = [[x0, p[1] - 0.9], [x0, p[1] - 0.2]];
     teile.push(spiegel(...s), seitlich(...s, -26, '*'), weg(p, q), seitlich(p, q, 26, '×'));
   } else if (v === 'o') {
     // Wanderung: zwei Wege zu verschobenen Kopien, ohne Spiegelung und Drehung
-    const p = z.punkt;
+    const p = vertreter;
     teile.push(weg(p, [p[0] + 1, p[1]]), weg(p, [p[0], p[1] + 1]), schrift(bild([p[0] + 0.5, p[1] + 0.5]), 'o'));
   }
   return teile.join('');

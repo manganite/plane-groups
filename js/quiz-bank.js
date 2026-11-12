@@ -1512,7 +1512,7 @@ export const BANK = [
   {
     id: 'tk-1-02', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.anordnung,
     frage: 'Das Bild zeigt ein Muster mit einem Blatt als Motiv in allgemeiner Lage. Was ändert sich, wenn man das Blatt durch ein anderes Motiv ohne eigene Symmetrie an derselben Stelle der Zelle ersetzt?',
-    bild: 'B#m=eg&g=p4gm&form=blatt&tap=1&zoom=1.76&og=2.65', bildAlt: 'Tapete der Ebenengruppe p4gm mit Blättern',
+    bild: 'B#m=entwurf&g=p4gm&basis=blatt,0,0.2,0.25,0,0.19&tap=1&zoom=1.76&farb=0', bildAlt: 'Tapete der Ebenengruppe p4gm mit Blättern',
     antworten: [
       'nur das Aussehen, nicht die Ebenengruppe',
       'die Ebenengruppe, weil das neue Motiv anders aussieht',
@@ -1524,7 +1524,7 @@ export const BANK = [
       'Die Zelle hängt an den Translationen der Gruppe, nicht an der Form des Motivs; die Translationen bleiben dieselben.',
       'Auch das Spiegelbild des Blattes ist ein Motiv ohne eigene Symmetrie; die Operationen, die seine Kopien erzeugen, bleiben dieselben.'],
     erklaerung: 'Die Ebenengruppe hängt davon ab, wie die Kopien des Motivs zueinander liegen, nicht davon, wie das Motiv aussieht. Das Blatt hat keine eigene Symmetrie, das neue Motiv ebenso wenig; beide sitzen in allgemeiner Lage, und jede Operation der Gruppe erzeugt eine eigene Kopie. Ebenengruppe und Elementarzelle bleiben deshalb gleich, nur das Bild ändert sich.',
-    skript: 'tapetengruppen', app: '#m=eg&g=p4gm&form=blatt&tap=1&zoom=1.76&og=2.65',
+    skript: 'tapetengruppen', app: '#m=entwurf&g=p4gm&basis=blatt,0,0.2,0.25,0,0.19&tap=1&zoom=1.76&farb=0',
     quelle: 'Skript, Abschn. 7.1, Abb. 7.1',
     status: 'geprüft',
   },
