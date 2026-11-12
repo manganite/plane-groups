@@ -18,6 +18,7 @@ export const TIPS = {
   's-farbe': 'Atomsorte: Motive verschiedener Farbe sind verschieden und werden nie aufeinander abgebildet.',
   's-winkel': 'Drehung des Motivs im Uhrzeigersinn, ab der Richtung von b.',
   's-spiegel': 'Spiegelbild des Motivs; gespiegelt wird vor der Drehung (beim Fähnchen an der Stange). Wirkt nur bei Motiven ohne eigene Spiegellinie (Fähnchen, Ornamente, Windräder); die übrigen sehen gespiegelt gleich aus.',
+  's-fuge': 'Ziegel mit gleich breiten Fugen: Das Rechteck schrumpft rundum um 5 % der Länge (0,1 Einheiten, wenn die Grösse eine halbe Einheit der Länge ist). Ohne Fuge füllt der Ziegel sein Raster lückenlos: Grösse = halbe Länge, in einer Läuferverband-Zelle mit a = b = 1 also 0,5. Nur beim Ziegel.',
   's-groesse': 'Grösse des Motivs (in Einheiten von a), von 0,02 bis 1. Der Regler ist logarithmisch: Der Bereich der Atome (etwa 0,05 bis 0,2) liegt in der Mitte und lässt sich fein einstellen.',
   'e-picker': 'Ebenengruppe des Entwurfs wählen. Die Motive bleiben erhalten, ihre Bilder entstehen unter der neuen Gruppe neu; das Gitter bleibt, wenn es zum Kristallsystem passt, sonst gilt dessen Startgitter. Gesperrt sind Gruppen, mit denen es mehr als 48 Bilder würden.',
   'e-elemente': 'Symmetrieelemente der gewählten Gruppe über dem Entwurf.',
@@ -70,7 +71,7 @@ export const TIPS = {
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
   { heading: '#ctl-struktur > h2', intro: 'Eine Struktur ist Gitter plus Basis. Die App bestimmt aus beiden die Ebenengruppe und zeigt sie mit konventioneller Zelle und Symmetrieelementen.', ids: ['s-vorgabe', 's-zuruecksetzen', 's-elemente', 's-zelle', 's-ae', 's-bindungen'] },
-  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Werkzeuge über der Struktur: „Wählen und ziehen“ und „Hinzufügen“.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 'werkzeug-lupe', 's-motiv', 's-farbe', 's-winkel', 's-spiegel', 's-groesse', 's-entfernen', 's-einrasten'] },
+  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Werkzeuge über der Struktur: „Wählen und ziehen“ und „Hinzufügen“.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 'werkzeug-lupe', 's-motiv', 's-farbe', 's-winkel', 's-spiegel', 's-fuge', 's-groesse', 's-entfernen', 's-einrasten'] },
   { heading: '#sec-zeichnen > summary', intro: 'Striche statt Motive: Zeichnen Sie etwas, die Gruppe macht daraus ein Muster. Striche und Motive lassen sich kombinieren; Striche haben die Farbe einer Atomsorte, Spiegelbilder dieselbe.', ids: ['s-werkzeug-zeichnen', 's-werkzeug-radieren', 'zeichnen-zurueck', 'zeichnen-loeschen'] },
   { heading: '#sec-sgitter > summary', intro: 'Gitter der gegebenen Zelle; in „Gitter und Basis“ ohne Bindung an ein Kristallsystem, im Entwurf innerhalb des Kristallsystems der Gruppe.', ids: ['s-ba', 's-gamma', 's-metrik'] },
   { heading: '#sec-weiter > summary', intro: 'Eine Struktur aus „Gitter und Basis“ als Muster weiterbearbeiten, in der bestimmten Gruppe.', ids: ['s-weiter'] },

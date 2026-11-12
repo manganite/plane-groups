@@ -8,7 +8,7 @@
 // Vertreter (CLAUDE.md, „Muster entwerfen“).
 
 import { VORGABEN } from './vorgaben.js';
-import { MOTIVE, MOTIVZEILEN, chiral } from './motive.js';
+import { MOTIVE, MOTIVZEILEN, chiral, hatFuge } from './motive.js';
 import { metrik, drehSymbol, elementeImBereich, grad, radieren, vereinfachen, STRICH_GRENZE } from './zeichnung.js';
 import { gruppe, mod1, lage } from './symmetrie.js';
 import { strukturStart, wieVorgabe, STRUKTUR_BEREICH, groesseVonRegler, reglerVonGroesse, BASIS_GRENZE, bahnGewicht, FREI } from './zustand.js';
@@ -24,7 +24,7 @@ import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from
 /** @import { Ansicht, Farben } from './zeichnung.js' */
 /** @import { Basiseintrag } from './motive.js' */
 /** @import { Bestimmung } from './bestimmung.js' */
-/** Vorlage für „Hinzufügen“ (groesse null: Grösse des Motivs). @typedef {{ motiv: string, farbe: number, winkel: Grad, groesse: number | null, spiegel?: true }} Vorlage */
+/** Vorlage für „Hinzufügen“ (groesse null: Grösse des Motivs). @typedef {{ motiv: string, farbe: number, winkel: Grad, groesse: number | null, spiegel?: true, fuge?: true }} Vorlage */
 
 const FARBNAMEN = ['Sorte 1', 'Sorte 2', 'Sorte 3', 'Sorte 4'];
 
@@ -206,6 +206,9 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     eingabe('s-spiegel').checked = Boolean(e.spiegel);
     eingabe('s-spiegel').disabled = !spiegelbar;
     element('#row-spiegel .why').textContent = spiegelbar ? '' : 'nur bei Motiven ohne Spiegellinie (Fähnchen, Ornamente, Windräder)';
+    eingabe('s-fuge').checked = Boolean(e.fuge);
+    eingabe('s-fuge').disabled = !hatFuge(e.motiv);
+    element('#row-fuge .why').textContent = hatFuge(e.motiv) ? '' : 'nur beim Ziegel';
     const gr = e.groesse ?? MOTIVE[e.motiv].groesse;
     eingabe('s-groesse').value = String(reglerVonGroesse(gr));
     $('s-groesse-out').textContent = dezimal(gr, 3);
@@ -435,6 +438,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       const e0 = { motiv: neu.motiv, farbe: neu.farbe, p: rasteVertreter(p), winkel: neu.winkel };
       if (neu.groesse !== null) e0.groesse = neu.groesse;
       if (neu.spiegel) e0.spiegel = true;
+      if (neu.fuge && hatFuge(neu.motiv)) e0.fuge = true;
       bau().basis.push(e0);
       gewaehlt = bau().basis.length - 1; gewaehltOp = 0;
       zug = { k: gewaehlt, op: 0, versatz: [0, 0] };
@@ -554,7 +558,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       // die Vorlage übernimmt das gewählte Motiv
       if (werkzeug === 'hinzufuegen' && gewaehlt !== null) {
         const e = /** @type {Basiseintrag} */ (gewaehltesBild());
-        neu = { motiv: e.motiv, farbe: e.farbe ?? 0, winkel: e.winkel ?? grad(0), groesse: e.groesse ?? null, ...(e.spiegel ? { spiegel: /** @type {true} */ (true) } : {}) };
+        neu = { motiv: e.motiv, farbe: e.farbe ?? 0, winkel: e.winkel ?? grad(0), groesse: e.groesse ?? null, ...(e.spiegel ? { spiegel: /** @type {true} */ (true) } : {}), ...(e.fuge ? { fuge: /** @type {true} */ (true) } : {}) };
         auswahlAufheben();
       }
       aktualisieren();
@@ -567,6 +571,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
         if (e === neu) neu.groesse = null; else delete /** @type {Basiseintrag} */ (e).groesse;
         // ein achirales Motiv ist gespiegelt dasselbe: das Feld entfällt (CLAUDE.md, „Muster entwerfen“)
         if (!chiral(e.motiv)) delete e.spiegel;
+        if (!hatFuge(e.motiv)) delete e.fuge; // ohne Fuge-Motiv gibt es nichts, was ruhen könnte
       });
       aktualisieren();
     });
@@ -584,6 +589,10 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     });
     $('s-spiegel').addEventListener('change', () => {
       aendern((e) => { if (eingabe('s-spiegel').checked && chiral(e.motiv)) e.spiegel = true; else delete e.spiegel; });
+      aktualisieren();
+    });
+    $('s-fuge').addEventListener('change', () => {
+      aendern((e) => { if (eingabe('s-fuge').checked && hatFuge(e.motiv)) e.fuge = true; else delete e.fuge; });
       aktualisieren();
     });
     $('s-groesse').addEventListener('input', () => { aendern((e) => { e.groesse = groesseVonRegler(Number(eingabe('s-groesse').value)); }); aktualisieren(); });

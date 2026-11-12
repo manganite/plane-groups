@@ -5,7 +5,7 @@
 
 import { EBENENGRUPPEN } from './ebenengruppen.js';
 import { VORGABEN, vorgabe } from './vorgaben.js';
-import { MOTIVE, chiral } from './motive.js';
+import { MOTIVE, chiral, hatFuge } from './motive.js';
 import { grad, STRICH_GRENZE } from './zeichnung.js';
 import { gruppe } from './symmetrie.js';
 
@@ -154,7 +154,7 @@ export function wieVorgabe(st) {
   return v.basis.every((e, i) => {
     const f = st.basis[i];
     return e.motiv === f.motiv && (e.farbe ?? 0) === (f.farbe ?? 0) && Math.abs(e.p[0] - f.p[0]) < 1e-9 && Math.abs(e.p[1] - f.p[1]) < 1e-9
-      && Boolean(e.spiegel) === Boolean(f.spiegel)
+      && Boolean(e.spiegel) === Boolean(f.spiegel) && Boolean(e.fuge) === Boolean(f.fuge)
       && Math.abs((e.winkel ?? 0) - (f.winkel ?? 0)) < 1e-9 && Math.abs((e.groesse ?? MOTIVE[e.motiv].groesse) - (f.groesse ?? MOTIVE[f.motiv].groesse)) < 1e-9;
   });
 }
@@ -337,8 +337,8 @@ const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 
 const GEMEINSAME_SCHALTER = SCHALTER.filter(([k]) => ['farb', 'mel', 'tap', 'fuell', 'lupe'].includes(k));
 
 /**
- * Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse][,m]; „m“: gespiegelt (nur bei
- * chiralen Motiven, sonst ohne Wirkung und weggelassen).
+ * Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse][,m][,f]; „m“: gespiegelt (nur bei
+ * chiralen Motiven, sonst ohne Wirkung und weggelassen), „f“: mit Fuge (nur beim Ziegel).
  * @param {Basiseintrag[]} basis
  */
 export function basisText(basis) {
@@ -346,6 +346,7 @@ export function basisText(basis) {
     const teile = [e.motiv, String(e.farbe ?? 0), koordText(e.p[0]), koordText(e.p[1]), kurz(e.winkel ?? 0, 3)];
     if (e.groesse !== undefined && Math.abs(e.groesse - MOTIVE[e.motiv].groesse) > 1e-9) teile.push(kurz(e.groesse, 4));
     if (e.spiegel && chiral(e.motiv)) teile.push('m');
+    if (e.fuge && hatFuge(e.motiv)) teile.push('f');
     return teile.join(',');
   }).join(';');
 }
@@ -355,9 +356,11 @@ export function liesBasis(text) {
   const out = [];
   for (const teil of String(text).split(';')) {
     const felder = teil.split(',');
-    // letztes Feld „m“: gespiegelt (ohne „m“ nicht gespiegelt)
-    const gespiegelt = felder.length > 5 && felder[felder.length - 1] === 'm';
-    if (gespiegelt) felder.pop();
+    // letzte Felder „m“ (gespiegelt) und „f“ (mit Fuge); ohne sie nicht gespiegelt und ohne Fuge
+    let gespiegelt = false; let fuge = false;
+    while (felder.length > 5 && (felder[felder.length - 1] === 'm' || felder[felder.length - 1] === 'f')) {
+      if (felder.pop() === 'm') gespiegelt = true; else fuge = true;
+    }
     const [motiv, farbe, x, y, winkel, groesse] = felder;
     if (!Object.hasOwn(MOTIVE, motiv ?? '')) continue;
     const f = zahl(farbe, 0, 3); const px = zahl(x, -1e3, 1e3); const py = zahl(y, -1e3, 1e3);
@@ -367,6 +370,7 @@ export function liesBasis(text) {
     const e = { motiv, farbe: f, p: [px, py], winkel: grad(w) };
     if (gr !== null) e.groesse = gr;
     if (gespiegelt && chiral(motiv)) e.spiegel = true;
+    if (fuge && hatFuge(motiv)) e.fuge = true;
     out.push(e);
     if (out.length >= BASIS_GRENZE) break;
   }
@@ -402,7 +406,8 @@ function pruefeBasis(liste, gewicht) {
     if (groesse === null) continue;
     // gespiegelt nur, wenn ausdrücklich true und das Motiv chiral ist (sonst ohne Wirkung)
     const spiegel = e.spiegel === true && chiral(motiv);
-    basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(umlauf(winkel)), ...(groesse === undefined ? {} : { groesse }), ...(spiegel ? { spiegel: true } : {}) });
+    const fuge = e.fuge === true && hatFuge(motiv);
+    basis.push({ motiv, farbe, p: [p[0], p[1]], winkel: grad(umlauf(winkel)), ...(groesse === undefined ? {} : { groesse }), ...(spiegel ? { spiegel: true } : {}), ...(fuge ? { fuge: true } : {}) });
   }
   return basis;
 }

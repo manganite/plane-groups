@@ -44,9 +44,9 @@ const x33434 = (3 - Math.sqrt(3)) / 4;
 const p6 = ([x, y]) => [[x, y], [-y, x - y], [-x + y, -x], [-x, -y], [y, -x + y], [x - y, x]];
 
 // Mauerwerk und Pflaster (Kap. 7): Ziegel 2 : 1 im Raster von 2 × 1 Einheiten. ziegel(m, w, u):
-// Mitte m in Bruchkoordinaten, Winkel w im Bild, u = Länge einer Einheit bei |a| = 1.
+// Mitte m in Bruchkoordinaten, Winkel w im Bild, u = Länge einer Einheit bei |a| = 1; mit Fuge (0,1 Einheiten).
 /** @param {Vec2} p @param {number} winkel @param {number} u @returns {Basiseintrag} */
-const ziegel = (p, winkel, u) => ({ motiv: 'ziegel', farbe: 0, p, winkel: grad(winkel), groesse: 0.95 * u });
+const ziegel = (p, winkel, u) => ({ motiv: 'ziegel', farbe: 0, p, winkel: grad(winkel), groesse: u, fuge: true });
 const F = gitter(2, 90); // Fischgrät: a = (1, 1), b = (2, −2) in Einheiten, |a| = √2
 
 // Spin-Eis: längliche Inseln auf den Bindungen
