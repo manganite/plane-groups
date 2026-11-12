@@ -26,11 +26,11 @@ test('jede Seite bindet Schriften, base.css und das Stylesheet ihres Seitentyps 
   }
 });
 
-test('Quiz: Speicher im Browser behält seinen Namen (sonst ginge der Stand der Studierenden verloren)', () => {
+test('Quiz: Speicher im Browser heisst wie festgelegt (Umbenennen verwirft den Lernstand, Leitfaden Abschn. 7)', () => {
   assert.equal(SPEICHER, 'ebenen-quiz');
 });
 
-test('Experimente: Speicher im Browser behält seinen Namen und beginnt mit dem Präfix der App', () => {
+test('Experimente: Speicher im Browser heisst wie festgelegt und beginnt mit dem Präfix der App', () => {
   const main = read('js/main.js');
   assert.match(main, /ablaufKarte\(\$\('experimente'\), [^{]*\{[^}]*speicher: 'ebenen-experimente'/);
   assert.match(main, /alleEinstellungenZuruecksetzen\('ebenen'\)/);

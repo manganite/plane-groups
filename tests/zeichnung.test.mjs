@@ -5,6 +5,7 @@ import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import {
   metrik, kart, bruchVon, kartMatrix, ansicht, blickrichtung, elementeImBereich, tafelA, tafelB, bilder, objektMassstab, erklaerend, schrittWirkt,
+  grad,
 } from '../js/zeichnung.js';
 import { startzustand, GITTER_START } from '../js/zustand.js';
 import { da } from './hilfen.mjs';
@@ -210,6 +211,9 @@ test('Objekt im Gitter: in Tafel A und B (Muster) im selben Verhältnis zur Zell
 test('Objekt im Muster: 0,8 · k · Vergrösserung · Grösse Bildpunkte je Bildpunkt', () => {
   for (const g of ['p4', 'p2mm', 'p1', 'p6', 'p2gg']) for (const zoomB of [0.5, 1, 1.76]) for (const og of [0.5, 1, 2.65]) for (const k of [1, 1.15]) {
     const z = { ...startzustand(), gruppe: g, zoomB, objGroesse: og };
+    // auch Gitter mit b/a < 1: die Gleichheit hängt an max(|a|, |b|) = max(1, b/a)
+    if (g === 'p1') z.gitter = { ...z.gitter, schiefwinklig: { ba: 0.8, gamma: grad(75) } };
+    if (g === 'p2mm') z.gitter = { ...z.gitter, rechteckig: { ba: 0.6, gamma: grad(90) } };
     const { ansicht: A } = tafelB(g, z, FARBEN, { k });
     const M = metrik(z.gitter[gruppe(g).daten.system]);
     assert.ok(nahe(objektMassstab(M, A, og, k), 0.8 * k * zoomB * og, 1e-9), `${g} zoom ${zoomB} og ${og} k ${k}`);

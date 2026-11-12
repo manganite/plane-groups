@@ -280,8 +280,8 @@ const MUSTER_BREITE = 4.4;
  * Grösse des Objekts im Gitter: Länge (in Einheiten der längeren Zellkante) je Bildpunkt der
  * Zeichnung des Objekts bei Massstab 1. Das Objekt ist damit wie eine Zeichnung und die Motive der
  * Basis im Gitter festgelegt und steht in beiden Tafeln, bei 2 × 2 Zellen und in der Lupe im selben
- * Verhältnis zur Zelle. Wert: im Muster bei Vergrösserung 1 und Massstab 1 sind es 0,8 Bildpunkte je Bildpunkt der
- * Zeichnung (500 Bildpunkte für MUSTER_BREITE).
+ * Verhältnis zur Zelle. Wert: im Muster sind es bei Vergrösserung 1, Grösse 1 und k = 1 genau 0,8 Bildpunkte
+ * je Bildpunkt der Zeichnung (500 Bildpunkte für MUSTER_BREITE).
  */
 const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 
@@ -306,7 +306,7 @@ export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !(z.h
 /**
  * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter
  * mit der Metrik M, mal k. In der App ist k = 1. In Tafel A gilt k nur für die Symbole (das Objekt
- * gehört zum Muster); Tafel B übergibt k, damit Muster in Quiz und Skript bleiben, wie sie waren.
+ * gehört zum Muster); Tafel B übergibt k (Quiz: K_MUSTER), dort wachsen Objekt und Symbole gemeinsam.
  * @param {Metrik} M @param {Ansicht} A @param {number} [groesse] @param {number} [k]
  */
 export function objektMassstab(M, A, groesse = 1, k = 1) {
