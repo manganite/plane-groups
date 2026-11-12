@@ -84,8 +84,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const M = metrik(en());
     return en().basis.flatMap((e, k) => bilderMitOperation(g, M, e).map((b) => ({ ...b, k })));
   }
-  /** Gezeichnete Struktur: im Entwurf die Bahnen der Vertreter ausgeschrieben, ohne Bindungen (die gehören zur Struktur). */
-  const gezeigt = () => (istEntwurf() ? { ...en(), bindungen: false, basis: motive().map((m) => m.bild) } : { ...st(), basis: motive().map((m) => m.bild) });
+  /** Gezeichnete Struktur: im Entwurf die Bahnen der Vertreter ausgeschrieben (Bindungen wie in „Gitter und Basis“ zwischen den Atomen). */
+  const gezeigt = () => (istEntwurf() ? { ...en(), basis: motive().map((m) => m.bild) } : { ...st(), basis: motive().map((m) => m.bild) });
   /** Ergebnis, das statt der Bestimmung gilt: im Entwurf die gewählte Gruppe, sonst undefined (bestimmen). @returns {import('./bestimmung.js').Bestimmung | undefined} */
   const gewaehlteGruppe = () => (istEntwurf() ? festeBestimmung(en()) : undefined);
   /**
@@ -99,8 +99,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     /** @type {Vec2} */
     const mitte = i !== null && basis[i] ? /** @type {Vec2} */ (basis[i].p.map(mod1)) : [0.5, 0.5];
     const gemeinsam = { farben: z.farben, fuell: z.aeFuell, lupe: z.lupe ? mitte : null };
-    // Entwurf: die Zelle ist die konventionelle (immer eingezeichnet), keine Bindungen
-    if (istEntwurf()) return { elemente: en().elemente, zelle: true, ae: en().ae, bindungen: false, ...gemeinsam };
+    // Entwurf: die Zelle ist die konventionelle (immer eingezeichnet)
+    if (istEntwurf()) return { elemente: en().elemente, zelle: true, ae: en().ae, bindungen: en().bindungen, ...gemeinsam };
     const s = st();
     return { elemente: s.elemente, zelle: s.zelle, ae: s.ae, bindungen: s.bindungen, ...gemeinsam };
   }
@@ -184,6 +184,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     } else {
       eingabe('e-elemente').checked = en().elemente;
       eingabe('e-ae').checked = en().ae;
+      eingabe('e-bindungen').checked = en().bindungen;
     }
     eingabe('s-einrasten').checked = rasten;
     for (const [id, w] of [['s-werkzeug-verschieben', 'verschieben'], ['s-werkzeug-hinzufuegen', 'hinzufuegen'], ['s-werkzeug-zeichnen', 'zeichnen'], ['s-werkzeug-radieren', 'radieren']]) $(id).setAttribute('aria-pressed', String(werkzeug === w));
@@ -533,7 +534,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     for (const [id, feld] of /** @type {[string, 'elemente' | 'zelle' | 'ae' | 'bindungen'][]} */ ([['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']])) {
       $(id).addEventListener('change', () => { st()[feld] = eingabe(id).checked; aktualisieren(); });
     }
-    for (const [id, feld] of /** @type {[string, 'elemente' | 'ae'][]} */ ([['e-elemente', 'elemente'], ['e-ae', 'ae']])) {
+    for (const [id, feld] of /** @type {[string, 'elemente' | 'ae' | 'bindungen'][]} */ ([['e-elemente', 'elemente'], ['e-ae', 'ae'], ['e-bindungen', 'bindungen']])) {
       $(id).addEventListener('change', () => { en()[feld] = eingabe(id).checked; aktualisieren(); });
     }
     $('s-einrasten').addEventListener('change', () => { rasten = eingabe('s-einrasten').checked; aktualisieren(); });
@@ -620,7 +621,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     $('s-weiter').addEventListener('click', () => {
       const u = uebernahme();
       if ('grund' in u) return;
-      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae }; verlauf = [];
+      z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae, bindungen: en().bindungen }; verlauf = [];
       umstellung = u.umstellung; z.modus = 'entwurf'; werkzeug = 'verschieben';
       aktualisieren();
     });

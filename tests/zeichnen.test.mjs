@@ -4,9 +4,10 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe } from '../js/symmetrie.js';
 import { kopien, vereinfachen, tafelA, tafelB, radieren, metrik } from '../js/zeichnung.js';
-import { startzustand, hashVon, entwurfStart, GITTER_START } from '../js/zustand.js';
+import { startzustand, hashVon, hashAnwenden, entwurfStart, GITTER_START } from '../js/zustand.js';
 import { strukturTafelA, strukturTafelB, festeBestimmung } from '../js/struktur.js';
 import { grad } from '../js/zeichnung.js';
+import { ausgeschrieben } from '../js/bahnen.js';
 import { da } from './hilfen.mjs';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
@@ -111,4 +112,25 @@ test('Radieren: nur das überfahrene Stück, auch an einer Kopie, Strich zerfäl
   assert.equal(radieren(senk, g4, M, mitte, 0.05).length, 2, 'p4: Kopie radiert → Original geteilt');
   // ganz überfahren: Strich weg
   assert.deepEqual(radieren([[[0.5, 0.5], [0.52, 0.5]]], gruppe('p1'), M, [0.51, 0.5], 0.05), []);
+});
+
+test('Bindungen im Entwurf: zwischen den Atomen aller Bilder, schaltbar, im Link nur bei Abweichung', () => {
+  const en = { ...entwurfStart('p4mm'), basis: [{ motiv: 'atom', farbe: 0, p: /** @type {Vec2} */ ([0.1, 0.2]), winkel: grad(0) }] };
+  const bindungen = (/** @type {boolean} */ an) => {
+    const e = { ...en, bindungen: an };
+    const st = { ...ausgeschrieben(e) };
+    const r = festeBestimmung(e);
+    return [strukturTafelA(st, { elemente: false, zelle: true, ae: false, bindungen: an, farben: false }, F, null, null, r).svg, strukturTafelB(st, F, r, 1).svg];
+  };
+  const linien = (/** @type {string} */ svg) => (svg.match(new RegExp(`<path d="[^"]*" stroke="${F.muted}" stroke-width="1.6"`)) ?? []).length;
+  for (const svg of bindungen(true)) assert.equal(linien(svg), 1, 'ein Pfad mit den Bindungen');
+  for (const svg of bindungen(false)) assert.equal(linien(svg), 0);
+  // Startwert: an; der Link trägt den Schalter nur, wenn er abweicht, und liest ihn zurück
+  assert.equal(entwurfStart().bindungen, true);
+  const z = { ...startzustand(), modus: /** @type {const} */ ('entwurf'), entwurf: en };
+  assert.doesNotMatch(hashVon(z), /bind/);
+  z.entwurf = { ...en, bindungen: false };
+  assert.match(hashVon(z), /bind=0/);
+  const z2 = startzustand(); hashAnwenden(z2, hashVon(z));
+  assert.equal(z2.entwurf.bindungen, false);
 });

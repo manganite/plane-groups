@@ -122,7 +122,7 @@ function beispiele() {
   // Anzeigen und „Darstellung“ im Entwurf
   for (const v of [{ farben: false }, { musterElemente: true, tapete: true }, { aeFuell: true, lupe: true, zoomB: 1.7 }]) {
     const zd = startzustand();
-    zd.modus = 'entwurf'; zd.entwurf = { ...entwurfStart('p4gm'), elemente: false, ae: true, basis: [{ motiv: 'fahne', farbe: 0, p: [0.1, 0.2], winkel: grad(0) }] }; Object.assign(zd, v);
+    zd.modus = 'entwurf'; zd.entwurf = { ...entwurfStart('p4gm'), elemente: false, ae: true, bindungen: false, basis: [{ motiv: 'fahne', farbe: 0, p: [0.1, 0.2], winkel: grad(0) }] }; Object.assign(zd, v);
     out.push(zd);
   }
   return out;
@@ -159,7 +159,7 @@ test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne
     { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p6', ba: 1, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
     { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p4mm', ba: 1.3, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
     { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p4mm', ba: 1, gamma: 90, basis: Array.from({ length: 9 }, (_, i) => ({ motiv: 'atom', p: [i / 10, 0.3] })) } } },
-    { v: 3, z: { modus: 'entwurf' } }, { v: 3, z: { modus: 'entwurf', entwurf: 'x' } }, { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p2', basis: 'x', elemente: 3, ae: 'ja' } } },
+    { v: 3, z: { modus: 'entwurf' } }, { v: 3, z: { modus: 'entwurf', entwurf: 'x' } }, { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p2', basis: 'x', elemente: 3, ae: 'ja', bindungen: 'nein' } } },
   ];
   for (const s of staende) {
     const z = ausSpeicher(JSON.parse(JSON.stringify(s) ?? 'null'));

@@ -167,6 +167,15 @@ try {
   await page.locator('#tab-eg').click(); await page.waitForTimeout(200);
   pruefe(await page.locator('#sec-zeichnen').isHidden() && await page.locator('#werkzeug-zeichnen').count() === 0, '„Ebenengruppen“ hat kein Zeichnen mehr');
 
+  // 8. Bindungen (nächste Nachbarn) im Entwurf: Schalter, Linien zwischen Atomen, Adresse
+  await oeffnen('#m=entwurf&g=p4mm&basis=atom,0,1/10,1/5,0');
+  const bindungenA = () => page.locator('#bild-a path[stroke-width="1.6"]').count();
+  pruefe(await page.locator('#e-bindungen').isChecked() && await bindungenA() === 1, 'Bindungen: standardmässig an, Linien zwischen den Atomen');
+  await page.locator('#e-bindungen').uncheck(); await page.waitForTimeout(200);
+  pruefe(await bindungenA() === 0 && (await adresse()).includes('bind=0'), 'Bindungen aus: keine Linien, bind=0 in der Adresse');
+  await page.reload(); await page.waitForTimeout(400);
+  pruefe(!(await page.locator('#e-bindungen').isChecked()), 'Bindungen aus überstehen das Neuladen');
+
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {
   await browser.close();
