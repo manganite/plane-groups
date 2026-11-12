@@ -9,7 +9,7 @@ import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, strukturPunkte } from './motive.js';
 import { passtNichtZurLage } from './bahnen.js';
-import { vektorText } from './warum.js';
+import { vektorText } from './herkunft-text.js';
 import { koordText, lageHTML, symbolHTML } from './text.js';
 import { schoenfliesHTML } from './symbole.js';
 import { SYSTEME, BRAVAIS } from './ebenengruppen.js';
@@ -380,9 +380,9 @@ export function festHinweisHTML(st, r, umstellung = null) {
       const l = lage(g, e.p, 1e-4);
       return `<li>${MOTIVE[e.motiv].name}${e.spiegel ? ', gespiegelt' : ''}, eigene Symmetrie ${lageHTML(MOTIVE[e.motiv].symmetrie)}: auf ${koordText(l.punkt)}, Wyckoff-Lage ${l.zaehligkeit}<span class="wy">${l.buchstabe}</span> mit Lagesymmetrie ${lageHTML(l.symbol)}</li>`;
     }).join('');
-    teile.push(`<div class="warumbox"><strong>Festgehalten ist ${fg}, die Struktur hat ${symbolHTML(r.symbol)}.</strong> Diese Motive passen nicht zu ihrer Lage:<ul>${liste}</ul>Ein Motiv auf einer speziellen Lage muss mindestens deren Lagesymmetrie haben und so ausgerichtet sein, dass seine Symmetrieelemente auf denen der Lage liegen. Sonst fehlt der Struktur diese Symmetrie.</div>`);
+    teile.push(`<div class="erklaerbox"><strong>Festgehalten ist ${fg}, die Struktur hat ${symbolHTML(r.symbol)}.</strong> Diese Motive passen nicht zu ihrer Lage:<ul>${liste}</ul>Ein Motiv auf einer speziellen Lage muss mindestens deren Lagesymmetrie haben und so ausgerichtet sein, dass seine Symmetrieelemente auf denen der Lage liegen. Sonst fehlt der Struktur diese Symmetrie.</div>`);
   } else if (r.symbol !== st.festeGruppe) {
-    teile.push(`<div class="warumbox"><strong>Festgehalten ist ${fg}, die Struktur hat aber ${symbolHTML(r.symbol)}.</strong> Sie hat mehr Symmetrie als festgehalten: zufällig, durch das Gitter oder die Lagen der Motive. „Bestimmte Gruppe übernehmen“ hält ${symbolHTML(r.symbol)} fest.</div>`);
+    teile.push(`<div class="erklaerbox"><strong>Festgehalten ist ${fg}, die Struktur hat aber ${symbolHTML(r.symbol)}.</strong> Sie hat mehr Symmetrie als festgehalten: zufällig, durch das Gitter oder die Lagen der Motive. „Bestimmte Gruppe übernehmen“ hält ${symbolHTML(r.symbol)} fest.</div>`);
   } else {
     teile.push(`<p class="note">Symmetrie festgehalten: ${fg}. Jedes Motiv erscheint mit seiner ganzen Bahn.</p>`);
   }
@@ -402,7 +402,7 @@ export function strukturHTML(st, r, vorher, farben, hinweis = '') {
   const lagen = basisLagen(st, r);
   const zelle = zellText(r.zelle);
   const aenderung = vorher && vorher !== r.symbol
-    ? `<div class="warumbox"><strong>Geändert: ${symbolHTML(vorher)} → ${symbolHTML(r.symbol)}</strong> (Operationen je Zelle ${gruppe(vorher).ordnung} → ${r.ordnung})</div>` : '';
+    ? `<div class="erklaerbox"><strong>Geändert: ${symbolHTML(vorher)} → ${symbolHTML(r.symbol)}</strong> (Operationen je Zelle ${gruppe(vorher).ordnung} → ${r.ordnung})</div>` : '';
   const zeilen = st.basis.map((e, k) => {
     const l = lagen[k];
     return `<tr><td><i class="sw" style="background:${f[(e.farbe ?? 0) % f.length]}"></i> ${MOTIVE[e.motiv].name}${e.spiegel ? ' (gespiegelt)' : ''}</td><td>${lageHTML(MOTIVE[e.motiv].symmetrie)}</td>

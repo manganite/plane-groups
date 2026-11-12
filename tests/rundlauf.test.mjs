@@ -13,8 +13,7 @@ import { ausgeschrieben } from '../js/bahnen.js';
 // unabhängig vom Code festgehalten: die 17 Symbole, Systeme mit festen Werten, Bereiche der Regler
 const SYMBOLE = ['p1', 'p2', 'pm', 'pg', 'cm', 'p2mm', 'p2mg', 'p2gg', 'c2mm', 'p4', 'p4mm', 'p4gm', 'p3', 'p3m1', 'p31m', 'p6', 'p6mm'];
 const FEST = { rechteckig: { gamma: 90 }, quadratisch: { ba: 1, gamma: 90 }, hexagonal: { ba: 1, gamma: 120 } };
-const BEREICH = { ba: [0.6, 1.6], gamma: [95, 125] };
-const SCHIEF = ['p1', 'p2']; // schiefwinklig: dort ist nichts zu brechen
+const BEREICH = { ba: [0.5, 2], gamma: [60, 150] }; // ein Bereich für alle Modi (Konzept „Muster entwerfen“, Entscheidung 12)
 // System und Zähligkeit der allgemeinen Lage je Gruppe (ITA Vol. A, Part 6), für „Symmetrie festhalten“
 /** @type {Record<string, [string, number]>} */
 const ALLGEMEIN = {
@@ -47,8 +46,7 @@ function pruefeGueltig(z) {
   assert.ok(Number.isInteger(z.aufbau) && z.aufbau >= 0 && z.aufbau <= 20, `aufbau ${z.aufbau}`);
   assert.ok(z.zoomB >= 0.5 && z.zoomB <= 3 && z.objGroesse >= 0.5 && z.objGroesse <= 3, 'zoomB, objGroesse');
   assert.ok(Array.isArray(z.aeTeile) && z.aeTeile.every((i, k) => Number.isInteger(i) && i >= 0 && (k === 0 || i > z.aeTeile[k - 1])), `aeTeile ${z.aeTeile}`);
-  assert.ok(typeof z.brechen === 'boolean' && !(z.brechen && SCHIEF.includes(z.gruppe)), 'brechen');
-  assert.ok(z.frei.ba >= 0.5 && z.frei.ba <= 2 && z.frei.gamma >= 60 && z.frei.gamma <= 150, 'frei');
+  assert.equal(typeof z.herkunft, 'boolean', 'herkunft');
   assert.ok(!(z.zeichnen && z.radieren), 'zeichnen und radieren');
   assert.ok(VORGABEN.some((v) => v.id === z.struktur.vorgabe), `struktur.vorgabe ${z.struktur.vorgabe}`);
   assert.ok(Array.isArray(z.struktur.basis) && z.struktur.basis.length > 0, 'struktur.basis');
@@ -82,10 +80,12 @@ function beispiele() {
     z.modus = 'struktur'; z.struktur = strukturStart(v.id);
     out.push(z);
   }
-  // Symmetrie gebrochen: freie Metrik
-  for (const g of ['pm', 'p4mm', 'p6mm']) {
+  // Grenzen des Gitterbereichs und „Herkunft der Elemente“
+  for (const [g, ba, gamma] of /** @type {[string, number, number][]} */ ([['p1', 0.5, 60], ['p2', 2, 150], ['pm', 2, 90]])) {
     const z = startzustand();
-    Object.assign(z, { gruppe: g, brechen: true, frei: { ba: 1.8, gamma: grad(70) } });
+    Object.assign(z, { gruppe: g, herkunft: true, erkl: 'm;1/2,0;0,1' });
+    z.gitter.schiefwinklig = { ba, gamma: grad(gamma) };
+    z.gitter.rechteckig = { ba, gamma: grad(90) };
     out.push(z);
   }
   // verändert gegenüber der Vorgabe (Zurücksetzen muss die Vorgabe kennen)
@@ -132,16 +132,16 @@ test('Rundlauf: Zustand → Speicher → Zustand (alles bleibt, auch was nicht i
 test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne Fehler (#96)', () => {
   /** @type {unknown[]} */
   const staende = [
-    null, 'x', 42, { v: 2, z: {} }, { v: 1 }, { v: 1, z: null },
+    null, 'x', 42, { v: 2 }, { v: 2, z: null }, { v: 2, z: {} },
     // falsche Arten in allen Feldern
-    { v: 1, z: { gruppe: '<b>', modus: 'tafel', punkt: [1, 'a'], gitter: { schiefwinklig: { ba: 'gross', gamma: NaN }, rechteckig: { ba: 9, gamma: 45 }, hexagonal: { ba: 2, gamma: 90 } }, schritt: 999, aufbau: -3, zoomB: 'x', objGroesse: 50, frei: 'nein', aeTeile: [7, -1, 'a'], striche: [[1, 2]], struktur: { vorgabe: 'gibtsnicht' } } },
-    { v: 1, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>', zeichnen: true, radieren: true, brechen: 'ja' } },
-    { v: 1, z: { gitter: { quadratisch: { ba: 1.3, gamma: 100 } } } }, // Werte, die das System nicht zulässt
+    { v: 2, z: { gruppe: '<b>', modus: 'tafel', punkt: [1, 'a'], gitter: { schiefwinklig: { ba: 'gross', gamma: NaN }, rechteckig: { ba: 9, gamma: 45 }, hexagonal: { ba: 2, gamma: 90 } }, schritt: 999, aufbau: -3, zoomB: 'x', objGroesse: 50, aeTeile: [7, -1, 'a'], striche: [[1, 2]], struktur: { vorgabe: 'gibtsnicht' } } },
+    { v: 2, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>', zeichnen: true, radieren: true, herkunft: 'ja' } },
+    { v: 2, z: { gitter: { quadratisch: { ba: 1.3, gamma: 100 } } } }, // Werte, die das System nicht zulässt
     // festgehaltene Gruppe: falsche Art, unbekannt, Gitter passt nicht zum System, zu viele Vertreter
-    ...[5, 'p7', '<b>', true].map((festeGruppe) => ({ v: 1, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } })),
-    { v: 1, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe: 'p6', basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
-    { v: 1, z: { modus: 'struktur', struktur: { ba: 1.3, gamma: 90, festeGruppe: 'p4mm', basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
-    { v: 1, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe: 'p4mm', basis: Array.from({ length: 9 }, (_, i) => ({ motiv: 'atom', p: [i / 10, 0.3] })) } } },
+    ...[5, 'p7', '<b>', true].map((festeGruppe) => ({ v: 2, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } })),
+    { v: 2, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe: 'p6', basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
+    { v: 2, z: { modus: 'struktur', struktur: { ba: 1.3, gamma: 90, festeGruppe: 'p4mm', basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
+    { v: 2, z: { modus: 'struktur', struktur: { ba: 1, gamma: 90, festeGruppe: 'p4mm', basis: Array.from({ length: 9 }, (_, i) => ({ motiv: 'atom', p: [i / 10, 0.3] })) } } },
   ];
   for (const s of staende) {
     const z = ausSpeicher(JSON.parse(JSON.stringify(s) ?? 'null'));
@@ -150,7 +150,7 @@ test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne
     assert.deepEqual(JSON.parse(JSON.stringify(neuLaden(z))), JSON.parse(JSON.stringify(z)));
   }
   // gültige Werte bleiben erhalten
-  const z = ausSpeicher({ v: 1, z: { gitter: { schiefwinklig: { ba: 1.5, gamma: 100 }, rechteckig: { ba: 0.7, gamma: 90 } }, schritt: 4 } });
+  const z = ausSpeicher({ v: 2, z: { gitter: { schiefwinklig: { ba: 1.5, gamma: 100 }, rechteckig: { ba: 0.7, gamma: 90 } }, schritt: 4 } });
   assert.deepEqual([z.gitter.schiefwinklig.ba, z.gitter.schiefwinklig.gamma, z.gitter.rechteckig.ba, z.schritt], [1.5, 100, 0.7, 4]);
 });
 
@@ -167,30 +167,36 @@ test('Rundlauf: Zurücksetzen vor und nach dem Neuladen gleich (Speicher und Lin
 
 test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review #97)', () => {
   /** @param {Record<string, unknown>} felder */
-  const speicher = (felder) => ausSpeicher({ v: 1, z: felder });
+  const speicher = (felder) => ausSpeicher({ v: 2, z: felder });
   // Gitter: Grenzen der Regler eingeschlossen, darüber hinaus der nächste gültige Wert (Leitfaden 5.2), keine Zahl: Startwert
   const g = (/** @type {number} */ ba) => speicher({ gitter: { schiefwinklig: { ba, gamma: 110 } } }).gitter.schiefwinklig.ba;
-  assert.equal(g(1.6), 1.6); assert.equal(g(0.6), 0.6); assert.equal(g(1.65), 1.6); assert.equal(g(0.55), 0.6);
+  assert.equal(g(2), 2); assert.equal(g(0.5), 0.5); assert.equal(g(2.05), 2); assert.equal(g(0.45), 0.5);
+  const gg = (/** @type {number} */ gamma) => speicher({ gitter: { schiefwinklig: { ba: 1.25, gamma } } }).gitter.schiefwinklig.gamma;
+  assert.deepEqual([gg(150), gg(60), gg(151), gg(59)], [150, 60, 150, 60]);
   assert.equal(speicher({ gitter: { schiefwinklig: { ba: '1.3', gamma: 110 } } }).gitter.schiefwinklig.ba, 1.25);
   const lg = (/** @type {string} */ ba) => { const z = startzustand(); hashAnwenden(z, `#m=eg&g=p1&ba=${ba}`); return z.gitter.schiefwinklig.ba; };
-  assert.deepEqual([lg('1.6'), lg('0.6'), lg('1.65'), lg('0.55'), lg('x')], [1.6, 0.6, 1.6, 0.6, 1.25]);
+  assert.deepEqual([lg('2'), lg('0.5'), lg('2.05'), lg('0.45'), lg('x')], [2, 0.5, 2, 0.5, 1.25]);
+  const lgg = (/** @type {string} */ gamma) => { const z = startzustand(); hashAnwenden(z, `#m=eg&g=p1&gamma=${gamma}`); return z.gitter.schiefwinklig.gamma; };
+  assert.deepEqual([lgg('150'), lgg('60'), lgg('151'), lgg('59'), lgg('x')], [150, 60, 150, 60, 105]);
   // schritt (ganzzahlige Auswahl): 25 bleibt, 26 wird zum Startwert, in beiden Wegen
   assert.deepEqual([speicher({ schritt: 25 }).schritt, speicher({ schritt: 26 }).schritt], [25, 0]);
   const ls = (/** @type {string} */ n) => { const z = startzustand(); hashAnwenden(z, `#m=eg&schritt=${n}`); return z.schritt; };
   assert.deepEqual([ls('25'), ls('26')], [25, 0]);
-  // brechen im schiefwinkligen System: in beiden Wegen verworfen
-  assert.equal(speicher({ gruppe: 'p2', brechen: true }).brechen, false);
-  const zl = startzustand(); hashAnwenden(zl, '#m=eg&g=p2&brechen=1&ba=1.8&gamma=70');
-  assert.equal(zl.brechen, false);
-  // frei: ausserhalb von 0,5 … 2 bzw. 60 … 150° der nächste gültige Wert, keine Zahl: Startwert des Systems
-  const f = speicher({ gruppe: 'p6mm', brechen: true, frei: { ba: 9, gamma: 30 } }).frei;
-  assert.deepEqual([f.ba, f.gamma], [2, 60]);
-  const fl = startzustand(); hashAnwenden(fl, '#m=eg&g=p6mm&brechen=1&ba=9&gamma=30');
-  assert.deepEqual([fl.frei.ba, fl.frei.gamma], [2, 60]);
-  const fx = speicher({ gruppe: 'p6mm', brechen: true, frei: { ba: 'x', gamma: null } }).frei;
-  assert.deepEqual([fx.ba, fx.gamma], [1, 120]); // Startwert des hexagonalen Systems
-  const fxl = startzustand(); hashAnwenden(fxl, '#m=eg&g=p6mm&brechen=1&ba=x&gamma=');
-  assert.deepEqual([fxl.frei.ba, fxl.frei.gamma], [1, 120]);
+  // Gitter im rechteckigen System: nur b/a ist frei, γ bleibt 90°, auch mit γ in Speicher und Link
+  const r = speicher({ gruppe: 'pm', gitter: { rechteckig: { ba: 9, gamma: 45 } } }).gitter.rechteckig;
+  assert.deepEqual([r.ba, r.gamma], [2, 90]);
+  const rl = startzustand(); hashAnwenden(rl, '#m=eg&g=pm&ba=9&gamma=45');
+  assert.deepEqual([rl.gitter.rechteckig.ba, rl.gitter.rechteckig.gamma], [2, 90]);
+  // Stand und Link aus Fassungen mit „Symmetrie brechen“ oder `warum`: Der Speicher von v1 gilt nicht mehr (Leitfaden
+  // Abschn. 8); die Felder brechen, frei, warum und die Link-Schlüssel brechen=1 und warum=1 haben keine Wirkung
+  assert.deepEqual(JSON.parse(JSON.stringify(ausSpeicher({ v: 1, z: { gruppe: 'p4mm', schritt: 3 } }))), JSON.parse(JSON.stringify(startzustand())));
+  const alt1 = ausSpeicher({ v: 2, z: { gruppe: 'p6mm', brechen: true, frei: { ba: 1.8, gamma: 70 }, warum: true } });
+  assert.deepEqual([alt1.gruppe, alt1.herkunft, 'brechen' in alt1, 'frei' in alt1, 'warum' in alt1], ['p6mm', false, false, false, false]);
+  const alt2 = startzustand(); hashAnwenden(alt2, '#m=eg&g=p6mm&brechen=1&warum=1');
+  assert.deepEqual([alt2.gruppe, alt2.herkunft, 'brechen' in alt2, 'warum' in alt2], ['p6mm', false, false, false]);
+  // `warum=1` wird nicht zu `herkunft`: Der Link zeigt die Erklärung, aber ohne den Schalter
+  const alt3 = startzustand(); hashAnwenden(alt3, '#m=eg&g=p4mm&warum=1&erkl=4;0,0');
+  assert.deepEqual([alt3.herkunft, alt3.erkl], [false, '4;0,0']);
   // Vergrösserung, Objekt, Struktur und Motivgrösse: in beiden Wegen der nächste gültige Wert
   const zs = speicher({ zoomB: 9, objGroesse: 0.1, struktur: { ba: 5, gamma: 10, basis: [{ motiv: 'atom', p: [0, 0], groesse: 7 }] } });
   assert.deepEqual([zs.zoomB, zs.objGroesse, zs.struktur.ba, zs.struktur.gamma, zs.struktur.basis[0].groesse], [3, 0.5, 2, 60, 1]);
@@ -236,7 +242,7 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   // aeTeile: Doppelte weg, aufsteigend
   assert.deepEqual(speicher({ gruppe: 'p2mm', aeTeile: [1, 0, 0, 1, 99] }).aeTeile, [0, 1]);
   // fremde Schlüssel und __proto__ werden nicht übernommen
-  const z = ausSpeicher(JSON.parse('{"v":1,"z":{"__proto__":{"boese":1},"fremd":2,"gruppe":"p4"}}'));
+  const z = ausSpeicher(JSON.parse('{"v":2,"z":{"__proto__":{"boese":1},"fremd":2,"gruppe":"p4"}}'));
   assert.equal(z.gruppe, 'p4');
   assert.ok(!('fremd' in z) && !('boese' in z) && Object.getPrototypeOf(z) === Object.prototype);
 });

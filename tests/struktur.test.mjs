@@ -195,7 +195,7 @@ test('Link-Adresse: Vorgabe kurz, veränderte Struktur ausgeschrieben, hin und z
   assert.equal(z2.struktur.vorgabe, 'kagome');
   assert.equal(wieVorgabe(strukturStart(z2.struktur.vorgabe)), true);
   assert.deepEqual(strukturStart(z2.struktur.vorgabe).basis, strukturStart('kagome').basis);
-  // alte Links ohne v: Herkunft wie bisher der Start
+  // ohne v: die Vorgabe des Starts
   const alt = startzustand();
   hashAnwenden(alt, h.replace('v=kagome&', ''));
   assert.equal(alt.struktur.vorgabe, 'dreieck1');
@@ -259,7 +259,7 @@ test('Spiegelbild: Fähnchen und sein Bild unter (−x, y) ergeben pm, ein Windr
   assert.equal(symmetrie(g).symbol, 'pg');
 });
 
-test('Spiegelbild im Link: letztes Feld „m“, ältere Links gelten weiter', () => {
+test('Spiegelbild im Link: letztes Feld „m“, ohne „m“ nicht gespiegelt', () => {
   const b = liesBasis('fahne,0,1/4,0,30,m;fahne,1,1/4,1/2,30,0.2,m;fahne,2,0,0,30;dreieck,0,0,0,0,m;w3,0,0,0,0,0.2;atom,0,0,0,m');
   assert.deepEqual(b.map((e) => [e.motiv, e.spiegel ?? false, e.groesse ?? null]),
     [['fahne', true, null], ['fahne', true, 0.2], ['fahne', false, null], ['dreieck', false, null], ['w3', false, 0.2], ['atom', false, null]],
@@ -307,7 +307,7 @@ test('Symmetrie festhalten im Link: ungültig → Struktur der Vorgabe, nicht fe
     assert.deepEqual(z.struktur.basis, v.basis, h);
     assert.deepEqual([z.struktur.ba, z.struktur.gamma], [1, 90], h);
   }
-  // ohne sg: basis= sind wie bisher alle Motive
+  // ohne sg: basis= enthält alle Motive
   const z = startzustand(); hashAnwenden(z, '#m=struktur&v=quadratisch&ba=1&gamma=90&basis=fahne,0,1/10,1/5,0');
   assert.deepEqual([z.struktur.festeGruppe, ausgeschrieben(z.struktur).basis.length], [null, 1]);
 });
@@ -336,7 +336,7 @@ test('Symmetrie festhalten im Speicher', () => {
   const ok = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'graphen', ba: 1.0002, gamma: 120.001, festeGruppe: 'p6', basis }));
   assert.deepEqual([ok.festeGruppe, ok.ba, ok.gamma, ok.basis.length], ['p6', 1, 120, 1]);
   const alt = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'graphen', ba: 1, gamma: 120, basis }));
-  assert.equal(alt.festeGruppe, null, 'älterer Speicher ohne Feld: nicht festgehalten');
+  assert.equal(alt.festeGruppe, null, 'Speicher ohne Feld: nicht festgehalten');
   for (const [fg, ba, gamma] of /** @type {[unknown, number, number][]} */ ([['p7', 1, 120], [5, 1, 120], ['p6', 1.2, 120], ['p6', 1, 90]])) {
     const s = /** @type {StrukturZustand} */ (pruefeStruktur({ vorgabe: 'graphen', ba, gamma, festeGruppe: fg, basis, ae: true }));
     assert.equal(s.festeGruppe, null, String(fg));

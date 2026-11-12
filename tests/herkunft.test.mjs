@@ -5,7 +5,7 @@ import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { gruppe, verknuepfen, beschreibe, erzeugende } from '../js/symmetrie.js';
 import { herkunft, herleitung, herkunftVon, schrittVon, elementSchluessel, elementVonOp, vorbild } from '../js/herkunft.js';
 import { elementeImBereich, aufbauElemente, erklaerungsDaten, metrik, tafelA } from '../js/zeichnung.js';
-import { erklaerungHTML, regel, vektorText } from '../js/warum.js';
+import { erklaerungHTML, regel, vektorText } from '../js/herkunft-text.js';
 import { startzustand, hashVon, hashAnwenden, GITTER_START } from '../js/zustand.js';
 import { liesOp, translation } from '../js/symmetrie.js';
 import { da } from './hilfen.mjs';
@@ -128,14 +128,14 @@ test('Vektoren in a und b', () => {
 });
 
 test('Link-Adresse: Herkunft der Elemente, gewähltes Element und Aufbau hin und zurück', () => {
-  const z = { ...startzustand(), gruppe: 'p4mm', warum: true, erkl: 'g;-1/2,0;1,1', aufbau: 2 };
+  const z = { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: 'g;-1/2,0;1,1', aufbau: 2 };
   const h = hashVon(z);
-  assert.match(h, /warum=1&erkl=g;-1\/2,0;1,1&aufbau=2/);
+  assert.match(h, /herkunft=1&erkl=g;-1\/2,0;1,1&aufbau=2/);
   const z2 = startzustand();
   hashAnwenden(z2, h);
   assert.equal(z2.erkl, 'g;-1/2,0;1,1');
   assert.equal(z2.aufbau, 2);
-  assert.equal(z2.warum, true);
+  assert.equal(z2.herkunft, true);
   hashAnwenden(z2, '#m=eg&g=p4mm&erkl=<script>&aufbau=x');
   assert.equal(z2.erkl, null);
   assert.equal(z2.aufbau, 0);

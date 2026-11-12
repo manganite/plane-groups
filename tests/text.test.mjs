@@ -1,7 +1,7 @@
 // Schreibweise wie in ITA: Querstrich nur für ein führendes Minus, Brüche als Zeichen.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { koordHTML, opHTML, bedingungHTML, zahlText, lageHTML, koordText, dezimal, richtungHTML } from '../js/text.js';
+import { koordHTML, opHTML, zahlText, lageHTML, koordText, dezimal, richtungHTML } from '../js/text.js';
 
 // Querstrich als kombinierendes Zeichen, verglichen in Normalform NFC (ȳ ist auch vorkomponiert)
 /** @param {string} s */
@@ -28,9 +28,7 @@ test('Operationen wie in ITA', () => {
   gleich(ohneTags(opHTML('m x+1/2,-x')), 'm x+½, x̄');
 });
 
-test('Auslöschungen, Zahlen, Lagesymmetrie', () => {
-  gleich(ohneTags(bedingungHTML(['h0', 'h=2n'])), 'h0: h = 2n');
-  gleich(ohneTags(bedingungHTML(['hk', 'h+k=2n'])), 'hk: h + k = 2n');
+test('Zahlen, Lagesymmetrie', () => {
   assert.equal(zahlText(0.25), '¼');
   assert.equal(zahlText(0), '0');
   assert.equal(zahlText(1 / 3), '⅓');

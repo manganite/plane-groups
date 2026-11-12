@@ -241,7 +241,7 @@ test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Z
   /** @type {Vec2[][]} */
   const striche = [[[0.2, 0.2], [0.4, 0.3]]];
   const basis = { ...startzustand(), gruppe: 'p4', striche, lupe: true };
-  for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { warum: true }, { erkl: '4;1/2,1/2' }])) {
+  for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { herkunft: true }, { erkl: '4;1/2,1/2' }])) {
     const z = { ...basis, ...opt };
     assert.ok(erklaerend(z), JSON.stringify(opt));
     const a = tafelA('p4', z, FARBEN, { k: 1.4 });
@@ -256,9 +256,8 @@ test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Z
   // ohne Erklärung: Zeichnung da, Lupe wirkt, Objekt im Gitter
   const normal = tafelA('p4', basis, FARBEN);
   assert.ok(!erklaerend(basis) && normal.lupeBox !== null && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
-  // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht; beim Brechen ruhen die Erklärungen selbst
-  assert.ok(!erklaerend({ ...basis, warum: true, elemente: false }));
-  assert.ok(!erklaerend({ ...basis, schritt: 2, brechen: true }));
+  // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht
+  assert.ok(!erklaerend({ ...basis, herkunft: true, elemente: false }));
   // gefüllte asymmetrische Einheit ruht mit der Zeichnung
   assert.ok(!tafelA('p4', { ...basis, striche: [], aeFuell: true, aufbau: 1 }, FARBEN).svg.includes('class="zeichnung"'));
   // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
@@ -266,11 +265,11 @@ test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Z
   assert.ok(unbekannt.erklaerung === null && unbekannt.lupeBox !== null && unbekannt.svg.includes('class="zeichnung"'));
 });
 
-test('Schritt für Schritt: wirkt nur ohne „Herkunft der Elemente“, mit Objekt und ohne Brechen', () => {
+test('Schritt für Schritt: wirkt nur ohne „Herkunft der Elemente“ und mit Objekt', () => {
   const z = { ...startzustand(), gruppe: 'p4mm', schritt: 2 };
   assert.ok(schrittWirkt(z));
-  assert.ok(!schrittWirkt({ ...z, warum: true }) && schrittWirkt({ ...z, warum: true, elemente: false }));
-  assert.ok(!schrittWirkt({ ...z, erkl: '4;0,0' }) && !schrittWirkt({ ...z, objekt: false }) && !schrittWirkt({ ...z, brechen: true }) && !schrittWirkt({ ...z, schritt: 0 }));
+  assert.ok(!schrittWirkt({ ...z, herkunft: true }) && schrittWirkt({ ...z, herkunft: true, elemente: false }));
+  assert.ok(!schrittWirkt({ ...z, erkl: '4;0,0' }) && !schrittWirkt({ ...z, objekt: false }) && !schrittWirkt({ ...z, schritt: 0 }));
   // Tafel A: mit gültiger Erklärung keine Schritte, mit unbekanntem Element (alter Link) schon
   assert.ok(tafelA('p4mm', z, FARBEN).svg.includes('class="schritte"'));
   assert.ok(!tafelA('p4mm', { ...z, erkl: '4;0,0' }, FARBEN).svg.includes('class="schritte"'));

@@ -37,15 +37,13 @@ import { gruppe } from './symmetrie.js';
  * @property {boolean} lupe
  * @property {boolean} orbit
  * @property {boolean} musterElemente
- * @property {boolean} warum
+ * @property {boolean} herkunft
  * @property {string | null} erkl
  * @property {number} aufbau
  * @property {boolean} zeichnen
  * @property {boolean} radieren
  * @property {Vec2[][]} striche
  * @property {boolean} aeFuell
- * @property {boolean} brechen
- * @property {Gitter} frei
  * @property {number} schritt
  * @property {number[]} aeTeile
  * @property {Record<System, Gitter>} gitter
@@ -65,13 +63,12 @@ export const GITTER_START = /** @type {Record<System, Gitter>} */ ({
   quadratisch: { ba: 1, gamma: 90 },
   hexagonal: { ba: 1, gamma: 120 },
 });
-/** Bereiche der Regler (eigene Festlegung der App, so dass keine höhere Symmetrie entsteht). @type {Record<'ba' | 'gamma', [number, number]>} */
+/**
+ * Bereich der Gitterregler in allen Modi (eigene Festlegung der App, Konzept „Muster entwerfen“, Entscheidung 12):
+ * alle Metriken ausser fast entarteten. Er schliesst höhere Metrik nicht aus (b/a = 1 oder γ = 90° sind einstellbar);
+ * zufällige Zusatzsymmetrie ist hier gewollt und zeigt sich in den Kenndaten. @type {Record<'ba' | 'gamma', [number, number]>}
+ */
 export const GITTER_BEREICH = {
-  ba: [0.6, 1.6],
-  gamma: [95, 125],
-};
-/** Bereiche der Regler beim Brechen der Symmetrie (alle Metriken ausser fast entarteten). @type {Record<'ba' | 'gamma', [number, number]>} */
-export const FREI_BEREICH = {
   ba: [0.5, 2],
   gamma: [60, 150],
 };
@@ -83,8 +80,8 @@ export const FREI = {
   hexagonal: [],
 };
 
-/** Bereiche der Regler im Modus „Gitter und Basis“ (wie beim Brechen der Symmetrie). @type {Record<'ba' | 'gamma' | 'groesse', [number, number]>} */
-export const STRUKTUR_BEREICH = { ba: [0.5, 2], gamma: [60, 150], groesse: [0.02, 1] };
+/** Bereiche der Regler im Modus „Gitter und Basis“: die Gitterbereiche (GITTER_BEREICH) und die Grösse der Motive. @type {Record<'ba' | 'gamma' | 'groesse', [number, number]>} */
+export const STRUKTUR_BEREICH = { ...GITTER_BEREICH, groesse: [0.02, 1] };
 /** Höchste Nummer im Ablauf „Schritt für Schritt“ in Link und Speicher (die Anzeige begrenzt auf die Gruppe). */
 export const SCHRITT_GRENZE = 25;
 /** Höchstzahl der Motive in der Basis. */
@@ -142,11 +139,10 @@ export function wieVorgabe(st) {
 
 /**
  * Gesehene Erste Schritte aus dem gespeicherten Wert von `ebenen-intro`: Modi, durch Komma getrennt.
- * Bis v1.0.1 hiess „1“: die damals einzigen Ersten Schritte (Modus „Ebenengruppen“) sind gesehen.
  * @param {string | null | undefined} wert
  * @returns {Set<string>}
  */
-export const introGesehen = (wert) => new Set(String(wert ?? '').split(',').filter(Boolean).map((m) => (m === '1' ? 'eg' : m)));
+export const introGesehen = (wert) => new Set(String(wert ?? '').split(',').filter(Boolean));
 
 /** Startzustand. @returns {Zustand} */
 export function startzustand() {
@@ -167,15 +163,13 @@ export function startzustand() {
     lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
-    warum: false, // „Herkunft der Elemente“ (früher „Warum ist das da?“): Antippen wählt ein Element
+    herkunft: false, // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
     zeichnen: false, // Werkzeug „Zeichnen“ in Tafel A (nicht in der Link-Adresse)
     radieren: false, // Werkzeug „Radieren“ in Tafel A (nicht in der Link-Adresse)
     striche: [], // gezeichnete Striche in Bruchkoordinaten (nur im Browser gespeichert, nicht im Link)
     aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
-    brechen: false, // Symmetrie brechen: Gitter ohne die Bindung des Kristallsystems
-    frei: { ba: 1, gamma: grad(90) }, // freie Metrik beim Brechen
     schritt: 0, // Schritt für Schritt: 0 aus, sonst Operation 1 … N der ITA-Liste, N + 1 Gittertranslationen
     aeTeile: [], // angetippte Bedingungen der asymmetrischen Einheit (Nummern ab 0, aufsteigend)
     gitter: JSON.parse(JSON.stringify(GITTER_START)),
@@ -249,7 +243,7 @@ export function zustandPruefen(z) {
   if (z.modus !== 'eg' && z.modus !== 'struktur') z.modus = s.modus;
   if (!imFeld(z.punkt)) z.punkt = s.punkt;
   for (const [, f] of SCHALTER) if (typeof z[f] !== 'boolean') z[f] = s[f];
-  if (typeof z.warum !== 'boolean') z.warum = s.warum;
+  if (typeof z.herkunft !== 'boolean') z.herkunft = s.herkunft;
   if (!FORMEN.includes(z.form)) z.form = s.form;
   if (z.zellen !== 2) z.zellen = s.zellen;
   if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
@@ -261,16 +255,6 @@ export function zustandPruefen(z) {
   const zahlTeile = /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === z.gruppe)).ae.text.split(';').length;
   z.aeTeile = Array.isArray(z.aeTeile) ? [...new Set(z.aeTeile.filter((i) => Number.isInteger(i) && i >= 0 && i < zahlTeile))].sort((x, y) => x - y) : [];
   z.gitter = gitterPruefen(z.gitter);
-  // Brechen nur ausserhalb des schiefwinkligen Systems (dort ist nichts zu brechen), Metrik in FREI_BEREICH
-  const sys = systemVon(z.gruppe);
-  z.brechen = z.brechen === true && sys !== 'schiefwinklig';
-  /** @type {unknown} */
-  const fr = z.frei;
-  const s0 = z.brechen ? GITTER_START[sys] : s.frei;
-  z.frei = {
-    ba: (istObjekt(fr) ? begrenzt(fr.ba, FREI_BEREICH.ba) : null) ?? s0.ba,
-    gamma: grad((istObjekt(fr) ? begrenzt(fr.gamma, FREI_BEREICH.gamma) : null) ?? s0.gamma),
-  };
   // Werkzeuge und gezeichnete Striche (nur im Speicher): Folgen von Punkten, höchstens STRICH_GRENZE
   z.zeichnen = z.zeichnen === true;
   z.radieren = z.radieren === true && !z.zeichnen;
@@ -301,13 +285,13 @@ export function gitterPruefen(g) {
 }
 
 /**
- * Zustand aus dem Speicher des Browsers (JSON.parse von { v: 1, z }), geprüft mit zustandPruefen wie die
+ * Zustand aus dem Speicher des Browsers (JSON.parse von { v: 2, z }), geprüft mit zustandPruefen wie die
  * Link-Adresse. Ohne gültigen Stand der Startzustand. Gegenstück: speicherStand.
  * @param {unknown} gespeichert @returns {Zustand}
  */
 export function ausSpeicher(gespeichert) {
   const z = startzustand();
-  if (!istObjekt(gespeichert) || gespeichert.v !== 1 || !istObjekt(gespeichert.z)) return z;
+  if (!istObjekt(gespeichert) || gespeichert.v !== SPEICHER_VERSION || !istObjekt(gespeichert.z)) return z;
   // nur die Felder des Zustands (keine fremden Schlüssel, kein __proto__)
   const g = gespeichert.z;
   const ziel = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (z));
@@ -315,8 +299,15 @@ export function ausSpeicher(gespeichert) {
   return zustandPruefen(z);
 }
 
+/**
+ * Version des Speicherformats (Leitfaden Abschn. 8): steigt, wenn sich das Format ändert; ein Stand mit anderer
+ * Version wird verworfen (Startzustand). 2: Feld `warum` heisst `herkunft`, `brechen` und `frei` entfallen
+ * (v1.x hatte 1; Entscheidung dazu in CLAUDE.md).
+ */
+export const SPEICHER_VERSION = 2;
+
 /** Stand für den Speicher des Browsers (Gegenstück zu ausSpeicher). @param {Zustand} z */
-export const speicherStand = (z) => ({ v: 1, z });
+export const speicherStand = (z) => ({ v: SPEICHER_VERSION, z });
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
 /** @type {[string, Schalterfeld][]} */
@@ -341,7 +332,7 @@ export function liesBasis(text) {
   const out = [];
   for (const teil of String(text).split(';')) {
     const felder = teil.split(',');
-    // letztes Feld „m“: gespiegelt (ältere Links haben es nicht)
+    // letztes Feld „m“: gespiegelt (ohne „m“ nicht gespiegelt)
     const gespiegelt = felder.length > 5 && felder[felder.length - 1] === 'm';
     if (gespiegelt) felder.pop();
     const [motiv, farbe, x, y, winkel, groesse] = felder;
@@ -449,22 +440,15 @@ export function hashVon(z) {
   if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
   if (z.objGroesse !== s.objGroesse) q.set('og', kurz(z.objGroesse, 3));
   if (z.form !== s.form) q.set('form', z.form);
-  if (z.warum) q.set('warum', '1');
+  if (z.herkunft) q.set('herkunft', '1');
   if (z.erkl) q.set('erkl', z.erkl);
   if (z.aufbau > 0) q.set('aufbau', String(z.aufbau));
   if (z.schritt > 0) q.set('schritt', String(z.schritt));
   if (z.aeTeile?.length) q.set('aet', z.aeTeile.join(','));
   const sys = systemVon(z.gruppe);
-  if (z.brechen) {
-    // Gitter ohne Bindung an das System: beide Parameter, auch wo sie dem Start gleichen
-    q.set('brechen', '1');
-    q.set('ba', kurz(z.frei.ba, 3));
-    q.set('gamma', kurz(z.frei.gamma, 2));
-  } else {
-    for (const k of FREI[sys]) {
-      const v = z.gitter[sys][k];
-      if (Math.abs(v - GITTER_START[sys][k]) > 1e-9) q.set(k, kurz(v, 3));
-    }
+  for (const k of FREI[sys]) {
+    const v = z.gitter[sys][k];
+    if (Math.abs(v - GITTER_START[sys][k]) > 1e-9) q.set(k, kurz(v, 3));
   }
   // lesbar: Brüche (x=1/3) und Elementschlüssel (erkl=m;1/4,0;0,1)
   return '#' + q.toString().replace(/%2F/g, '/').replace(/%3B/g, ';').replace(/%2C/g, ',');
@@ -506,7 +490,7 @@ function hashLesen(z, hash) {
   z.objGroesse = zahlBegrenzt(q.get('og'), ...OBJ_BEREICH) ?? s.objGroesse;
   const form = q.get('form');
   if (form !== null && FORMEN.includes(form)) z.form = form;
-  if (q.has('warum')) z.warum = an(q.get('warum'));
+  if (q.has('herkunft')) z.herkunft = an(q.get('herkunft'));
   const erkl = q.get('erkl');
   if (erkl && ERKL_MUSTER.test(erkl)) z.erkl = erkl;
   const aufbau = zahl(q.get('aufbau'), 0, 20);
@@ -521,13 +505,6 @@ function hashLesen(z, hash) {
   }
   const sys = systemVon(z.gruppe);
   z.gitter[sys] = { ...GITTER_START[sys] };
-  // brechen=1: ba und gamma ohne Bindung an das System (im schiefwinkligen System ist nichts zu brechen)
-  if (an(q.get('brechen') ?? '') && sys !== 'schiefwinklig') {
-    z.brechen = true;
-    const s0 = GITTER_START[sys];
-    z.frei = { ba: zahlBegrenzt(q.get('ba'), ...FREI_BEREICH.ba) ?? s0.ba, gamma: grad(zahlBegrenzt(q.get('gamma'), ...FREI_BEREICH.gamma) ?? s0.gamma) };
-    return true;
-  }
   for (const k of FREI[sys]) {
     const v = zahlBegrenzt(q.get(k), ...GITTER_BEREICH[k]);
     if (v !== null) z.gitter[sys][k] = grad(v); // ba oder gamma; grad() kennzeichnet nur
