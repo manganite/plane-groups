@@ -139,6 +139,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const b = /** @type {Basiseintrag} */ (gewaehltesBild());
     aenderung(b);
     bau().basis[gewaehlt] = { ...vertreterVon(g.alle[gewaehltOp], metrik(bau()), b), p: bau().basis[gewaehlt].p };
+    // fallen Bilder durch die Änderung zusammen, bleibt das gezeichnete gewählt (Review PR #144)
+    gewaehltOp = sichtbareOp(g, metrik(bau()), bau().basis[gewaehlt], gewaehltOp);
   }
   /** Nummer des gewählten Bildes in der gezeichneten Liste (für die Markierung) oder null. */
   const gewaehltGezeichnet = () => {
@@ -436,13 +438,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (!auswahl('s-vorgabe').value) return;
       const alt = st();
       z.struktur = { ...strukturStart(auswahl('s-vorgabe').value), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
-      auswahlAufheben(); letztes = undefined; vorher = null; umstellung = null;
+      auswahlAufheben(); letztes = undefined; vorher = null;
       aktualisieren();
     });
     $('s-zuruecksetzen').addEventListener('click', () => {
       const alt = st();
       z.struktur = { ...strukturStart(alt.vorgabe), elemente: alt.elemente, zelle: alt.zelle, ae: alt.ae, bindungen: alt.bindungen };
-      auswahlAufheben(); letztes = undefined; vorher = null; umstellung = null;
+      auswahlAufheben(); letztes = undefined; vorher = null;
       aktualisieren();
     });
     for (const [id, feld] of /** @type {[string, 'elemente' | 'zelle' | 'ae' | 'bindungen'][]} */ ([['s-elemente', 'elemente'], ['s-zelle', 'zelle'], ['s-ae', 'ae'], ['s-bindungen', 'bindungen']])) {
@@ -495,6 +497,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (gewaehlt === null) return;
       bau().basis.splice(gewaehlt, 1);
       auswahlAufheben();
+      if (istEntwurf() && !en().basis.length) werkzeug = 'hinzufuegen'; // wie beim Öffnen eines leeren Entwurfs
       aktualisieren();
     });
     for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
