@@ -262,8 +262,9 @@ für diese App gilt.
     ein Schritt je abgeschlossener Handlung, bis 50, nur für die Sitzung (`verlaeufe`, `beginnen`, `abschliessen` in
     `js/struktur-ui.js`); Gruppe, Gitter und Anzeigen gehören nicht dazu (Seitenleiste). Wahl beim Umsetzen: Ein Verlauf
     gehört zu einem Zustandsobjekt; Vorgabe, „Vorgabe wiederherstellen“, Übernahme und ein Link ersetzen es und beginnen
-    einen neuen, die Wahl einer Gruppe im Entwurf leert ihn, weil die Grenze der Bilder von der Gruppe abhängt und ein
-    alter Stand sie überschreiten könnte (das ⓘ sagt es; auch die Striche verlieren damit ihren Verlauf). Der frühere
+    einen neuen. Die Wahl einer Gruppe im Entwurf behält ihn und verwirft nur die Stände, die unter der neuen Gruppe die
+    Grenze der Bilder überschritten (Thomas, 12.11.2026; zuerst leerte sie ihn, dann gingen auch die Zeichenschritte
+    verloren). Rückgängig ändert die Gruppe nicht; ein Stand aus einer anderen Gruppe erscheint unter der jetzigen. Der frühere
     Rückfall „ohne Verlauf der letzte Strich“ entfällt. Kanonischer Stand (Felder sortiert), damit eine Änderung ohne Wirkung
     kein Schritt ist; ein Klick zum Wählen rückt eine Lage nicht in die Zelle (nur nach Bewegung), weil Vorgaben Lagen
     ausserhalb haben. Pfeiltasten an einem Regler ergeben je Taste einen Schritt. Einrasten auf 15° am Drehregler nur mit dem

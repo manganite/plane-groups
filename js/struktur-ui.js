@@ -48,8 +48,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
    * (Hinzufügen, Ziehen, Entfernen, Löschen, Eigenschaften eines Motivs, Strich, Radieren), höchstens VERLAUF_GRENZE
    * Schritte, nur für die Sitzung. Gruppe, Gitter und Anzeigen gehören nicht dazu (Seitenleiste: „was da ist“). Ein
    * Verlauf gilt für ein Zustandsobjekt (von): Vorgabe, „Vorgabe wiederherstellen“, Übernahme und ein Link ersetzen es
-   * und beginnen damit einen neuen; die Wahl einer Gruppe im Entwurf leert ihn ausdrücklich (die Grenze der Bilder hängt
-   * von der Gruppe ab).
+   * und beginnen damit einen neuen. Die Wahl einer Gruppe im Entwurf behält ihn, ohne die Stände, die unter der neuen
+   * Gruppe die Grenze der Bilder überschritten.
    * @type {Record<'struktur' | 'entwurf', { von: object | null, schritte: string[] }>}
    */
   const verlaeufe = { struktur: { von: null, schritte: [] }, entwurf: { von: null, schritte: [] } };
@@ -674,7 +674,10 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       const neuS = zurGruppe(/** @type {string} */ (b.dataset.g));
       if (!neuS) return;
       Object.assign(en(), neuS); gewaehltOp = 0; umstellung = null;
-      verlaeufe.entwurf.schritte = []; offen = null; // die Grenze der Bilder hängt von der Gruppe ab
+      // Der Verlauf bleibt (auch für die Striche); verworfen werden nur Stände, die unter der neuen Gruppe die Grenze der
+      // Bilder überschritten (Thomas, 12.11.2026)
+      offen = null;
+      verlaeufe.entwurf.schritte = verlaeufe.entwurf.schritte.filter((st) => JSON.parse(st).basis.length * bahnGewicht(en().gruppe) <= BASIS_GRENZE);
       aktualisieren();
     });
     // Übergang: die Struktur mit der bestimmten Gruppe einmal in den Entwurf übernehmen, der bisherige Entwurf geht verloren

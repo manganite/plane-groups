@@ -157,6 +157,14 @@ try {
   await page.locator('#s-werkzeug-hinzufuegen').click();
   const m = await bildschirm([0.7, 0.6]); await page.mouse.click(m.x, m.y); await page.waitForTimeout(300);
   pruefe((await adresse()).includes('basis=') && await striche() === nA, 'Motiv und Striche nebeneinander');
+  // Die Wahl einer Gruppe behält den Verlauf (Thomas, 12.11.2026)
+  await page.locator('#e-picker [data-g="p4"]').click(); await page.waitForTimeout(300);
+  pruefe(await page.locator('#rueckgaengig').isEnabled(), 'Wahl einer Gruppe: Rückgängig bleibt frei');
+  await page.locator('#rueckgaengig').click(); await page.waitForTimeout(200);
+  pruefe(!(await adresse()).includes('basis=') && /[&#]g=p4(&|$)/.test(await adresse()), 'Rückgängig nach der Wahl einer Gruppe nimmt das Motiv zurück, die Gruppe bleibt');
+  pruefe(await striche() > 0, 'die Striche bleiben');
+  await page.locator('#e-picker [data-g="p4mm"]').click(); await page.waitForTimeout(300);
+  await page.mouse.click(m.x, m.y); await page.waitForTimeout(300);
   // Striche überstehen Neuladen (Speicher) und den Wechsel der Gruppe
   await page.reload(); await page.waitForTimeout(400);
   pruefe(await striche() === nA, 'Neu laden: Striche aus dem Speicher');
