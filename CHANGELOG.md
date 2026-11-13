@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Gemeinsame Grundlage** auf crystallography-common v0.20.0: Das ⓘ an den Überschriften erscheint auf allen Geräten, auch mit der Maus (crystallography-common#140), und bricht nie allein in eine neue Zeile; mit der Maus ist seine Trefferfläche 28 px. Leitfaden 5.1 (Erklärabläufe, Zoom und Übergänge zwischen Modi gehören in die Tafel) und 5.2 (Grund unter einem gesperrten Element in einem Halbsatz); die App folgt darin mit #162.
+
 ## [1.4.0] - 2026-11-12
 
 Seitenleiste und Tafel neu geordnet: Werkzeugleiste als Symbole über Tafel A, Rückgängig für Motive und Striche, „Alle Motive löschen“, Einrasten in allen Modi, Export als Knopf mit Menü, Anleitungstexte im ⓘ und in der Legende; kürzere Tooltips; Experimente in „Muster entwerfen“ stehen für sich; schmaleres gleichschenkliges Dreieck; Bestimmung bei Gittern knapp neben einem speziellen; gemeinsame Grundlage v0.19.0. Link-Adressen und Speicher bleiben gültig.
