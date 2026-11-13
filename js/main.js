@@ -288,7 +288,10 @@ const sUI = strukturUI({ z, farben, aktualisieren: () => aktualisieren(), svgPun
 /** @type {Erklaerung | null} */
 let erklaerung = null;
 let phase = 3;
+/** Name von Tafel A je Modus, mit der Bedienung über die Tastatur (zoom.js). */
+const NAME_A = { eg: 'Symmetriegerüst der Elementarzelle', struktur: 'Struktur: gegebene und konventionelle Zelle', entwurf: 'Entwurf in der Elementarzelle' };
 function zeichnen() {
+  grafik('bild-a').setAttribute('aria-label', `${NAME_A[z.modus]}; mit Zoom verschieben die Pfeiltasten den Ausschnitt, + und − zoomen`);
   if (z.modus !== 'eg') { ansichtA = null; $('sub-a').textContent = z.modus === 'struktur' ? 'gegebene und konventionelle Zelle' : 'Elementarzelle'; sUI.zeichnen(); return; }
   const f = farben();
   const a = tafelAJetzt(f);

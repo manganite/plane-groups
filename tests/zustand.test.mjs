@@ -94,7 +94,7 @@ test('Formen des Objekts: zustand.js und zeichnung.js stimmen überein, Link hin
   }
 });
 
-test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', () => {
+test('Zoom des Musters und Grösse des Objekts in der Link-Adresse', () => {
   const z = startzustand();
   z.zoomB = 2.2; z.objGroesse = 1.6;
   const h = hashVon(z);

@@ -92,11 +92,17 @@ export const SECTIONS = [
   { heading: '#ctl-gruppe > h2', intro: 'Nach der Wahl einer Gruppe erscheint links das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen. Über dem Gerüst stehen die Erklärungen: „Schritt für Schritt“ wendet die Symmetrieoperationen einzeln auf das Objekt an, „Aufbau aus Erzeugenden“ zeigt, welche Elemente zwangsläufig aus wenigen Erzeugenden folgen; „Herkunft der Elemente“ zeigt zu einem Element, aus welchen Operationen es entsteht (mit dem Aufbau kombinierbar). Die Leiste unter dem Gerüst schaltet die Schritte durch.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-orbit', 'erkl-schritt', 'erkl-aufbau', 'opt-herkunft', 'erkl-zurueck', 'erkl-vor', 'erkl-abspielen'] },
   { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten. Über dem Symmetriegerüst: Einrasten (nahe einem Drehpunkt oder einer Spiegellinie springt das Objekt beim Ziehen auf das Element) und Zoom zum genauen Setzen (Mausrad, zwei Finger, + und −); verschieben mit Leertaste + Ziehen, zwei Fingern oder den Pfeiltasten. Der Zoom ruht, solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist.', ids: ['obj-x', 'obj-y', 'obj-groesse', 'werkzeug-einrasten', 'zoom-a-ein', 'zoom-a-aus', 'zoom-a-passen'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten. Was das System festlegt, ist gesperrt (quadratisch und hexagonal b = a, γ = 90° bzw. 120°; rechteckig γ = 90°). Bei besonderen Werten (z. B. b = a) kann die Metrik zufällig höher sein; die Gruppe bleibt die gewählte.', ids: ['lat-ba', 'lat-gamma'] },
-  { heading: '#sec-view > summary', intro: '„Asymmetrische Einheit füllen“ zeigt sie kräftig: Ihre Bilder füllen die Zelle ohne Lücken und Überlappungen, was in ihr gezeichnet ist, ergibt also das ganze Muster. In „Gitter und Basis“ ist es die asymmetrische Einheit der bestimmten, im Entwurf die der gewählten Gruppe.', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'opt-fuell'] },
+  { heading: '#sec-view > summary', intro: 'Den Zoom des Musters stellen Mausrad, zwei Finger oder −, + über dem Muster ein. „Asymmetrische Einheit füllen“ zeigt sie kräftig: Ihre Bilder füllen die Zelle ohne Lücken und Überlappungen, was in ihr gezeichnet ist, ergibt also das ganze Muster. In „Gitter und Basis“ ist es die asymmetrische Einheit der bestimmten, im Entwurf die der gewählten Gruppe.', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'opt-fuell', 'zoom-b-ein', 'zoom-b-aus', 'zoom-b-passen'] },
 ];
 
 /** Beschriftung in der ⓘ-Erklärung, wo der Text des Elements nicht passt. */
 export const LABELS = {
+  'zoom-a-ein': 'Vergrössern (+)',
+  'zoom-a-aus': 'Verkleinern (−)',
+  'zoom-a-passen': 'Einpassen',
+  'zoom-b-ein': 'Muster vergrössern (+)',
+  'zoom-b-aus': 'Muster verkleinern (−)',
+  'zoom-b-passen': 'Startgrösse',
   'erkl-zurueck': 'Schritt zurück (◀)',
   'erkl-vor': 'Schritt weiter (▶)',
   'seg-form': 'Form des Objekts',

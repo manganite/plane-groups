@@ -30,7 +30,7 @@
 .motivwahl .motivzeile { margin: 4px 0 0; font-size: 0.74rem; color: var(--muted); }
 .motivwahl .motivzeile:first-child { margin-top: 0; }
 .motivwahl .btns { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 4px; }
-/* Kopf von Tafel A (#130): Titel, Schalter (Einrasten, Lupe) und Export in einer Zeile; in den Modi mit Basis darunter
+/* Kopf von Tafel A (#130, #162): Titel, Einrasten, Zoom und Export in einer Zeile; in den Modi mit Basis darunter
    die Werkzeugleiste (Werkzeuge, Handlungen) als Symbole. Auf dem Telefon Umschalter und Schalter, darunter die Leiste. */
 .p-a .panel-head { justify-content: flex-start; }
 /* Titel und Untertitel: der Untertitel bricht unter den Titel um, bevor er unter Schalter und Export läuft oder der
@@ -108,7 +108,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
 /* Zoom der Tafeln (#162, zoom.js): −, Wert, +, Einpassen im Kopf; Verschieben mit Leertaste oder ins Leere */
 .zoomtools { align-items: center; gap: 2px; flex-wrap: nowrap; }
 .zoomwert { font: 0.72rem var(--font-mono); color: var(--muted); min-width: 3.4em; text-align: center; }
-#bild-a:focus-visible, #bild-b:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#bild-a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 #bild-b { touch-action: manipulation; }
 body.leertaste #bild-a { cursor: grab; }
 body.verschiebt #bild-a { cursor: grabbing; }
@@ -335,7 +335,7 @@ body.verschiebt #bild-a { cursor: grabbing; }
           <div class="tools" role="group" aria-label="Bearbeiten"><button type="button" class="sym" id="rueckgaengig" aria-label="Rückgängig"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button type="button" class="sym" id="s-entfernen" aria-label="Gewähltes Motiv entfernen"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 3"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button><button type="button" class="sym" id="motive-loeschen" aria-label="Alle Motive löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M12 11l-2.2 5h4.4z"/></svg></button><button type="button" class="sym nur-entwurf" id="striche-loeschen" aria-label="Alle Striche löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M9.3 14c1-2 1.8 2 2.7 0s1.8-2 2.7 0"/></svg></button></div>
         </div>
       </div>
-      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" tabindex="0" aria-label="Symmetriegerüst der Elementarzelle; mit Zoom verschieben die Pfeiltasten den Ausschnitt, + und − zoomen"></svg>
+      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="group" tabindex="0" aria-label="Symmetriegerüst der Elementarzelle; mit Zoom verschieben die Pfeiltasten den Ausschnitt, + und − zoomen"></svg>
       <div class="erklleiste nur-eg" id="erkl-leiste" hidden>
         <button type="button" id="erkl-zurueck" aria-label="Schritt zurück">◀</button>
         <span class="erkl-stand" id="erkl-stand" aria-live="polite"></span>

@@ -411,7 +411,7 @@ test('Insel: abgerundetes Stäbchen mit Enden bei ±1 und Seiten bei ±0,32 (in 
   }
 });
 
-// „Darstellung“ und Lupe in „Gitter und Basis“ (Konzept „Muster entwerfen“, Schritt 3)
+// „Darstellung“ und Zoom in „Gitter und Basis“ (Konzept „Muster entwerfen“, Schritt 3)
 
 /** Anzahl der Teile eines SVG-Textes. @param {string} svg @param {RegExp} re */
 const anzahl = (svg, re) => (svg.match(re) ?? []).length;

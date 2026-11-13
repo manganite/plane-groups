@@ -454,7 +454,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Touch: nur dann das Scrollen verhindern, wenn ein Motiv gezogen oder gesetzt wird. @param {TouchEvent} e */
   function touchstart(e) {
     if (!ansicht) return;
-    if (werkzeug === 'hinzufuegen' || zeichnet() || treffer(svgPunkt(e.touches[0]))) e.preventDefault();
+    // mit Zoom verschiebt ein Finger ins Leere den Ausschnitt (zoom.js), statt die Seite zu scrollen
+    if (werkzeug === 'hinzufuegen' || zeichnet() || z.zoomA > 1 || treffer(svgPunkt(e.touches[0]))) e.preventDefault();
   }
   /** @param {PointerEvent} e @returns {'leer' | undefined} „leer“: ins Leere getippt (Werkzeug „Wählen und ziehen“) */
   function down(e) {

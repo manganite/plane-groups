@@ -283,7 +283,7 @@ try {
   await oeffnen('#m=eg&g=p4&zoomA=2&schritt=2');
   pruefe(await page.locator('#zoom-a-ein').isDisabled() && (await text('#zoom-a-wert')) === '100 %', 'Zoom ruht während „Schritt für Schritt“');
   await oeffnen('#m=entwurf&g=p4mm&basis=atom,0,1/10,1/5,0&zoomA=2');
-  await page.locator('#s-werkzeug-verschieben').click();
+  await page.locator('#s-werkzeug-verschieben').click(); await page.waitForTimeout(250);
   const e0 = await lageIn('.konv-zelle');
   const ra = /** @type {{ x: number, y: number, width: number, height: number }} */ (await page.locator('#bild-a').boundingBox());
   const leer = { x: ra.x + ra.width * 0.8, y: ra.y + ra.height * 0.8 }; // ohne Motiv (das Atom liegt bei 1/10, 1/5)
@@ -291,6 +291,14 @@ try {
   await page.waitForTimeout(250);
   const e1 = await lageIn('.konv-zelle');
   pruefe(Math.abs(e1.x - e0.x + 50) < 3 && Math.abs(e1.y - e0.y - 30) < 3, `Entwurf: Ziehen ins Leere verschiebt den Ausschnitt (${(e1.x - e0.x).toFixed(0)}, ${(e1.y - e0.y).toFixed(0)})`);
+  // Leertaste + Ziehen auch beim Zeichnen, wenn ein Knopf den Fokus hat (Review): verschiebt, zeichnet nicht
+  await page.locator('#s-werkzeug-zeichnen').click(); await page.locator('#zoom-a-ein').click(); await page.waitForTimeout(250);
+  const s0 = await striche(); const k0 = await lageIn('.konv-zelle');
+  await page.mouse.move(leer.x, leer.y); await page.keyboard.down(' ');
+  await page.mouse.down(); await page.mouse.move(leer.x + 40, leer.y - 20, { steps: 4 }); await page.mouse.up(); await page.keyboard.up(' ');
+  await page.waitForTimeout(250);
+  const k1 = await lageIn('.konv-zelle');
+  pruefe(await striche() === s0 && Math.abs(k1.x - k0.x - 40) < 3 && Math.abs(k1.y - k0.y + 20) < 3, `Zeichnen + Leertaste: verschiebt, kein Strich (${(k1.x - k0.x).toFixed(0)}, ${(k1.y - k0.y).toFixed(0)})`);
   await page.locator('#zoom-b-ein').click(); await page.waitForTimeout(200);
   const b = /** @type {{ x: number, y: number, width: number, height: number }} */ (await page.locator('#bild-b').boundingBox());
   await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await page.mouse.wheel(0, -200); await page.waitForTimeout(250);

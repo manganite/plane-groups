@@ -145,6 +145,8 @@ export function zoomEinrichten({ z, ansichtA, ruht, aktualisieren, svgPunkt }) {
   function zugBeginnen(e) {
     const A = ansichtA();
     if (!A || ruht() || z.zoomA <= 1) return false;
+    // die Mitte festhalten, ehe sie vom Objekt oder Motiv abhängt (ein Tippen ins Leere hebt die Wahl auf)
+    if (!z.ausschnitt[z.modus]) mitteSetzen(A.vonBild([MITTE, MITTE]));
     zug = { A0: A, q0: svgPunkt(e, bildA), id: e.pointerId };
     bildA.setPointerCapture(e.pointerId);
     document.body.classList.add('verschiebt');
@@ -169,8 +171,10 @@ export function zoomEinrichten({ z, ansichtA, ruht, aktualisieren, svgPunkt }) {
   let ueberA = false; let leertaste = false;
   bildA.addEventListener('pointerenter', () => { ueberA = true; });
   bildA.addEventListener('pointerleave', () => { ueberA = false; });
+  // Liegt der Zeiger über Tafel A, gehört die Leertaste dem Verschieben, auch wenn ein Knopf den Fokus hat (Chrome lässt
+  // ihn nach dem Klick dort); sonst nur, wenn Tafel A den Fokus hat. In Eingabefeldern nie.
   /** @param {EventTarget | null} t */
-  const eingabefeld = (t) => t instanceof Element && !!t.closest('input, select, textarea, button, [contenteditable], summary, a');
+  const eingabefeld = (t) => t instanceof Element && !!t.closest('input, select, textarea, [contenteditable]');
   document.addEventListener('keydown', (e) => {
     if (e.key !== ' ' || eingabefeld(e.target) || !(ueberA || document.activeElement === bildA)) return;
     e.preventDefault(); // sonst scrollt die Seite
@@ -189,7 +193,7 @@ export function zoomEinrichten({ z, ansichtA, ruht, aktualisieren, svgPunkt }) {
       ArrowLeft: () => verschieben(A, schritt, 0), ArrowRight: () => verschieben(A, -schritt, 0),
       ArrowUp: () => verschieben(A, 0, schritt), ArrowDown: () => verschieben(A, 0, -schritt),
       '+': () => zoomA(ZOOM_SCHRITT), '=': () => zoomA(ZOOM_SCHRITT), '-': () => zoomA(1 / ZOOM_SCHRITT),
-      '0': () => { z.zoomA = 1; mitteSetzen(null); aktualisieren(); },
+      '0': () => { if (ruht()) return; z.zoomA = 1; mitteSetzen(null); aktualisieren(); },
     };
     const t = tasten[e.key];
     if (!t || e.ctrlKey || e.metaKey || e.altKey) return;
