@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-13
+
+Bedienung bei Tafel und Kenndaten: Erklärungen („Schritt für Schritt“, „Aufbau aus Erzeugenden“, „Herkunft der Elemente“) im Kopf des Symmetriegerüsts, immer nur eine, mit Leiste unter der Zeichnung; Zoom und Verschieben in beiden Tafeln statt Lupe und Regler; „Weiterbearbeiten“ in den Kenndaten; Hinweise der Seitenleiste im ⓘ, das jetzt auch mit der Maus erscheint; Untertitel von Tafel A bricht bei 1024–1100 px richtig um; gemeinsame Grundlage v0.20.0. **In alten Links gelten `lupe`, `zoom`, Kombinationen von `schritt`, `aufbau` und `herkunft` sowie `erkl` ohne `herkunft` nicht mehr (Startwert); gespeicherte Stände werden verworfen.**
+
 ### Geändert
 
 - **Zoom und Verschieben statt Lupe** (#162, Leitfaden 5.1, Entscheidung Thomas, 13.11.2026): Beide Tafeln zoomen mit Mausrad, zwei Fingern oder −, + und Einpassen im Kopf der Tafel (auf dem Telefon nur mit zwei Fingern); das Symmetriegerüst bzw. die Struktur bis 8-fach. Den Ausschnitt von Tafel A verschieben Ziehen ins Leere mit „Wählen und ziehen“, zwei Finger, Leertaste + Ziehen (auch beim Zeichnen und Radieren) und die Pfeiltasten. Die Lupe und der Regler „Vergrösserung des Musters“ entfallen. **Link und Speicher:** neue Schlüssel `zoomA` und `zoomB` (vorher `lupe` und `zoom`); die Mitte des Ausschnitts steht nur im Speicher. Alte Links mit `lupe` oder `zoom` und gespeicherte Stände gelten nicht mehr (Startwert).
@@ -211,7 +215,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/manganite/plane-groups/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/manganite/plane-groups/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/manganite/plane-groups/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/manganite/plane-groups/compare/v1.1.0...v1.2.0
