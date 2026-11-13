@@ -29,7 +29,9 @@
   .figs > .panel { grid-row: 1 / span 4; display: grid; grid-template-rows: subgrid; }
   .figs > .p-a { grid-column: 1; }
   .figs > .p-b { grid-column: 2; }
-  .figs > .panel > .panel-head { grid-row: 1; }
+  /* Kopfzeilen und Knöpfe oben, auch im höheren Kopf und neben einem zweizeiligen Titel, damit sie in beiden Tafeln
+     auf derselben Höhe stehen (Thomas, 13.11.2026) */
+  .figs > .panel > .panel-head { grid-row: 1; align-content: flex-start; align-items: flex-start; }
   .figs > .panel > .bild { grid-row: 2; }
   .figs > .panel > .erklleiste, .figs > .panel > .panel-foot { grid-row: 3; align-self: start; }
   .figs > .panel > .legend { grid-row: 4; }

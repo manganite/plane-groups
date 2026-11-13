@@ -193,7 +193,8 @@ für diese App gilt.
     Kopf mit der Erklärungsauswahl zweizeilig ist. Ohne Erklärleiste reicht die Legende von Tafel A über die Zeile der
     Fusszeile von Tafel B (sonst ein leerer Streifen; Review). **Reihenfolge im Kopf** wie in Tafel B: Titel, Schalter,
     Zoom, Export ganz rechts (Thomas, 13.11.2026); nur bei 720–1100 px bricht der Zoom in eine eigene Zeile, damit der
-    Export oben rechts bleibt.
+    Export oben rechts bleibt. Inhalt der Köpfe oben ausgerichtet, damit Titel und Knöpfe in beiden Tafeln auf derselben
+    Höhe stehen, auch wenn der Kopf von Tafel B höher gezogen ist.
   - **Kein Hinweis „Füllen und Zoom ruhen“** in der Legende (Thomas, 13.11.2026): Die gesperrten Zoomknöpfe zeigen es, den
     Grund für „Füllen“ nennt die Seitenleiste. „Bilder rund um die Zelle“ ohne „(wie ITA)“; der Tooltip nennt die ITA.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
