@@ -208,15 +208,13 @@ für diese App gilt.
   `js/zeichnung.js`). „Füllen“ bleibt gewählt und der Zoom eingestellt (Leitfaden Abschn. 5.2); beide wirken beim
   Verlassen wieder. Grund: Mit grossem Objekt, Füllung oder Vergrösserung erkennt man die Elemente und Wege nicht
   mehr. Der Zustand gilt sofort beim Einschalten,
-  damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. „Herkunft der Elemente“ überdeckt
-  „Schritt für Schritt“, schon beim Einschalten, nicht erst mit gezeigtem Element (die Erklärung zeigt statt
-  der Bilder des Objekts ihre eigenen Fähnchen, Schritte wären unsichtbar); es ruht dann, solange „Herkunft
-  der Elemente“ wirkt (eingeschaltet, mit Symmetrieelementen) (Schalter, Leitfaden Abschn. 5.2; Thomas,
-  5.11.2026). Seit 13.11.2026 schliessen sich die drei Erklärungen aus (nächste Punkte).
+  damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. Die drei Erklärungen schliessen sich aus
+  (13.11.2026, „Erklärungen in Tafel A“).
 - **„Herkunft der Elemente“** (5.11.2026, Thomas; seit 13.11.2026 dritte Erklärung, nächster Punkt): Zustand `herkunft`,
   Link `herkunft=1`, Datei `js/herkunft-text.js` (die Texte; `js/herkunft.js` rechnet) und das Bedienelement
-  `erkl-herkunft` heissen wie die Erklärung. Ein gewähltes Element (`erkl`) gibt es nur mit ihr. Ohne Elemente ist sie
-  gesperrt, bleibt aber gewählt.
+  `erkl-herkunft` heissen wie die Erklärung. Ein gewähltes Element (`erkl`) gibt es nur mit ihr; Links in Skript, Quiz und
+  Hilfen mit `erkl` brauchen deshalb `herkunft=1` (`tests/links-erklaerung.test.mjs`). Ohne Elemente ist sie gesperrt, bleibt
+  aber gewählt, und das gewählte Element wird nicht gezeichnet, bis die Elemente wieder an sind.
 - **Erklärungen in Tafel A** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): „Schritt für Schritt“, „Aufbau aus
   Erzeugenden“ und „Herkunft der Elemente“ sind die Hauptfunktionen von „Ebenengruppen“ und gingen als eingeklappte
   Abschnitte der Seitenleiste unter. Jetzt im Kopf von Tafel A eine Auswahl aus drei Knöpfen, höchstens einer gewählt, ein

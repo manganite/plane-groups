@@ -68,7 +68,7 @@ for (const id of ALLE) {
         const html = erklaerungHTML(g, daten, M, phase);
         assert.ok(!/undefined|NaN|null/.test(html), `${id}: ${k}`);
       }
-      const z = { ...startzustand(), gruppe: id, erkl: k };
+      const z = { ...startzustand(), gruppe: id, herkunft: true, erkl: k };
       for (const phase of [0, 1, 2, 3]) assert.ok(!/NaN|undefined/.test(tafelA(id, z, FARBEN, { phase }).svg), `${id}: ${k} Phase ${phase}`);
     }
   });
@@ -174,7 +174,7 @@ test('Aufbau: Auswahl gilt der sichtbaren Zähligkeit (Review PR #3)', async () 
 
 test('Wege von B, A und C wie die Operationen wirken; Stellen nummeriert, Operationen mit Buchstaben', () => {
   /** @param {string} id @param {string} k */
-  const svgVon = (id, k) => tafelA(id, { ...startzustand(), gruppe: id, erkl: k }, FARBEN, { phase: 3 }).svg;
+  const svgVon = (id, k) => tafelA(id, { ...startzustand(), gruppe: id, herkunft: true, erkl: k }, FARBEN, { phase: 3 }).svg;
   /** @param {string} svg @param {string} name */
   const weg = (svg, name) => { const i = svg.indexOf(`class="weg weg-${name}"`); return i < 0 ? '' : svg.slice(i, svg.indexOf('class="weg ', i + 10) > 0 ? svg.indexOf('class="weg ', i + 10) : undefined); };
   // p4gm, Gleitspiegellinie x, 1/4: B Drehung 180° (Bogen), A Gleitspiegelung (zwei Teile, Zwischenbild)
@@ -202,7 +202,7 @@ test('Wege von B, A und C wie die Operationen wirken; Stellen nummeriert, Operat
     const gg = gruppe(id);
     const d = da(EBENENGRUPPEN.find((x) => x.symbol === id));
     for (const el of [...elementeImBereich(gg, 1).drehpunkte, ...elementeImBereich(gg, 1).linien]) {
-      const z = { ...startzustand(), gruppe: id, erkl: elementSchluessel(el) };
+      const z = { ...startzustand(), gruppe: id, herkunft: true, erkl: elementSchluessel(el) };
       const { erklaerung: e, ansicht: An } = tafelA(id, z, FARBEN, { phase: 3 });
       for (const w of Object.values(da(e).wege)) for (const p of w.teile.flat()) {
         const q = An.zuBild(p);
@@ -246,7 +246,7 @@ test('Gitterkopien: Elemente, die nur verschobene Kopien sind, werden über ihr 
   const html = erklaerungHTML(g, d, M, 3);
   assert.match(html, /Darum ist er nur der 4-zählige Drehpunkt bei \(0, 0\), um <i>a<\/i> verschoben/);
   assert.match(html, /data-erkl="4;0,0"/);
-  const svg = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', erkl: '4;1,0' }, FARBEN, { phase: 3 }).svg;
+  const svg = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: '4;1,0' }, FARBEN, { phase: 3 }).svg;
   for (const x of ['v', 't', 'c']) assert.match(svg, new RegExp(`class="weg weg-${x}"`));
   for (const i of ['0', '1', '2', '3']) assert.match(svg, new RegExp(`class="stelle">.*?>${i}</text>`));
 });

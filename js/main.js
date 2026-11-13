@@ -307,7 +307,7 @@ function zeichnen() {
   erklaerung = a.erklaerung;
   // unbekanntes Element (z. B. aus einem alten Link): verwerfen und die Bedienung neu abgleichen, die es
   // sonst noch als laufende Erklärung zählt (Füllen und Zoom ruhen)
-  if (z.erkl && !erklaerung) { z.erkl = null; aktualisieren(); }
+  if (z.erkl && herkunftAktiv() && !erklaerung) { z.erkl = null; aktualisieren(); }
   grafik('bild-a').innerHTML = a.svg;
   grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
   $('sub-a').textContent = z.zellen === 2 ? '2 × 2 Elementarzellen' : 'Elementarzelle';
@@ -345,7 +345,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.upper}"></i>gleiche Händigkeit</span>`);
     if (gruppeVon(z.gruppe).alle.some((o) => o.R[0][0] * o.R[1][1] - o.R[0][1] * o.R[1][0] < 0)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2}"></i>Spiegelbild</span>`);
   }
-  if (schrittWirkt({ ...z, erkl: erklaerung ? z.erkl : null })) items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>aktuelle Operation; (n): Nummer in der Liste der Symmetrieoperationen</span>`);
+  if (schrittWirkt(z)) items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>aktuelle Operation; (n): Nummer in der Liste der Symmetrieoperationen</span>`);
   if (z.aeTeile?.length) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.45"></i>gewählte Bedingungen erfüllt</span>`);
   if (z.elemente && z.aufbau > 0) items.push(`<span class="lg"><i class="sw" style="background:${f.accent2};opacity:0.5"></i>neu in Schritt ${z.aufbau}</span>`);
   if (erklaerung?.art === 'kopie') {
@@ -365,8 +365,8 @@ function legende(f) {
     if (gesperrt.length) items.push(`<span class="lg hint">${gesperrt.join(' und ')} nur mit „Symmetrieelemente“</span>`);
   }
   else if (herkunft(gruppeVon(z.gruppe)).maxTiefe === 0 && z.aufbau === 0) items.push('<span class="lg hint">„Aufbau aus Erzeugenden“: p1 hat ausser den Translationen keine Symmetrieelemente</span>');
-  if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
-  else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
+  // bei „Herkunft der Elemente“ sagt die Leiste unter der Zeichnung, was ein Klick tut
+  if (!herkunftAktiv() && z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
 }
 
@@ -422,7 +422,7 @@ function kenndaten() {
       <p>Das Objekt liegt auf einem Symmetrieelement. ${g.ordnung / l.zaehligkeit} der ${g.ordnung} Operationen je Zelle halten es fest; deshalb fallen je ${g.ordnung / l.zaehligkeit} Bilder zusammen, und es bleiben ${g.ordnung}/${g.ordnung / l.zaehligkeit} = ${l.zaehligkeit} Stellen je Zelle. Freie Parameter: ${fg}. Ein Objekt, das hier sitzen soll, muss selbst mindestens die Symmetrie ${lageHTML(l.symbol)} haben; das Fähnchen hat keine, darum überlagert es sich mit seinen Bildern.</p></div>`;
   // Operationen
   // Schritt für Schritt: Kasten und die Zeile der aktuellen Operation
-  const schrittAn = schrittWirkt({ ...z, erkl: erklaerung ? z.erkl : null });
+  const schrittAn = schrittWirkt(z);
   const sd = schrittAn ? schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt) : null;
   const aktuell = sd && !sd.translationen ? sd.k - 1 : -1;
   const schrittbox = sd ? `<div class="erklaerbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
@@ -577,7 +577,7 @@ function schritteAbspielen() {
   aktualisieren();
   const ende = gruppeVon(z.gruppe).ordnung + 1;
   const weiter = () => {
-    // ruht „Schritt für Schritt“ inzwischen (Herkunft, Elemente wieder an, Objekt aus), nicht unsichtbar weiterzählen
+    // ruht „Schritt für Schritt“ inzwischen (Objekt aus) oder ist es abgewählt, nicht unsichtbar weiterzählen
     if (z.schritt === 0 || z.schritt >= ende || !schrittWirkt(z)) { schrittAblauf = undefined; return; }
     z.schritt += 1;
     aktualisieren();

@@ -289,18 +289,15 @@ const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
  * Eine Erklärung im Symmetriegerüst ist aktiv: „Schritt für Schritt“, „Aufbau aus Erzeugenden“ oder
  * „Herkunft der Elemente“. Dann zeigt Tafel A das Objekt in fester Grösse (wie die Fähnchen der
  * Erklärungen), die eigene Zeichnung nicht, und der Zoom ruht.
- * @param {Pick<Zustand, 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'herkunft' | 'erkl'>} z
+ * @param {Pick<Zustand, 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'herkunft'>} z
  */
-export const erklaerend = (z) => (z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.herkunft && z.elemente) || !!z.erkl;
+export const erklaerend = (z) => (z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.herkunft && z.elemente);
 
 /**
- * „Schritt für Schritt“ wirkt: eingeschaltet, mit Objekt, ohne eingeschaltete
- * „Herkunft der Elemente“ und ohne gezeigte Herkunft eines Elements (sie überdecken es; dann ruht es,
- * main.js). Aufrufer übergeben in erkl nur ein gültiges Element, ein unbekanntes aus einem alten Link
- * zählt nicht.
- * @param {Pick<Zustand, 'schritt' | 'objekt' | 'erkl' | 'herkunft' | 'elemente'>} z
+ * „Schritt für Schritt“ wirkt: gewählt und mit Objekt (die drei Erklärungen schliessen sich aus, zustand.js).
+ * @param {Pick<Zustand, 'schritt' | 'objekt'>} z
  */
-export const schrittWirkt = (z) => z.schritt > 0 && z.objekt && !z.erkl && !(z.herkunft && z.elemente);
+export const schrittWirkt = (z) => z.schritt > 0 && z.objekt;
 
 /**
  * Massstab des Objekts (für objektSVG) in der Ansicht A: Grösse groesse (Regler, Link `og`) im Gitter
@@ -795,16 +792,17 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, mitte = null, fest = n
   const sys = g.daten.system;
   const M = metrik(z.gitter[sys]);
   const n = z.zellen;
-  const erkl = z.erkl ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
+  // das gewählte Element nur, solange „Herkunft der Elemente“ wirkt (ohne Symmetrieelemente ruht sie, Leitfaden 5.2)
+  const erkl = z.erkl && z.herkunft && z.elemente ? erklaerungsDaten(g, z.erkl, z.punkt, n, M) : null;
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
   // Erklärung aktiv: Objekt in fester Grösse, keine eigene Zeichnung, der Zoom ruht
-  const ruhig = erklaerend({ ...z, erkl: erkl ? z.erkl : null }); // nur ein gültiges erkl zählt
+  const ruhig = erklaerend(z);
   const zoom = ruhig ? 1 : (z.zoomA ?? 1);
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
-  const schritt = schrittWirkt({ ...z, erkl: erkl ? z.erkl : null }) ? z.schritt : 0;
+  const schritt = schrittWirkt(z) ? z.schritt : 0;
   const s0 = ausgangsstelle(z.punkt, n);
   if (schritt) {
     for (const e of itaOperationen(g)) {
