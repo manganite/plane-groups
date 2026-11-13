@@ -101,8 +101,9 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Ergebnis, das statt der Bestimmung gilt: im Entwurf die gewählte Gruppe, sonst undefined (bestimmen). @returns {import('./bestimmung.js').Bestimmung | undefined} */
   const gewaehlteGruppe = () => (istEntwurf() ? festeBestimmung(en()) : undefined);
   /**
-   * Was Tafel A zeigt: die Anzeigen des Modus und „Darstellung“ (gemeinsam, z). Lupe: Mitte ist das gewählte, gezeichnete
-   * Motiv (gz: die gezeichneten Motive, gewaehltGezeichnet), ohne Wahl die Mitte der gegebenen Zelle.
+   * Was Tafel A zeigt: die Anzeigen des Modus und „Darstellung“ (gemeinsam, z). Zoom: Mitte ist die verschobene
+   * (z.ausschnitt), sonst das gewählte, gezeichnete Motiv (gz: die gezeichneten Motive, gewaehltGezeichnet), ohne Wahl die
+   * Mitte der gegebenen Zelle.
    * @param {Basiseintrag[]} basis die gezeichneten Motive
    * @returns {import('./struktur.js').Anzeige}
    */
@@ -110,7 +111,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const i = gewaehltGezeichnet();
     /** @type {Vec2} */
     const mitte = i !== null && basis[i] ? /** @type {Vec2} */ (basis[i].p.map(mod1)) : [0.5, 0.5];
-    const gemeinsam = { farben: z.farben, fuell: z.aeFuell, lupe: z.lupe ? mitte : null };
+    const gemeinsam = { farben: z.farben, fuell: z.aeFuell, zoom: z.zoomA > 1 ? { faktor: z.zoomA, mitte: z.ausschnitt[istEntwurf() ? 'entwurf' : 'struktur'] ?? mitte } : null };
     // Entwurf: die Zelle ist die konventionelle (immer eingezeichnet)
     if (istEntwurf()) return { elemente: en().elemente, zelle: true, ae: en().ae, bindungen: en().bindungen, ...gemeinsam };
     const s = st();
@@ -453,9 +454,10 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Touch: nur dann das Scrollen verhindern, wenn ein Motiv gezogen oder gesetzt wird. @param {TouchEvent} e */
   function touchstart(e) {
     if (!ansicht) return;
-    if (werkzeug === 'hinzufuegen' || zeichnet() || treffer(svgPunkt(e.touches[0]))) e.preventDefault();
+    // mit Zoom verschiebt ein Finger ins Leere den Ausschnitt (zoom.js), statt die Seite zu scrollen
+    if (werkzeug === 'hinzufuegen' || zeichnet() || z.zoomA > 1 || treffer(svgPunkt(e.touches[0]))) e.preventDefault();
   }
-  /** @param {PointerEvent} e */
+  /** @param {PointerEvent} e @returns {'leer' | undefined} „leer“: ins Leere getippt (Werkzeug „Wählen und ziehen“) */
   function down(e) {
     if (!ansicht) return;
     const q = svgPunkt(e);
@@ -489,7 +491,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       zug = { k: gewaehlt, op: 0, versatz: [0, 0], bewegt: true };
     } else {
       const t = treffer(q);
-      if (!t) { auswahlAufheben(); aktualisieren(); return; }
+      // ins Leere: Auswahl aufheben; Ziehen verschiebt dann den Ausschnitt (zoom.js, #162)
+      if (!t) { auswahlAufheben(); aktualisieren(); return 'leer'; }
       gewaehlt = t.k; gewaehltOp = t.op;
       beginnen();
       zug = { k: t.k, op: t.op, versatz: [t.bild[0] - p[0], t.bild[1] - p[1]] };
@@ -739,5 +742,5 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   /** Die Gruppe der gezeichneten Struktur: im Entwurf die gewählte, in „Gitter und Basis“ die bestimmte (null bei leerer Basis), aus dem Zwischenspeicher. @returns {Bestimmung | null} */
   const bestimmt = () => gewaehlteGruppe() ?? strukturSymmetrie(gezeigt());
 
-  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up, vorgabeZeigen, werkzeugSetzen, bestimmt };
+  return { init, abgleichen, zeichnen, bild, touchstart, down, move, up, vorgabeZeigen, werkzeugSetzen, bestimmt, ansichtA: () => ansicht };
 }

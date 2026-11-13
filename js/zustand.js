@@ -39,7 +39,8 @@ import { gruppe } from './symmetrie.js';
  * @property {number} objGroesse
  * @property {boolean} farben
  * @property {boolean} einrasten
- * @property {boolean} lupe
+ * @property {number} zoomA
+ * @property {Ausschnitt} ausschnitt
  * @property {boolean} orbit
  * @property {boolean} musterElemente
  * @property {boolean} herkunft
@@ -52,7 +53,12 @@ import { gruppe } from './symmetrie.js';
  * @property {StrukturZustand} struktur
  * @property {EntwurfZustand} entwurf
  */
-/** Schalter des Zustands (Wahrheitswerte in der Adresse). @typedef {'elemente' | 'objekt' | 'ae' | 'farben' | 'einrasten' | 'musterElemente' | 'orbit' | 'aeFuell' | 'tapete' | 'lupe'} Schalterfeld */
+/** Schalter des Zustands (Wahrheitswerte in der Adresse). @typedef {'elemente' | 'objekt' | 'ae' | 'farben' | 'einrasten' | 'musterElemente' | 'orbit' | 'aeFuell' | 'tapete'} Schalterfeld */
+/**
+ * Mitte des Ausschnitts von Tafel A je Modus (Bruchkoordinaten der Zelle des Modus), nur im Speicher, nicht im Link
+ * (Thomas, 13.11.2026, #162); null: um das Objekt bzw. das gewählte Motiv, sonst die Mitte der Zelle.
+ * @typedef {{ eg: Vec2 | null, struktur: Vec2 | null, entwurf: Vec2 | null }} Ausschnitt
+ */
 /** @typedef {'elemente' | 'zelle' | 'ae' | 'bindungen'} StrukturSchalterfeld */
 
 
@@ -102,8 +108,10 @@ export function reglerVonGroesse(groesse) {
 export const SCHRITT_GRENZE = 25;
 /** Höchstzahl der Motive in der Basis. */
 export const BASIS_GRENZE = 48;
-/** Bereiche der Vergrösserung des Musters und der Grösse des Objekts. @type {[number, number]} */
+/** Bereiche des Zooms von Muster (Tafel B) und Tafel A und der Grösse des Objekts (#162). @type {[number, number]} */
 export const ZOOM_BEREICH = [0.5, 3];
+/** @type {[number, number]} */
+export const ZOOM_A_BEREICH = [1, 8];
 /** @type {[number, number]} */
 export const OBJ_BEREICH = [0.5, 3];
 export const STRUKTUR_START = 'dreieck1';
@@ -182,7 +190,8 @@ export function startzustand() {
     objGroesse: 1, // Grösse des Objekts (Fähnchen, Komma) in beiden Tafeln (OBJ_BEREICH)
     farben: true, // nach Blickrichtung färben
     einrasten: true,
-    lupe: false, // Tafel A vergrössert (LUPE in zeichnung.js) um das Objekt
+    zoomA: 1, // Zoom von Tafel A in allen Modi (ZOOM_A_BEREICH, zoomAusschnitt in zeichnung.js; vorher die Lupe)
+    ausschnitt: { eg: null, struktur: null, entwurf: null }, // Mitte des Ausschnitts von Tafel A je Modus, nur im Speicher
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
     herkunft: false, // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt
@@ -273,6 +282,13 @@ export function zustandPruefen(z) {
   // ungültig, beide zum Startwert (Leitfaden Abschn. 5.2)
   if (z.schritt > 0 && z.aufbau > 0) { z.schritt = s.schritt; z.aufbau = s.aufbau; }
   z.zoomB = begrenzt(z.zoomB, ZOOM_BEREICH) ?? s.zoomB;
+  z.zoomA = begrenzt(z.zoomA, ZOOM_A_BEREICH) ?? s.zoomA;
+  const aus = /** @type {Record<string, unknown>} */ (z.ausschnitt && typeof z.ausschnitt === 'object' ? z.ausschnitt : {});
+  z.ausschnitt = { eg: null, struktur: null, entwurf: null };
+  for (const m of /** @type {('eg' | 'struktur' | 'entwurf')[]} */ (['eg', 'struktur', 'entwurf'])) {
+    const p = aus[m];
+    if (imFeld(p)) z.ausschnitt[m] = /** @type {Vec2} */ (p);
+  }
   z.objGroesse = begrenzt(z.objGroesse, OBJ_BEREICH) ?? s.objGroesse;
   // Bedingungen der asymmetrischen Einheit: Nummern der Gruppe, ohne Doppelte, aufsteigend
   const zahlTeile = /** @type {import('./ebenengruppen.js').Ebenengruppe} */ (EBENENGRUPPEN.find((d) => d.symbol === z.gruppe)).ae.text.split(';').length;
@@ -322,22 +338,45 @@ export function ausSpeicher(gespeichert) {
  * Version des Speicherformats (Leitfaden Abschn. 8): steigt, wenn sich das Format ändert; ein Stand mit anderer
  * Version wird verworfen (Startzustand). 2: Feld `warum` heisst `herkunft`, `brechen` und `frei` entfallen
  * (v1.x hatte 1; Entscheidung dazu in CLAUDE.md). 3: neuer Modus „Muster entwerfen“ (Feld `entwurf`), die
- * Struktur hat kein `festeGruppe` mehr („Symmetrie festhalten“ zog in den neuen Modus).
+ * Struktur hat kein `festeGruppe` mehr („Symmetrie festhalten“ zog in den neuen Modus). 4: Zoom statt Lupe in Tafel A
+ * (`zoomA`, `ausschnitt` statt `lupe`; #162).
  */
-export const SPEICHER_VERSION = 3;
+export const SPEICHER_VERSION = 4;
 
 /** Stand für den Speicher des Browsers (Gegenstück zu ausSpeicher). @param {Zustand} z */
 export const speicherStand = (z) => ({ v: SPEICHER_VERSION, z });
 
 /** Schalter in der Adresse: Schlüssel → Feld im Zustand. */
 /** @type {[string, Schalterfeld][]} */
-const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete'], ['lupe', 'lupe']];
+const SCHALTER = [['el', 'elemente'], ['obj', 'objekt'], ['ae', 'ae'], ['farb', 'farben'], ['rast', 'einrasten'], ['mel', 'musterElemente'], ['orbit', 'orbit'], ['fuell', 'aeFuell'], ['tap', 'tapete']];
 /**
- * „Darstellung“ und Lupe gelten in beiden Modi (Konzept „Muster entwerfen“, Schritt 3): dieselben Felder des
+ * „Darstellung“ und Einrasten gelten in allen Modi (Konzept „Muster entwerfen“, Schritt 3): dieselben Felder des
  * Zustands und dieselben Schlüssel im Link; die übrigen Schalter von SCHALTER gehören nur zu „Ebenengruppen“.
  * @type {[string, Schalterfeld][]}
  */
-const GEMEINSAME_SCHALTER = SCHALTER.filter(([k]) => ['farb', 'mel', 'tap', 'fuell', 'lupe', 'rast'].includes(k));
+const GEMEINSAME_SCHALTER = SCHALTER.filter(([k]) => ['farb', 'mel', 'tap', 'fuell', 'rast'].includes(k));
+
+/**
+ * Zoom beider Tafeln im Link, in allen Modi gleich (#162): `zoomA` (Tafel A), `zoomB` (Muster; vorher `zoom`, mit neuem
+ * Namen, weil Tafel A jetzt auch einen Zoom hat). Die Mitte des Ausschnitts von Tafel A steht nur im Speicher.
+ * @param {Zustand} z @param {URLSearchParams} q
+ */
+function zoomHash(z, q) {
+  const s = startzustand();
+  if (z.zoomA !== s.zoomA) q.set('zoomA', kurz(z.zoomA, 3));
+  if (z.zoomB !== s.zoomB) q.set('zoomB', kurz(z.zoomB, 3));
+}
+/**
+ * Zoom aus dem Link (Gegenstück zu zoomHash). Die Mitte des Ausschnitts bleibt die gespeicherte: Die App kann das
+ * Öffnen eines Links nicht vom Neuladen unterscheiden, und beim Neuladen soll der Ausschnitt bleiben; zoomAusschnitt
+ * hält sie in der ganzen Ansicht.
+ * @param {Zustand} z @param {URLSearchParams} q
+ */
+function zoomLesen(z, q) {
+  const s = startzustand();
+  z.zoomA = zahlBegrenzt(q.get('zoomA'), ...ZOOM_A_BEREICH) ?? s.zoomA;
+  z.zoomB = zahlBegrenzt(q.get('zoomB'), ...ZOOM_BEREICH) ?? s.zoomB;
+}
 
 /**
  * Basis als Text: Motive durch „;“ getrennt, je motiv,farbe,x,y,winkel[,grösse][,m][,f]; „m“: gespiegelt (nur bei
@@ -485,7 +524,7 @@ function strukturHash(z, q) {
   for (const [k, f] of STRUKTUR_SCHALTER) if (st[f] !== s0[f]) q.set(k, B(st[f]));
   const s = startzustand();
   for (const [k, f] of GEMEINSAME_SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
-  if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
+  zoomHash(z, q);
 }
 
 /**
@@ -503,7 +542,7 @@ function entwurfHash(z, q) {
   if (en.bindungen !== s0.bindungen) q.set('bind', B(en.bindungen));
   const s = startzustand();
   for (const [k, f] of GEMEINSAME_SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
-  if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
+  zoomHash(z, q);
 }
 
 /** Link-Adresse (Hash) zum Zustand. @param {Zustand} z */
@@ -520,7 +559,7 @@ export function hashVon(z) {
   q.set('y', koordText(z.punkt[1]));
   for (const [k, f] of SCHALTER) if (z[f] !== s[f]) q.set(k, B(z[f]));
   if (z.zellen !== s.zellen) q.set('zellen', String(z.zellen));
-  if (z.zoomB !== s.zoomB) q.set('zoom', kurz(z.zoomB, 3));
+  zoomHash(z, q);
   if (z.objGroesse !== s.objGroesse) q.set('og', kurz(z.objGroesse, 3));
   if (z.form !== s.form) q.set('form', z.form);
   if (z.herkunft) q.set('herkunft', '1');
@@ -544,7 +583,8 @@ function hashLesen(z, hash) {
   const s = startzustand();
   // Struktur und Entwurf bleiben beim Öffnen eines Links erhalten (der Link des anderen Modus ändert sie nicht); die
   // Striche des Entwurfs stehen nicht im Link und bleiben auch im Entwurf erhalten (unten)
-  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), struktur: z.struktur ?? s.struktur, entwurf: z.entwurf ?? s.entwurf });
+  // ebenso der Ausschnitt von Tafel A (nicht im Link, zoomLesen)
+  Object.assign(z, s, { gitter: JSON.parse(JSON.stringify(z.gitter ?? s.gitter)), struktur: z.struktur ?? s.struktur, entwurf: z.entwurf ?? s.entwurf, ausschnitt: z.ausschnitt ?? s.ausschnitt });
   if (q.get('m') === 'eg') z.modus = 'eg';
   if (q.get('m') === 'struktur') {
     // Modus „Gitter und Basis“: Vorgabe, darauf Gitter und Basis aus dem Link
@@ -558,7 +598,7 @@ function hashLesen(z, hash) {
     for (const [k, f] of STRUKTUR_SCHALTER) if (q.has(k)) st[f] = an(q.get(k));
     for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
     z.struktur = st;
-    z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+    zoomLesen(z, q);
     return true;
   }
   if (q.get('m') === 'entwurf') {
@@ -579,7 +619,7 @@ function hashLesen(z, hash) {
     for (const [k, f] of GEMEINSAME_SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
     en.striche = pruefeStriche(z.entwurf?.striche);
     z.entwurf = en;
-    z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+    zoomLesen(z, q);
     return true;
   }
   const g = q.get('g');
@@ -589,7 +629,7 @@ function hashLesen(z, hash) {
   z.punkt = [x ?? s.punkt[0], y ?? s.punkt[1]];
   for (const [k, f] of SCHALTER) if (q.has(k)) z[f] = an(q.get(k));
   if (q.get('zellen') === '2') z.zellen = 2;
-  z.zoomB = zahlBegrenzt(q.get('zoom'), ...ZOOM_BEREICH) ?? s.zoomB;
+  zoomLesen(z, q);
   z.objGroesse = zahlBegrenzt(q.get('og'), ...OBJ_BEREICH) ?? s.objGroesse;
   const form = q.get('form');
   if (form !== null && FORMEN.includes(form)) z.form = form;

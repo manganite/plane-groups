@@ -175,7 +175,7 @@ try {
   pruefe(await striche() >= 8, 'Rückgängig holt die gelöschten Striche zurück');
   await page.locator('#tab-eg').click(); await page.waitForTimeout(200);
   pruefe(await page.locator('#s-werkzeug-zeichnen').isHidden() && await page.locator('#rueckgaengig').isHidden(), '„Ebenengruppen“ hat kein Zeichnen und kein Rückgängig');
-  pruefe(await page.locator('#werkzeug-einrasten').isVisible() && await page.locator('#werkzeug-lupe').isVisible() && await page.locator('#export-a').isVisible(), '„Ebenengruppen“: Einrasten, Lupe und Export in Tafel A');
+  pruefe(await page.locator('#werkzeug-einrasten').isVisible() && await page.locator('#zoom-a-ein').isVisible() && await page.locator('#export-a').isVisible(), '„Ebenengruppen“: Einrasten, Zoom und Export in Tafel A');
 
   // 7a. Rückgängig für Motive (#130): Hinzufügen, Ziehen und „Alle Motive löschen“ zurücknehmen; Einrasten als Schalter
   await oeffnen('#m=struktur&v=dreieck1');
@@ -250,6 +250,77 @@ try {
   pruefe((await adresse()).includes('ziegel,0,1/2,1/2,0,0.25,f'), 'Mit Fuge: „f“ in der Adresse');
   await page.locator('#s-motiv [data-motiv="insel"]').click(); await page.waitForTimeout(250);
   pruefe(await page.locator('#s-fuge').isHidden() && !(await adresse()).includes(',f'), 'Anderes Motiv: Schalter fehlt, „f“ entfällt');
+
+  // 11. Zoom und Verschieben (#162): Knöpfe, Mausrad um den Zeiger, Leertaste + Ziehen, Pfeiltasten, ins Leere ziehen,
+  // Tafel B, Ruhe während einer Erklärung, Mitte nur im Speicher, zwei Finger
+  /** Mitte eines Elements in Tafel A auf dem Bildschirm. @param {string} sel */
+  const lageIn = (sel) => page.locator(`#bild-a ${sel}`).first().evaluate((el) => { const b = el.getBoundingClientRect(); return { x: b.x + b.width / 2, y: b.y + b.height / 2 }; });
+  /** @param {{ x: number, y: number }} a @param {{ x: number, y: number }} b */
+  const abstand = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  await oeffnen('#m=eg&g=p4');
+  await page.locator('#bild-a').scrollIntoViewIfNeeded();
+  await page.locator('#zoom-a-ein').click(); await page.locator('#zoom-a-ein').click(); await page.waitForTimeout(200);
+  pruefe((await adresse()).includes('zoomA=1.563') && (await text('#zoom-a-wert')) === '156 %', `Zoom: + zweimal ergibt 156 % (${await adresse()})`);
+  await page.locator('#zoom-a-passen').click(); await page.waitForTimeout(200);
+  pruefe(!(await adresse()).includes('zoomA') && await page.locator('#zoom-a-passen').isDisabled(), 'Zoom: Einpassen zeigt wieder die ganze Zeichnung');
+  const o0 = await lageIn('.ausgang');
+  await page.mouse.move(o0.x, o0.y); await page.mouse.wheel(0, -400); await page.waitForTimeout(300);
+  const o1 = await lageIn('.ausgang');
+  pruefe((await adresse()).includes('zoomA=') && abstand(o0, o1) < 2, `Mausrad: vergrössert um den Zeiger (Objekt bleibt unter dem Zeiger, ${abstand(o0, o1).toFixed(1)} px)`);
+  const oVorher = await lageIn('.ausgang');
+  const fl = /** @type {{ x: number, y: number, width: number, height: number }} */ (await page.locator('#bild-a').boundingBox());
+  await page.mouse.move(fl.x + 100, fl.y + 100); await page.keyboard.down(' ');
+  await page.mouse.down(); await page.mouse.move(fl.x + 160, fl.y + 140, { steps: 4 }); await page.mouse.up(); await page.keyboard.up(' ');
+  await page.waitForTimeout(250);
+  const oNach = await lageIn('.ausgang');
+  pruefe(Math.abs(oNach.x - oVorher.x - 60) < 3 && Math.abs(oNach.y - oVorher.y - 40) < 3 && (await adresse()).includes('x=0.12'), `Leertaste + Ziehen verschiebt den Ausschnitt, nicht das Objekt (${(oNach.x - oVorher.x).toFixed(0)}, ${(oNach.y - oVorher.y).toFixed(0)})`);
+  await page.locator('#bild-a').focus(); await page.keyboard.press('ArrowLeft'); await page.waitForTimeout(250);
+  const oLinks = await lageIn('.ausgang');
+  pruefe(oLinks.x - oNach.x > 20 && Math.abs(oLinks.y - oNach.y) < 2, 'Pfeiltaste verschiebt den Ausschnitt');
+  await page.reload(); await page.waitForTimeout(400);
+  const oNeu = await lageIn('.ausgang');
+  pruefe(abstand(oNeu, oLinks) < 2 && !/mitte|ausschnitt/.test(await adresse()), 'Neu laden: gleicher Ausschnitt (Mitte im Speicher, nicht im Link)');
+  await oeffnen('#m=eg&g=p4&zoomA=2&schritt=2');
+  pruefe(await page.locator('#zoom-a-ein').isDisabled() && (await text('#zoom-a-wert')) === '100 %', 'Zoom ruht während „Schritt für Schritt“');
+  await oeffnen('#m=entwurf&g=p4mm&basis=atom,0,1/10,1/5,0&zoomA=2');
+  await page.locator('#s-werkzeug-verschieben').click(); await page.waitForTimeout(250);
+  const e0 = await lageIn('.konv-zelle');
+  const ra = /** @type {{ x: number, y: number, width: number, height: number }} */ (await page.locator('#bild-a').boundingBox());
+  const leer = { x: ra.x + ra.width * 0.8, y: ra.y + ra.height * 0.8 }; // ohne Motiv (das Atom liegt bei 1/10, 1/5)
+  await page.mouse.move(leer.x, leer.y); await page.mouse.down(); await page.mouse.move(leer.x - 50, leer.y + 30, { steps: 4 }); await page.mouse.up();
+  await page.waitForTimeout(250);
+  const e1 = await lageIn('.konv-zelle');
+  pruefe(Math.abs(e1.x - e0.x + 50) < 3 && Math.abs(e1.y - e0.y - 30) < 3, `Entwurf: Ziehen ins Leere verschiebt den Ausschnitt (${(e1.x - e0.x).toFixed(0)}, ${(e1.y - e0.y).toFixed(0)})`);
+  // Leertaste + Ziehen auch beim Zeichnen, wenn ein Knopf den Fokus hat (Review): verschiebt, zeichnet nicht
+  await page.locator('#s-werkzeug-zeichnen').click(); await page.locator('#zoom-a-ein').click(); await page.waitForTimeout(250);
+  const s0 = await striche(); const k0 = await lageIn('.konv-zelle');
+  await page.mouse.move(leer.x, leer.y); await page.keyboard.down(' ');
+  await page.mouse.down(); await page.mouse.move(leer.x + 40, leer.y - 20, { steps: 4 }); await page.mouse.up(); await page.keyboard.up(' ');
+  await page.waitForTimeout(250);
+  const k1 = await lageIn('.konv-zelle');
+  pruefe(await striche() === s0 && Math.abs(k1.x - k0.x - 40) < 3 && Math.abs(k1.y - k0.y + 20) < 3, `Zeichnen + Leertaste: verschiebt, kein Strich (${(k1.x - k0.x).toFixed(0)}, ${(k1.y - k0.y).toFixed(0)})`);
+  await page.locator('#zoom-b-ein').click(); await page.waitForTimeout(200);
+  const b = /** @type {{ x: number, y: number, width: number, height: number }} */ (await page.locator('#bild-b').boundingBox());
+  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2); await page.mouse.wheel(0, -200); await page.waitForTimeout(250);
+  const zb = Number((await adresse()).match(/zoomB=([\d.]+)/)?.[1]);
+  pruefe(zb > 1.25 && !(await adresse()).includes('&zoom='), `Tafel B: + und Mausrad vergrössern das Muster (zoomB=${zb})`);
+  pruefe(await page.locator('#v-zoom').count() === 0, 'Kein Regler „Vergrösserung“ mehr in der Seitenleiste');
+  // zwei Finger auf Tafel A (Touch über CDP): auseinander = grösser
+  const tctx = await browser.newContext({ viewport: { width: 1024, height: 768 }, hasTouch: true, serviceWorkers: 'block' });
+  const tp = await tctx.newPage();
+  tp.on('pageerror', (e) => konsole.push(String(e)));
+  await tp.goto(`${basis}index.html#m=eg&g=p4&obj=0`); await tp.waitForSelector('#bild-a *', { state: 'attached' }); await tp.waitForTimeout(300);
+  await tp.locator('#bild-a').scrollIntoViewIfNeeded();
+  const tb = /** @type {{ x: number, y: number, width: number, height: number }} */ (await tp.locator('#bild-a').boundingBox());
+  const cx = tb.x + tb.width / 2; const cy = tb.y + tb.height / 2;
+  const cdp = await tctx.newCDPSession(tp);
+  /** @param {'touchStart' | 'touchMove' | 'touchEnd'} type @param {number} d */
+  const finger = (type, d) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x: cx - d, y: cy, id: 1 }, { x: cx + d, y: cy, id: 2 }] });
+  await finger('touchStart', 30); for (const d of [40, 50, 60]) await finger('touchMove', d); await finger('touchEnd', 0);
+  await tp.waitForTimeout(300);
+  const za = Number((await tp.evaluate(() => decodeURIComponent(location.hash))).match(/zoomA=([\d.]+)/)?.[1]);
+  pruefe(za > 1.8 && za < 2.2, `Zwei Finger: Abstand verdoppelt ergibt Zoom 2 (${za})`);
+  await tctx.close();
 
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {

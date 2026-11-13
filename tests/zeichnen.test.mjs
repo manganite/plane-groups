@@ -71,7 +71,7 @@ test('Striche im Entwurf: Kopien in Tafel A und im Muster, alle in der Farbe ihr
   const en = { ...entwurfStart('p4mm'), striche: [strich] };
   const st = { ...en, bindungen: false, basis: [] };
   const r = festeBestimmung(en);
-  const a = strukturTafelA(st, { elemente: false, zelle: true, ae: false, bindungen: false, farben: false, fuell: false, lupe: null }, F, null, null, r).svg;
+  const a = strukturTafelA(st, { elemente: false, zelle: true, ae: false, bindungen: false, farben: false, fuell: false, zoom: null }, F, null, null, r).svg;
   const b = strukturTafelB(st, F, r, 1, { zelle: true, elemente: false }).svg;
   for (const [name, svg] of [['A', a], ['B', b]]) {
     const gr = svg.match(/<g class="striche">(.*?)<\/g>/)?.[1] ?? '';

@@ -57,6 +57,7 @@ const FILES = [
   'js/vorgaben.js',
   'js/herkunft-text.js',
   'js/zeichnung.js',
+  'js/zoom.js',
   'js/zustand.js',
   'lib/common/css/app.css',
   'lib/common/css/base.css',

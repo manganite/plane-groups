@@ -94,19 +94,19 @@ test('Formen des Objekts: zustand.js und zeichnung.js stimmen überein, Link hin
   }
 });
 
-test('Vergrösserung des Musters und Grösse des Objekts in der Link-Adresse', () => {
+test('Zoom des Musters und Grösse des Objekts in der Link-Adresse', () => {
   const z = startzustand();
   z.zoomB = 2.2; z.objGroesse = 1.6;
   const h = hashVon(z);
-  assert.match(h, /zoom=2\.2/); assert.match(h, /og=1\.6/);
+  assert.match(h, /zoomB=2\.2/); assert.match(h, /og=1\.6/);
   const w = startzustand(); hashAnwenden(w, h);
   assert.equal(w.zoomB, 2.2); assert.equal(w.objGroesse, 1.6);
-  const u = startzustand(); hashAnwenden(u, '#m=eg&g=p4&zoom=9&og=0.1');
+  const u = startzustand(); hashAnwenden(u, '#m=eg&g=p4&zoomB=9&og=0.1');
   assert.equal(u.zoomB, 3); assert.equal(u.objGroesse, 0.5); // nächster gültiger Wert (Leitfaden 5.2)
   assert.doesNotMatch(hashVon(startzustand()), /zoom|og=/);  // auch im Modus „Gitter und Basis“ (Muster in Tafel B)
-  const st = startzustand(); hashAnwenden(st, '#m=struktur&v=graphen&zoom=1.6');
+  const st = startzustand(); hashAnwenden(st, '#m=struktur&v=graphen&zoomB=1.6');
   assert.equal(st.modus, 'struktur'); assert.equal(st.zoomB, 1.6);
-  assert.match(hashVon(st), /^#m=struktur&v=graphen&zoom=1\.6$/);
+  assert.match(hashVon(st), /^#m=struktur&v=graphen&zoomB=1\.6$/);
 });
 
 test('Browserspeicher: ungültige Felder fallen auf den Startwert zurück (wie in der Link-Adresse)', () => {

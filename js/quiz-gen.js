@@ -283,7 +283,7 @@ function strukturGenerator({ id, kapitel, gruppen, ohne = [], ausser = [], frage
       const v = /** @type {Vorgabe} */ (vorgaben.find((x) => x.id === vid)); // vid stammt aus params()
       const g = v.erwartet;
       const ab = gruppenAblenker(g, 3, ausser);
-      const zz = zoom(vid) === 1 ? '' : `&zoom=${zoom(vid)}`; // Vergrösserung des Musters (Tafel B), auch im App-Link
+      const zz = zoom(vid) === 1 ? '' : `&zoomB=${zoom(vid)}`; // Vergrösserung des Musters (Tafel B), auch im App-Link
       return {
         typ: 'bild-text',
         lernziel,
@@ -469,7 +469,7 @@ export const MUSTER = {
       typ: 'bild-text',
       lernziel: 'die beiden Diagramme einer Ebenengruppe in den International Tables lesen',
       frage: `Das Bild zeigt ein Muster aus Fähnchen; hervorgehoben ist eine Elementarzelle${NUR_DREHUNG.includes(g) ? '' : ', spiegelbildliche Fähnchen haben die andere Farbe'}. Welche Ebenengruppe hat das Muster?`,
-      bild: `B${adr}&zoom=${MUSTER_ZOOM[g] ?? 1.3}`, bildAlt: 'Muster aus Fähnchen mit hervorgehobener Elementarzelle',
+      bild: `B${adr}&zoomB=${MUSTER_ZOOM[g] ?? 1.3}`, bildAlt: 'Muster aus Fähnchen mit hervorgehobener Elementarzelle',
       antworten: [g, ...ab].map(S),
       richtig: [0],
       hinweise: [null, ...ab.map(hinweisGruppe)],

@@ -92,8 +92,8 @@ function beispiele() {
   const z = startzustand();
   z.modus = 'struktur'; z.struktur = strukturStart('graphen'); z.struktur.ba = 1.3; z.struktur.basis.pop();
   out.push(z);
-  // „Darstellung“ und Lupe in „Gitter und Basis“ (Schlüssel farb, mel, tap, fuell, lupe, zoom wie in „Ebenengruppen“)
-  for (const v of [{ farben: false }, { musterElemente: true, tapete: true }, { aeFuell: true, lupe: true, zoomB: 1.7 }, { farben: false, musterElemente: true, tapete: true, aeFuell: true, lupe: true, zoomB: 0.6 }]) {
+  // „Darstellung“ und Zoom in „Gitter und Basis“ (Schlüssel farb, mel, tap, fuell, zoomA, zoomB wie in „Ebenengruppen“)
+  for (const v of [{ farben: false }, { musterElemente: true, tapete: true }, { aeFuell: true, zoomA: 2.5, zoomB: 1.7 }, { farben: false, musterElemente: true, tapete: true, aeFuell: true, zoomA: 8, zoomB: 0.6 }]) {
     const zd = startzustand();
     zd.modus = 'struktur'; zd.struktur = strukturStart('quadratisch'); Object.assign(zd, v);
     out.push(zd);
@@ -122,7 +122,7 @@ function beispiele() {
     out.push(zf);
   }
   // Anzeigen und „Darstellung“ im Entwurf
-  for (const v of [{ farben: false }, { musterElemente: true, tapete: true }, { aeFuell: true, lupe: true, zoomB: 1.7 }]) {
+  for (const v of [{ farben: false }, { musterElemente: true, tapete: true }, { aeFuell: true, zoomA: 2.5, zoomB: 1.7 }]) {
     const zd = startzustand();
     zd.modus = 'entwurf'; zd.entwurf = { ...entwurfStart('p4gm'), elemente: false, ae: true, bindungen: false, basis: [{ motiv: 'fahne', farbe: 0, p: [0.1, 0.2], winkel: grad(0) }] }; Object.assign(zd, v);
     out.push(zd);
@@ -151,17 +151,17 @@ test('Rundlauf: Zustand → Speicher → Zustand (alles bleibt, auch was nicht i
 test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne Fehler (#96)', () => {
   /** @type {unknown[]} */
   const staende = [
-    null, 'x', 42, { v: 3 }, { v: 3, z: null }, { v: 3, z: {} },
+    null, 'x', 42, { v: 4 }, { v: 4, z: null }, { v: 4, z: {} },
     // falsche Arten in allen Feldern
-    { v: 3, z: { gruppe: '<b>', modus: 'tafel', punkt: [1, 'a'], gitter: { schiefwinklig: { ba: 'gross', gamma: NaN }, rechteckig: { ba: 9, gamma: 45 }, hexagonal: { ba: 2, gamma: 90 } }, schritt: 999, aufbau: -3, zoomB: 'x', objGroesse: 50, aeTeile: [7, -1, 'a'], striche: [[1, 2]], struktur: { vorgabe: 'gibtsnicht' } } },
-    { v: 3, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>', zeichnen: true, radieren: true, herkunft: 'ja' } },
-    { v: 3, z: { gitter: { quadratisch: { ba: 1.3, gamma: 100 } } } }, // Werte, die das System nicht zulässt
+    { v: 4, z: { gruppe: '<b>', modus: 'tafel', punkt: [1, 'a'], gitter: { schiefwinklig: { ba: 'gross', gamma: NaN }, rechteckig: { ba: 9, gamma: 45 }, hexagonal: { ba: 2, gamma: 90 } }, schritt: 999, aufbau: -3, zoomB: 'x', objGroesse: 50, aeTeile: [7, -1, 'a'], striche: [[1, 2]], struktur: { vorgabe: 'gibtsnicht' } } },
+    { v: 4, z: { gitter: 'kaputt', schritt: 2.5, form: 'stern', erkl: '<img>', zeichnen: true, radieren: true, herkunft: 'ja' } },
+    { v: 4, z: { gitter: { quadratisch: { ba: 1.3, gamma: 100 } } } }, // Werte, die das System nicht zulässt
     // Entwurf: falsche Art, unbekannte Gruppe, Gitter passt nicht zum System, zu viele Vertreter, kein Entwurf
-    ...[5, 'p7', '<b>', true, null].map((gruppe) => ({ v: 3, z: { modus: 'entwurf', entwurf: { gruppe, ba: 1, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } })),
-    { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p6', ba: 1, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
-    { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p4mm', ba: 1.3, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
-    { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p4mm', ba: 1, gamma: 90, basis: Array.from({ length: 9 }, (_, i) => ({ motiv: 'atom', p: [i / 10, 0.3] })) } } },
-    { v: 3, z: { modus: 'entwurf' } }, { v: 3, z: { modus: 'entwurf', entwurf: 'x' } }, { v: 3, z: { modus: 'entwurf', entwurf: { gruppe: 'p2', basis: 'x', elemente: 3, ae: 'ja', bindungen: 'nein' } } },
+    ...[5, 'p7', '<b>', true, null].map((gruppe) => ({ v: 4, z: { modus: 'entwurf', entwurf: { gruppe, ba: 1, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } })),
+    { v: 4, z: { modus: 'entwurf', entwurf: { gruppe: 'p6', ba: 1, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
+    { v: 4, z: { modus: 'entwurf', entwurf: { gruppe: 'p4mm', ba: 1.3, gamma: 90, basis: [{ motiv: 'fahne', p: [0.1, 0.2] }] } } },
+    { v: 4, z: { modus: 'entwurf', entwurf: { gruppe: 'p4mm', ba: 1, gamma: 90, basis: Array.from({ length: 9 }, (_, i) => ({ motiv: 'atom', p: [i / 10, 0.3] })) } } },
+    { v: 4, z: { modus: 'entwurf' } }, { v: 4, z: { modus: 'entwurf', entwurf: 'x' } }, { v: 4, z: { modus: 'entwurf', entwurf: { gruppe: 'p2', basis: 'x', elemente: 3, ae: 'ja', bindungen: 'nein' } } },
   ];
   for (const s of staende) {
     const z = ausSpeicher(JSON.parse(JSON.stringify(s) ?? 'null'));
@@ -170,7 +170,7 @@ test('Rundlauf: alter oder verdorbener Speicherstand → gültiger Zustand, ohne
     assert.deepEqual(JSON.parse(JSON.stringify(neuLaden(z))), JSON.parse(JSON.stringify(z)));
   }
   // gültige Werte bleiben erhalten
-  const z = ausSpeicher({ v: 3, z: { gitter: { schiefwinklig: { ba: 1.5, gamma: 100 }, rechteckig: { ba: 0.7, gamma: 90 } }, schritt: 4 } });
+  const z = ausSpeicher({ v: 4, z: { gitter: { schiefwinklig: { ba: 1.5, gamma: 100 }, rechteckig: { ba: 0.7, gamma: 90 } }, schritt: 4 } });
   assert.deepEqual([z.gitter.schiefwinklig.ba, z.gitter.schiefwinklig.gamma, z.gitter.rechteckig.ba, z.schritt], [1.5, 100, 0.7, 4]);
 });
 
@@ -187,7 +187,7 @@ test('Rundlauf: Zurücksetzen vor und nach dem Neuladen gleich (Speicher und Lin
 
 test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review #97)', () => {
   /** @param {Record<string, unknown>} felder */
-  const speicher = (felder) => ausSpeicher({ v: 3, z: felder });
+  const speicher = (felder) => ausSpeicher({ v: 4, z: felder });
   // Gitter: Grenzen der Regler eingeschlossen, darüber hinaus der nächste gültige Wert (Leitfaden 5.2), keine Zahl: Startwert
   const g = (/** @type {number} */ ba) => speicher({ gitter: { schiefwinklig: { ba, gamma: 110 } } }).gitter.schiefwinklig.ba;
   assert.equal(g(2), 2); assert.equal(g(0.5), 0.5); assert.equal(g(2.05), 2); assert.equal(g(0.45), 0.5);
@@ -214,7 +214,7 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   // Stand und Link aus Fassungen mit „Symmetrie brechen“ oder `warum`: Der Speicher von v1 gilt nicht mehr (Leitfaden
   // Abschn. 8); die Felder brechen, frei, warum und die Link-Schlüssel brechen=1 und warum=1 haben keine Wirkung
   assert.deepEqual(JSON.parse(JSON.stringify(ausSpeicher({ v: 1, z: { gruppe: 'p4mm', schritt: 3 } }))), JSON.parse(JSON.stringify(startzustand())));
-  const alt1 = ausSpeicher({ v: 3, z: { gruppe: 'p6mm', brechen: true, frei: { ba: 1.8, gamma: 70 }, warum: true } });
+  const alt1 = ausSpeicher({ v: 4, z: { gruppe: 'p6mm', brechen: true, frei: { ba: 1.8, gamma: 70 }, warum: true } });
   assert.deepEqual([alt1.gruppe, alt1.herkunft, 'brechen' in alt1, 'frei' in alt1, 'warum' in alt1], ['p6mm', false, false, false, false]);
   const alt2 = startzustand(); hashAnwenden(alt2, '#m=eg&g=p6mm&brechen=1&warum=1');
   assert.deepEqual([alt2.gruppe, alt2.herkunft, 'brechen' in alt2, 'warum' in alt2], ['p6mm', false, false, false]);
@@ -224,7 +224,7 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   // Vergrösserung, Objekt, Struktur und Motivgrösse: in beiden Wegen der nächste gültige Wert
   const zs = speicher({ zoomB: 9, objGroesse: 0.1, struktur: { ba: 5, gamma: 10, basis: [{ motiv: 'atom', p: [0, 0], groesse: 7 }] } });
   assert.deepEqual([zs.zoomB, zs.objGroesse, zs.struktur.ba, zs.struktur.gamma, zs.struktur.basis[0].groesse], [3, 0.5, 2, 60, 1]);
-  const zl2 = startzustand(); hashAnwenden(zl2, '#m=struktur&v=quadratisch&basis=atom,0,0,0,0,7&ba=5&gamma=10&zoom=9');
+  const zl2 = startzustand(); hashAnwenden(zl2, '#m=struktur&v=quadratisch&basis=atom,0,0,0,0,7&ba=5&gamma=10&zoomB=9');
   assert.deepEqual([zl2.zoomB, zl2.struktur.ba, zl2.struktur.gamma, zl2.struktur.basis[0].groesse], [3, 2, 60, 1]);
   // Drehwinkel der Motive laufen um: 0° bis unter 360°, in beiden Wegen und stabil (Review #99)
   const ws = speicher({ struktur: { ba: 1, gamma: 90, basis: [800, -1000, -45, 360].map((winkel) => ({ motiv: 'fahne', p: [0, 0], winkel })) } });
@@ -258,13 +258,23 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   const re = el('g=pm&ba=1.5&el=0&ae=1');
   assert.deepEqual([re.ba, re.gamma, re.elemente, re.ae], [1.5, 90, false, true]);
   assert.deepEqual([el('g=pm&ba=1.5&gamma=45').ba, el('g=pm&ba=1.5&gamma=45').gamma], [entwurfStart('pm').ba, 90], 'γ ≠ 90° passt nicht zum System');
-  // ein Stand von v2 (vor „Muster entwerfen“) gilt nicht mehr
+  // ein Stand von v2 (vor „Muster entwerfen“) und von v3 (mit Lupe, #162) gilt nicht mehr
   assert.deepEqual(JSON.parse(JSON.stringify(ausSpeicher({ v: 2, z: { modus: 'entwurf', gruppe: 'p4mm', schritt: 3 } }))), JSON.parse(JSON.stringify(startzustand())));
+  assert.deepEqual(JSON.parse(JSON.stringify(ausSpeicher({ v: 3, z: { gruppe: 'p4mm', lupe: true } }))), JSON.parse(JSON.stringify(startzustand())));
+  // Zoom und Ausschnitt von Tafel A (#162): Zoom auf seinen Bereich, Ausschnitt je Modus ein Punkt oder null
+  const zz = speicher({ zoomA: 20, ausschnitt: { eg: [0.2, 0.3], struktur: 'x', entwurf: [1, 'a'], fremd: [1, 1] } });
+  assert.deepEqual([zz.zoomA, zz.ausschnitt], [8, { eg: [0.2, 0.3], struktur: null, entwurf: null }]);
+  assert.deepEqual([speicher({ zoomA: 0.2 }).zoomA, speicher({ zoomA: 'x' }).zoomA, speicher({ ausschnitt: 5 }).ausschnitt], [1, 1, { eg: null, struktur: null, entwurf: null }]);
+  // ein Link setzt den Zoom, die Mitte bleibt die gespeicherte (Neuladen behält den Ausschnitt)
+  const zl = speicher({ ausschnitt: { eg: [0.2, 0.3], struktur: [0.5, 0.5], entwurf: null } });
+  hashAnwenden(zl, '#m=eg&g=p4&zoomA=3');
+  assert.deepEqual([zl.zoomA, zl.ausschnitt], [3, { eg: [0.2, 0.3], struktur: [0.5, 0.5], entwurf: null }]);
+  assert.ok(!/ausschnitt|mitte/.test(hashVon({ ...zl, ausschnitt: { eg: [0.2, 0.3], struktur: null, entwurf: null } })), 'Mitte nicht im Link');
   // ohne ba oder γ: 1 bzw. 90° in beiden Wegen
   const ohne = speicher({ modus: 'struktur', struktur: { basis: [] } }).struktur;
   const ohneL = startzustand(); hashAnwenden(ohneL, '#m=struktur&v=quadratisch&basis=');
   assert.deepEqual([ohne.ba, ohne.gamma, ohneL.struktur.ba, ohneL.struktur.gamma], [1, 90, 1, 90]);
-  const zl3 = startzustand(); hashAnwenden(zl3, '#m=eg&g=p4&zoom=9&og=0.1');
+  const zl3 = startzustand(); hashAnwenden(zl3, '#m=eg&g=p4&zoomB=9&og=0.1');
   assert.deepEqual([zl3.zoomB, zl3.objGroesse], [3, 0.5]);
   // Objekt innerhalb ±10⁶
   assert.deepEqual(speicher({ punkt: [2e6, 0] }).punkt, startzustand().punkt);
@@ -287,7 +297,7 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   // aeTeile: Doppelte weg, aufsteigend
   assert.deepEqual(speicher({ gruppe: 'p2mm', aeTeile: [1, 0, 0, 1, 99] }).aeTeile, [0, 1]);
   // fremde Schlüssel und __proto__ werden nicht übernommen
-  const z = ausSpeicher(JSON.parse('{"v":3,"z":{"__proto__":{"boese":1},"fremd":2,"gruppe":"p4"}}'));
+  const z = ausSpeicher(JSON.parse('{"v":4,"z":{"__proto__":{"boese":1},"fremd":2,"gruppe":"p4"}}'));
   assert.equal(z.gruppe, 'p4');
   assert.ok(!('fremd' in z) && !('boese' in z) && Object.getPrototypeOf(z) === Object.prototype);
 });

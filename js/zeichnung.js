@@ -279,7 +279,7 @@ const MUSTER_BREITE = 4.4;
 /**
  * Grösse des Objekts im Gitter: Länge (in Einheiten der längeren Zellkante) je Bildpunkt der
  * Zeichnung des Objekts bei Massstab 1. Das Objekt ist damit wie eine Zeichnung und die Motive der
- * Basis im Gitter festgelegt und steht in beiden Tafeln, bei 2 × 2 Zellen und in der Lupe im selben
+ * Basis im Gitter festgelegt und steht in beiden Tafeln, bei 2 × 2 Zellen und mit Zoom im selben
  * Verhältnis zur Zelle. Wert: im Muster sind es bei Vergrösserung 1, Grösse 1 und k = 1 genau 0,8 Bildpunkte
  * je Bildpunkt der Zeichnung (500 Bildpunkte für MUSTER_BREITE).
  */
@@ -288,8 +288,7 @@ const OBJEKT_LAENGE = (0.8 * MUSTER_BREITE) / 500;
 /**
  * Eine Erklärung im Symmetriegerüst ist aktiv: „Schritt für Schritt“, „Aufbau aus Erzeugenden“ oder
  * „Herkunft der Elemente“. Dann zeigt Tafel A das Objekt in fester Grösse (wie die Fähnchen der
- * Erklärungen), die eigene Zeichnung nicht, und die Lupe ruht; sie wird nur zum Zeichnen, Radieren und
- * Setzen des Objekts gebraucht.
+ * Erklärungen), die eigene Zeichnung nicht, und der Zoom ruht.
  * @param {Pick<Zustand, 'schritt' | 'objekt' | 'aufbau' | 'elemente' | 'herkunft' | 'erkl'>} z
  */
 export const erklaerend = (z) => (z.schritt > 0 && z.objekt) || (z.aufbau > 0 && z.elemente) || (z.herkunft && z.elemente) || !!z.erkl;
@@ -757,39 +756,41 @@ function schrittSVG(g, M, A, s, k, n, form, farben) {
  * dazu das Objekt mit allen Bildern und wahlweise die asymmetrische Einheit.
  * Ergebnis: { svg (Inhalt des <svg>), ansicht }.
  */
-/** Vergrösserung der Lupe in Tafel A. */
-export const LUPE = 2;
+/** Zoom von Tafel A (#162): 1 zeigt die ganze Ansicht, höchstens 8-fach. */
+export const ZOOM_A_BEREICH = /** @type {[number, number]} */ ([1, 8]);
 
 /**
- * Ausschnitt der Lupe (kartesisch): LUPE-mal kleiner als das, was die Tafel ohne Lupe zeigt (box samt Rand in
- * Bildpunkten), um die Mitte (Bruchkoordinaten); ist der Ausschnitt grösser als die Ansicht, liegt er in deren Mitte.
- * Gemeinsam für Tafel A von „Ebenengruppen“ und von „Gitter und Basis“; dort mit `rand` 0 gezeichnet.
- * @param {Metrik} M @param {Box} box @param {number} randOhneLupe Rand der Tafel ohne Lupe in Bildpunkten
- * @param {Vec2} mitte @returns {Box}
+ * Ausschnitt von Tafel A mit Zoom (#162; vorher die Lupe mit fest 2): die ganze Ansicht (box samt Rand in Bildpunkten)
+ * zoom-mal kleiner um die Mitte (Bruchkoordinaten), ohne Rand. Die Mitte wird so verschoben, dass der Ausschnitt in der
+ * ganzen Ansicht bleibt (ist er grösser, liegt er in deren Mitte). Bei zoom 1 die ganze Ansicht unverändert.
+ * Gemeinsam für Tafel A aller Modi.
+ * @param {Metrik} M @param {Box} box @param {number} rand Rand der ganzen Ansicht in Bildpunkten
+ * @param {number} zoom @param {Vec2} mitte
+ * @returns {{ box: Box, rand: number }}
  */
-export function lupeAusschnitt(M, box, randOhneLupe, mitte) {
-  const e = (randOhneLupe * Math.max(box[2] - box[0], box[3] - box[1])) / (520 - 2 * randOhneLupe);
+export function zoomAusschnitt(M, box, rand, zoom, mitte) {
+  if (!(zoom > 1 + 1e-9)) return { box, rand };
+  const e = (rand * Math.max(box[2] - box[0], box[3] - box[1])) / (520 - 2 * rand);
   const gross = /** @type {Box} */ ([box[0] - e, box[1] - e, box[2] + e, box[3] + e]);
   const c = kart(M, mitte);
-  const w = (gross[2] - gross[0]) / LUPE; const h = (gross[3] - gross[1]) / LUPE;
-  const s0 = Math.max(w, h);
-  // Bildmitte so, dass der Ausschnitt in der ganzen Ansicht bleibt (ist er grösser, in deren Mitte)
+  const s0 = Math.max(gross[2] - gross[0], gross[3] - gross[1]) / zoom;
   /** @param {number} m @param {number} lo @param {number} hi */
   const lage = (m, lo, hi) => (s0 >= hi - lo ? (lo + hi) / 2 : Math.min(Math.max(m, lo + s0 / 2), hi - s0 / 2));
   const mx = lage(c[0], gross[0], gross[2]); const my = lage(c[1], gross[1], gross[3]);
-  return [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2];
+  return { box: [mx - s0 / 2, my - s0 / 2, mx + s0 / 2, my + s0 / 2], rand: 0 };
 }
 
 /**
- * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript); bei z.lupe lupeMitte
- * (Bruchkoordinaten der Bildmitte, sonst die Stelle des Objekts) oder lupeBox (fester Ausschnitt
- * aus einem früheren Ergebnis, während einer Geste). Das Ergebnis enthält lupeBox.
+ * Tafel A. Optionen: phase (Erklärung), k (Grösse der Symbole, Skript); mitte: Mitte des Ausschnitts bei Zoom
+ * (Bruchkoordinaten; ohne Angabe die Stelle des Objekts), fest: Ansicht aus einem früheren Ergebnis, die während einer
+ * Geste stehen bleibt. Der Zoom (z.zoomA) ruht während einer Erklärung.
  * @param {string} id @param {Zustand} z @param {Farben} farben
- * @param {{ phase?: number, k?: number, lupeMitte?: Vec2 | null, lupeBox?: Box | null }} [optionen]
- * Ergebnis: auch massObjekt, der Massstab des Objekts (objektMassstab), für den Treffer beim Ziehen.
- * @returns {{ svg: string, ansicht: Ansicht, erklaerung: Erklaerung | null, lupeBox: Box | null, massObjekt: number }}
+ * @param {{ phase?: number, k?: number, mitte?: Vec2 | null, fest?: Ansicht | null }} [optionen]
+ * Ergebnis: auch massObjekt, der Massstab des Objekts (objektMassstab), für den Treffer beim Ziehen, und zoom, der
+ * wirksame Zoom.
+ * @returns {{ svg: string, ansicht: Ansicht, erklaerung: Erklaerung | null, zoom: number, massObjekt: number }}
  */
-export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupeBox = null } = {}) {
+export function tafelA(id, z, farben, { phase = 3, k = 1, mitte = null, fest = null } = {}) {
   const g = gruppeVon(id);
   const sys = g.daten.system;
   const M = metrik(z.gitter[sys]);
@@ -798,8 +799,9 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // Ansicht: Zellen, bei einer Erklärung auch die Stellen der Fähnchen
   // „Bilder rund um die Zelle“: Rand für die Bilder, die Ansicht etwas grösser für die Objekte
   const orbit = z.orbit && z.objekt && !erkl ? ORBIT_RAND : 0;
-  // Erklärung aktiv: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht
-  const ruhig = erklaerend({ ...z, erkl: erkl ? z.erkl : null }); const lupe = z.lupe && !ruhig; // nur ein gültiges erkl zählt
+  // Erklärung aktiv: Objekt in fester Grösse, keine eigene Zeichnung, der Zoom ruht
+  const ruhig = erklaerend({ ...z, erkl: erkl ? z.erkl : null }); // nur ein gültiges erkl zählt
+  const zoom = ruhig ? 1 : (z.zoomA ?? 1);
   let box = zellBox(M, n, orbit ? orbit + 0.06 : 0);
   // Schritt für Schritt: Ansicht mit allen Bildern der ITA-Liste (auch ausserhalb der Zelle)
   const schritt = schrittWirkt({ ...z, erkl: erkl ? z.erkl : null }) ? z.schritt : 0;
@@ -818,7 +820,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
     }
   }
   // hexagonal: die Zelle ist eine flache Raute, die das Bild nur in der Breite füllt; schmalerer Rand
-  const randOhneLupe = sys === 'hexagonal' ? 24 : 46;
+  const randGanz = sys === 'hexagonal' ? 24 : 46;
   // Rand für das Objekt (im Gitter festgelegt, objektMassstab): Ein Objekt mit dem Fuss auf dem Rand der
   // Zellen bleibt ganz sichtbar. Reicht der Rand in Bildpunkten nicht, wird der Ausschnitt um p
   // grösser: rand / s + p ≥ Reichweite mit s = (520 − 2 rand) / (D + 2 p). Unabhängig von der Lage des
@@ -827,16 +829,14 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
   // angeschnitten werden, wie Zeichnungen.
   if (z.objekt && !ruhig) {
     const reichweite = REICHWEITE * OBJEKT_LAENGE * Math.max(Math.hypot(...M.a), Math.hypot(...M.b)) * (z.objGroesse ?? 1);
-    const u = randOhneLupe / (520 - 2 * randOhneLupe); const D = Math.max(box[2] - box[0], box[3] - box[1]);
+    const u = randGanz / (520 - 2 * randGanz); const D = Math.max(box[2] - box[0], box[3] - box[1]);
     const p = Math.max(0, (reichweite - u * D) / (1 + 2 * u));
     box = [box[0] - p, box[1] - p, box[2] + p, box[3] + p];
   }
-  // Lupe: Ausschnitt LUPE-mal kleiner um die Mitte, innerhalb dessen, was die Tafel ohne Lupe zeigt
-  // (Ausschnitt samt Rand in Bildpunkten); so vergrössert sie genau LUPE-fach
-  if (lupe && lupeBox) box = lupeBox;
-  else if (lupe) box = lupeAusschnitt(M, box, randOhneLupe, lupeMitte ?? ausgangsstelle(z.punkt, n));
-  const rand = lupe ? 0 : randOhneLupe;
-  const A = ansicht(M, box, 520, rand);
+  // Zoom: Ausschnitt zoom-mal kleiner um die Mitte, innerhalb der ganzen Ansicht (zoomAusschnitt); während einer
+  // Geste bleibt die Ansicht stehen
+  const ausschnitt = zoomAusschnitt(M, box, randGanz, zoom, mitte ?? ausgangsstelle(z.punkt, n));
+  const A = fest ?? ansicht(M, ausschnitt.box, 520, ausschnitt.rand);
   // Objekt im Gitter (objektMassstab), während einer Erklärung fest wie bei „Schritt für Schritt“ (k: Skript, Quiz)
   const massObjekt = ruhig ? k : objektMassstab(M, A, z.objGroesse ?? 1);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
@@ -870,7 +870,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, lupeMitte = null, lupe
     teile.push(`<circle class="ausgang" cx="${f2(q[0])}" cy="${f2(q[1])}" r="${f2(15 * k)}" fill="none" stroke="${farben.accent}" stroke-width="${f2(1.8 * k)}" stroke-dasharray="${f2(3 * k)} ${f2(2.5 * k)}"/>`);
   }
   if (erkl) teile.push(erklaerungSVG(g, M, A, erkl, phase, farben, z.form, n));
-  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, lupeBox: lupe ? box : null, massObjekt };
+  return { svg: teile.join(''), ansicht: A, erklaerung: erkl, zoom, massObjekt };
 }
 
 // ---------------------------------------------------------------------------------------------
