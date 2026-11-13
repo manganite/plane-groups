@@ -129,10 +129,10 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
 #bild-b { touch-action: manipulation; }
 body.leertaste #bild-a { cursor: grab; }
 body.verschiebt #bild-a { cursor: grabbing; }
-/* Reihenfolge im Kopf wie in Tafel B: Titel, Schalter, Zoom, Export ganz rechts (Thomas, 13.11.2026). Ist der Kopf zu
-   schmal (720–1100 px, Tafeln 320–400 px), bricht der Zoom in eine eigene Zeile, damit der Export oben rechts bleibt (sonst
-   stünde er allein links in der zweiten Zeile); der Untertitel bricht unter den Titel, der Wert des Zooms entfällt */
-@media (max-width: 1100px) and (min-width: 720px) { .p-a .panel-head .zoomtools { order: 1; } }
+/* Reihenfolge im Kopf wie in Tafel B: Titel, Schalter, Zoom, Export ganz rechts (Thomas, 13.11.2026). Schalter, Zoom und
+   Export bilden eine Gruppe: Ist der Kopf zu schmal, bricht sie als Ganzes um und bleibt rechtsbündig; ohne `order` stimmt
+   die Tab-Reihenfolge mit der Anzeige überein (Leitfaden 5.4) */
+.kopfknoepfe { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: nowrap; }
 .p-a .panel-head .leiste { order: 2; }
 .p-b .panel-head .t { margin-right: auto; flex: 1 1 80px; min-width: 0; }
 @media (max-width: 1100px) and (min-width: 720px) { .zoomwert { display: none; } }
@@ -341,8 +341,8 @@ body.verschiebt #bild-a { cursor: grabbing; }
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span><small id="sub-a"></small></span>
-        <div class="tools" role="group" aria-label="Schalter"><button type="button" class="sym" id="werkzeug-einrasten" aria-pressed="true" aria-label="Einrasten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button></div><div class="tools zoomtools" role="group" aria-label="Zoom der Zeichnung"><button type="button" class="sym" id="zoom-a-aus" aria-label="Verkleinern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5"/></svg></button><output class="zoomwert" id="zoom-a-wert">100 %</output><button type="button" class="sym" id="zoom-a-ein" aria-label="Vergrössern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5M11 8.5v5"/></svg></button><button type="button" class="sym" id="zoom-a-passen" aria-label="Ganze Zeichnung zeigen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
-        <div class="tools export"><button type="button" class="exportknopf" id="export-a">Export</button></div>
+        <div class="kopfknoepfe"><div class="tools" role="group" aria-label="Schalter"><button type="button" class="sym" id="werkzeug-einrasten" aria-pressed="true" aria-label="Einrasten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button></div><div class="tools zoomtools" role="group" aria-label="Zoom der Zeichnung"><button type="button" class="sym" id="zoom-a-aus" aria-label="Verkleinern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5"/></svg></button><output class="zoomwert" id="zoom-a-wert">100 %</output><button type="button" class="sym" id="zoom-a-ein" aria-label="Vergrössern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5M11 8.5v5"/></svg></button><button type="button" class="sym" id="zoom-a-passen" aria-label="Ganze Zeichnung zeigen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
+        <div class="tools export"><button type="button" class="exportknopf" id="export-a">Export</button></div></div>
         <div class="leiste nur-eg erklwahl" role="group" aria-labelledby="erkl-titel">
           <span class="erkl-titel" id="erkl-titel">Erklärung</span>
           <div class="seg seg-text"><button type="button" id="erkl-schritt" aria-pressed="false">Schritt für Schritt</button><button type="button" id="erkl-aufbau" aria-pressed="false">Aufbau aus Erzeugenden</button><button type="button" id="erkl-herkunft" aria-pressed="false">Herkunft der Elemente</button></div>
