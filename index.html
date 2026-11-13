@@ -105,6 +105,19 @@ body:not(.modus-struktur):not(.modus-entwurf) .nur-bau { display: none !importan
 body.modus-struktur #bild-a, body.modus-entwurf #bild-a { cursor: grab; touch-action: manipulation; }
 body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a { cursor: copy; }
 body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { cursor: crosshair; touch-action: none; }
+/* Erklärungen in Tafel A (#162, Leitfaden Abschn. 5.1): Auswahl im Kopf, Leiste zum Durchschalten unter der Zeichnung */
+.p-a .erklwahl { align-items: center; gap: 6px 10px; font-size: 0.8rem; }
+.erkl-titel { color: var(--muted); }
+.erklwahl .seg button { font-size: 0.8rem; }
+.erklwahl .check { min-height: 0; font-size: 0.85rem; }
+.erklleiste { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); background: var(--surface); font-size: 0.85rem; }
+.erklleiste[hidden] { display: none; }
+.erklleiste button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; min-width: 36px; }
+.erklleiste button:disabled { opacity: 0.45; cursor: not-allowed; }
+.erklleiste .erkl-x { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; padding: 2px 6px; }
+.erkl-stand { flex: 1; min-width: 0; text-align: center; }
+@media (pointer: coarse) { .erklleiste button { min-height: 40px; min-width: 40px; } }
+:root[data-zeiger="touch"] .erklleiste button { min-height: 40px; min-width: 40px; }
 /* Hinweise zum Zustand nur, wenn es einen gibt; Eigenschaften, die das Motiv nicht hat, fehlen (#130) */
 .hintline:empty { display: none; }
 /* Übergang in „Muster entwerfen“ in den Kenndaten, bei der bestimmten Gruppe (#162) */
@@ -258,37 +271,6 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
           <button class="resetbtn" id="reset-objekt" type="button">Objekt zurücksetzen</button>
         </div>
       </details>
-      <details class="sect" id="sec-schritte">
-        <summary>Schritt für Schritt<span class="sumhint">Objekt mit jeder Operation</span></summary>
-        <div class="stack">
-          <label class="check" id="row-schritt"><input type="checkbox" id="opt-schritt"><span>Operationen einzeln anwenden<span class="why"></span></span></label>
-          <div class="range">
-            <label for="schritt-regler">Schritt</label><output id="schritt-regler-out"></output>
-            <input type="range" id="schritt-regler" min="1" max="2" step="1">
-          </div>
-          <div class="seg seg-text" role="group" aria-label="Schritte">
-            <button type="button" id="schritt-zurueck">◀ zurück</button>
-            <button type="button" id="schritt-vor">weiter ▶</button>
-            <button type="button" id="schritt-abspielen">Abspielen</button>
-          </div>
-        </div>
-      </details>
-      <details class="sect" id="sec-aufbau">
-        <summary>Aufbau aus Erzeugenden<span class="sumhint">Elemente nacheinander, ihre Herkunft</span></summary>
-        <div class="stack">
-          <label class="check" id="row-aufbau"><input type="checkbox" id="opt-aufbau"><span>Schrittweise aufbauen<span class="why"></span></span></label>
-          <div class="range">
-            <label for="aufbau-schritt">Schritt</label><output id="aufbau-schritt-out"></output>
-            <input type="range" id="aufbau-schritt" min="1" max="4" step="1">
-          </div>
-          <div class="seg seg-text" role="group" aria-label="Schritte">
-            <button type="button" id="aufbau-zurueck">◀ zurück</button>
-            <button type="button" id="aufbau-vor">weiter ▶</button>
-          </div>
-          <p class="hintline" id="aufbau-hint"></p>
-          <label class="check" id="row-herkunft"><input type="checkbox" id="opt-herkunft"><span>Herkunft der Elemente<span class="why"></span></span></label>
-        </div>
-      </details>
       <details class="sect" id="sec-gitter">
         <summary>Gitter<span class="sumhint">Achsenverhältnis, Winkel</span></summary>
         <div class="stack">
@@ -330,12 +312,24 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
         <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span><small id="sub-a"></small></span>
         <div class="tools" role="group" aria-label="Schalter"><button type="button" class="sym" id="werkzeug-einrasten" aria-pressed="true" aria-label="Einrasten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button><button type="button" class="sym" id="werkzeug-lupe" aria-pressed="false" aria-label="Lupe"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button></div>
         <div class="tools export"><button type="button" class="exportknopf" id="export-a">Export</button></div>
+        <div class="leiste nur-eg erklwahl" role="group" aria-labelledby="erkl-titel">
+          <span class="erkl-titel" id="erkl-titel">Erklärung</span>
+          <div class="seg seg-text"><button type="button" id="erkl-schritt" aria-pressed="false">Schritt für Schritt</button><button type="button" id="erkl-aufbau" aria-pressed="false">Aufbau aus Erzeugenden</button></div>
+          <label class="check" id="row-herkunft"><input type="checkbox" id="opt-herkunft">Herkunft der Elemente</label>
+        </div>
         <div class="leiste nur-bau">
           <div class="tools" role="group" aria-label="Werkzeug"><button type="button" class="sym" id="s-werkzeug-verschieben" aria-pressed="true" aria-label="Wählen und ziehen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3l12 7.5-5.4 1.3L9.8 18z"/></svg></button><button type="button" class="sym" id="s-werkzeug-hinzufuegen" aria-pressed="false" aria-label="Hinzufügen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><button type="button" class="sym nur-entwurf" id="s-werkzeug-zeichnen" aria-pressed="false" aria-label="Zeichnen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z"/><path d="M13.5 7l3 3"/></svg></button><button type="button" class="sym nur-entwurf" id="s-werkzeug-radieren" aria-pressed="false" aria-label="Radieren"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 20H20"/><path d="M4.6 15.4l9.8-9.8a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H8z"/><path d="M9.5 10.5l4.5 4.5"/></svg></button></div>
           <div class="tools" role="group" aria-label="Bearbeiten"><button type="button" class="sym" id="rueckgaengig" aria-label="Rückgängig"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button type="button" class="sym" id="s-entfernen" aria-label="Gewähltes Motiv entfernen"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 3"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button><button type="button" class="sym" id="motive-loeschen" aria-label="Alle Motive löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M12 11l-2.2 5h4.4z"/></svg></button><button type="button" class="sym nur-entwurf" id="striche-loeschen" aria-label="Alle Striche löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M9.3 14c1-2 1.8 2 2.7 0s1.8-2 2.7 0"/></svg></button></div>
         </div>
       </div>
       <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
+      <div class="erklleiste nur-eg" id="erkl-leiste" hidden>
+        <button type="button" id="erkl-zurueck" aria-label="Schritt zurück">◀</button>
+        <span class="erkl-stand" id="erkl-stand" aria-live="polite"></span>
+        <button type="button" id="erkl-vor" aria-label="Schritt weiter">▶</button>
+        <button type="button" id="erkl-abspielen">Abspielen</button>
+        <button type="button" class="erkl-x" id="erkl-schliessen" aria-label="Erklärung schliessen">×</button>
+      </div>
       <div class="legend" id="legend"></div>
     </figure>
     <figure class="panel p-b">

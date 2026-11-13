@@ -269,6 +269,9 @@ export function zustandPruefen(z) {
   if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
   if (!Number.isInteger(z.aufbau) || z.aufbau < 0 || z.aufbau > 20) z.aufbau = s.aufbau;
   if (!Number.isInteger(z.schritt) || z.schritt < 0 || z.schritt > SCHRITT_GRENZE) z.schritt = s.schritt;
+  // „Schritt für Schritt“ und der Aufbau schliessen sich aus (eine Erklärung, Auswahl über Tafel A, #162): zusammen
+  // ungültig, beide zum Startwert (Leitfaden Abschn. 5.2)
+  if (z.schritt > 0 && z.aufbau > 0) { z.schritt = s.schritt; z.aufbau = s.aufbau; }
   z.zoomB = begrenzt(z.zoomB, ZOOM_BEREICH) ?? s.zoomB;
   z.objGroesse = begrenzt(z.objGroesse, OBJ_BEREICH) ?? s.objGroesse;
   // Bedingungen der asymmetrischen Einheit: Nummern der Gruppe, ohne Doppelte, aufsteigend

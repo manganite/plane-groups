@@ -68,7 +68,7 @@ function beispiele() {
   const out = [];
   for (const g of SYMBOLE) {
     const z = startzustand();
-    Object.assign(z, { gruppe: g, punkt: [0.21, 0.37], ae: true, zellen: 2, form: 'komma', schritt: 3, aufbau: 2 });
+    Object.assign(z, { gruppe: g, punkt: [0.21, 0.37], ae: true, zellen: 2, form: 'komma', schritt: 3, aufbau: 0 });
     z.gitter.schiefwinklig = { ba: 1.4, gamma: grad(110) };
     z.gitter.rechteckig = { ba: 0.8, gamma: grad(90) };
     out.push(z);
@@ -196,6 +196,10 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.deepEqual([lg('2'), lg('0.5'), lg('2.05'), lg('0.45'), lg('x')], [2, 0.5, 2, 0.5, 1.25]);
   const lgg = (/** @type {string} */ gamma) => { const z = startzustand(); hashAnwenden(z, `#m=eg&g=p1&gamma=${gamma}`); return z.gitter.schiefwinklig.gamma; };
   assert.deepEqual([lgg('150'), lgg('60'), lgg('151'), lgg('59'), lgg('x')], [150, 60, 150, 60, 105]);
+  // „Schritt für Schritt“ und Aufbau schliessen sich aus: zusammen beide zum Startwert, in beiden Wegen (#162)
+  assert.deepEqual([speicher({ schritt: 3, aufbau: 2 }).schritt, speicher({ schritt: 3, aufbau: 2 }).aufbau], [0, 0]);
+  { const z = startzustand(); hashAnwenden(z, '#m=eg&schritt=3&aufbau=2'); assert.deepEqual([z.schritt, z.aufbau], [0, 0]); }
+  { const z = startzustand(); hashAnwenden(z, '#m=eg&aufbau=2'); assert.deepEqual([z.schritt, z.aufbau], [0, 2]); }
   // schritt (ganzzahlige Auswahl): 25 bleibt, 26 wird zum Startwert, in beiden Wegen
   assert.deepEqual([speicher({ schritt: 25 }).schritt, speicher({ schritt: 26 }).schritt], [25, 0]);
   const ls = (/** @type {string} */ n) => { const z = startzustand(); hashAnwenden(z, `#m=eg&schritt=${n}`); return z.schritt; };

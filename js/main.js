@@ -9,7 +9,7 @@ import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG } from './ebenengruppen.js';
 import { gruppe as gruppeVon, lage, mod1, punktgruppe, punktAufLage } from './symmetrie.js';
-import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, grad } from './zeichnung.js';
+import { tafelA, tafelB, OBJEKT_UMRISS, erklaerend, schrittWirkt, drehSymbol, elementeImBereich, sichtbar, metrik, ausgangsstelle, schrittDaten, opNummer, grad } from './zeichnung.js';
 import { herkunft, elementSchluessel, klassenSchluessel } from './herkunft.js';
 import { erklaerungHTML, elementName } from './herkunft-text.js';
 import { startzustand, hashVon, hashAnwenden, FREI, GITTER_START, GITTER_BEREICH, wieVorgabe, ausSpeicher, speicherStand, introGesehen } from './zustand.js';
@@ -164,6 +164,53 @@ const systemJetzt = () => ebenengruppe(z.gruppe).system;
 const herkunftAktiv = () => z.herkunft && z.elemente;
 /** Grund, wenn Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
 const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
+/**
+ * Erklärungen in Tafel A (#162, Leitfaden Abschn. 5.1): Auswahl „Schritt für Schritt“ oder „Aufbau aus Erzeugenden“ und
+ * der Schalter „Herkunft der Elemente“ im Kopf, die Leiste zum Durchschalten unter der Zeichnung. Eine gewählte Erklärung,
+ * die gerade nicht wirken kann, bleibt gewählt und ruht; die Leiste nennt den Grund (Leitfaden Abschn. 5.2).
+ */
+function erklaerungAbgleichen() {
+  const g = gruppeVon(z.gruppe);
+  const maxS = herkunft(g).maxTiefe;
+  if (z.aufbau > maxS) z.aufbau = maxS;
+  const nSchritte = g.ordnung + 1; // N Operationen der ITA-Liste, dann die Gittertranslationen
+  if (z.schritt > nSchritte) z.schritt = nSchritte;
+  // „Herkunft der Elemente“ (eingeschaltet oder mit gezeigtem Element) überdeckt „Schritt für Schritt“ (schrittWirkt)
+  const schrittRuht = herkunftAktiv() || !!z.erkl;
+  const schrittGrund = !z.objekt ? 'nur mit „Objekt in allgemeiner Lage“'
+    : schrittRuht ? (herkunftAktiv() ? 'ruht, solange „Herkunft der Elemente“ eingeschaltet ist' : 'ruht, solange die Herkunft eines Elements gezeigt wird') : '';
+  const aufbauGrund = !z.elemente ? 'nur mit „Symmetrieelemente“' : maxS === 0 ? 'p1 hat ausser den Translationen keine Symmetrieelemente' : '';
+  const ks = knopf('erkl-schritt'); const ka = knopf('erkl-aufbau');
+  ks.setAttribute('aria-pressed', String(z.schritt > 0));
+  ka.setAttribute('aria-pressed', String(z.aufbau > 0));
+  // gesperrt, solange nicht wählbar; eine gewählte bleibt frei, damit man sie abwählen kann
+  ks.disabled = !z.objekt && z.schritt === 0;
+  ka.disabled = aufbauGrund !== '' && z.aufbau === 0;
+  eingabe('opt-herkunft').checked = z.herkunft;
+  eingabe('opt-herkunft').disabled = !z.elemente;
+  // Leiste: Stand der gewählten Erklärung oder der Grund, warum sie ruht
+  const leiste = $('erkl-leiste');
+  const aktiv = z.modus === 'eg' && (z.schritt > 0 || z.aufbau > 0);
+  leiste.hidden = !aktiv;
+  if (!aktiv) return;
+  const istSchritt = z.schritt > 0;
+  const grund = istSchritt ? schrittGrund : aufbauGrund;
+  let stand;
+  if (grund) stand = `${istSchritt ? 'Schritt für Schritt' : 'Aufbau aus Erzeugenden'}: ${grund}`;
+  else if (istSchritt) {
+    const sd = schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt);
+    const was = sd.translationen ? 'die Gittertranslationen' : sd.k === 1 ? 'die Identität' : `Operation (${opNummer(sd.bilder[sd.bilder.length - 1])})`;
+    stand = `Schritt <b>${z.schritt}</b> von ${nSchritte}: ${was}`;
+  } else stand = `Schritt <b>${z.aufbau}</b> von ${maxS}: ${z.aufbau === 1 ? 'die Erzeugenden' : 'neue Elemente hervorgehoben'}`;
+  $('erkl-stand').innerHTML = stand;
+  const ende = istSchritt ? nSchritte : maxS;
+  const stufe = istSchritt ? z.schritt : z.aufbau;
+  knopf('erkl-zurueck').disabled = !!grund || stufe <= 1;
+  knopf('erkl-vor').disabled = !!grund || stufe >= ende;
+  knopf('erkl-abspielen').hidden = !istSchritt;
+  knopf('erkl-abspielen').disabled = !!grund;
+}
+
 function bedienungAbgleichen() {
   eingabe('opt-elemente').checked = z.elemente;
   eingabe('opt-objekt').checked = z.objekt;
@@ -177,45 +224,7 @@ function bedienungAbgleichen() {
   element('#row-orbit .why').textContent = z.objekt ? '' : 'nur mit „Objekt in allgemeiner Lage“';
   elemente('#seg-form button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.form === z.form)));
   eingabe('v-farben').checked = z.farben;
-  // Aufbau aus Erzeugenden
-  const h = herkunft(gruppeVon(z.gruppe));
-  const maxS = h.maxTiefe;
-  if (z.aufbau > maxS) z.aufbau = maxS;
-  const aufbauMoeglich = z.elemente && maxS > 0;
-  eingabe('opt-aufbau').checked = z.aufbau > 0;
-  eingabe('opt-aufbau').disabled = !aufbauMoeglich;
-  element('#row-aufbau .why').textContent = !z.elemente ? 'nur mit „Symmetrieelemente“' : maxS === 0 ? 'p1 hat ausser den Translationen keine Symmetrieelemente' : '';
-  eingabe('aufbau-schritt').max = String(Math.max(1, maxS));
-  eingabe('aufbau-schritt').value = String(Math.max(1, z.aufbau));
-  eingabe('aufbau-schritt').disabled = z.aufbau === 0;
-  $('aufbau-schritt-out').textContent = z.aufbau > 0 ? `${z.aufbau} von ${maxS}` : '–';
-  knopf('aufbau-zurueck').disabled = z.aufbau <= 1;
-  knopf('aufbau-vor').disabled = z.aufbau === 0 || z.aufbau >= maxS;
-  const erz = ebenengruppe(z.gruppe).erzeugende;
-  // Schritt für Schritt: N Operationen der ITA-Liste, dann die Gittertranslationen
-  const nSchritte = gruppeVon(z.gruppe).ordnung + 1;
-  if (z.schritt > nSchritte) z.schritt = nSchritte;
-  eingabe('opt-schritt').checked = z.schritt > 0;
-  // „Herkunft der Elemente“ (eingeschaltet oder mit gezeigtem Element) überdeckt „Schritt für Schritt“
-  // (schrittWirkt in zeichnung.js): Es ruht, gesperrt und gewählt, bis sie ausgeschaltet ist (Leitfaden 5.2)
-  const schrittRuht = herkunftAktiv() || !!z.erkl;
-  eingabe('opt-schritt').disabled = !z.objekt || schrittRuht;
-  element('#row-schritt .why').textContent = !z.objekt ? 'nur mit „Objekt in allgemeiner Lage“'
-    : schrittRuht ? (herkunftAktiv() ? 'ruht, solange „Herkunft der Elemente“ eingeschaltet ist' : 'ruht, solange die Herkunft eines Elements gezeigt wird („Schliessen“ in der Erklärung)') : '';
-  eingabe('schritt-regler').max = String(nSchritte);
-  eingabe('schritt-regler').value = String(Math.max(1, z.schritt));
-  eingabe('schritt-regler').disabled = z.schritt === 0 || schrittRuht;
-  $('schritt-regler-out').textContent = z.schritt > 0 ? `${z.schritt} von ${nSchritte}` : '–';
-  knopf('schritt-zurueck').disabled = z.schritt <= 1 || schrittRuht;
-  knopf('schritt-vor').disabled = z.schritt === 0 || z.schritt >= nSchritte || schrittRuht;
-  knopf('schritt-abspielen').disabled = !z.objekt || schrittRuht;
-  $('aufbau-hint').innerHTML = z.aufbau === 0 ? ''
-    : z.aufbau === 1 ? `Schritt 1: die Erzeugenden nach den International Tables (${erz.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
-      : `Schritt ${z.aufbau}: neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.`;
-  // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt (Zustand z.herkunft, Link herkunft=1)
-  eingabe('opt-herkunft').checked = z.herkunft;
-  eingabe('opt-herkunft').disabled = !z.elemente;
-  element('#row-herkunft .why').textContent = z.elemente ? '' : 'nur mit „Symmetrieelemente“';
+  erklaerungAbgleichen();
   document.body.classList.toggle('herkunft', herkunftAktiv());
   // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): die Lupe ruht (bleibt gewählt) und kommt
   // beim Verlassen zurück
@@ -345,7 +354,10 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
   if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
-  if (!z.objekt) items.push('<span class="lg hint">Einrasten nur mit „Objekt in allgemeiner Lage“</span>');
+  if (!z.objekt) items.push(`<span class="lg hint">Einrasten${z.schritt > 0 ? '' : ' und „Schritt für Schritt“'} nur mit „Objekt in allgemeiner Lage“</span>`);
+  // Grund gesperrter Erklärungen, die nicht gewählt sind (gewählte nennen ihn in der Leiste; Leitfaden Abschn. 5.2)
+  if (!z.elemente) items.push(`<span class="lg hint">${z.aufbau > 0 ? '' : '„Aufbau aus Erzeugenden“ und '}„Herkunft der Elemente“ nur mit „Symmetrieelemente“</span>`);
+  else if (herkunft(gruppeVon(z.gruppe)).maxTiefe === 0 && z.aufbau === 0) items.push('<span class="lg hint">„Aufbau aus Erzeugenden“: p1 hat ausser den Translationen keine Symmetrieelemente</span>');
   if (herkunftAktiv()) items.push(`<span class="lg hint"><span class="only-fine">Element anklicken: woher es kommt</span><span class="only-coarse">Element antippen: woher es kommt</span></span>`);
   else if (z.objekt) items.push(`<span class="lg hint"><span class="only-fine">Objekt ziehen oder Stelle anklicken</span><span class="only-coarse">Objekt ziehen oder Stelle antippen</span></span>`);
   $('legend').innerHTML = items.join('');
@@ -407,6 +419,11 @@ function kenndaten() {
   const sd = schrittAn ? schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt) : null;
   const aktuell = sd && !sd.translationen ? sd.k - 1 : -1;
   const schrittbox = sd ? `<div class="erklaerbox schrittbox" id="schrittbox">${schrittHTML(d, sd, l, g.ordnung)}</div>` : '';
+  // Aufbau aus Erzeugenden: Erklärung des Schritts (die Leiste unter Tafel A schaltet durch, #162)
+  const maxAufbau = herkunft(g).maxTiefe;
+  const aufbaubox = z.aufbau > 0 && z.elemente && maxAufbau > 0 ? `<div class="erklaerbox" id="aufbaubox"><h3>Aufbau aus Erzeugenden, Schritt ${z.aufbau} von ${maxAufbau}</h3><p>${z.aufbau === 1
+    ? `Die Erzeugenden nach den International Tables (${d.erzeugende.map((i) => `(${i})`).join(', ')}) mit ihren Kopien durch das Gitter.`
+    : 'Neu hinzugekommen sind die hervorgehobenen Elemente. Sie folgen aus Verknüpfungen mit den Elementen der früheren Schritte; „Herkunft der Elemente“ zeigt, aus welchen.'}</p></div>` : '';
   /** @param {string[]} texte @param {string[]} ops @param {string} [z0] @param {number} [versatz] */
   const opsZeilen = (texte, ops, z0, versatz = 0) => ops.map((op, i) => `<tr${i + versatz === aktuell ? ' class="aktiv"' : ''}><td class="num">(${i + 1})</td><td>${koordHTML(d.ops[i])}${z0 ? ` + (${z0})` : ''}</td><td>${opHTML(texte[i])}</td></tr>`).join('');
   const opsTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Nr.</th><th>Koordinaten</th><th>Symmetrieoperation</th></tr></thead><tbody>
@@ -428,7 +445,7 @@ function kenndaten() {
     </div>
     ${erklaerung ? `<div class="erklaerbox" id="erklaerbox">${erklaerungHTML(g, erklaerung, metrik(z.gitter[d.system]), phase)}</div>`
     : herkunftAktiv() ? `<div class="erklaerbox" id="erklaerbox"><h3>Herkunft der Elemente</h3><p>Ein Symmetrieelement im Symmetriegerüst antippen oder hier wählen: Es erscheint, aus welchen zwei Operationen es folgt.</p>${elementListe(g)}</div>` : ''}
-    ${schrittbox}
+    ${schrittbox}${aufbaubox}
     ${erklaerung ? '' : lagebox}
     <dl class="facts">
       <div><dt>Vollständiges Symbol</dt><dd>${symbolHTML(d.lang)}</dd></div>
@@ -715,10 +732,6 @@ function init() {
       aktualisieren();
     }
     if (naechstes('[data-aeteil-aus]')) { z.aeTeile = []; aktualisieren(); }
-    const sch = naechstes('[data-schritt]');
-    if (sch) { stoppeSchritte(); z.schritt = Number(sch.dataset.schritt); aktualisieren(); }
-    if (naechstes('[data-schritt-abspielen]')) schritteAbspielen();
-    if (naechstes('[data-schritt-zu]')) { stoppeSchritte(); z.schritt = 0; aktualisieren(); }
     const ph = naechstes('[data-phase]');
     if (ph) { clearTimeout(ablauf); phase = Number(ph.dataset.phase); aktualisieren(); }
     if (naechstes('[data-abspielen]')) abspielen();
@@ -734,15 +747,20 @@ function init() {
     if (!z.herkunft) { z.erkl = null; clearTimeout(ablauf); phase = 3; }
     aktualisieren();
   });
-  $('opt-aufbau').addEventListener('change', () => { z.aufbau = eingabe('opt-aufbau').checked ? 1 : 0; aktualisieren(); });
-  $('aufbau-schritt').addEventListener('input', () => { z.aufbau = Number(eingabe('aufbau-schritt').value); aktualisieren(); });
-  $('opt-schritt').addEventListener('change', () => { stoppeSchritte(); z.schritt = eingabe('opt-schritt').checked ? 1 : 0; aktualisieren(); });
-  $('schritt-regler').addEventListener('input', () => { stoppeSchritte(); z.schritt = Number(eingabe('schritt-regler').value); aktualisieren(); });
-  $('schritt-zurueck').addEventListener('click', () => { stoppeSchritte(); z.schritt = Math.max(1, z.schritt - 1); aktualisieren(); });
-  $('schritt-vor').addEventListener('click', () => { stoppeSchritte(); z.schritt = Math.min(gruppeVon(z.gruppe).ordnung + 1, z.schritt + 1); aktualisieren(); });
-  $('schritt-abspielen').addEventListener('click', schritteAbspielen);
-  $('aufbau-zurueck').addEventListener('click', () => { z.aufbau = Math.max(1, z.aufbau - 1); aktualisieren(); });
-  $('aufbau-vor').addEventListener('click', () => { z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, z.aufbau + 1); aktualisieren(); });
+  // Erklärungen in Tafel A (#162): Auswahl schliesst sich aus, ein zweiter Klick wählt ab
+  $('erkl-schritt').addEventListener('click', () => { stoppeSchritte(); z.schritt = z.schritt > 0 ? 0 : 1; if (z.schritt) z.aufbau = 0; aktualisieren(); });
+  $('erkl-aufbau').addEventListener('click', () => { stoppeSchritte(); z.aufbau = z.aufbau > 0 ? 0 : 1; if (z.aufbau) z.schritt = 0; aktualisieren(); });
+  /** @param {number} d Schritt der gewählten Erklärung um d ändern */
+  const erklSchritt = (d) => {
+    stoppeSchritte();
+    if (z.schritt > 0) z.schritt = Math.min(gruppeVon(z.gruppe).ordnung + 1, Math.max(1, z.schritt + d));
+    else if (z.aufbau > 0) z.aufbau = Math.min(herkunft(gruppeVon(z.gruppe)).maxTiefe, Math.max(1, z.aufbau + d));
+    aktualisieren();
+  };
+  $('erkl-zurueck').addEventListener('click', () => erklSchritt(-1));
+  $('erkl-vor').addEventListener('click', () => erklSchritt(1));
+  $('erkl-abspielen').addEventListener('click', schritteAbspielen);
+  $('erkl-schliessen').addEventListener('click', () => { stoppeSchritte(); z.schritt = 0; z.aufbau = 0; aktualisieren(); });
   zeigerEinrichten();
   // Telefon: eine Tafel oben, Umschalter
   /** @param {string} fig */
@@ -803,8 +821,6 @@ function init() {
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
   // Ist eine Erklärung aus Speicher oder Link aktiv, ihren Abschnitt aufklappen: Sie sperrt
   // Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
-  if (z.modus === 'eg' && (z.herkunft || z.aufbau > 0)) /** @type {HTMLDetailsElement} */ (element('#sec-aufbau')).open = true;
-  if (z.modus === 'eg' && z.schritt > 0) /** @type {HTMLDetailsElement} */ (element('#sec-schritte')).open = true;
   aktualisieren();
 }
 
