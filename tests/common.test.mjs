@@ -53,6 +53,6 @@ test('Tooltips: jedes Bedienelement mit id hat einen, kurz (pruefeTooltips, Leit
   const { pruefeTooltips } = await import('../lib/common/js/help.js');
   const { TIPS } = await import('../js/hilfetexte.js');
   // Ausnahmen: selbsterklärende Links, Schliessen „×“, das Export-Menü (Leitfaden Abschn. 5.3)
-  const ohne = ['help-open', 'intro-close', 'export-a', 'export-b'];
+  const ohne = ['help-open', 'intro-close', 'export-a', 'export-b', 'erkl-schliessen'];
   assert.deepEqual(pruefeTooltips(read('index.html'), TIPS, { ohne }), []);
 });

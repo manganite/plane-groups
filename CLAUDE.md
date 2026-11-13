@@ -213,12 +213,18 @@ für diese App gilt.
   der Bilder des Objekts ihre eigenen Fähnchen, Schritte wären unsichtbar); es ruht dann, solange „Herkunft
   der Elemente“ wirkt (eingeschaltet, mit Symmetrieelementen) (Schalter, Leitfaden Abschn. 5.2; Thomas,
   5.11.2026). Der Aufbau lässt sich mit der Herkunft kombinieren.
-- **„Herkunft der Elemente“** (5.11.2026, Thomas): Schalter im Abschnitt „Aufbau aus Erzeugenden“, nicht Knopf über
-  dem Gerüst. Grund: Es erklärt die Symmetrieelemente wie der Aufbau, mit dem es sich kombinieren lässt; über dem Gerüst
-  steht nur, was die Ansicht ändert (Lupe). Der Name sagt, worauf es sich bezieht. Zustand `herkunft`, Link
-  `herkunft=1`, Datei `js/herkunft-text.js` (die Texte; `js/herkunft.js` rechnet) und die Bedienelemente
-  `opt-herkunft`, `row-herkunft` heissen wie der Schalter. Ist es aus Speicher oder Link aktiv, klappt sein Abschnitt
-  beim Start auf; ohne Elemente ist es gesperrt, bleibt aber gewählt.
+- **„Herkunft der Elemente“** (5.11.2026, Thomas): ein Schalter, kein Knopf, weil er die Symmetrieelemente erklärt wie
+  der Aufbau, mit dem er sich kombinieren lässt. Zustand `herkunft`, Link `herkunft=1`, Datei `js/herkunft-text.js` (die
+  Texte; `js/herkunft.js` rechnet) und das Bedienelement `opt-herkunft` heissen wie der Schalter. Ohne Elemente ist es
+  gesperrt, bleibt aber gewählt.
+- **Erklärungen in Tafel A** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): „Schritt für Schritt“, „Aufbau aus
+  Erzeugenden“ und „Herkunft der Elemente“ sind die Hauptfunktionen von „Ebenengruppen“ und gingen als eingeklappte
+  Abschnitte der Seitenleiste unter. Jetzt im Kopf von Tafel A eine Auswahl (Schritt für Schritt *oder* Aufbau, ein zweiter
+  Klick wählt ab) und der Schalter „Herkunft der Elemente“, unter der Zeichnung eine Leiste (◀ Schritt *n* von *N* ▶,
+  Abspielen, ×). Die Kombination Schritt + Aufbau entfällt (Wahl Thomas nach Skizzen): eine Leiste, eine Auswahl; ein Link
+  oder Speicher mit beiden ergibt für beide den Startwert. Der ausführliche Text eines Schritts steht weiter in den
+  Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Eine gewählte Erklärung, die
+  ruht, bleibt gewählt; den Grund nennt die Leiste, bei nicht gewählten, gesperrten die Legende (Leitfaden Abschn. 5.2).
 - **Zahlen aus Link und Speicher** (6.11.2026, #98, Leitfaden Abschn. 5.2, Entscheidung Thomas): Regler-Werte
   (Gitter, „Gitter und Basis“, Vergrösserung, Objekt- und Motivgrösse) werden ausserhalb ihres Bereichs
   auf den nächsten gültigen Wert gesetzt, Drehwinkel der Motive in 0° bis unter 360° umgerechnet. `schritt` und

@@ -13,6 +13,7 @@ const FILES = [
   'hilfe/einstieg-eg-1.png',
   'hilfe/einstieg-eg-2.png',
   'hilfe/einstieg-eg-3.png',
+  'hilfe/einstieg-eg-4.png',
   'hilfe/einstieg-entwurf-1.png',
   'hilfe/einstieg-entwurf-2.png',
   'hilfe/einstieg-entwurf-3.png',
