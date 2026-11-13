@@ -8,7 +8,13 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **„In „Muster entwerfen“ weiterbearbeiten“ in den Kenndaten** (#162, Leitfaden 5.1, Entscheidung Thomas, 13.11.2026): Der Knopf steht bei der bestimmten Gruppe neben „im Modus „Ebenengruppen“ ansehen“, Grund (wenn gesperrt) oder Folge darunter; der Abschnitt „Weiterbearbeiten“ der Seitenleiste entfällt.
+- **Hinweise der Seitenleiste ins ⓘ** (#162, Leitfaden 5.2): Unter gesperrten Gitterreglern und Gruppen steht nur noch der Grund in einem Halbsatz (z. B. „γ im rechteckigen System festgelegt.“); die Erklärungen zu „Gitter“, „Asymmetrische Einheit füllen“ und zur Grenze von 48 Bildern stehen im ⓘ des Abschnitts. Einleitungen im ⓘ und Tooltips ohne „antippen“, weil das ⓘ jetzt auch mit der Maus erscheint; die Hilfeseite nennt das ⓘ neben den Tooltips.
 - **Gemeinsame Grundlage** auf crystallography-common v0.20.0: Das ⓘ an den Überschriften erscheint auf allen Geräten, auch mit der Maus (crystallography-common#140), und bricht nie allein in eine neue Zeile; mit der Maus ist seine Trefferfläche 28 px. Leitfaden 5.1 (Erklärabläufe, Zoom und Übergänge zwischen Modi gehören in die Tafel) und 5.2 (Grund unter einem gesperrten Element in einem Halbsatz); die App folgt darin mit #162.
+
+### Behoben
+
+- **Kopf von Tafel A** (#162): Bei Fensterbreiten von etwa 1024–1100 px lief der Untertitel in „Ebenengruppen“ unter Einrasten und Lupe; er bricht jetzt unter den Titel um.
 
 ## [1.4.0] - 2026-11-12
 

@@ -17,6 +17,8 @@ import { strukturTafelA, strukturTafelB, strukturHTML, entwurfHTML, festeBestimm
 import { EBENENGRUPPEN, SYSTEME, ebenengruppe } from './ebenengruppen.js';
 import { symbolHTML, dezimal, richtungenLegende } from './text.js';
 import { $, eingabe, auswahl, knopf, grafik, element, elemente, modusTabs } from '../lib/common/js/seite.js';
+import { setTip } from '../lib/common/js/help.js';
+import { TIPS, GITTER_FEST } from './hilfetexte.js';
 
 /** @import { Vec2, Grad } from '../lib/common/js/typen.js' */
 /** @import { Zustand } from './zustand.js' */
@@ -236,9 +238,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const frei = istEntwurf() ? FREI[ebenengruppe(en().gruppe).system] : ['ba', 'gamma'];
     eingabe('s-ba').disabled = !frei.includes('ba');
     eingabe('s-gamma').disabled = !frei.includes('gamma');
-    // nur der Grund, wenn ein Regler gesperrt ist (Anleitung im ⓘ, #130)
-    $('s-gitter-hint').innerHTML = istEntwurf() && frei.length < 2
-      ? `Gesperrt ist, was das Kristallsystem (${SYSTEME[ebenengruppe(en().gruppe).system].name}) der Gruppe ${symbolHTML(en().gruppe)} festlegt.` : '';
+    // nur der Grund in einem Halbsatz, wenn ein Regler gesperrt ist (Erklärung im ⓘ, Leitfaden Abschn. 5.2, #162)
+    $('s-gitter-hint').innerHTML = istEntwurf() ? GITTER_FEST[ebenengruppe(en().gruppe).system] : '';
     if (istEntwurf()) gruppeAbgleichen(); else weiterAbgleichen();
   }
 
@@ -292,7 +293,27 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   const merkerSchluessel = () => { const s = st(); return JSON.stringify([s.ba, s.gamma, s.basis]); };
   const merkerRechnen = () => { merker = { schluessel: merkerSchluessel(), ue: uebernahme() }; };
 
-  /** „Gitter und Basis“: der Knopf „In ‚Muster entwerfen‘ weiterbearbeiten“ mit dem Grund, wenn er gesperrt ist (Leitfaden Abschn. 5.2). */
+  /**
+   * Übergang „In ‚Muster entwerfen‘ weiterbearbeiten“ in den Kenndaten bei der bestimmten Gruppe (Leitfaden Abschn. 5.1,
+   * #162): Stand aus weiterAbgleichen(), gezeichnet von weiterHTML() mit den Kenndaten.
+   */
+  let weiter = { gesperrt: true, text: '', hinweis: '' };
+  /** Knopf und Hinweis (Grund, wenn gesperrt, sonst die Folge) für die Kenndaten. */
+  const weiterHTML = () => ({
+    knopf: `<button class="linkbtn" type="button" id="s-weiter"${weiter.gesperrt ? ' disabled' : ''}>${weiter.text}</button>`,
+    hinweis: `<p class="hintline weiter" id="s-weiter-hint">${weiter.hinweis}</p>`,
+  });
+  /** Knopf und Hinweis in den Kenndaten nachführen, ohne sie neu zu zeichnen (nach der verzögerten Rechnung). */
+  function weiterZeigen() {
+    const k = document.getElementById('s-weiter');
+    if (!(k instanceof HTMLButtonElement)) return;
+    k.disabled = weiter.gesperrt;
+    k.innerHTML = weiter.text;
+    setTip(k, TIPS['s-weiter']);
+    const h = document.getElementById('s-weiter-hint');
+    if (h) h.innerHTML = weiter.hinweis;
+  }
+  /** „Gitter und Basis“: Stand des Übergangs mit dem Grund, wenn er gesperrt ist (Leitfaden Abschn. 5.2). */
   function weiterAbgleichen() {
     if (!merker) merkerRechnen();
     else if (merker.schluessel !== merkerSchluessel() && !zug) {
@@ -302,15 +323,15 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     const m = /** @type {NonNullable<typeof merker>} */ (merker);
     const r = strukturSymmetrie(gezeigt()); // aus dem Zwischenspeicher der Bestimmung (dieselbe wie für die Tafel)
     const grund = 'grund' in m.ue ? m.ue.grund : '';
-    knopf('s-weiter').disabled = Boolean(grund) || !r;
-    knopf('s-weiter').innerHTML = r ? `In „Muster entwerfen“ weiterbearbeiten (${symbolHTML(r.symbol)})` : 'In „Muster entwerfen“ weiterbearbeiten';
     // der bisherige Entwurf geht verloren, auch wenn er nur Striche hat
     const alt = en().basis.length; const striche = en().striche.length;
     const inhalt = [alt ? `${alt} ${alt === 1 ? 'Bahn' : 'Bahnen'}` : '', striche ? `${striche} ${striche === 1 ? 'Strich' : 'Striche'}` : ''].filter(Boolean).join(' und ');
-    $('s-weiter-hint').innerHTML = [
-      grund ? `Gesperrt: ${grund}` : '',
-      !grund && inhalt ? `Ersetzt den bisherigen Entwurf (${inhalt} in ${symbolHTML(en().gruppe)}).` : '',
-    ].filter(Boolean).join(' ');
+    weiter = {
+      gesperrt: Boolean(grund) || !r,
+      text: r ? `In „Muster entwerfen“ weiterbearbeiten (${symbolHTML(r.symbol)})` : 'In „Muster entwerfen“ weiterbearbeiten',
+      hinweis: grund ? `Gesperrt: ${grund}` : inhalt ? `Ersetzt den bisherigen Entwurf (${inhalt} in ${symbolHTML(en().gruppe)}).` : '',
+    };
+    weiterZeigen();
   }
   /** Werkzeug Radieren und „Alle Striche löschen“ (nur im Entwurf): gesperrt, solange es keine Striche gibt. */
   function strichAbgleichen() {
@@ -329,8 +350,7 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       if (zuViel) grenze = true;
       b.disabled = zuViel;
     });
-    $('e-picker-hint').textContent = grenze
-      ? `Gesperrte Gruppen: Mit ihnen wären es mehr als ${BASIS_GRENZE} Bilder (jede Bahn zählt mit der Zähligkeit der allgemeinen Lage).` : '';
+    $('e-picker-hint').textContent = grenze ? `Gesperrt: Gruppen mit mehr als ${BASIS_GRENZE} Bildern.` : '';
   }
 
   // ---------------------------------------------------------------- Zeichnen
@@ -382,7 +402,8 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     if (nurA) return;
     grafik('bild-b').innerHTML = strukturTafelB(gz, f, r, z.zoomB, optionenB()).svg;
     legende(f, r);
-    $('info').innerHTML = istEntwurf() ? entwurfHTML(en(), f, umstellung) : strukturHTML(gz, r, vorher, f);
+    $('info').innerHTML = istEntwurf() ? entwurfHTML(en(), f, umstellung) : strukturHTML(gz, r, vorher, f, weiterHTML());
+    if (!istEntwurf()) weiterZeigen();
   }
 
   // ---------------------------------------------------------------- Zeiger
@@ -681,7 +702,9 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
       aktualisieren();
     });
     // Übergang: die Struktur mit der bestimmten Gruppe einmal in den Entwurf übernehmen, der bisherige Entwurf geht verloren
-    $('s-weiter').addEventListener('click', () => {
+    // (Knopf in den Kenndaten, die bei jedem Zeichnen neu entstehen: Klick über das umgebende Element)
+    $('info').addEventListener('click', (e) => {
+      if (!(e.target instanceof Element) || !e.target.closest('#s-weiter') || z.modus !== 'struktur') return;
       const u = uebernahme();
       if ('grund' in u) return;
       z.entwurf = { ...u.struktur, striche: [], elemente: en().elemente, ae: en().ae, bindungen: st().bindungen };

@@ -3,7 +3,7 @@
 import { initHelp } from '../lib/common/js/help.js';
 import { ablaufKarte } from '../lib/common/js/ablauf.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik, exportMenue, herunterladen, inZwischenablage } from '../lib/common/js/seite.js';
-import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE } from './hilfetexte.js';
+import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE, GITTER_FEST } from './hilfetexte.js';
 import { EXPERIMENTE } from './hilfe-daten.js';
 import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
@@ -228,10 +228,6 @@ function bedienungAbgleichen() {
   eingabe('opt-fuell').checked = z.aeFuell;
   eingabe('opt-fuell').disabled = fuellGrund !== '';
   element('#row-fuell .why').textContent = fuellGrund;
-  $('fuell-hint').innerHTML = !z.aeFuell ? ''
-    : z.modus !== 'eg'
-      ? (bestimmt ? `Kräftig: die asymmetrische Einheit der ${z.modus === 'entwurf' ? 'gewählten' : 'bestimmten'} Gruppe ${symbolHTML(bestimmt.symbol)}. ${bestimmt.ordnung === 1 ? 'Sie füllt die konventionelle Zelle allein' : `Ihre ${bestimmt.ordnung} Bilder je konventioneller Zelle füllen die Fläche ohne Lücken und Überlappungen`}.` : '')
-      : `Kräftig: die asymmetrische Einheit. ${gruppeVon(z.gruppe).ordnung === 1 ? 'Sie füllt die Zelle allein' : `Ihre ${gruppeVon(z.gruppe).ordnung} Bilder je Zelle füllen die Zelle ohne Lücken und Überlappungen`}; was in ihr gezeichnet ist, ergibt also genau das ganze Muster.`;
   eingabe('v-muster-el').checked = z.musterElemente;
   eingabe('v-tapete').checked = z.tapete;
   eingabe('v-muster-el').disabled = z.tapete;
@@ -259,9 +255,8 @@ function bedienungAbgleichen() {
     eingabe(`lat-${k}`).disabled = !FREI[sys].includes(k);
     $(`lat-${k}-out`).textContent = k === 'ba' ? dezimal(gi.ba, 2) : `${dezimal(gi.gamma, 1)}°`;
   }
-  const fest = { quadratisch: 'Im quadratischen System festgelegt: a = b, γ = 90°.', hexagonal: 'Im hexagonalen System festgelegt: a = b, γ = 120°.', rechteckig: 'Im rechteckigen System ist γ = 90° festgelegt.', schiefwinklig: '' };
-  const zufall = FREI[sys].length ? ' Bei besonderen Werten (z. B. b = a) kann die Metrik zufällig höher sein; die Gruppe bleibt die gewählte.' : '';
-  $('lat-why').textContent = `${fest[sys]} Innerhalb des Systems bleibt die Symmetrie erhalten.${zufall}`.trim();
+  // unter gesperrten Reglern nur der Grund in einem Halbsatz, die Erklärung im ⓘ (Leitfaden Abschn. 5.2, #162)
+  $('lat-why').innerHTML = GITTER_FEST[sys];
   knopf('reset-gitter').disabled = FREI[sys].length === 0;
 }
 
