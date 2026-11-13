@@ -25,7 +25,9 @@ export function schrittHTML(daten, d, l, ordnung) {
   // Durchschalten über die Leiste unter Tafel A (#162), nicht hier. Die Zahl der verschiedenen Stellen steht nur dort, wo
   // sie etwas sagt: wenn ein Bild zusammenfällt, und im letzten Schritt (Thomas, 13.11.2026; in allgemeiner Lage wäre sie
   // nur die Schrittnummer)
-  const bisher = `Bisher <strong>${d.verschieden}</strong> verschiedene Stellen aus ${Math.min(d.k, N)} Bildern.`;
+  const bisher = d.verschieden === 1
+    ? `Bisher liegen alle ${d.k} Bilder an <strong>einer</strong> Stelle (bis auf Gittertranslationen).`
+    : `Bisher <strong>${d.verschieden}</strong> verschiedene Stellen (bis auf Gittertranslationen) aus ${d.k} Bildern.`;
   if (d.translationen) {
     const speziell = !l.allgemein;
     return `<h3>Schritt ${N + 1} von ${N + 1}: die Gittertranslationen</h3>
