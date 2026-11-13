@@ -22,6 +22,18 @@
 @media (max-width: 719px) {
   .bild { width: min(100%, 38svh); margin-inline: auto; }
 }
+/* Tafeln nebeneinander: beide teilen die Zeilen Kopf, Zeichnung, Leiste bzw. Fusszeile, Legende (Subgrid), damit die
+   Zeichnungen auf gleicher Höhe beginnen, auch wenn der Kopf von Tafel A zweizeilig ist (Thomas, 13.11.2026) */
+@media (min-width: 1000px) {
+  .figs { display: grid; grid-column: 2 / 4; grid-row: 1; grid-template-columns: subgrid; grid-template-rows: repeat(4, auto); }
+  .figs > .panel { grid-row: 1 / span 4; display: grid; grid-template-rows: subgrid; }
+  .figs > .p-a { grid-column: 1; }
+  .figs > .p-b { grid-column: 2; }
+  .figs > .panel > .panel-head { grid-row: 1; }
+  .figs > .panel > .bild { grid-row: 2; }
+  .figs > .panel > .erklleiste, .figs > .panel > .panel-foot { grid-row: 3; align-self: start; }
+  .figs > .panel > .legend { grid-row: 4; }
+}
 .tabs button:disabled { opacity: 0.5; cursor: not-allowed; }
 .lg .sym-icon { flex: none; }
 /* Motivauswahl: ein Raster mit etwa 6 Knöpfen je Zeile, darüber je Eigensymmetrie eine kleine Überschrift (#130);
@@ -262,7 +274,7 @@ body.verschiebt #bild-a { cursor: grabbing; }
               <button type="button" data-form="fahne" aria-pressed="true">Fähnchen</button>
               <button type="button" data-form="komma" aria-pressed="false">Kreis mit Komma</button>
             </div>
-            <label class="check" id="row-orbit"><input type="checkbox" id="opt-orbit"><span>Bilder rund um die Zelle (wie ITA)<span class="why"></span></span></label>
+            <label class="check" id="row-orbit"><input type="checkbox" id="opt-orbit"><span>Bilder rund um die Zelle<span class="why"></span></span></label>
           </div>
         </details>
       </section>

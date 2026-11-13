@@ -311,7 +311,7 @@ export function objektMassstab(M, A, groesse = 1, k = 1) {
 
 /** Alle Bilder des Punktes p in den Zellen [lo, hi]² mit Rand, je { punkt, R, eigentlich }. */
 /**
- * Rand um die Zellen für „Bilder rund um die Zelle (wie ITA)“, in Bruchteilen der Zelle. Mit ⅓
+ * Rand um die Zellen für „Bilder rund um die Zelle“, in Bruchteilen der Zelle. Mit ⅓
  * sind die Gruppen um die Elemente auf dem Zellrand vollständig, solange das Objekt höchstens ⅓
  * von ihnen entfernt liegt (Startpunkt 0,12; 0,31). ITA nennt keine Regel; die Diagramme der
  * allgemeinen Lage zeigen die Gruppen um die Ecken vollständig, mit einem Punkt nahe am Ursprung.

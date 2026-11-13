@@ -42,7 +42,7 @@ export const TIPS = {
   'opt-ae': 'Kleinster Teil der Zelle, aus dem die Operationen die ganze Zelle erzeugen.',
   'opt-zellen': 'Vier Elementarzellen statt einer.',
   'seg-form': 'Spiegelbild: Komma im Kreis (ITA) bzw. Fahne auf der anderen Seite.',
-  'opt-orbit': 'Rand von ⅓ der Zelle.',
+  'opt-orbit': 'Bilder in einem Rand von ⅓ der Zelle, wie in den International Tables.',
   'obj-x': 'In Bruchteilen von a.',
   'obj-y': 'In Bruchteilen von b.',
   'obj-groesse': 'Grösse des Objekts im Verhältnis zur Zelle.',

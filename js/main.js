@@ -357,7 +357,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
-  if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Zoom ruhen, ${SOLANGE_ERKLAERT}</span>`);
+  // dass Füllen und Zoom ruhen, zeigen die gesperrten Knöpfe; den Grund für „Füllen“ nennt die Seitenleiste
   if (!z.objekt) items.push(`<span class="lg hint">Einrasten${z.schritt > 0 ? '' : ' und „Schritt für Schritt“'} nur mit „Objekt in allgemeiner Lage“</span>`);
   // Grund gesperrter Erklärungen, die nicht gewählt sind (gewählte nennen ihn in der Leiste; Leitfaden Abschn. 5.2)
   if (!z.elemente) {

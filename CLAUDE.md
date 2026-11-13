@@ -187,6 +187,12 @@ für diese App gilt.
     auf die Zeichnung tut, sagt die Legende.
   - **Kopf der Tafeln:** Der Untertitel bricht unter den Titel um, bevor er unter Schalter und Export läuft (bei 1024–1100 px
     in „Ebenengruppen“; #162), wie in stereography (stereography#140).
+  - **Tafeln auf gleicher Höhe** (Thomas, 13.11.2026: „Das sieht einfach unschön aus“): Nebeneinander (ab 1000 px) teilen
+    beide Tafeln die Zeilen Kopf, Zeichnung, Leiste bzw. Fusszeile und Legende über ein CSS-Subgrid (`.figs` im `<style>` von
+    `index.html`, Leitfaden Abschn. 5.1 erlaubt eine eigene Anordnung). Sonst begann die Zeichnung in Tafel A tiefer, weil ihr
+    Kopf mit der Erklärungsauswahl zweizeilig ist.
+  - **Kein Hinweis „Füllen und Zoom ruhen“** in der Legende (Thomas, 13.11.2026): Die gesperrten Zoomknöpfe zeigen es, den
+    Grund für „Füllen“ nennt die Seitenleiste. „Bilder rund um die Zelle“ ohne „(wie ITA)“; der Tooltip nennt die ITA.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
