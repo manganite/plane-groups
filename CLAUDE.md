@@ -223,7 +223,9 @@ für diese App gilt.
   drei Erklärungen, immer nur eine aktiv und angezeigt. Bei „Herkunft“ zeigt die Leiste ohne Element den Hinweis, mit
   Element dessen Namen, Abspielen wiederholt den Ablauf des Fähnchens, × schliesst (Wahl Thomas). Kombinationen entfallen:
   ein Link oder Speicher mit zwei oder drei Erklärungen ergibt für alle den Startwert. Der ausführliche Text eines Schritts steht weiter in den
-  Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Eine gewählte Erklärung, die
+  Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Die Zeile „Bilder bisher … verschiedene
+  Stellen“ entfiel (Thomas, 13.11.2026): In allgemeiner Lage wiederholte sie nur die Schrittnummer; die Zahl der verschiedenen
+  Stellen steht jetzt dort, wo ein Bild zusammenfällt, und im letzten Schritt. Eine gewählte Erklärung, die
   ruht, bleibt gewählt; den Grund nennt die Leiste, bei nicht gewählten, gesperrten die Legende (Leitfaden Abschn. 5.2).
 - **Zoom und Verschieben der Tafeln** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): Die Lupe hatte einen festen
   Ausschnitt; beim Zeichnen in „Muster entwerfen“ kam man nicht an andere Stellen. Jetzt beide Tafeln mit Mausrad, zwei
