@@ -68,7 +68,7 @@ for (const id of ALLE) {
         const html = erklaerungHTML(g, daten, M, phase);
         assert.ok(!/undefined|NaN|null/.test(html), `${id}: ${k}`);
       }
-      const z = { ...startzustand(), gruppe: id, erkl: k };
+      const z = { ...startzustand(), gruppe: id, herkunft: true, erkl: k };
       for (const phase of [0, 1, 2, 3]) assert.ok(!/NaN|undefined/.test(tafelA(id, z, FARBEN, { phase }).svg), `${id}: ${k} Phase ${phase}`);
     }
   });
@@ -127,15 +127,16 @@ test('Vektoren in a und b', () => {
   assert.equal(t([2, -1]), '2a − b');
 });
 
-test('Link-Adresse: Herkunft der Elemente, gewähltes Element und Aufbau hin und zurück', () => {
-  const z = { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: 'g;-1/2,0;1,1', aufbau: 2 };
+test('Link-Adresse: Herkunft der Elemente und gewähltes Element hin und zurück; Aufbau getrennt', () => {
+  const z = { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: 'g;-1/2,0;1,1' };
   const h = hashVon(z);
-  assert.match(h, /herkunft=1&erkl=g;-1\/2,0;1,1&aufbau=2/);
+  assert.match(h, /herkunft=1&erkl=g;-1\/2,0;1,1/);
   const z2 = startzustand();
   hashAnwenden(z2, h);
   assert.equal(z2.erkl, 'g;-1/2,0;1,1');
-  assert.equal(z2.aufbau, 2);
   assert.equal(z2.herkunft, true);
+  hashAnwenden(z2, '#m=eg&g=p4mm&aufbau=2');
+  assert.equal(z2.aufbau, 2);
   hashAnwenden(z2, '#m=eg&g=p4mm&erkl=<script>&aufbau=x');
   assert.equal(z2.erkl, null);
   assert.equal(z2.aufbau, 0);
@@ -173,7 +174,7 @@ test('Aufbau: Auswahl gilt der sichtbaren Zähligkeit (Review PR #3)', async () 
 
 test('Wege von B, A und C wie die Operationen wirken; Stellen nummeriert, Operationen mit Buchstaben', () => {
   /** @param {string} id @param {string} k */
-  const svgVon = (id, k) => tafelA(id, { ...startzustand(), gruppe: id, erkl: k }, FARBEN, { phase: 3 }).svg;
+  const svgVon = (id, k) => tafelA(id, { ...startzustand(), gruppe: id, herkunft: true, erkl: k }, FARBEN, { phase: 3 }).svg;
   /** @param {string} svg @param {string} name */
   const weg = (svg, name) => { const i = svg.indexOf(`class="weg weg-${name}"`); return i < 0 ? '' : svg.slice(i, svg.indexOf('class="weg ', i + 10) > 0 ? svg.indexOf('class="weg ', i + 10) : undefined); };
   // p4gm, Gleitspiegellinie x, 1/4: B Drehung 180° (Bogen), A Gleitspiegelung (zwei Teile, Zwischenbild)
@@ -201,7 +202,7 @@ test('Wege von B, A und C wie die Operationen wirken; Stellen nummeriert, Operat
     const gg = gruppe(id);
     const d = da(EBENENGRUPPEN.find((x) => x.symbol === id));
     for (const el of [...elementeImBereich(gg, 1).drehpunkte, ...elementeImBereich(gg, 1).linien]) {
-      const z = { ...startzustand(), gruppe: id, erkl: elementSchluessel(el) };
+      const z = { ...startzustand(), gruppe: id, herkunft: true, erkl: elementSchluessel(el) };
       const { erklaerung: e, ansicht: An } = tafelA(id, z, FARBEN, { phase: 3 });
       for (const w of Object.values(da(e).wege)) for (const p of w.teile.flat()) {
         const q = An.zuBild(p);
@@ -245,7 +246,7 @@ test('Gitterkopien: Elemente, die nur verschobene Kopien sind, werden über ihr 
   const html = erklaerungHTML(g, d, M, 3);
   assert.match(html, /Darum ist er nur der 4-zählige Drehpunkt bei \(0, 0\), um <i>a<\/i> verschoben/);
   assert.match(html, /data-erkl="4;0,0"/);
-  const svg = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', erkl: '4;1,0' }, FARBEN, { phase: 3 }).svg;
+  const svg = tafelA('p4mm', { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: '4;1,0' }, FARBEN, { phase: 3 }).svg;
   for (const x of ['v', 't', 'c']) assert.match(svg, new RegExp(`class="weg weg-${x}"`));
   for (const i of ['0', '1', '2', '3']) assert.match(svg, new RegExp(`class="stelle">.*?>${i}</text>`));
 });

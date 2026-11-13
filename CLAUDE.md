@@ -187,6 +187,17 @@ für diese App gilt.
     auf die Zeichnung tut, sagt die Legende.
   - **Kopf der Tafeln:** Der Untertitel bricht unter den Titel um, bevor er unter Schalter und Export läuft (bei 1024–1100 px
     in „Ebenengruppen“; #162), wie in stereography (stereography#140).
+  - **Tafeln auf gleicher Höhe** (Thomas, 13.11.2026: „Das sieht einfach unschön aus“): Nebeneinander (ab 1000 px) teilen
+    beide Tafeln die Zeilen Kopf, Zeichnung, Leiste bzw. Fusszeile und Legende über ein CSS-Subgrid (`.figs` im `<style>` von
+    `index.html`, Leitfaden Abschn. 5.1 erlaubt eine eigene Anordnung). Sonst begann die Zeichnung in Tafel A tiefer, weil ihr
+    Kopf mit der Erklärungsauswahl zweizeilig ist. Ohne Erklärleiste reicht die Legende von Tafel A über die Zeile der
+    Fusszeile von Tafel B (sonst ein leerer Streifen; Review). **Reihenfolge im Kopf** wie in Tafel B: Titel, Schalter,
+    Zoom, Export ganz rechts (Thomas, 13.11.2026). Schalter, Zoom und Export bilden in Tafel A eine Gruppe (`.kopfknoepfe`),
+    die als Ganzes rechtsbündig umbricht (bei 1000–1200 px in die zweite Zeile). Ein `order` für den Zoom (vorher) liess den
+    Export allein links umbrechen und verdrehte die Tab-Reihenfolge (Review). Inhalt der Köpfe oben ausgerichtet, damit Titel und Knöpfe in beiden Tafeln auf derselben
+    Höhe stehen, auch wenn der Kopf von Tafel B höher gezogen ist.
+  - **Kein Hinweis „Füllen und Zoom ruhen“** in der Legende (Thomas, 13.11.2026): Die gesperrten Zoomknöpfe zeigen es, den
+    Grund für „Füllen“ nennt die Seitenleiste. „Bilder rund um die Zelle“ ohne „(wie ITA)“; der Tooltip nennt die ITA.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
@@ -208,22 +219,24 @@ für diese App gilt.
   `js/zeichnung.js`). „Füllen“ bleibt gewählt und der Zoom eingestellt (Leitfaden Abschn. 5.2); beide wirken beim
   Verlassen wieder. Grund: Mit grossem Objekt, Füllung oder Vergrösserung erkennt man die Elemente und Wege nicht
   mehr. Der Zustand gilt sofort beim Einschalten,
-  damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. „Herkunft der Elemente“ überdeckt
-  „Schritt für Schritt“, schon beim Einschalten, nicht erst mit gezeigtem Element (die Erklärung zeigt statt
-  der Bilder des Objekts ihre eigenen Fähnchen, Schritte wären unsichtbar); es ruht dann, solange „Herkunft
-  der Elemente“ wirkt (eingeschaltet, mit Symmetrieelementen) (Schalter, Leitfaden Abschn. 5.2; Thomas,
-  5.11.2026). Der Aufbau lässt sich mit der Herkunft kombinieren.
-- **„Herkunft der Elemente“** (5.11.2026, Thomas): ein Schalter, kein Knopf, weil er die Symmetrieelemente erklärt wie
-  der Aufbau, mit dem er sich kombinieren lässt. Zustand `herkunft`, Link `herkunft=1`, Datei `js/herkunft-text.js` (die
-  Texte; `js/herkunft.js` rechnet) und das Bedienelement `opt-herkunft` heissen wie der Schalter. Ohne Elemente ist es
-  gesperrt, bleibt aber gewählt.
+  damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. Die drei Erklärungen schliessen sich aus
+  (13.11.2026, „Erklärungen in Tafel A“).
+- **„Herkunft der Elemente“** (5.11.2026, Thomas; seit 13.11.2026 dritte Erklärung, nächster Punkt): Zustand `herkunft`,
+  Link `herkunft=1`, Datei `js/herkunft-text.js` (die Texte; `js/herkunft.js` rechnet) und das Bedienelement
+  `erkl-herkunft` heissen wie die Erklärung. Ein gewähltes Element (`erkl`) gibt es nur mit ihr; Links in Skript, Quiz und
+  Hilfen mit `erkl` brauchen deshalb `herkunft=1` (`tests/links-erklaerung.test.mjs`). Ohne Elemente ist sie gesperrt, bleibt
+  aber gewählt, und das gewählte Element wird nicht gezeichnet, bis die Elemente wieder an sind.
 - **Erklärungen in Tafel A** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): „Schritt für Schritt“, „Aufbau aus
   Erzeugenden“ und „Herkunft der Elemente“ sind die Hauptfunktionen von „Ebenengruppen“ und gingen als eingeklappte
-  Abschnitte der Seitenleiste unter. Jetzt im Kopf von Tafel A eine Auswahl (Schritt für Schritt *oder* Aufbau, ein zweiter
-  Klick wählt ab) und der Schalter „Herkunft der Elemente“, unter der Zeichnung eine Leiste (◀ Schritt *n* von *N* ▶,
-  Abspielen, ×). Die Kombination Schritt + Aufbau entfällt (Wahl Thomas nach Skizzen): eine Leiste, eine Auswahl; ein Link
-  oder Speicher mit beiden ergibt für beide den Startwert. Der ausführliche Text eines Schritts steht weiter in den
-  Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Eine gewählte Erklärung, die
+  Abschnitte der Seitenleiste unter. Jetzt im Kopf von Tafel A eine Auswahl aus drei Knöpfen, höchstens einer gewählt, ein
+  zweiter Klick wählt ab; unter der Zeichnung eine Leiste (◀ Schritt *n* von *N* ▶, Abspielen, ×). Zuerst war „Herkunft“ ein
+  Schalter neben der Auswahl, mit dem Aufbau kombinierbar; Thomas fand das unlogisch (13.11.2026: „Die aktuelle Implementierung von Herkunft der Elemente macht diese Klarheit kaputt.“):
+  drei Erklärungen, immer nur eine aktiv und angezeigt. Bei „Herkunft“ zeigt die Leiste ohne Element den Hinweis, mit
+  Element dessen Namen, Abspielen wiederholt den Ablauf des Fähnchens, × schliesst (Wahl Thomas). Kombinationen entfallen:
+  ein Link oder Speicher mit zwei oder drei Erklärungen ergibt für alle den Startwert. Der ausführliche Text eines Schritts steht weiter in den
+  Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Die Zeile „Bilder bisher … verschiedene
+  Stellen“ entfiel (Thomas, 13.11.2026): In allgemeiner Lage wiederholte sie nur die Schrittnummer; die Zahl der verschiedenen
+  Stellen steht jetzt dort, wo ein Bild zusammenfällt, und im letzten Schritt. Eine gewählte Erklärung, die
   ruht, bleibt gewählt; den Grund nennt die Leiste, bei nicht gewählten, gesperrten die Legende (Leitfaden Abschn. 5.2).
 - **Zoom und Verschieben der Tafeln** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): Die Lupe hatte einen festen
   Ausschnitt; beim Zeichnen in „Muster entwerfen“ kam man nicht an andere Stellen. Jetzt beide Tafeln mit Mausrad, zwei

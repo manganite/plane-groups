@@ -248,7 +248,7 @@ test('Zoom: Tafel A genau zoom-mal so gross wie ohne, auch mit grossem Objekt (#
 
 test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Zeichnung, Zoom ruht', () => {
   const basis = { ...startzustand(), gruppe: 'p4', aeFuell: true, zoomA: 2 };
-  for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { herkunft: true }, { erkl: '4;1/2,1/2' }])) {
+  for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { herkunft: true }, { herkunft: true, erkl: '4;1/2,1/2' }])) {
     const z = { ...basis, ...opt };
     assert.ok(erklaerend(z), JSON.stringify(opt));
     const a = tafelA('p4', z, FARBEN, { k: 1.4 });
@@ -265,18 +265,18 @@ test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Z
   assert.ok(!erklaerend(basis) && normal.zoom === 2 && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
   // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht
   assert.ok(!erklaerend({ ...basis, herkunft: true, elemente: false }));
-  // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
-  const unbekannt = tafelA('p4', { ...basis, erkl: '4;1/3,0' }, FARBEN);
-  assert.ok(unbekannt.erklaerung === null && unbekannt.zoom === 2 && unbekannt.svg.includes('class="zeichnung"'));
+  // unbekanntes Element: keine Erklärung; ein Element ohne „Herkunft der Elemente“ zeichnet Tafel A nicht
+  assert.equal(tafelA('p4', { ...basis, herkunft: true, erkl: '4;1/3,0' }, FARBEN).erklaerung, null);
+  const ohne = tafelA('p4', { ...basis, erkl: '4;1/2,1/2' }, FARBEN);
+  assert.ok(ohne.erklaerung === null && ohne.zoom === 2 && ohne.svg.includes('class="zeichnung"'));
+  // ohne Symmetrieelemente ruht „Herkunft der Elemente“: das gewählte Element wird nicht gezeichnet (Leitfaden 5.2)
+  assert.equal(tafelA('p4', { ...basis, herkunft: true, erkl: '4;1/2,1/2', elemente: false }, FARBEN).erklaerung, null);
+  assert.notEqual(tafelA('p4', { ...basis, herkunft: true, erkl: '4;1/2,1/2' }, FARBEN).erklaerung, null);
 });
 
-test('Schritt für Schritt: wirkt nur ohne „Herkunft der Elemente“ und mit Objekt', () => {
+test('Schritt für Schritt: wirkt nur mit Objekt', () => {
   const z = { ...startzustand(), gruppe: 'p4mm', schritt: 2 };
   assert.ok(schrittWirkt(z));
-  assert.ok(!schrittWirkt({ ...z, herkunft: true }) && schrittWirkt({ ...z, herkunft: true, elemente: false }));
-  assert.ok(!schrittWirkt({ ...z, erkl: '4;0,0' }) && !schrittWirkt({ ...z, objekt: false }) && !schrittWirkt({ ...z, schritt: 0 }));
-  // Tafel A: mit gültiger Erklärung keine Schritte, mit unbekanntem Element (alter Link) schon
+  assert.ok(!schrittWirkt({ ...z, objekt: false }) && !schrittWirkt({ ...z, schritt: 0 }));
   assert.ok(tafelA('p4mm', z, FARBEN).svg.includes('class="schritte"'));
-  assert.ok(!tafelA('p4mm', { ...z, erkl: '4;0,0' }, FARBEN).svg.includes('class="schritte"'));
-  assert.ok(tafelA('p4mm', { ...z, erkl: '4;1/3,0' }, FARBEN).svg.includes('class="schritte"'));
 });

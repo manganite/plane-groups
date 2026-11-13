@@ -35,7 +35,26 @@ test('pm: Objekt auf der Spiegellinie: Bild (2) fällt auf Bild (1)', () => {
   // auf x = 1/2 nur bis auf eine Gittertranslation
   const t = schrittDaten(g, [0.5, 0.3], 2);
   assert.equal(t.bilder[1].gitter, true);
-  assert.match(schrittHTML(g.daten, s, lage(g, [0, 0.3]), g.ordnung), /fällt genau auf Bild \(1\)/);
+  const h = schrittHTML(g.daten, s, lage(g, [0, 0.3]), g.ordnung);
+  assert.match(h, /fällt genau auf Bild \(1\)/);
+  // Zahl der Stellen nur beim Zusammenfallen, mit Einzahl und dem Bezug auf die Gittertranslationen
+  assert.match(h, /alle 2 Bilder an <strong>einer<\/strong> Stelle \(bis auf Gittertranslationen\)/);
+  assert.match(schrittHTML(g.daten, t, lage(g, [0.5, 0.3]), g.ordnung), /bis auf eine Gittertranslation.*Bisher liegen alle 2 Bilder an <strong>einer<\/strong> Stelle/s);
+  // allgemeine Lage: keine Zahl der Stellen in den Schritten
+  const a = schrittDaten(g, [0.2, 0.3], 2);
+  assert.doesNotMatch(schrittHTML(g.daten, a, lage(g, [0.2, 0.3]), g.ordnung), /Bisher|Bilder bisher/);
+});
+
+test('Zahl der Stellen in der Mehrzahl, bis auf Gittertranslationen (c2mm, Lage c)', () => {
+  const g = gruppe('c2mm');
+  const p = /** @type {[number, number]} */ ([0.25, 0.25]);
+  for (let k = 2; k <= g.daten.ops.length * 2; k++) {
+    const s = schrittDaten(g, p, k);
+    if (s.translationen || s.bilder[s.bilder.length - 1].gleich === null || s.verschieden === 1) continue;
+    assert.match(schrittHTML(g.daten, s, lage(g, p), g.ordnung), new RegExp(`Bisher <strong>${s.verschieden}</strong> verschiedene Stellen \\(bis auf Gittertranslationen\\) aus ${s.k} Bildern`));
+    return;
+  }
+  assert.fail('kein Schritt mit Zusammenfallen und mehreren Stellen gefunden');
 });
 
 test('c2mm: zweite Hälfte der Liste mit (½, ½)+, Nummern mit Strich', () => {

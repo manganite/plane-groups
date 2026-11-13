@@ -22,8 +22,12 @@ const stelle = (p) => koordText(p);
  */
 export function schrittHTML(daten, d, l, ordnung) {
   const N = d.N;
-  // Durchschalten über die Leiste unter Tafel A (#162), nicht hier
-  const zaehler = `<p class="note">Bilder bisher: ${Math.min(d.k, N)} von ${N}; verschiedene Stellen (bis auf Gittertranslationen): <strong>${d.verschieden}</strong>.</p>`;
+  // Durchschalten über die Leiste unter Tafel A (#162), nicht hier. Die Zahl der verschiedenen Stellen steht nur dort, wo
+  // sie etwas sagt: wenn ein Bild zusammenfällt, und im letzten Schritt (Thomas, 13.11.2026; in allgemeiner Lage wäre sie
+  // nur die Schrittnummer)
+  const bisher = d.verschieden === 1
+    ? `Bisher liegen alle ${d.k} Bilder an <strong>einer</strong> Stelle (bis auf Gittertranslationen).`
+    : `Bisher <strong>${d.verschieden}</strong> verschiedene Stellen (bis auf Gittertranslationen) aus ${d.k} Bildern.`;
   if (d.translationen) {
     const speziell = !l.allgemein;
     return `<h3>Schritt ${N + 1} von ${N + 1}: die Gittertranslationen</h3>
@@ -39,11 +43,11 @@ export function schrittHTML(daten, d, l, ordnung) {
   if (b.gleich !== null) {
     const j = d.bilder[b.gleich];
     fall = b.gitter
-      ? `<p>Das Bild liegt bis auf eine Gittertranslation an derselben Stelle wie Bild (${opNummer(j)}): Es kommt keine neue Stelle hinzu. Das Objekt liegt auf einer speziellen Lage.</p>`
-      : `<p>Das Bild fällt genau auf Bild (${opNummer(j)}): Die Operation hält das Objekt an seiner Stelle fest. Das Objekt liegt auf einer speziellen Lage; ein Fähnchen überlagert sich dort mit seinem Bild.</p>`;
+      ? `<p>Das Bild liegt bis auf eine Gittertranslation an derselben Stelle wie Bild (${opNummer(j)}): Es kommt keine neue Stelle hinzu. Das Objekt liegt auf einer speziellen Lage. ${bisher}</p>`
+      : `<p>Das Bild fällt genau auf Bild (${opNummer(j)}): Die Operation hält das Objekt an seiner Stelle fest. Das Objekt liegt auf einer speziellen Lage; ein Fähnchen überlagert sich dort mit seinem Bild. ${bisher}</p>`;
   }
   const kopf = d.k === 1
     ? `<h3>Schritt 1 von ${N + 1}: die Identität</h3><p>Operation (1) ${koord}: Das Objekt bleibt, wo es ist ${stelle(b.punkt)}. Jeder weitere Schritt wendet die nächste Operation aus der Liste der Symmetrieoperationen an.${daten.zentrierung ? ' Die Operationen mit Strich (z. B. 2′) sind dieselben, zusätzlich um (½, ½) verschoben (Zentrierung).' : ''}</p>`
     : `<h3>Schritt ${d.k} von ${N + 1}: Operation (${opNummer(b)})</h3><p>${koord}: ${opName(b.op)}. Sie bringt das Objekt nach ${stelle(b.punkt)}${b.punkt.some((v) => v < -1e-9 || v > 1 + 1e-9) ? ', ausserhalb der Zelle; erst die Gittertranslationen im letzten Schritt verschieben es hinein' : ''}.</p>`;
-  return `${kopf}${fall}${zaehler}`;
+  return `${kopf}${fall}`;
 }

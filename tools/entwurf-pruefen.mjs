@@ -322,6 +322,24 @@ try {
   pruefe(za > 1.8 && za < 2.2, `Zwei Finger: Abstand verdoppelt ergibt Zoom 2 (${za})`);
   await tctx.close();
 
+  // 12. Erklärungen in Tafel A (#162): „Schritt für Schritt“, Aufbau und „Herkunft der Elemente“ schliessen sich aus
+  // (Thomas, 13.11.2026); bei „Herkunft“ zeigt die Leiste Hinweis bzw. Element, Abspielen und ×
+  await oeffnen('#m=eg&g=p4mm&aufbau=2');
+  await page.locator('#erkl-herkunft').click(); await page.waitForTimeout(250);
+  const ah = await adresse();
+  pruefe(ah.includes('herkunft=1') && !ah.includes('aufbau='), 'Herkunft gewählt: Aufbau abgewählt');
+  pruefe(await page.locator('#erkl-herkunft').getAttribute('aria-pressed') === 'true' && await page.locator('#erkl-aufbau').getAttribute('aria-pressed') === 'false', 'Herkunft gewählt: nur ihr Knopf gedrückt');
+  pruefe(await page.locator('#erkl-leiste').isVisible() && await page.locator('#erkl-vor').isHidden() && await page.locator('#erkl-abspielen').isDisabled(), 'Herkunft ohne Element: Leiste mit Hinweis, ohne ◀ ▶, Abspielen gesperrt');
+  await page.locator('#info [data-erkl]').first().click(); await page.waitForTimeout(400);
+  pruefe((await adresse()).includes('erkl=') && (await text('#erkl-stand')).startsWith('Herkunft:') && await page.locator('#erkl-abspielen').isEnabled(), 'Element gewählt: Leiste nennt es, Abspielen frei');
+  await page.locator('#erkl-schritt').click(); await page.waitForTimeout(250);
+  const as = await adresse();
+  pruefe(as.includes('schritt=1') && !as.includes('herkunft=') && !as.includes('erkl='), 'Schritt für Schritt gewählt: Herkunft und Element abgewählt');
+  await page.locator('#erkl-schliessen').click(); await page.waitForTimeout(250);
+  pruefe(await page.locator('#erkl-leiste').isHidden() && await page.evaluate(() => document.activeElement?.id) === 'erkl-schritt', '×: Leiste weg, Fokus auf der eben geschlossenen Erklärung');
+  await page.locator('#erkl-herkunft').click(); await page.locator('#erkl-herkunft').click(); await page.waitForTimeout(250);
+  pruefe(!(await adresse()).includes('herkunft=') && await page.locator('#erkl-leiste').isHidden(), 'Zweiter Klick auf „Herkunft“ wählt ab');
+
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {
   await browser.close();
