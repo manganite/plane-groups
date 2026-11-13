@@ -200,8 +200,8 @@ function erklaerungAbgleichen() {
   else if (istSchritt) {
     const sd = schrittDaten(g, ausgangsstelle(z.punkt, z.zellen), z.schritt);
     const was = sd.translationen ? 'die Gittertranslationen' : sd.k === 1 ? 'die Identität' : `Operation (${opNummer(sd.bilder[sd.bilder.length - 1])})`;
-    stand = `Schritt <b>${z.schritt}</b> von ${nSchritte}: ${was}`;
-  } else stand = `Schritt <b>${z.aufbau}</b> von ${maxS}: ${z.aufbau === 1 ? 'die Erzeugenden' : 'neue Elemente hervorgehoben'}`;
+    stand = `Schritt <b>${z.schritt}</b> von ${nSchritte}<span class="erkl-was">: ${was}</span>`;
+  } else stand = `Schritt <b>${z.aufbau}</b> von ${maxS}<span class="erkl-was">: ${z.aufbau === 1 ? 'die Erzeugenden' : 'neue Elemente hervorgehoben'}</span>`;
   $('erkl-stand').innerHTML = stand;
   const ende = istSchritt ? nSchritte : maxS;
   const stufe = istSchritt ? z.schritt : z.aufbau;
@@ -760,7 +760,11 @@ function init() {
   $('erkl-zurueck').addEventListener('click', () => erklSchritt(-1));
   $('erkl-vor').addEventListener('click', () => erklSchritt(1));
   $('erkl-abspielen').addEventListener('click', schritteAbspielen);
-  $('erkl-schliessen').addEventListener('click', () => { stoppeSchritte(); z.schritt = 0; z.aufbau = 0; aktualisieren(); });
+  // ×: die Leiste verschwindet, der Fokus geht an die Auswahl der eben geschlossenen Erklärung
+  $('erkl-schliessen').addEventListener('click', () => {
+    const war = z.schritt > 0 ? 'erkl-schritt' : 'erkl-aufbau';
+    stoppeSchritte(); z.schritt = 0; z.aufbau = 0; aktualisieren(); knopf(war).focus();
+  });
   zeigerEinrichten();
   // Telefon: eine Tafel oben, Umschalter
   /** @param {string} fig */
@@ -819,8 +823,6 @@ function init() {
   initHelp({ tips: TIPS, sections: SECTIONS, labels: LABELS });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
-  // Ist eine Erklärung aus Speicher oder Link aktiv, ihren Abschnitt aufklappen: Sie sperrt
-  // Füllen und Lupe und muss sich dort sichtbar ausschalten lassen (Leitfaden Abschn. 5.2)
   aktualisieren();
 }
 

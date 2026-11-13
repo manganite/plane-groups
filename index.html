@@ -116,6 +116,8 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
 .erklleiste button:disabled { opacity: 0.45; cursor: not-allowed; }
 .erklleiste .erkl-x { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; padding: 2px 6px; }
 .erkl-stand { flex: 1; min-width: 0; text-align: center; }
+/* schmale Tafeln (iPad): nur „Schritt n von N“, der Rest steht in den Kenndaten */
+@media (max-width: 1100px) and (min-width: 720px) { .erkl-was { display: none; } }
 @media (pointer: coarse) { .erklleiste button { min-height: 40px; min-width: 40px; } }
 :root[data-zeiger="touch"] .erklleiste button { min-height: 40px; min-width: 40px; }
 /* Hinweise zum Zustand nur, wenn es einen gibt; Eigenschaften, die das Motiv nicht hat, fehlen (#130) */

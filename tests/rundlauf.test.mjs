@@ -72,6 +72,8 @@ function beispiele() {
     z.gitter.schiefwinklig = { ba: 1.4, gamma: grad(110) };
     z.gitter.rechteckig = { ba: 0.8, gamma: grad(90) };
     out.push(z);
+    // Aufbau aus Erzeugenden (schliesst „Schritt für Schritt“ aus, #162)
+    out.push({ ...startzustand(), gruppe: g, aufbau: 2 });
   }
   for (const v of VORGABEN) {
     const z = startzustand();
