@@ -127,9 +127,10 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
 #bild-b { touch-action: manipulation; }
 body.leertaste #bild-a { cursor: grab; }
 body.verschiebt #bild-a { cursor: grabbing; }
-/* wird der Kopf zu schmal (iPad, 1024 px), bricht der Zoom vor dem Export um, der Untertitel unter den Titel; der Wert
-   entfällt dort */
-.p-a .panel-head .zoomtools { order: 1; }
+/* Reihenfolge im Kopf wie in Tafel B: Titel, Schalter, Zoom, Export ganz rechts (Thomas, 13.11.2026). Ist der Kopf zu
+   schmal (720–1100 px, Tafeln 320–400 px), bricht der Zoom in eine eigene Zeile, damit der Export oben rechts bleibt (sonst
+   stünde er allein links in der zweiten Zeile); der Untertitel bricht unter den Titel, der Wert des Zooms entfällt */
+@media (max-width: 1100px) and (min-width: 720px) { .p-a .panel-head .zoomtools { order: 1; } }
 .p-a .panel-head .leiste { order: 2; }
 .p-b .panel-head .t { margin-right: auto; flex: 1 1 80px; min-width: 0; }
 @media (max-width: 1100px) and (min-width: 720px) { .zoomwert { display: none; } }

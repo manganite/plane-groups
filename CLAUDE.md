@@ -191,7 +191,9 @@ für diese App gilt.
     beide Tafeln die Zeilen Kopf, Zeichnung, Leiste bzw. Fusszeile und Legende über ein CSS-Subgrid (`.figs` im `<style>` von
     `index.html`, Leitfaden Abschn. 5.1 erlaubt eine eigene Anordnung). Sonst begann die Zeichnung in Tafel A tiefer, weil ihr
     Kopf mit der Erklärungsauswahl zweizeilig ist. Ohne Erklärleiste reicht die Legende von Tafel A über die Zeile der
-    Fusszeile von Tafel B (sonst ein leerer Streifen; Review).
+    Fusszeile von Tafel B (sonst ein leerer Streifen; Review). **Reihenfolge im Kopf** wie in Tafel B: Titel, Schalter,
+    Zoom, Export ganz rechts (Thomas, 13.11.2026); nur bei 720–1100 px bricht der Zoom in eine eigene Zeile, damit der
+    Export oben rechts bleibt.
   - **Kein Hinweis „Füllen und Zoom ruhen“** in der Legende (Thomas, 13.11.2026): Die gesperrten Zoomknöpfe zeigen es, den
     Grund für „Füllen“ nennt die Seitenleiste. „Bilder rund um die Zelle“ ohne „(wie ITA)“; der Tooltip nennt die ITA.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
