@@ -117,8 +117,7 @@ try {
 
   // 6. Übergang aus „Gitter und Basis“ mit Umstellung (Flechtverband: andere Zelle); die Wahl „Bindungen“ geht mit
   await oeffnen('#m=struktur&v=flecht&sbind=0');
-  await page.locator('#sec-weiter > summary').click();
-  await page.locator('#s-weiter').click();
+  await page.locator('#s-weiter').click(); // in den Kenndaten (#162)
   await page.waitForTimeout(300);
   pruefe((await adresse()).includes('m=entwurf&g=p4gm') && (await text('#info')).includes('gedreht'), 'Flechtverband: p4gm, Umstellung in den Kenndaten');
   pruefe(await page.locator('#tab-entwurf').getAttribute('aria-selected') === 'true', 'Übergang: Tab „Muster entwerfen“ gewählt');

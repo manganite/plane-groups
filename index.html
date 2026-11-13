@@ -33,7 +33,13 @@
 /* Kopf von Tafel A (#130): Titel, Schalter (Einrasten, Lupe) und Export in einer Zeile; in den Modi mit Basis darunter
    die Werkzeugleiste (Werkzeuge, Handlungen) als Symbole. Auf dem Telefon Umschalter und Schalter, darunter die Leiste. */
 .p-a .panel-head { justify-content: flex-start; }
-.p-a .panel-head .t { margin-right: auto; flex: 1 1 120px; min-width: 0; } /* der Untertitel bricht um, bevor der Export in eine eigene Zeile rutscht */
+/* Titel und Untertitel: der Untertitel bricht unter den Titel um, bevor er unter Schalter und Export läuft oder der
+   Export in eine eigene Zeile rutscht (wie stereography#140; plane-groups#162) */
+@media (min-width: 720px) { /* auf dem Telefon blendet app.css Titel und Export aus */
+  .panel-head .t { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; min-width: 0; }
+  .panel-head .t small { margin-left: 0; }
+}
+.p-a .panel-head .t { margin-right: auto; flex: 1 1 120px; min-width: 0; }
 .p-a .leiste { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px 14px; }
 .tools button.sym svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 719px) {
@@ -101,6 +107,9 @@ body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a 
 body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { cursor: crosshair; touch-action: none; }
 /* Hinweise zum Zustand nur, wenn es einen gibt; Eigenschaften, die das Motiv nicht hat, fehlen (#130) */
 .hintline:empty { display: none; }
+/* Übergang in „Muster entwerfen“ in den Kenndaten, bei der bestimmten Gruppe (#162) */
+.info .weiter { margin: -6px 0 12px; }
+.info #s-weiter:disabled { opacity: 0.5; cursor: not-allowed; }
 .check[hidden] { display: none; }
 .farbwahl button { min-width: 40px; }
 .farbwahl .sw { display: inline-block; width: 16px; height: 16px; border-radius: 50%; vertical-align: middle; }
@@ -132,7 +141,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
     <section class="card intro" id="intro" aria-labelledby="intro-title" hidden>
       <div class="intro-head"><h2 id="intro-title">Erste Schritte</h2><button class="intro-x" id="intro-close" type="button" aria-label="Erste Schritte schliessen">×</button></div>
       <div id="ablauf"></div>
-      <p class="intro-foot"><span class="only-fine">Tooltips erklären jedes Bedienelement.</span><span class="only-coarse">Das ⓘ neben den Überschriften erklärt die Bedienelemente.</span></p>
+      <p class="intro-foot"><span class="only-fine">Tooltips und das ⓘ neben den Überschriften erklären die Bedienelemente.</span><span class="only-coarse">Das ⓘ neben den Überschriften erklärt die Bedienelemente.</span></p>
     </section>
 
     <div class="card">
@@ -203,13 +212,6 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
             <button type="button" data-metrik="1,120"><i>b</i> = <i>a</i>, γ = 120°</button>
           </div>
           <p class="hintline" id="s-gitter-hint"></p>
-        </div>
-      </details>
-      <details class="sect nur-struktur" id="sec-weiter">
-        <summary>Weiterbearbeiten<span class="sumhint">Struktur mit ihrer Gruppe entwerfen</span></summary>
-        <div class="stack">
-          <button class="resetbtn" id="s-weiter" type="button">In „Muster entwerfen“ weiterbearbeiten</button>
-          <p class="hintline" id="s-weiter-hint"></p>
         </div>
       </details>
     </div>
@@ -311,7 +313,6 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
           <label class="check"><input type="checkbox" id="v-muster-el">Symmetrieelemente im Muster</label>
           <label class="check"><input type="checkbox" id="v-tapete">Muster als Tapete</label>
           <label class="check" id="row-fuell"><input type="checkbox" id="opt-fuell"><span>Asymmetrische Einheit füllen<span class="why"></span></span></label>
-          <p class="hintline" id="fuell-hint"></p>
           <div class="range">
             <label for="v-zoom">Vergrösserung des Musters</label><output id="v-zoom-out"></output>
             <input type="range" id="v-zoom" min="0.5" max="3" step="0.05">

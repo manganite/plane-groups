@@ -171,6 +171,10 @@ test('Tafeln und Kenndaten entstehen für alle Vorgaben', () => {
   }
   assert.match(strukturHTML(st('dreieck2'), symmetrie(st('dreieck2')), 'pm', FARBEN), /Geändert/);
   assert.match(strukturHTML({ ...st('dreieck1'), basis: [] }, null, null, FARBEN), /Basis ist leer/);
+  // Übergang in „Muster entwerfen“ bei der bestimmten Gruppe, in der Zeile mit „im Modus „Ebenengruppen“ ansehen“ (#162)
+  const mitWeiter = strukturHTML(st('dreieck2'), symmetrie(st('dreieck2')), null, FARBEN, { knopf: '<button id="s-weiter">W</button>', hinweis: '<p id="s-weiter-hint">H</p>' });
+  assert.match(mitWeiter, /data-zu-eg="[^"]+">im Modus „Ebenengruppen“ ansehen<\/button> · <button id="s-weiter">W<\/button><\/span>/);
+  assert.ok(mitWeiter.indexOf('s-weiter-hint') > mitWeiter.indexOf('</div>'), 'Hinweis unter dem Kopf der Kenndaten');
 });
 
 test('Link-Adresse: Vorgabe kurz, veränderte Struktur ausgeschrieben, hin und zurück', () => {

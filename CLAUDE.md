@@ -145,7 +145,11 @@ für diese App gilt.
     Umstellung. Eine linkshändige Zelle aus der Bestimmung wird vorher rechtshändig gemacht, sonst wäre das Bild gespiegelt.
     Liegen danach Metrik oder Grösse eines Motivs ausserhalb der Regler oder wäre die Grenze überschritten, ist der Knopf
     gesperrt, mit Grund. Die Übernahme ersetzt den Entwurf samt Strichen (Hinweis unter dem Knopf). Einen Weg zurück gibt es nicht: Striche
-    liessen sich in „Gitter und Basis“ nicht darstellen.
+    liessen sich in „Gitter und Basis“ nicht darstellen. **Ort:** in den Kenndaten bei der bestimmten Gruppe, neben „im Modus
+    „Ebenengruppen“ ansehen“, Grund bzw. Folge darunter (Thomas, 13.11.2026, #162; Leitfaden Abschn. 5.1); vorher ein
+    eingeklappter Abschnitt der Seitenleiste. Am Laptop (1440 × 900) beginnen die Kenndaten bei y ≈ 820 px: Der Knopf ist
+    knapp sichtbar, der Hinweis erst nach dem Scrollen (Thomas: „Wir versuchen es erstmal so.“). Knopf und Hinweis entstehen
+    mit den Kenndaten neu (`weiterHTML` in `js/struktur-ui.js`), der Tooltip deshalb über `setTip`.
   - **Grenze** von 48 ausgeschriebenen Bildern (`BASIS_GRENZE`); ein Vertreter zählt mit der Zähligkeit der allgemeinen Lage,
     wo er auch liegt, damit Ziehen von einer speziellen Lage weg die Grenze nie überschreitet. Die Grenze gilt für die
     ausgeschriebenen Bilder, weil der Aufwand je Bild begrenzt bleiben soll (die Bestimmung in „Gitter und Basis“ kostete bei
@@ -176,8 +180,13 @@ für diese App gilt.
     5.4).
   - **Zwei Löschknöpfe** (Thomas): „Alle Motive löschen“ (beide Modi mit Basis) und „Alle Striche löschen“ (Entwurf).
   - **Einrasten** ist ein Zustand für alle Modi (Wahl beim Umsetzen, wie die Lupe); in „Ebenengruppen“ ruht es ohne Objekt.
-  - **Hinweise in der Seitenleiste** nur zum Zustand (gesperrte Gruppen und Gitterregler, Grund und Folge von
-    „Weiterbearbeiten“); was ein Tippen auf die Zeichnung tut, sagt die Legende.
+  - **Hinweise in der Seitenleiste** nur zum Zustand, und unter gesperrten Elementen nur der Grund in einem Halbsatz
+    (gesperrte Gruppen, Gitterregler: `GITTER_FEST` in `js/hilfetexte.js`, z. B. „γ im rechteckigen System festgelegt.“);
+    Erklärungen im ⓘ, seit crystallography-common v0.20.0 auch mit der Maus (Thomas, 13.11.2026, #162; Leitfaden Abschn.
+    5.2). So kamen der feste Text unter „Gitter“ und der Hinweis zu „Asymmetrische Einheit füllen“ ins ⓘ. Was ein Tippen
+    auf die Zeichnung tut, sagt die Legende.
+  - **Kopf der Tafeln:** Der Untertitel bricht unter den Titel um, bevor er unter Schalter und Export läuft (bei 1024–1100 px
+    in „Ebenengruppen“; #162), wie in stereography (stereography#140).
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).

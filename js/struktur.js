@@ -495,10 +495,13 @@ export function entwurfHTML(en, farben, umstellung = null) {
 
 /**
  * Kenndaten (HTML). st: Struktur; r: Ergebnis; vorher: Symbol vor der letzten Änderung (oder
- * null); farben: Motivfarben. Knopf data-zu-eg öffnet die Gruppe im Modus „Ebenengruppen“.
+ * null); farben: Motivfarben. Knopf data-zu-eg öffnet die Gruppe im Modus „Ebenengruppen“; weiter: der Übergang
+ * „In ‚Muster entwerfen‘ weiterbearbeiten“ mit Grund und Folge (HTML, struktur-ui.js), bei der bestimmten Gruppe
+ * (Leitfaden Abschn. 5.1, #162).
  * @param {Struktur} st @param {Bestimmung | null} r @param {string | null} vorher @param {Farben} farben
+ * @param {{ knopf: string, hinweis: string }} [weiter]
  */
-export function strukturHTML(st, r, vorher, farben) {
+export function strukturHTML(st, r, vorher, farben, weiter = { knopf: '', hinweis: '' }) {
   if (!r) return '<p>Die Basis ist leer: Mit „Hinzufügen“ ein Motiv in die Struktur setzen.</p>';
   const d = r.gruppe;
   const f = motivFarben(farben);
@@ -515,8 +518,9 @@ export function strukturHTML(st, r, vorher, farben) {
   return `
     <div class="info-head">
       <div class="hm-big">${symbolHTML(r.symbol)}</div>
-      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button></span></div>
+      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button>${weiter.knopf ? ` · ${weiter.knopf}` : ''}</span></div>
     </div>
+    ${weiter.hinweis}
     ${aenderung}
     <dl class="facts">
       <div><dt>Bravais-Gitter</dt><dd>${BRAVAIS[d.bravais]} (${d.bravais})</dd></div>
