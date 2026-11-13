@@ -192,7 +192,7 @@ export function startzustand() {
     einrasten: true,
     zoomA: 1, // Zoom von Tafel A in allen Modi (ZOOM_A_BEREICH, zoomAusschnitt in zeichnung.js; vorher die Lupe)
     ausschnitt: { eg: null, struktur: null, entwurf: null }, // Mitte des Ausschnitts von Tafel A je Modus, nur im Speicher
-    orbit: false, // Bilder rund um die Zelle (wie in der ITA), Rand ORBIT_RAND in zeichnung.js
+    orbit: false, // Bilder rund um die Zelle (wie in ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
     herkunft: false, // „Herkunft der Elemente“: ein gewähltes Element zeigt, woher es kommt
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)

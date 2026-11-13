@@ -33,6 +33,9 @@
   .figs > .panel > .bild { grid-row: 2; }
   .figs > .panel > .erklleiste, .figs > .panel > .panel-foot { grid-row: 3; align-self: start; }
   .figs > .panel > .legend { grid-row: 4; }
+  /* ohne Erklärleiste reicht die Legende von Tafel A bis unter die Zeichnung (sonst ein leerer Streifen in Höhe der
+     Fusszeile von Tafel B) */
+  .figs > .p-a:not(:has(> .erklleiste:not([hidden]))) > .legend { grid-row: 3 / span 2; }
 }
 .tabs button:disabled { opacity: 0.5; cursor: not-allowed; }
 .lg .sym-icon { flex: none; }
