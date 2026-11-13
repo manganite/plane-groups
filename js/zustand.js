@@ -194,7 +194,7 @@ export function startzustand() {
     ausschnitt: { eg: null, struktur: null, entwurf: null }, // Mitte des Ausschnitts von Tafel A je Modus, nur im Speicher
     orbit: false, // Bilder rund um die Zelle (wie ITA), Rand ORBIT_RAND in zeichnung.js
     musterElemente: false, // Symmetrieelemente in Tafel B
-    herkunft: false, // „Herkunft der Elemente“: Antippen eines Elements zeigt, woher es kommt
+    herkunft: false, // „Herkunft der Elemente“: ein gewähltes Element zeigt, woher es kommt
     erkl: null, // gewähltes Element (Schlüssel aus herkunft.js, z. B. „m;1/4,0;0,1“)
     aufbau: 0, // Aufbau aus Erzeugenden: 0 aus, sonst Schritt 1, 2, …
     aeFuell: false, // asymmetrische Einheit gefüllt und vervielfältigt
@@ -278,9 +278,13 @@ export function zustandPruefen(z) {
   if (!(typeof z.erkl === 'string' && ERKL_MUSTER.test(z.erkl))) z.erkl = null;
   if (!Number.isInteger(z.aufbau) || z.aufbau < 0 || z.aufbau > 20) z.aufbau = s.aufbau;
   if (!Number.isInteger(z.schritt) || z.schritt < 0 || z.schritt > SCHRITT_GRENZE) z.schritt = s.schritt;
-  // „Schritt für Schritt“ und der Aufbau schliessen sich aus (eine Erklärung, Auswahl über Tafel A, #162): zusammen
-  // ungültig, beide zum Startwert (Leitfaden Abschn. 5.2)
-  if (z.schritt > 0 && z.aufbau > 0) { z.schritt = s.schritt; z.aufbau = s.aufbau; }
+  // Ein gewähltes Element gibt es nur in „Herkunft der Elemente“ (Startwert, nicht umgedeutet)
+  if (!z.herkunft) z.erkl = null;
+  // „Schritt für Schritt“, Aufbau und „Herkunft der Elemente“ schliessen sich aus (eine Erklärung, Auswahl über Tafel A,
+  // #162): zu zweit oder dritt ungültig, alle zum Startwert (Leitfaden Abschn. 5.2)
+  if (Number(z.schritt > 0) + Number(z.aufbau > 0) + Number(z.herkunft) > 1) {
+    z.schritt = s.schritt; z.aufbau = s.aufbau; z.herkunft = s.herkunft; z.erkl = s.erkl;
+  }
   z.zoomB = begrenzt(z.zoomB, ZOOM_BEREICH) ?? s.zoomB;
   z.zoomA = begrenzt(z.zoomA, ZOOM_A_BEREICH) ?? s.zoomA;
   const aus = /** @type {Record<string, unknown>} */ (z.ausschnitt && typeof z.ausschnitt === 'object' ? z.ausschnitt : {});

@@ -202,6 +202,15 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.deepEqual([speicher({ schritt: 3, aufbau: 2 }).schritt, speicher({ schritt: 3, aufbau: 2 }).aufbau], [0, 0]);
   { const z = startzustand(); hashAnwenden(z, '#m=eg&schritt=3&aufbau=2'); assert.deepEqual([z.schritt, z.aufbau], [0, 0]); }
   { const z = startzustand(); hashAnwenden(z, '#m=eg&aufbau=2'); assert.deepEqual([z.schritt, z.aufbau], [0, 2]); }
+  // „Herkunft der Elemente“ ist die dritte Erklärung: mit `schritt` oder `aufbau` alle zum Startwert, auch das Element
+  for (const [h, sp] of /** @type {const} */ ([['#m=eg&g=p4mm&herkunft=1&erkl=4;0,0&aufbau=2', { herkunft: true, erkl: '4;0,0', aufbau: 2 }], ['#m=eg&g=p4mm&herkunft=1&schritt=3', { herkunft: true, schritt: 3 }]])) {
+    const z = startzustand(); hashAnwenden(z, h);
+    assert.deepEqual([z.schritt, z.aufbau, z.herkunft, z.erkl], [0, 0, false, null], h);
+    const zs = speicher({ gruppe: 'p4mm', ...sp });
+    assert.deepEqual([zs.schritt, zs.aufbau, zs.herkunft, zs.erkl], [0, 0, false, null], JSON.stringify(sp));
+  }
+  { const z = startzustand(); hashAnwenden(z, '#m=eg&g=p4mm&herkunft=1&erkl=4;0,0'); assert.deepEqual([z.herkunft, z.erkl], [true, '4;0,0']); }
+  assert.equal(speicher({ gruppe: 'p4mm', erkl: '4;0,0' }).erkl, null);
   // schritt (ganzzahlige Auswahl): 25 bleibt, 26 wird zum Startwert, in beiden Wegen
   assert.deepEqual([speicher({ schritt: 25 }).schritt, speicher({ schritt: 26 }).schritt], [25, 0]);
   const ls = (/** @type {string} */ n) => { const z = startzustand(); hashAnwenden(z, `#m=eg&schritt=${n}`); return z.schritt; };
@@ -218,9 +227,9 @@ test('Rundlauf: Grenzen und Abhängigkeiten in Link und Speicher gleich (Review 
   assert.deepEqual([alt1.gruppe, alt1.herkunft, 'brechen' in alt1, 'frei' in alt1, 'warum' in alt1], ['p6mm', false, false, false, false]);
   const alt2 = startzustand(); hashAnwenden(alt2, '#m=eg&g=p6mm&brechen=1&warum=1');
   assert.deepEqual([alt2.gruppe, alt2.herkunft, 'brechen' in alt2, 'warum' in alt2], ['p6mm', false, false, false]);
-  // `warum=1` wird nicht zu `herkunft`: Der Link zeigt die Erklärung, aber ohne den Schalter
+  // `warum=1` wird nicht zu `herkunft`; ein Element ohne „Herkunft der Elemente“ gibt es nicht (Startwert)
   const alt3 = startzustand(); hashAnwenden(alt3, '#m=eg&g=p4mm&warum=1&erkl=4;0,0');
-  assert.deepEqual([alt3.herkunft, alt3.erkl], [false, '4;0,0']);
+  assert.deepEqual([alt3.herkunft, alt3.erkl], [false, null]);
   // Vergrösserung, Objekt, Struktur und Motivgrösse: in beiden Wegen der nächste gültige Wert
   const zs = speicher({ zoomB: 9, objGroesse: 0.1, struktur: { ba: 5, gamma: 10, basis: [{ motiv: 'atom', p: [0, 0], groesse: 7 }] } });
   assert.deepEqual([zs.zoomB, zs.objGroesse, zs.struktur.ba, zs.struktur.gamma, zs.struktur.basis[0].groesse], [3, 0.5, 2, 60, 1]);

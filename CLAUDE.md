@@ -212,17 +212,19 @@ für diese App gilt.
   „Schritt für Schritt“, schon beim Einschalten, nicht erst mit gezeigtem Element (die Erklärung zeigt statt
   der Bilder des Objekts ihre eigenen Fähnchen, Schritte wären unsichtbar); es ruht dann, solange „Herkunft
   der Elemente“ wirkt (eingeschaltet, mit Symmetrieelementen) (Schalter, Leitfaden Abschn. 5.2; Thomas,
-  5.11.2026). Der Aufbau lässt sich mit der Herkunft kombinieren.
-- **„Herkunft der Elemente“** (5.11.2026, Thomas): ein Schalter, kein Knopf, weil er die Symmetrieelemente erklärt wie
-  der Aufbau, mit dem er sich kombinieren lässt. Zustand `herkunft`, Link `herkunft=1`, Datei `js/herkunft-text.js` (die
-  Texte; `js/herkunft.js` rechnet) und das Bedienelement `opt-herkunft` heissen wie der Schalter. Ohne Elemente ist es
+  5.11.2026). Seit 13.11.2026 schliessen sich die drei Erklärungen aus (nächste Punkte).
+- **„Herkunft der Elemente“** (5.11.2026, Thomas; seit 13.11.2026 dritte Erklärung, nächster Punkt): Zustand `herkunft`,
+  Link `herkunft=1`, Datei `js/herkunft-text.js` (die Texte; `js/herkunft.js` rechnet) und das Bedienelement
+  `erkl-herkunft` heissen wie die Erklärung. Ein gewähltes Element (`erkl`) gibt es nur mit ihr. Ohne Elemente ist sie
   gesperrt, bleibt aber gewählt.
 - **Erklärungen in Tafel A** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): „Schritt für Schritt“, „Aufbau aus
   Erzeugenden“ und „Herkunft der Elemente“ sind die Hauptfunktionen von „Ebenengruppen“ und gingen als eingeklappte
-  Abschnitte der Seitenleiste unter. Jetzt im Kopf von Tafel A eine Auswahl (Schritt für Schritt *oder* Aufbau, ein zweiter
-  Klick wählt ab) und der Schalter „Herkunft der Elemente“, unter der Zeichnung eine Leiste (◀ Schritt *n* von *N* ▶,
-  Abspielen, ×). Die Kombination Schritt + Aufbau entfällt (Wahl Thomas nach Skizzen): eine Leiste, eine Auswahl; ein Link
-  oder Speicher mit beiden ergibt für beide den Startwert. Der ausführliche Text eines Schritts steht weiter in den
+  Abschnitte der Seitenleiste unter. Jetzt im Kopf von Tafel A eine Auswahl aus drei Knöpfen, höchstens einer gewählt, ein
+  zweiter Klick wählt ab; unter der Zeichnung eine Leiste (◀ Schritt *n* von *N* ▶, Abspielen, ×). Zuerst war „Herkunft“ ein
+  Schalter neben der Auswahl, mit dem Aufbau kombinierbar; Thomas fand das unlogisch (13.11.2026: „Die aktuelle Implementierung von Herkunft der Elemente macht diese Klarheit kaputt.“):
+  drei Erklärungen, immer nur eine aktiv und angezeigt. Bei „Herkunft“ zeigt die Leiste ohne Element den Hinweis, mit
+  Element dessen Namen, Abspielen wiederholt den Ablauf des Fähnchens, × schliesst (Wahl Thomas). Kombinationen entfallen:
+  ein Link oder Speicher mit zwei oder drei Erklärungen ergibt für alle den Startwert. Der ausführliche Text eines Schritts steht weiter in den
   Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Eine gewählte Erklärung, die
   ruht, bleibt gewählt; den Grund nennt die Leiste, bei nicht gewählten, gesperrten die Legende (Leitfaden Abschn. 5.2).
 - **Zoom und Verschieben der Tafeln** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): Die Lupe hatte einen festen

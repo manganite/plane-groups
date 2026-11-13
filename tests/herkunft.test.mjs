@@ -127,15 +127,16 @@ test('Vektoren in a und b', () => {
   assert.equal(t([2, -1]), '2a − b');
 });
 
-test('Link-Adresse: Herkunft der Elemente, gewähltes Element und Aufbau hin und zurück', () => {
-  const z = { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: 'g;-1/2,0;1,1', aufbau: 2 };
+test('Link-Adresse: Herkunft der Elemente und gewähltes Element hin und zurück; Aufbau getrennt', () => {
+  const z = { ...startzustand(), gruppe: 'p4mm', herkunft: true, erkl: 'g;-1/2,0;1,1' };
   const h = hashVon(z);
-  assert.match(h, /herkunft=1&erkl=g;-1\/2,0;1,1&aufbau=2/);
+  assert.match(h, /herkunft=1&erkl=g;-1\/2,0;1,1/);
   const z2 = startzustand();
   hashAnwenden(z2, h);
   assert.equal(z2.erkl, 'g;-1/2,0;1,1');
-  assert.equal(z2.aufbau, 2);
   assert.equal(z2.herkunft, true);
+  hashAnwenden(z2, '#m=eg&g=p4mm&aufbau=2');
+  assert.equal(z2.aufbau, 2);
   hashAnwenden(z2, '#m=eg&g=p4mm&erkl=<script>&aufbau=x');
   assert.equal(z2.erkl, null);
   assert.equal(z2.aufbau, 0);
