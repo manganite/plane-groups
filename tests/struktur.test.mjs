@@ -7,7 +7,7 @@ import { ORNAMENTE, ornamentMitte, ORNAMENT_EINHEIT } from '../js/zeichnung.js';
 import { motivSVG, motivSymbol, strukturSymmetrie, basisLagen, strukturHTML, strukturTafelA, strukturTafelB, inKonventionell, ausKonventionell, bindungenBasis } from '../js/struktur.js';
 import { startzustand, hashVon, hashAnwenden, strukturStart, entwurfStart, wieVorgabe, basisText, liesBasis, pruefeStruktur, pruefeEntwurf, gitterZurGruppe, bahnGewicht } from '../js/zustand.js';
 import { ausgeschrieben } from '../js/bahnen.js';
-import { metrik, kart, ansicht, bruchVon, LUPE } from '../js/zeichnung.js';
+import { metrik, kart, ansicht, bruchVon } from '../js/zeichnung.js';
 import { bestimme } from '../js/bestimmung.js';
 import { grad } from '../js/zeichnung.js';
 
@@ -452,28 +452,36 @@ test('Füllen: die Bilder liegen in der konventionellen Zelle, auch wenn sie von
   assert.ok(anzahl(mit.svg, /fill-opacity="0\.16"/g) >= r.ordnung - 1);
 });
 
-test('Lupe: LUPE-fache Vergrösserung um das Motiv, die Mitte bleibt in der Bildmitte', () => {
+test('Zoom: zoom-fache Vergrösserung um die Mitte, die Mitte bleibt in der Bildmitte (#162)', () => {
   const s = st('graphen');
   const an = { elemente: true, zelle: true, ae: true, bindungen: true };
   const normal = strukturTafelA(s, an, FARBEN);
   const mitte = /** @type {Vec2} */ ([0.5, 0.5]);
-  const lupe = strukturTafelA(s, { ...an, lupe: mitte }, FARBEN);
-  assert.ok(Math.abs(lupe.ansicht.s / normal.ansicht.s - LUPE) < 1e-9, 'Massstab LUPE-mal grösser');
-  const q = lupe.ansicht.zuBild(mitte);
-  assert.ok(Math.abs(q[0] - 260) < 1 && Math.abs(q[1] - 260) < 1, `Mitte bei ${q}`);
+  for (const faktor of [2, 3.5]) {
+    const gross = strukturTafelA(s, { ...an, zoom: { faktor, mitte } }, FARBEN);
+    assert.ok(Math.abs(gross.ansicht.s / normal.ansicht.s - faktor) < 1e-9, `Massstab ${faktor}-mal grösser`);
+    const q = gross.ansicht.zuBild(mitte);
+    assert.ok(Math.abs(q[0] - 260) < 1 && Math.abs(q[1] - 260) < 1, `Mitte bei ${q}`);
+    assert.ok(!gross.svg.includes('NaN'));
+  }
+  // Zoom 1: die ganze Ansicht
+  assert.ok(Math.abs(strukturTafelA(s, { ...an, zoom: { faktor: 1, mitte } }, FARBEN).ansicht.s - normal.ansicht.s) < 1e-9);
   // ein eingefrorener Ausschnitt (beim Ziehen) gilt unverändert
-  const fest = strukturTafelA(s, { ...an, lupe: [0.1, 0.1] }, FARBEN, null, lupe.ansicht);
-  assert.equal(fest.ansicht, lupe.ansicht);
-  assert.ok(!lupe.svg.includes('NaN'));
+  const gross = strukturTafelA(s, { ...an, zoom: { faktor: 2, mitte } }, FARBEN);
+  const fest = strukturTafelA(s, { ...an, zoom: { faktor: 2, mitte: [0.1, 0.1] } }, FARBEN, null, gross.ansicht);
+  assert.equal(fest.ansicht, gross.ansicht);
 });
 
-test('Lupe: auch am Rand und in einer nicht reduzierten Zelle bleibt der Ausschnitt im Bild', () => {
+test('Zoom: auch am Rand und in einer nicht reduzierten Zelle bleibt der Ausschnitt im Bild', () => {
   for (const id of ['zentriert', 'schiefwinklig', 'quadratisch']) {
     const s = st(id);
-    for (const mitte of /** @type {Vec2[]} */ ([[0, 0], [0.99, 0.01], [0.5, 0.5], [1, 1]])) {
-      const l = strukturTafelA(s, { elemente: true, zelle: true, lupe: mitte }, FARBEN);
-      const n = strukturTafelA(s, { elemente: true, zelle: true }, FARBEN);
-      assert.ok(Math.abs(l.ansicht.s / n.ansicht.s - LUPE) < 1e-9, `${id} ${mitte}`);
+    const n = strukturTafelA(s, { elemente: true, zelle: true }, FARBEN);
+    // die vier Ecken der ganzen Ansicht in Bildpunkten liegen auch mit Zoom ausserhalb oder auf dem Rand des Bildes
+    for (const mitte of /** @type {Vec2[]} */ ([[0, 0], [0.99, 0.01], [0.5, 0.5], [1, 1], [9, -9]])) {
+      const l = strukturTafelA(s, { elemente: true, zelle: true, zoom: { faktor: 2, mitte } }, FARBEN);
+      assert.ok(Math.abs(l.ansicht.s / n.ansicht.s - 2) < 1e-9, `${id} ${mitte}`);
+      const lo = l.ansicht.zuBild(n.ansicht.vonBild([0, 0])); const hi = l.ansicht.zuBild(n.ansicht.vonBild([520, 520]));
+      for (const k of [0, 1]) assert.ok(Math.min(lo[k], hi[k]) <= 1e-6 && Math.max(lo[k], hi[k]) >= 520 - 1e-6, `${id} ${mitte}: ${lo} ${hi}`);
       assert.ok(!l.svg.includes('NaN'));
     }
   }
@@ -488,12 +496,15 @@ test('Tafel B: Symmetrieelemente in den Farben der Blickrichtung nur auf Wunsch'
   assert.ok(!FARBEN.dir.some((c) => grau.includes(c)));
 });
 
-test('Link: „Darstellung“, Lupe und Einrasten gelten in allen Modi, mit denselben Schlüsseln', () => {
+test('Link: „Darstellung“, Zoom und Einrasten gelten in allen Modi, mit denselben Schlüsseln', () => {
   const z = startzustand();
-  hashAnwenden(z, '#m=struktur&v=graphen&farb=0&mel=1&tap=1&fuell=1&lupe=1&rast=0&zoom=2');
-  assert.deepEqual([z.farben, z.musterElemente, z.tapete, z.aeFuell, z.lupe, z.einrasten, z.zoomB], [false, true, true, true, true, false, 2]);
+  hashAnwenden(z, '#m=struktur&v=graphen&farb=0&mel=1&tap=1&fuell=1&zoomA=3&rast=0&zoomB=2');
+  assert.deepEqual([z.farben, z.musterElemente, z.tapete, z.aeFuell, z.zoomA, z.einrasten, z.zoomB], [false, true, true, true, 3, false, 2]);
   const h = hashVon(z);
-  for (const k of ['farb=0', 'mel=1', 'tap=1', 'fuell=1', 'lupe=1', 'rast=0', 'zoom=2']) assert.ok(h.includes(k), `${k} in ${h}`);
+  for (const k of ['farb=0', 'mel=1', 'tap=1', 'fuell=1', 'zoomA=3', 'rast=0', 'zoomB=2']) assert.ok(h.includes(k), `${k} in ${h}`);
+  // die alten Schlüssel lupe und zoom gelten nicht mehr (#162)
+  const alt = startzustand(); hashAnwenden(alt, '#m=struktur&v=graphen&lupe=1&zoom=2');
+  assert.deepEqual([alt.zoomA, alt.zoomB], [1, 1]);
   // Schalter nur von „Ebenengruppen“ stehen nicht im Link des anderen Modus; Einrasten ist seit #130 gemeinsam
   z.elemente = false; z.objekt = false; z.ae = true; z.orbit = true;
   assert.ok(!/[&#](el|obj|ae|orbit)=/.test(hashVon(z)), hashVon(z));

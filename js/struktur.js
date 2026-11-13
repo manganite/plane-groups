@@ -5,7 +5,7 @@
 // Symmetrieelementen und asymmetrischer Einheit der gefundenen Gruppe, Tafel B einen grösseren
 // Ausschnitt.
 
-import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, kopien, lupeAusschnitt, ornamentSVG, ornamentMitte, ORNAMENT_EINHEIT, f2, pt } from './zeichnung.js';
+import { metrik, kart, bruchVon, ansicht, elementeImBereich, elementeSVG, aeFuellung, kopien, zoomAusschnitt, ornamentSVG, ornamentMitte, ORNAMENT_EINHEIT, f2, pt } from './zeichnung.js';
 import { gruppe, lage, mod1 } from './symmetrie.js';
 import { bestimme } from './bestimmung.js';
 import { MOTIVE, motivKart, lokalKart, strukturPunkte } from './motive.js';
@@ -23,9 +23,9 @@ import { SYSTEME, BRAVAIS } from './ebenengruppen.js';
 /** Bereich [[lo, hi], [lo, hi]] in Bruchkoordinaten. @typedef {[[number, number], [number, number]]} Bereich */
 /**
  * Was Tafel A zeigt; farben: Symmetrieelemente in den Farben der Blickrichtungen, k: Grösse der Symbole, fuell: die
- * asymmetrische Einheit der bestimmten Gruppe mit allen Bildern gefüllt, lupe: Mitte der Lupe (Bruchkoordinaten der
- * gegebenen Zelle; ohne Angabe keine Lupe).
- * @typedef {{ elemente?: boolean, zelle?: boolean, ae?: boolean, bindungen?: boolean, farben?: boolean, k?: number, fuell?: boolean, lupe?: Vec2 | null }} Anzeige
+ * asymmetrische Einheit der bestimmten Gruppe mit allen Bildern gefüllt, zoom: Zoom von Tafel A mit der Mitte des
+ * Ausschnitts (Bruchkoordinaten der gegebenen Zelle; ohne Angabe die ganze Ansicht, #162).
+ * @typedef {{ elemente?: boolean, zelle?: boolean, ae?: boolean, bindungen?: boolean, farben?: boolean, k?: number, fuell?: boolean, zoom?: { faktor: number, mitte: Vec2 } | null }} Anzeige
  */
 
 
@@ -304,8 +304,9 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null,
     const rand = 0.3;
     /** @type {[number, number, number, number]} */
     const box = [Math.min(...cs.map((c) => c[0])) - rand, Math.min(...cs.map((c) => c[1])) - rand, Math.max(...cs.map((c) => c[0])) + rand, Math.max(...cs.map((c) => c[1])) + rand];
-    // Lupe: der Ausschnitt LUPE-mal kleiner um die Mitte, ohne Rand (wie Tafel A von „Ebenengruppen“)
-    A0 = anzeige.lupe ? ansicht(M, lupeAusschnitt(M, box, 20, anzeige.lupe), 520, 0) : ansicht(M, box, 520, 20);
+    // Zoom: der Ausschnitt zoom-mal kleiner um die Mitte, ohne Rand (wie Tafel A von „Ebenengruppen“)
+    const aus = anzeige.zoom ? zoomAusschnitt(M, box, 20, anzeige.zoom.faktor, anzeige.zoom.mitte) : { box, rand: 20 };
+    A0 = ansicht(M, aus.box, 520, aus.rand);
   }
   const A = A0;
   const istZelle = r && istGegeben(r);

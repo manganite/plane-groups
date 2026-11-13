@@ -1512,7 +1512,7 @@ export const BANK = [
   {
     id: 'tk-1-02', stufe: 1, kapitel: 7, typ: 'bild-text', lernziel: LZ.anordnung,
     frage: 'Das Bild zeigt ein Muster mit einem Blatt als Motiv in allgemeiner Lage. Was ändert sich, wenn man das Blatt durch ein anderes Motiv ohne eigene Symmetrie an derselben Stelle der Zelle ersetzt?',
-    bild: 'B#m=entwurf&g=p4gm&basis=blatt,0,0.2,0.25,0,0.19&tap=1&zoom=1.76&farb=0', bildAlt: 'Tapete der Ebenengruppe p4gm mit Blättern',
+    bild: 'B#m=entwurf&g=p4gm&basis=blatt,0,0.2,0.25,0,0.19&tap=1&zoomB=1.76&farb=0', bildAlt: 'Tapete der Ebenengruppe p4gm mit Blättern',
     antworten: [
       'nur das Aussehen, nicht die Ebenengruppe',
       'die Ebenengruppe, weil das neue Motiv anders aussieht',
@@ -1524,7 +1524,7 @@ export const BANK = [
       'Die Zelle hängt an den Translationen der Gruppe, nicht an der Form des Motivs; die Translationen bleiben dieselben.',
       'Auch das Spiegelbild des Blattes ist ein Motiv ohne eigene Symmetrie; die Operationen, die seine Kopien erzeugen, bleiben dieselben.'],
     erklaerung: 'Die Ebenengruppe hängt davon ab, wie die Kopien des Motivs zueinander liegen, nicht davon, wie das Motiv aussieht. Das Blatt hat keine eigene Symmetrie, das neue Motiv ebenso wenig; beide sitzen in allgemeiner Lage, und jede Operation der Gruppe erzeugt eine eigene Kopie. Ebenengruppe und Elementarzelle bleiben deshalb gleich, nur das Bild ändert sich.',
-    skript: 'tapetengruppen', app: '#m=entwurf&g=p4gm&basis=blatt,0,0.2,0.25,0,0.19&tap=1&zoom=1.76&farb=0',
+    skript: 'tapetengruppen', app: '#m=entwurf&g=p4gm&basis=blatt,0,0.2,0.25,0,0.19&tap=1&zoomB=1.76&farb=0',
     quelle: 'Skript, Abschn. 7.1, Abb. 7.1',
     status: 'geprüft',
   },
@@ -1755,7 +1755,7 @@ export const BANK = [
   {
     id: 'bs-1-04', stufe: 1, kapitel: 8, typ: 'bild-text', lernziel: LZ.fehler,
     frage: 'Das Bild zeigt eine Bienenwabe aus zwei Sorten Atomen. Jemand bestimmt dafür <i>p</i>6<i>mm</i>. Welcher Fehler steckt dahinter?',
-    bild: 'B#m=struktur&v=hbn&zoom=1.6', bildAlt: 'Bienenwabe aus zwei Sorten Atomen im Wechsel, mit hervorgehobener Elementarzelle',
+    bild: 'B#m=struktur&v=hbn&zoomB=1.6', bildAlt: 'Bienenwabe aus zwei Sorten Atomen im Wechsel, mit hervorgehobener Elementarzelle',
     antworten: [
       'Die Farbe wurde übersehen; die Sechseckmitten sind nur 3-zählig.',
       'Eine Gleitspiegellinie wurde für eine Spiegellinie gehalten.',
@@ -1810,7 +1810,7 @@ export const BANK = [
   {
     id: 'bs-2-01', stufe: 2, kapitel: 8, typ: 'bild-text', lernziel: LZ.bestimmen,
     frage: 'Bestimmen Sie die Ebenengruppe des Musters, etwa mit dem Flussdiagramm zur Bestimmung der Ebenengruppe (Skript, Kap. 8). Alle Stäbchen sind gleich; hervorgehoben ist eine Elementarzelle.',
-    bild: 'B#m=struktur&v=asi-pinwheel&sbind=0&zoom=1.6', bildAlt: 'Quadratisches Muster aus gleichen Stäbchen, je vier um einen Punkt, schräg gestellt, mit hervorgehobener Elementarzelle',
+    bild: 'B#m=struktur&v=asi-pinwheel&sbind=0&zoomB=1.6', bildAlt: 'Quadratisches Muster aus gleichen Stäbchen, je vier um einen Punkt, schräg gestellt, mit hervorgehobener Elementarzelle',
     antworten: [
       '<i>p</i>4<i>gm</i>',
       '<i>p</i>4<i>mm</i>',

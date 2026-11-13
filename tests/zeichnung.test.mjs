@@ -197,7 +197,7 @@ function stange(svg) {
 test('Objekt im Gitter: in Tafel A und B (Muster) im selben Verhältnis zur Zelle wie eine Zeichnung', () => {
   for (const [g, opt] of /** @type {[string, Partial<Zustand>][]} */ ([
     ['p4', {}], ['p2mm', {}], ['p1', {}], ['p6mm', {}], ['p31m', {}], ['p4', { zellen: 2 }], ['p4gm', { zoomB: 1.76, objGroesse: 1.6 }],
-    ['p2', { objGroesse: 3 }], ['p4mm', { lupe: true }], ['p2gg', { orbit: true }],
+    ['p2', { objGroesse: 3 }], ['p4mm', { zoomA: 2 }], ['p2gg', { orbit: true }],
   ])) {
     const z = { ...startzustand(), gruppe: g, elemente: false, musterElemente: false, ...opt };
     const a = tafelA(g, z, FARBEN); const b = tafelB(g, z, FARBEN);
@@ -232,37 +232,42 @@ test('Objekt in Tafel A: Rand reicht für ein Objekt mit dem Fuss auf dem Zellra
   }
 });
 
-test('Lupe: Tafel A genau doppelt so gross wie ohne Lupe, auch mit grossem Objekt', () => {
+test('Zoom: Tafel A genau zoom-mal so gross wie ohne, auch mit grossem Objekt (#162)', () => {
   for (const [g, og] of /** @type {[string, number][]} */ ([['p4', 1], ['p6', 1], ['p2mm', 3], ['p31m', 0.5]])) {
-    const z = { ...startzustand(), gruppe: g, objGroesse: og };
-    const ohne = tafelA(g, z, FARBEN).ansicht.s; const mit = tafelA(g, { ...z, lupe: true }, FARBEN).ansicht.s;
-    assert.ok(nahe(mit / ohne, 2, 1e-9), `${g} og ${og}: ${mit / ohne}`);
+    for (const zoomA of [2, 5]) {
+      const z = { ...startzustand(), gruppe: g, objGroesse: og };
+      const ohne = tafelA(g, z, FARBEN).ansicht.s; const mit = tafelA(g, { ...z, zoomA }, FARBEN).ansicht.s;
+      assert.ok(nahe(mit / ohne, zoomA, 1e-9), `${g} og ${og}: ${mit / ohne}`);
+    }
   }
+  // Mitte: ohne Angabe das Objekt, sonst die angegebene (im Innern der ganzen Ansicht)
+  const z = { ...startzustand(), gruppe: 'p4', zoomA: 4 };
+  const q = tafelA('p4', z, FARBEN, { mitte: [0.5, 0.5] }).ansicht.zuBild([0.5, 0.5]);
+  assert.ok(nahe(q[0], 260, 1e-6) && nahe(q[1], 260, 1e-6), `${q}`);
 });
 
-
-test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Zeichnung, Lupe ruht', () => {
-  const basis = { ...startzustand(), gruppe: 'p4', aeFuell: true, lupe: true };
+test('Erklärungen im Symmetriegerüst: Objekt in fester Grösse, keine eigene Zeichnung, Zoom ruht', () => {
+  const basis = { ...startzustand(), gruppe: 'p4', aeFuell: true, zoomA: 2 };
   for (const opt of /** @type {Partial<Zustand>[]} */ ([{ schritt: 2 }, { aufbau: 1 }, { herkunft: true }, { erkl: '4;1/2,1/2' }])) {
     const z = { ...basis, ...opt };
     assert.ok(erklaerend(z), JSON.stringify(opt));
     const a = tafelA('p4', z, FARBEN, { k: 1.4 });
-    // Lupe ruht: Ausschnitt wie ohne Lupe, kein Ausschnitt der Lupe im Ergebnis
-    assert.equal(a.lupeBox, null, JSON.stringify(opt));
-    assert.ok(nahe(a.ansicht.s, tafelA('p4', { ...z, lupe: false }, FARBEN, { k: 1.4 }).ansicht.s), JSON.stringify(opt));
+    // Zoom ruht: Ausschnitt wie ohne Zoom
+    assert.equal(a.zoom, 1, JSON.stringify(opt));
+    assert.ok(nahe(a.ansicht.s, tafelA('p4', { ...z, zoomA: 1 }, FARBEN, { k: 1.4 }).ansicht.s), JSON.stringify(opt));
     // Objekt in fester Grösse (k), eigene Zeichnung nicht im Gerüst, aber im Muster
     assert.equal(a.massObjekt, 1.4, JSON.stringify(opt));
     assert.ok(!a.svg.includes('class="zeichnung"'), `${JSON.stringify(opt)}: Zeichnung im Gerüst`);
   }
   assert.ok(tafelB('p4', { ...basis, schritt: 2 }, FARBEN).svg.includes('class="zeichnung"'), 'Zeichnung im Muster');
-  // ohne Erklärung: Zeichnung da, Lupe wirkt, Objekt im Gitter
+  // ohne Erklärung: Zeichnung da, Zoom wirkt, Objekt im Gitter
   const normal = tafelA('p4', basis, FARBEN);
-  assert.ok(!erklaerend(basis) && normal.lupeBox !== null && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
+  assert.ok(!erklaerend(basis) && normal.zoom === 2 && normal.massObjekt > 1.5 && normal.svg.includes('class="zeichnung"'));
   // „Herkunft der Elemente“ ohne Symmetrieelemente wirkt nicht
   assert.ok(!erklaerend({ ...basis, herkunft: true, elemente: false }));
   // unbekanntes Element (alter Link): keine Erklärung, also auch kein Ruhezustand in Tafel A
   const unbekannt = tafelA('p4', { ...basis, erkl: '4;1/3,0' }, FARBEN);
-  assert.ok(unbekannt.erklaerung === null && unbekannt.lupeBox !== null && unbekannt.svg.includes('class="zeichnung"'));
+  assert.ok(unbekannt.erklaerung === null && unbekannt.zoom === 2 && unbekannt.svg.includes('class="zeichnung"'));
 });
 
 test('Schritt für Schritt: wirkt nur ohne „Herkunft der Elemente“ und mit Objekt', () => {

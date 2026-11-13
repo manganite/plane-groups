@@ -52,10 +52,14 @@ export const TIPS = {
   'reset-gitter': 'Startwerte des Kristallsystems.',
   'v-farben': 'Blickrichtung: Position im Hermann-Mauguin-Symbol.',
   'v-muster-el': 'In „Gitter und Basis“ die der bestimmten, im Entwurf die der gewählten Gruppe.',
-  'v-zoom': 'Über 1 grösser, unter 1 ein grösserer Ausschnitt.',
   'v-tapete': 'Ohne Zelle und Symmetrieelemente.',
   's-werkzeug-zeichnen': 'Zeichnen: Ziehen zeichnet einen Strich in der Farbe der Atomsorte, mit allen Operationen.',
-  'werkzeug-lupe': 'Lupe: Ausschnitt doppelt so gross, um das Objekt bzw. das gewählte Motiv.',
+  'zoom-a-ein': 'Vergrössern (auch Mausrad oder zwei Finger).',
+  'zoom-a-aus': 'Verkleinern.',
+  'zoom-a-passen': 'Wieder die ganze Zeichnung zeigen.',
+  'zoom-b-ein': 'Muster vergrössern (auch Mausrad oder zwei Finger).',
+  'zoom-b-aus': 'Muster verkleinern: grösserer Ausschnitt.',
+  'zoom-b-passen': 'Zurück zur Startgrösse.',
   's-werkzeug-radieren': 'Radieren: Ziehen radiert die überfahrenen Stücke der Striche, an allen Kopien zugleich.',
   'opt-fuell': 'Asymmetrische Einheit füllen und mit allen Operationen vervielfältigen.',
   'opt-herkunft': 'Zeigt zu einem gewählten Symmetrieelement, aus welchen zwei Operationen es folgt.',
@@ -82,13 +86,13 @@ export const GITTER_FEST = {
 /** ⓘ-Erklärungen: je Abschnitt ein Einleitungssatz und die Elemente, deren Texte gezeigt werden. */
 export const SECTIONS = [
   { heading: '#ctl-struktur > h2', intro: 'Eine Struktur ist Gitter plus Basis. Die App bestimmt aus beiden die Ebenengruppe und zeigt sie mit konventioneller Zelle und Symmetrieelementen. In den Kenndaten lässt sich die Struktur mit ihrer Gruppe in „Muster entwerfen“ weiterbearbeiten; dort bleiben Gruppe und Zelle fest, einen Weg zurück gibt es nicht.', ids: ['s-vorgabe', 's-zuruecksetzen', 's-elemente', 's-zelle', 's-ae', 's-bindungen'] },
-  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Die Einstellungen gelten für das gewählte Motiv (im Entwurf für seine ganze Bahn), ohne Wahl für das nächste neue. Was man auf der Zeichnung tut, steht über ihr als Symbole: Werkzeuge, dann Rückgängig, Entfernen und Löschen, oben Einrasten und Lupe. Im Entwurf zeichnet man mit dem Stift Striche: Die Gruppe macht daraus ein Muster, in der Farbe der gewählten Atomsorte; Spiegelbilder haben dieselbe Farbe.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 's-werkzeug-zeichnen', 's-werkzeug-radieren', 'rueckgaengig', 's-entfernen', 'motive-loeschen', 'striche-loeschen', 'werkzeug-einrasten', 'werkzeug-lupe', 's-motiv', 's-farbe', 's-winkel', 's-spiegel', 's-fuge', 's-groesse'] },
+  { heading: '#sec-basis > summary', intro: 'Die Basis: Motive mit eigener Symmetrie an Lagen in der Zelle. Die Einstellungen gelten für das gewählte Motiv (im Entwurf für seine ganze Bahn), ohne Wahl für das nächste neue. Was man auf der Zeichnung tut, steht über ihr als Symbole: Werkzeuge, dann Rückgängig, Entfernen und Löschen, oben Einrasten und Zoom. Mit Zoom verschiebt Ziehen ins Leere (Pfeil), Leertaste + Ziehen oder zwei Finger den Ausschnitt. Im Entwurf zeichnet man mit dem Stift Striche: Die Gruppe macht daraus ein Muster, in der Farbe der gewählten Atomsorte; Spiegelbilder haben dieselbe Farbe.', ids: ['s-werkzeug-verschieben', 's-werkzeug-hinzufuegen', 's-werkzeug-zeichnen', 's-werkzeug-radieren', 'rueckgaengig', 's-entfernen', 'motive-loeschen', 'striche-loeschen', 'werkzeug-einrasten', 'zoom-a-ein', 'zoom-a-aus', 'zoom-a-passen', 's-motiv', 's-farbe', 's-winkel', 's-spiegel', 's-fuge', 's-groesse'] },
   { heading: '#sec-sgitter > summary', intro: 'Gitter der gegebenen Zelle; in „Gitter und Basis“ ohne Bindung an ein Kristallsystem, im Entwurf innerhalb des Kristallsystems der Gruppe (dort bleibt die Symmetrie erhalten). Die Motive behalten ihre Lage in Bruchkoordinaten und ihre Form; in „Gitter und Basis“ folgt die Symmetrie aus Gitter und Basis zusammen.', ids: ['s-ba', 's-gamma', 's-metrik'] },
   { heading: '#ctl-entwurf > h2', intro: 'Muster entwerfen: Man wählt die Gruppe, setzt Motive und zeichnet Striche; jedes erscheint mit allen Operationen der Gruppe. Gruppe und Zelle bleiben fest, die App bestimmt die Symmetrie nicht. Bei der Wahl einer anderen Gruppe bleiben Motive und Striche; ihre Bilder entstehen unter der neuen Gruppe neu. Höchstens 48 Bilder: Jede Bahn zählt mit der Zähligkeit der allgemeinen Lage; Gruppen, mit denen es mehr würden, sind gesperrt.', ids: ['e-picker', 'e-elemente', 'e-ae', 'e-bindungen'] },
   { heading: '#ctl-gruppe > h2', intro: 'Nach der Wahl einer Gruppe erscheint links das Symmetriegerüst einer Elementarzelle, rechts ein Ausschnitt des Musters. Das Objekt lässt sich im Symmetriegerüst ziehen. Über dem Gerüst stehen die Erklärungen: „Schritt für Schritt“ wendet die Symmetrieoperationen einzeln auf das Objekt an, „Aufbau aus Erzeugenden“ zeigt, welche Elemente zwangsläufig aus wenigen Erzeugenden folgen; „Herkunft der Elemente“ zeigt zu einem Element, aus welchen Operationen es entsteht (mit dem Aufbau kombinierbar). Die Leiste unter dem Gerüst schaltet die Schritte durch.', ids: ['opt-elemente', 'opt-objekt', 'opt-ae', 'opt-zellen', 'seg-form', 'opt-orbit', 'erkl-schritt', 'erkl-aufbau', 'opt-herkunft', 'erkl-zurueck', 'erkl-vor', 'erkl-abspielen'] },
-  { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten. Über dem Symmetriegerüst: Einrasten (nahe einem Drehpunkt oder einer Spiegellinie springt das Objekt beim Ziehen auf das Element) und die Lupe zum genauen Setzen; sie ruht, solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist.', ids: ['obj-x', 'obj-y', 'obj-groesse', 'werkzeug-einrasten', 'werkzeug-lupe'] },
+  { heading: '#sec-objekt > summary', intro: 'Lage des Ausgangsobjekts in Bruchkoordinaten. Über dem Symmetriegerüst: Einrasten (nahe einem Drehpunkt oder einer Spiegellinie springt das Objekt beim Ziehen auf das Element) und Zoom zum genauen Setzen (Mausrad, zwei Finger, + und −); verschieben mit Leertaste + Ziehen, zwei Fingern oder den Pfeiltasten. Der Zoom ruht, solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist.', ids: ['obj-x', 'obj-y', 'obj-groesse', 'werkzeug-einrasten', 'zoom-a-ein', 'zoom-a-aus', 'zoom-a-passen'] },
   { heading: '#sec-gitter > summary', intro: 'Die Gitterparameter dürfen sich innerhalb des Kristallsystems frei ändern; die Symmetrie bleibt dabei erhalten. Was das System festlegt, ist gesperrt (quadratisch und hexagonal b = a, γ = 90° bzw. 120°; rechteckig γ = 90°). Bei besonderen Werten (z. B. b = a) kann die Metrik zufällig höher sein; die Gruppe bleibt die gewählte.', ids: ['lat-ba', 'lat-gamma'] },
-  { heading: '#sec-view > summary', intro: '„Asymmetrische Einheit füllen“ zeigt sie kräftig: Ihre Bilder füllen die Zelle ohne Lücken und Überlappungen, was in ihr gezeichnet ist, ergibt also das ganze Muster. In „Gitter und Basis“ ist es die asymmetrische Einheit der bestimmten, im Entwurf die der gewählten Gruppe.', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'opt-fuell', 'v-zoom'] },
+  { heading: '#sec-view > summary', intro: '„Asymmetrische Einheit füllen“ zeigt sie kräftig: Ihre Bilder füllen die Zelle ohne Lücken und Überlappungen, was in ihr gezeichnet ist, ergibt also das ganze Muster. In „Gitter und Basis“ ist es die asymmetrische Einheit der bestimmten, im Entwurf die der gewählten Gruppe.', ids: ['v-farben', 'v-muster-el', 'v-tapete', 'opt-fuell'] },
 ];
 
 /** Beschriftung in der ⓘ-Erklärung, wo der Text des Elements nicht passt. */
@@ -109,7 +113,6 @@ export const LABELS = {
   'motive-loeschen': 'Alle Motive löschen (Papierkorb mit Dreieck)',
   'striche-loeschen': 'Alle Striche löschen (Papierkorb mit Strich)',
   'werkzeug-einrasten': 'Einrasten (Magnet)',
-  'werkzeug-lupe': 'Lupe',
   's-farbe': 'Atomsorte',
   's-motiv': 'Motiv',
   'e-picker': 'Ebenengruppe',

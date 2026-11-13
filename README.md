@@ -28,14 +28,14 @@ Teil einer Familie von Lern-Apps mit gemeinsamer Grundlage: [crystallography-com
   - **Aufbau aus Erzeugenden:** Die Symmetrieelemente erscheinen Schritt für Schritt. Zuerst kommen die Erzeugenden nach ITA („Generators selected“), dann, was aus ihren Verknüpfungen mit den Gittertranslationen folgt. Neue Elemente sind hervorgehoben.
   - **„Herkunft der Elemente“** (Schalter im Kopf von Tafel A, mit dem Aufbau kombinierbar): Ein Element wählen zeigt, aus welchen zwei Operationen es folgt (*C* = *A* ∘ *B*). Das Fähnchen läuft die Schritte ab, die passende Regel wird genannt (z. B. „Spiegelung + Translation schräg zur Linie = Gleitspiegelung“), dazu die Herleitung aus den Erzeugenden. Ist das Element nur eine Gitterkopie eines anderen (z. B. die Drehpunkte an den Ecken der Zelle), zeigt die Erklärung stattdessen das Vorbild und die Verschiebung.
 
-- **Modus „Gitter und Basis“:** Eine Struktur aus Gitter (*b*/*a*, γ frei) und Basis aus Motiven mit eigener Symmetrie (Atom; ohne Eigensymmetrie Fähnchen, Blatt, Tropfen, Ranke; nur Drehsymmetrie Windräder 2, 3, 4, 6; mit Spiegelsymmetrie gleichschenkliges Dreieck m, Ziegel und längliche Insel 2mm, gleichseitiges Dreieck 3m, Quadrat 4mm, Sechseck 6mm), ausgewählt in Zeilen nach eigener Symmetrie, in vier Farben (Atomsorten). Motive lassen sich setzen, ziehen (mit Einrasten auf Zwölftel der Zelle), drehen, spiegeln (Fähnchen, Ornamente und Windräder), vergrössern und entfernen; „Rückgängig“ nimmt Änderungen an den Motiven zurück, „Alle Motive löschen“ leert die Basis. Werkzeuge und Handlungen stehen als Symbole über der Struktur, Einrasten und Lupe als Schalter daneben.
+- **Modus „Gitter und Basis“:** Eine Struktur aus Gitter (*b*/*a*, γ frei) und Basis aus Motiven mit eigener Symmetrie (Atom; ohne Eigensymmetrie Fähnchen, Blatt, Tropfen, Ranke; nur Drehsymmetrie Windräder 2, 3, 4, 6; mit Spiegelsymmetrie gleichschenkliges Dreieck m, Ziegel und längliche Insel 2mm, gleichseitiges Dreieck 3m, Quadrat 4mm, Sechseck 6mm), ausgewählt in Zeilen nach eigener Symmetrie, in vier Farben (Atomsorten). Motive lassen sich setzen, ziehen (mit Einrasten auf Zwölftel der Zelle), drehen, spiegeln (Fähnchen, Ornamente und Windräder), vergrössern und entfernen; „Rückgängig“ nimmt Änderungen an den Motiven zurück, „Alle Motive löschen“ leert die Basis. Werkzeuge und Handlungen stehen als Symbole über der Struktur, Einrasten und Zoom daneben.
   - **Symmetrie bestimmen:** Die App bestimmt die Ebenengruppe in der Standardaufstellung der ITA mit konventioneller Zelle (*a*′, *b*′) und Ursprung und zeigt darüber Symmetrieelemente und asymmetrische Einheit. Die Kenndaten nennen je Motiv Lage, Wyckoff-Lage und Lagesymmetrie und, nach einer Änderung, wie sich die Gruppe geändert hat. Ein Knopf öffnet die Gruppe im Modus „Ebenengruppen“.
   - **Vorgaben:** die fünf Bravais-Gitter; ein Dreiecksbeispiel in drei Stufen (pm → cm → p2mg); 2D-Materialien in Draufsicht (Graphen, h-BN, MoS₂ 1H, Kagome, Lieb-Gitter); die Archimedischen Parkettierungen 4.8.8, 3.4.6.4, 3.3.4.3.4 und 3.3.3.3.6 (chiral); Mauerwerk und Pflaster aus Ziegeln 2 : 1 (ohne Versatz, Läuferverband, um ein Drittel versetzt, Fischgrät- und Flechtverband); künstliches Spin-Eis (square, kagome, pinwheel). Bindungen zwischen nächsten Nachbarn wahlweise.
 
 - **Modus „Muster entwerfen“** (#136): Ein eigenes Muster in einer gegebenen Ebenengruppe gestalten. Die Gruppe wählt man (Knöpfe je Kristallsystem); Gruppe und Zelle bleiben fest, die App bestimmt die Symmetrie nicht. Motive wie in „Gitter und Basis“ (dieselbe Auswahl, Farben, Grösse, Drehen, Spiegeln, Einrasten auf Drehpunkte und Spiegellinien) erscheinen sofort mit allen Bildern der Gruppe; Ziehen, Drehen und Entfernen eines Bildes wirken auf das Motiv (den Vertreter seiner Bahn). Gleiche Bilder erscheinen einmal, verschiedene bleiben alle: Ein Motiv ohne die Lagesymmetrie ihrer Lage zeigt dort mehrere Bilder übereinander. Die Kenndaten stehen wie bei einer Atomliste: je Motiv Wyckoff-Lage, Lagesymmetrie, Zahl der Bilder (und der überlagerten). Das Gitter folgt dem Kristallsystem der Gruppe. Aus „Gitter und Basis“ führt „In „Muster entwerfen“ weiterbearbeiten“ mit der bestimmten Gruppe hinüber (nötigenfalls umgestellt auf konventionelle Zelle und Ursprung nach ITA). Höchstens 48 Motive, je Vertreter mit der Zähligkeit der allgemeinen Lage gezählt. **Zeichnen:** Mit dem Werkzeug „Zeichnen“ in Tafel A ziehen: Jeder Strich erscheint mit allen Operationen der Gruppe, in Tafel A und im Muster, in der Farbe der gewählten Atomsorte (Spiegelbilder in derselben). „Radieren“ entfernt überfahrene Stücke, am Original und an allen Kopien zugleich, ein Strich behält seine Farbe; „Rückgängig“ nimmt Striche, Radieren und Änderungen an den Motiven zurück, „Alle Striche löschen“ entfernt alle Striche, „Alle Motive löschen“ alle Motive. Striche und Motive lassen sich kombinieren; die Werkzeuge „Wählen und ziehen“, „Hinzufügen“, Zeichnen und Radieren schliessen sich aus. Die Striche bleiben im Browser gespeichert (auch beim Wechsel der Gruppe), stehen aber nicht in der Link-Adresse.
-- **Muster als Tapete:** Das Muster ohne Zelle und Elemente; Vergrösserung des Musters frei. Ornamente (Blatt, Tropfen, Ranke) gibt es als Motive in „Muster entwerfen“ und „Gitter und Basis“.
-- **„Darstellung“ in allen Modi:** nach Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete (in „Ebenengruppen“ einfarbig, in „Gitter und Basis“ in den Farben der Motive), die asymmetrische Einheit füllen (in „Gitter und Basis“ die der bestimmten Gruppe, ohne Motive nicht möglich) und die Vergrösserung des Musters.
-- **Lupe** (Schalter über dem Symmetriegerüst bzw. der Struktur, in allen Modi): doppelte Vergrösserung um das Objekt, in „Gitter und Basis“ um das gewählte Motiv, ohne Wahl um die Mitte der Zelle.
+- **Muster als Tapete:** Das Muster ohne Zelle und Elemente; Zoom frei. Ornamente (Blatt, Tropfen, Ranke) gibt es als Motive in „Muster entwerfen“ und „Gitter und Basis“.
+- **„Darstellung“ in allen Modi:** nach Blickrichtung färben, Symmetrieelemente im Muster, Muster als Tapete (in „Ebenengruppen“ einfarbig, in „Gitter und Basis“ in den Farben der Motive), die asymmetrische Einheit füllen (in „Gitter und Basis“ die der bestimmten Gruppe, ohne Motive nicht möglich).
+- **Zoom und Verschieben** (#162, in allen Modi): beide Tafeln mit Mausrad, zwei Fingern oder −, + und Einpassen im Kopf der Tafel (auf dem Telefon nur zwei Finger). Tafel A bis 8-fach, ohne eigene Mitte um das Objekt bzw. das gewählte Motiv; den Ausschnitt verschieben Leertaste + Ziehen, zwei Finger, Ziehen ins Leere mit „Wählen und ziehen“ und die Pfeiltasten (Tafel A mit dem Fokus). Während einer Erklärung ruht der Zoom von Tafel A.
 - **Kenndaten** mit Schoenflies-Symbol und Signatur nach Conway.
 - **Kopieren und Speichern** je Tafel: Bild in die Zwischenablage, als SVG oder PNG.
 - **Hilfen:** Erste Schritte je Modus beim ersten Aufruf, Experimente zum Vermuten und Ausprobieren, Tooltips und ⓘ-Erklärungen; „?“ führt zur [Hilfeseite](https://manganite.github.io/plane-groups/hilfe.html) mit den Erste Schritten als bebilderte Anleitungen und der Liste der Experimente.
@@ -101,8 +101,8 @@ Der Zustand steht lesbar in der Adresse, z. B. `#m=eg&g=p4gm&x=0.12&y=0.31`. Ges
 | `farb` | nach Blickrichtung färben (in allen Modi) | `0`, **`1`** |
 | `mel` | Symmetrieelemente im Muster (in allen Modi) | **`0`**, `1` |
 | `tap` | Muster als Tapete (ohne Zelle und Elemente; in „Ebenengruppen“ einfarbig; in allen Modi) | **`0`**, `1` |
-| `zoom` | Vergrösserung des Musters (in allen Modi) | 0.5–3, **1** |
-| `lupe` | Lupe: Symmetriegerüst bzw. Struktur um das Objekt vergrössert (in allen Modi) | **`0`**, `1` |
+| `zoomB` | Zoom des Musters (Tafel B, in allen Modi) | 0.5–3, **1** |
+| `zoomA` | Zoom des Symmetriegerüsts bzw. der Struktur (Tafel A, in allen Modi); die Mitte des Ausschnitts steht nur im Speicher | 1–8, **1** |
 | `schritt` | Schritt für Schritt | **`0`** (aus), Operation `1` … *N* der Liste, *N* + 1 Gittertranslationen |
 | `aufbau` | Aufbau aus Erzeugenden (nicht zusammen mit `schritt`; beide zusammen ergeben den Startwert) | **`0`** (aus), Schritt `1`, `2`, … |
 | `herkunft` | „Herkunft der Elemente“ | **`0`**, `1` |
@@ -122,7 +122,7 @@ Im Modus „Gitter und Basis“ (`m=struktur`):
 | `szelle` | konventionelle Zelle | `0`, **`1`** |
 | `sae` | asymmetrische Einheit | **`0`**, `1` |
 | `sbind` | Bindungen zwischen nächsten Nachbarn | `0`, **`1`** |
-| `farb`, `mel`, `tap`, `fuell`, `lupe`, `rast`, `zoom` | „Darstellung“ und Lupe: dieselben Schlüssel und Werte wie im Modus `eg` (oben); `fuell` füllt die asymmetrische Einheit der bestimmten Gruppe | wie oben |
+| `farb`, `mel`, `tap`, `fuell`, `rast`, `zoomA`, `zoomB` | „Darstellung“ und Zoom: dieselben Schlüssel und Werte wie im Modus `eg` (oben); `fuell` füllt die asymmetrische Einheit der bestimmten Gruppe | wie oben |
 
 Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere Entwurf in *p*4*mm*, ohne Umdeuten):
 
@@ -134,7 +134,7 @@ Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere
 | `el` | Symmetrieelemente | `0`, **`1`** |
 | `ae` | asymmetrische Einheit | **`0`**, `1` |
 | `bind` | Bindungen zwischen nächsten Nachbarn (Atome aller Bilder) | `0`, **`1`** |
-| `farb`, `mel`, `tap`, `fuell`, `lupe`, `rast`, `zoom` | „Darstellung“ und Lupe wie oben; `fuell` füllt die asymmetrische Einheit der gewählten Gruppe | wie oben |
+| `farb`, `mel`, `tap`, `fuell`, `rast`, `zoomA`, `zoomB` | „Darstellung“ und Zoom wie oben; `fuell` füllt die asymmetrische Einheit der gewählten Gruppe | wie oben |
 
 
 ## Konventionen
@@ -154,6 +154,7 @@ Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere
 |---|---|
 | `index.html`, `js/main.js` | Oberfläche und Steuerung der App: Zustand, Bedienelemente, Tafeln, Kenndaten |
 | `js/zustand.js` | Zustand und Link-Adresse (Schnittstelle, siehe oben) |
+| `js/zoom.js` | Zoom und Verschieben der Tafeln (Mausrad, zwei Finger, Knöpfe, Leertaste, Pfeiltasten) |
 | `js/ebenengruppen.js` | Die 17 Ebenengruppen nach ITA Part 6 (nur Angaben, die sich nicht berechnen lassen) |
 | `js/symmetrie.js` | Rechenkern: Operationen, Verknüpfung, Symmetrieelemente, Lagen |
 | `js/asymmetrie.js` | Asymmetrische Einheit aus den Bedingungen der ITA-Seite |

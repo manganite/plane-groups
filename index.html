@@ -105,6 +105,21 @@ body:not(.modus-struktur):not(.modus-entwurf) .nur-bau { display: none !importan
 body.modus-struktur #bild-a, body.modus-entwurf #bild-a { cursor: grab; touch-action: manipulation; }
 body.modus-struktur.hinzufuegen #bild-a, body.modus-entwurf.hinzufuegen #bild-a { cursor: copy; }
 body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { cursor: crosshair; touch-action: none; }
+/* Zoom der Tafeln (#162, zoom.js): −, Wert, +, Einpassen im Kopf; Verschieben mit Leertaste oder ins Leere */
+.zoomtools { align-items: center; gap: 2px; flex-wrap: nowrap; }
+.zoomwert { font: 0.72rem var(--font-mono); color: var(--muted); min-width: 3.4em; text-align: center; }
+#bild-a:focus-visible, #bild-b:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+#bild-b { touch-action: manipulation; }
+body.leertaste #bild-a { cursor: grab; }
+body.verschiebt #bild-a { cursor: grabbing; }
+/* wird der Kopf zu schmal (iPad, 1024 px), bricht der Zoom vor dem Export um, der Untertitel unter den Titel; der Wert
+   entfällt dort */
+.p-a .panel-head .zoomtools { order: 1; }
+.p-a .panel-head .leiste { order: 2; }
+.p-b .panel-head .t { margin-right: auto; flex: 1 1 80px; min-width: 0; }
+@media (max-width: 1100px) and (min-width: 720px) { .zoomwert { display: none; } }
+/* Telefon: Zoom mit zwei Fingern, die Knöpfe (für die Tastatur) entfallen wie der Export */
+@media (max-width: 719px) { .zoomtools { display: none; } }
 /* Erklärungen in Tafel A (#162, Leitfaden Abschn. 5.1): Auswahl im Kopf, Leiste zum Durchschalten unter der Zeichnung */
 .p-a .erklwahl { align-items: center; gap: 6px 10px; font-size: 0.8rem; }
 .erkl-titel { color: var(--muted); }
@@ -291,16 +306,12 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
     </div>
     <div class="card">
       <details class="sect" id="sec-view">
-        <summary>Darstellung<span class="sumhint">Farben, Muster, Füllen, Vergrösserung</span></summary>
+        <summary>Darstellung<span class="sumhint">Farben, Muster, Füllen</span></summary>
         <div class="stack">
           <label class="check"><input type="checkbox" id="v-farben">Nach Blickrichtung färben</label>
           <label class="check"><input type="checkbox" id="v-muster-el">Symmetrieelemente im Muster</label>
           <label class="check"><input type="checkbox" id="v-tapete">Muster als Tapete</label>
           <label class="check" id="row-fuell"><input type="checkbox" id="opt-fuell"><span>Asymmetrische Einheit füllen<span class="why"></span></span></label>
-          <div class="range">
-            <label for="v-zoom">Vergrösserung des Musters</label><output id="v-zoom-out"></output>
-            <input type="range" id="v-zoom" min="0.5" max="3" step="0.05">
-          </div>
         </div>
       </details>
     </div>
@@ -312,7 +323,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span><small id="sub-a"></small></span>
-        <div class="tools" role="group" aria-label="Schalter"><button type="button" class="sym" id="werkzeug-einrasten" aria-pressed="true" aria-label="Einrasten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button><button type="button" class="sym" id="werkzeug-lupe" aria-pressed="false" aria-label="Lupe"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></button></div>
+        <div class="tools" role="group" aria-label="Schalter"><button type="button" class="sym" id="werkzeug-einrasten" aria-pressed="true" aria-label="Einrasten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4v7a2 2 0 0 0 4 0V4h4v7a6 6 0 0 1-12 0z"/><path d="M6 8h4M14 8h4"/></svg></button></div><div class="tools zoomtools" role="group" aria-label="Zoom der Zeichnung"><button type="button" class="sym" id="zoom-a-aus" aria-label="Verkleinern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5"/></svg></button><output class="zoomwert" id="zoom-a-wert">100 %</output><button type="button" class="sym" id="zoom-a-ein" aria-label="Vergrössern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5M11 8.5v5"/></svg></button><button type="button" class="sym" id="zoom-a-passen" aria-label="Ganze Zeichnung zeigen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
         <div class="tools export"><button type="button" class="exportknopf" id="export-a">Export</button></div>
         <div class="leiste nur-eg erklwahl" role="group" aria-labelledby="erkl-titel">
           <span class="erkl-titel" id="erkl-titel">Erklärung</span>
@@ -324,7 +335,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
           <div class="tools" role="group" aria-label="Bearbeiten"><button type="button" class="sym" id="rueckgaengig" aria-label="Rückgängig"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button><button type="button" class="sym" id="s-entfernen" aria-label="Gewähltes Motiv entfernen"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2" stroke-dasharray="3 3"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button><button type="button" class="sym" id="motive-loeschen" aria-label="Alle Motive löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M12 11l-2.2 5h4.4z"/></svg></button><button type="button" class="sym nur-entwurf" id="striche-loeschen" aria-label="Alle Striche löschen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/><path d="M9.3 14c1-2 1.8 2 2.7 0s1.8-2 2.7 0"/></svg></button></div>
         </div>
       </div>
-      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" aria-label="Symmetriegerüst der Elementarzelle"></svg>
+      <svg class="bild" id="bild-a" viewBox="0 0 520 520" role="img" tabindex="0" aria-label="Symmetriegerüst der Elementarzelle; mit Zoom verschieben die Pfeiltasten den Ausschnitt, + und − zoomen"></svg>
       <div class="erklleiste nur-eg" id="erkl-leiste" hidden>
         <button type="button" id="erkl-zurueck" aria-label="Schritt zurück">◀</button>
         <span class="erkl-stand" id="erkl-stand" aria-live="polite"></span>
@@ -338,6 +349,7 @@ body.modus-entwurf.zeichnen #bild-a, body.modus-entwurf.radieren #bild-a { curso
       <div class="panel-head">
         <div class="figswitch" role="group" aria-label="Ansicht"><button type="button" data-fig="a" aria-pressed="true"><span class="nur-eg">Symmetriegerüst</span><span class="nur-struktur">Struktur</span><span class="nur-entwurf">Entwurf</span></button><button type="button" data-fig="b" aria-pressed="false">Muster</button></div>
         <span class="t">Muster<small>Ausschnitt</small></span>
+        <div class="tools zoomtools" role="group" aria-label="Zoom des Musters"><button type="button" class="sym" id="zoom-b-aus" aria-label="Verkleinern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5"/></svg></button><output class="zoomwert" id="zoom-b-wert">100 %</output><button type="button" class="sym" id="zoom-b-ein" aria-label="Vergrössern"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8.5 11h5M11 8.5v5"/></svg></button><button type="button" class="sym" id="zoom-b-passen" aria-label="Startgrösse"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
         <div class="tools export"><button type="button" class="exportknopf" id="export-b">Export</button></div>
       </div>
       <svg class="bild" id="bild-b" viewBox="0 0 520 520" role="img" aria-label="Muster der Ebenengruppe"></svg>

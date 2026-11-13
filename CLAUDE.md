@@ -96,9 +96,9 @@ für diese App gilt.
     der anderen Modi. Wahl beim Umsetzen: Startwert `farb=1` überall, Abbildungen in Skript und Quiz geben `farben: false`
     ausdrücklich an. Die Tapete zeigt weder Zelle noch Symmetrieelemente; die Bindungen folgen ihrem eigenen Schalter, weil sie
     zur Struktur gehören, nicht zur Darstellung. „Füllen“ in „Gitter und Basis“ füllt die asymmetrische Einheit der bestimmten
-    Gruppe; ohne Motive gibt es keine, der Schalter ist dann gesperrt (Leitfaden Abschn. 5.2). Die Lupe rechnet in allen Modi
-    gleich; Mitte ist das Objekt bzw. das gewählte Motiv, sonst die Mitte der Zelle, und beim Ziehen und Zeichnen bleibt der
-    Ausschnitt stehen, bis man loslässt.
+    Gruppe; ohne Motive gibt es keine, der Schalter ist dann gesperrt (Leitfaden Abschn. 5.2). Der Zoom von Tafel A
+    rechnet in allen Modi gleich (`zoomAusschnitt`); ohne verschobene Mitte ist sie das Objekt bzw. das gewählte Motiv, sonst
+    die Mitte der Zelle, und beim Ziehen und Zeichnen bleibt der Ausschnitt stehen, bis man loslässt.
   - Escher #86 und #37, Oberflächen #39, zweifarbige Muster #40.
 - **Motive** („Gitter und Basis“ und „Muster entwerfen“; Thomas, 6., 11. und 12.11.2026):
   - **Auswahl nach Eigensymmetrie** in vier Zeilen: Atom; ohne Eigensymmetrie; nur Drehsymmetrie; mit Spiegelsymmetrie
@@ -168,8 +168,8 @@ für diese App gilt.
     Lage als Tapete; Abb. 7.1a bleibt in „Ebenengruppen“.
 - **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1; Höhen
   der Seitenleiste vorher in der `CLAUDE.md` von common, nachher im Kommentar zu crystallography-common#130 und in PR #158):
-  - **Werkzeugleiste als Symbole** über Tafel A (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole), Einrasten und
-    Lupe als Schalter neben dem Titel, in allen Modi (Thomas). Mit Text passte die Leiste bei 530 px Tafelbreite nicht. Auf
+  - **Werkzeugleiste als Symbole** über Tafel A (Thomas: für die meisten Werkzeuge gibt es etablierte Symbole), Einrasten als
+    Schalter und der Zoom (seit #162) neben dem Titel, in allen Modi (Thomas). Mit Text passte die Leiste bei 530 px Tafelbreite nicht. Auf
     dem iPad quer (1024 px) bricht sie mit Touch-Zielen von 40 px in zwei Zeilen um (Review PR #158); eine Zeile ginge nur
     mit kleineren Zielen.
   - **Rückgängig** für Motive und Striche (Thomas), je Modus ein Verlauf, nur für die Sitzung; Gruppe, Gitter und Anzeigen
@@ -179,7 +179,7 @@ für diese App gilt.
     Einrasten auf 15° am Drehregler nur mit dem Zeiger, sonst kämen die Pfeiltasten (±1°) nicht vom Fleck (Leitfaden Abschn.
     5.4).
   - **Zwei Löschknöpfe** (Thomas): „Alle Motive löschen“ (beide Modi mit Basis) und „Alle Striche löschen“ (Entwurf).
-  - **Einrasten** ist ein Zustand für alle Modi (Wahl beim Umsetzen, wie die Lupe); in „Ebenengruppen“ ruht es ohne Objekt.
+  - **Einrasten** ist ein Zustand für alle Modi (Wahl beim Umsetzen, wie der Zoom); in „Ebenengruppen“ ruht es ohne Objekt.
   - **Hinweise in der Seitenleiste** nur zum Zustand, und unter gesperrten Elementen nur der Grund in einem Halbsatz
     (gesperrte Gruppen, Gitterregler: `GITTER_FEST` in `js/hilfetexte.js`, z. B. „γ im rechteckigen System festgelegt.“);
     Erklärungen im ⓘ, seit crystallography-common v0.20.0 auch mit der Maus (Thomas, 13.11.2026, #162; Leitfaden Abschn.
@@ -195,18 +195,18 @@ für diese App gilt.
   `K_MUSTER` 1,15, `K_SKIZZE` 1,25 (Kachel 1, sie füllt das Bild) in `js/quiz-bild.js`; Fähnchen nur im Muster (Tafel B) mit `K_MUSTER`,
   in Tafel A folgen sie dem Gitter (nächster Punkt).
 - **Grösse des Objekts im Gitter** (5.11.2026): Fähnchen und Komma sind wie eine Zeichnung und
-  die Motive der Basis im Gitter festgelegt (`objektMassstab` in `js/zeichnung.js`), in beiden Tafeln, in
-  der Lupe und bei 2 × 2 Zellen im selben Verhältnis zur Zelle. Grund: In Bildpunkten war das Objekt im
+  die Motive der Basis im Gitter festgelegt (`objektMassstab` in `js/zeichnung.js`), in beiden Tafeln, mit
+  Zoom und bei 2 × 2 Zellen im selben Verhältnis zur Zelle. Grund: In Bildpunkten war das Objekt im
   Muster 2- bis 3-mal so gross wie im Gerüst; ein Muster liess sich nicht gezielt aufbauen, besonders mit
   „Zeichnen“. Thomas wählte, dass das Muster bleibt (Skript-Abbildungen, Quizbilder, `og`); im Gerüst wird das
   Objekt grösser, der Rand wächst, bis ein Objekt mit dem Fuss auf dem Zellrand ganz sichtbar ist (gleich für
-  jede Lage, damit sich die Ansicht beim Ziehen nicht ändert). Die Lupe vergrössert das Objekt mit (Thomas).
+  jede Lage, damit sich die Ansicht beim Ziehen nicht ändert). Der Zoom vergrössert das Objekt mit (Thomas, damals für die Lupe).
   Ausnahme: Erklärungen im Symmetriegerüst (nächster Punkt).
 - **Erklärungen im Symmetriegerüst** (5.11.2026, Thomas): In „Schritt für Schritt“, „Aufbau aus Erzeugenden“
   und „Herkunft der Elemente“ zeigt das Gerüst das Objekt in fester Grösse (wie ihre Fähnchen; meist kleiner
-  als im Gitter), ohne gefüllte asymmetrische Einheit (im Muster bleibt sie); Füllen und Lupe ruhen (`erklaerend` in
-  `js/zeichnung.js`). Die Schalter „Füllen“ und Lupe bleiben gewählt (Leitfaden Abschn. 5.2) und wirken beim
-  Verlassen wieder. Grund: Mit grossem Objekt, Füllung oder Lupe erkennt man die Elemente und Wege nicht
+  als im Gitter), ohne gefüllte asymmetrische Einheit (im Muster bleibt sie); Füllen und Zoom ruhen (`erklaerend` in
+  `js/zeichnung.js`). „Füllen“ bleibt gewählt und der Zoom eingestellt (Leitfaden Abschn. 5.2); beide wirken beim
+  Verlassen wieder. Grund: Mit grossem Objekt, Füllung oder Vergrösserung erkennt man die Elemente und Wege nicht
   mehr. Der Zustand gilt sofort beim Einschalten,
   damit das Objekt nicht erst beim Wählen eines Elements kleiner wird. „Herkunft der Elemente“ überdeckt
   „Schritt für Schritt“, schon beim Einschalten, nicht erst mit gezeigtem Element (die Erklärung zeigt statt
@@ -225,8 +225,22 @@ für diese App gilt.
   oder Speicher mit beiden ergibt für beide den Startwert. Der ausführliche Text eines Schritts steht weiter in den
   Kenndaten (Wahl Thomas), ohne eigene Knöpfe; der Aufbau hat dort jetzt auch einen Kasten. Eine gewählte Erklärung, die
   ruht, bleibt gewählt; den Grund nennt die Leiste, bei nicht gewählten, gesperrten die Legende (Leitfaden Abschn. 5.2).
+- **Zoom und Verschieben der Tafeln** (Thomas, 13.11.2026, #162, Leitfaden Abschn. 5.1): Die Lupe hatte einen festen
+  Ausschnitt; beim Zeichnen in „Muster entwerfen“ kam man nicht an andere Stellen. Jetzt beide Tafeln mit Mausrad, zwei
+  Fingern und −, +, Einpassen im Kopf (`js/zoom.js`); der Regler „Vergrösserung des Musters“ entfiel (ein Weg). Tafel A
+  verschieben: Ziehen ins Leere mit „Wählen und ziehen“, zwei Finger, Leertaste + Ziehen (auch beim Zeichnen), Pfeiltasten
+  (Tafel A hat dafür den Fokus, `tabindex`). Tafel B zoomt um die Mitte der Zelle und lässt sich nicht verschieben (nicht
+  beauftragt). Wahlen (Thomas nach Skizzen): Wert in % zwischen − und +, dazu Einpassen; Zoom in Link und Speicher, die
+  Mitte des Ausschnitts nur im Speicher. Beim Umsetzen: Schlüssel `zoomA`, `zoomB` (vorher `zoom` für Tafel B; neuer Name,
+  weil es jetzt zwei gibt), `lupe` entfiel, `SPEICHER_VERSION` 4. Ein Link lässt die gespeicherte Mitte stehen, weil die
+  App einen Link nicht vom Neuladen unterscheiden kann und der Ausschnitt beim Neuladen bleiben soll; `zoomAusschnitt`
+  hält sie in der ganzen Ansicht. Bereich Tafel A 1–8 (kleiner als die ganze Ansicht hilft nicht), Tafel B wie der Regler
+  0,5–3; Schritt 1,25. Der Wert entfällt zwischen 720 und 1100 px, damit der Kopf nicht weiter umbricht; auf dem Telefon
+  entfallen die Knöpfe (zwei Finger; wie der Export). Zwei Finger: Die Touch-Ereignisse gehen an das Element unter dem
+  Finger, das die Tafel beim Neuzeichnen entfernt; die Geste hört deshalb an diesem Element (Befund der Prüfung im
+  Browser, `tools/entwurf-pruefen.mjs`).
 - **Zahlen aus Link und Speicher** (6.11.2026, #98, Leitfaden Abschn. 5.2, Entscheidung Thomas): Regler-Werte
-  (Gitter, „Gitter und Basis“, Vergrösserung, Objekt- und Motivgrösse) werden ausserhalb ihres Bereichs
+  (Gitter, „Gitter und Basis“, Zoom, Objekt- und Motivgrösse) werden ausserhalb ihres Bereichs
   auf den nächsten gültigen Wert gesetzt, Drehwinkel der Motive in 0° bis unter 360° umgerechnet. `schritt` und
   `aufbau` gelten als ganzzahlige Auswahl und erhalten ausserhalb 0 … 25 bzw. 0 … 20 den Startwert: Ihr Regler
   hängt von der Gruppe ab, die Grenzen im Link sind feste Schutzgrenzen. Ebenso Koordinaten jenseits ±10⁶
@@ -281,7 +295,7 @@ für diese App gilt.
 - **Link-Adressen** sind Schnittstelle (Leitfaden Abschn. 8), aber noch nicht stabil: Die App ist in Entwicklung, ein
   Bruch von Link oder Speicher ist erlaubt (MINOR, im CHANGELOG unter „Geändert“ mit Hinweis), alter Code zum Umrechnen
   entfällt; stabil werden sie mit der endgültigen Form der App (Entscheidung Thomas, noch offen). Die Werte stehen in `js/zustand.js`
-  (`SCHALTER`, `FORMEN`, `ZOOM_BEREICH`, `OBJ_BEREICH`). Zur Stereo-App verlinkt die App mit deren
+  (`SCHALTER`, `FORMEN`, `ZOOM_BEREICH`, `ZOOM_A_BEREICH`, `OBJ_BEREICH`). Zur Stereo-App verlinkt die App mit deren
   Parameter `blick=1–3` die 10 polaren Punktgruppen.
 
 ## Fallstricke

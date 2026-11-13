@@ -1,6 +1,7 @@
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
 import { initHelp } from '../lib/common/js/help.js';
+import { zoomEinrichten } from './zoom.js';
 import { ablaufKarte } from '../lib/common/js/ablauf.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik, exportMenue, herunterladen, inZwischenablage } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE, GITTER_FEST } from './hilfetexte.js';
@@ -162,7 +163,7 @@ function auswahlAbgleichen() {
 const systemJetzt = () => ebenengruppe(z.gruppe).system;
 /** „Herkunft der Elemente“ wirkt: gewählt und mit Symmetrieelementen (ohne diese ruht es, bleibt aber gewählt). */
 const herkunftAktiv = () => z.herkunft && z.elemente;
-/** Grund, wenn Füllen und Lupe ruhen (erklaerend in zeichnung.js). */
+/** Grund, wenn Füllen und Zoom ruhen (erklaerend in zeichnung.js). */
 const SOLANGE_ERKLAERT = 'solange „Schritt für Schritt“, der Aufbau oder „Herkunft der Elemente“ aktiv ist';
 /**
  * Erklärungen in Tafel A (#162, Leitfaden Abschn. 5.1): Auswahl „Schritt für Schritt“ oder „Aufbau aus Erzeugenden“ und
@@ -226,11 +227,10 @@ function bedienungAbgleichen() {
   eingabe('v-farben').checked = z.farben;
   erklaerungAbgleichen();
   document.body.classList.toggle('herkunft', herkunftAktiv());
-  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): die Lupe ruht (bleibt gewählt) und kommt
-  // beim Verlassen zurück
-  const ruhig = z.modus === 'eg' && erklaerend(z);
-  knopf('werkzeug-lupe').disabled = ruhig;
-  $('werkzeug-lupe').setAttribute('aria-pressed', String(z.lupe));
+  // Erklärungen (Schritt für Schritt, Aufbau, Herkunft der Elemente): der Zoom von Tafel A ruht und kommt beim
+  // Verlassen zurück
+  const ruhig = zoomRuht();
+  zoom?.abgleichen();
   // Füllen: wirkt, wo es eine Gruppe gibt; in „Gitter und Basis“ die bestimmte, ohne Basis also keine, im Entwurf die gewählte
   const bestimmt = z.modus !== 'eg' ? sUI.bestimmt() : null;
   const fuellGrund = z.modus !== 'eg' ? (bestimmt ? '' : 'nur mit bestimmter Ebenengruppe (die Basis ist leer)') : ruhig ? `ruht, ${SOLANGE_ERKLAERT}` : '';
@@ -250,8 +250,6 @@ function bedienungAbgleichen() {
   eingabe('obj-groesse').value = String(z.objGroesse);
   eingabe('obj-groesse').disabled = !z.objekt;
   $('obj-groesse-out').textContent = `${dezimal(z.objGroesse, 2)} ×`;
-  eingabe('v-zoom').value = String(z.zoomB);
-  $('v-zoom-out').textContent = `${dezimal(z.zoomB, 2)} ×`;
   $('obj-why').textContent = z.objekt ? '' : 'Nur mit „Objekt in allgemeiner Lage“.';
   knopf('reset-objekt').disabled = !z.objekt;
   // Gitter: die freien Parameter des Systems, im Bereich GITTER_BEREICH
@@ -274,23 +272,18 @@ function bedienungAbgleichen() {
 let ansichtA = null;
 /** Massstab des Objekts in Tafel A (tafelA, objektMassstab), für den Treffer beim Ziehen. */
 let massObjektA = 1;
-/**
- * Ausschnitt der Lupe: folgt dem Objekt, bleibt aber ganz stehen (Mitte und Grösse), solange
- * gezogen wird, damit der Zeiger und das Bild zusammenpassen.
- */
-/** @type {Box | null} */
-let lupeBox = null;
-/** @returns {{ lupeBox?: Box, lupeMitte?: Vec2 }} */
-function lupeOptionen() {
-  if (!z.lupe || erklaerend(z)) { lupeBox = null; return {}; }
-  return lupeBox && ziehen ? { lupeBox } : { lupeMitte: ausgangsstelle(z.punkt, z.zellen) };
-}
-/** Tafel A der Gruppe mit Lupe; merkt sich den Ausschnitt für die nächste Geste. @param {Farben} f */
+/** Zoom von Tafel A ruht: in „Ebenengruppen“ während einer Erklärung (erklaerend in zeichnung.js). */
+const zoomRuht = () => z.modus === 'eg' && erklaerend(z);
+/** Ansicht von Tafel A, die beim Ziehen des Objekts stehen bleibt, bis man loslässt. @type {Ansicht | null} */
+let festA = null;
+/** Tafel A der Gruppe; Mitte des Ausschnitts aus z.ausschnitt, sonst das Objekt. @param {Farben} f */
 function tafelAJetzt(f) {
-  const a = tafelA(z.gruppe, z, f, { phase, ...lupeOptionen() });
-  lupeBox = a.lupeBox; massObjektA = a.massObjekt;
+  const a = tafelA(z.gruppe, z, f, { phase, mitte: z.ausschnitt.eg, fest: ziehen ? festA : null });
+  massObjektA = a.massObjekt;
   return a;
 }
+/** Zoom und Verschieben der Tafeln (zoom.js), eingerichtet in init(). @type {ReturnType<typeof zoomEinrichten> | null} */
+let zoom = null;
 const sUI = strukturUI({ z, farben, aktualisieren: () => aktualisieren(), svgPunkt: (e) => svgPunkt(e), coarse });
 /** @type {Erklaerung | null} */
 let erklaerung = null;
@@ -302,7 +295,7 @@ function zeichnen() {
   ansichtA = a.ansicht;
   erklaerung = a.erklaerung;
   // unbekanntes Element (z. B. aus einem alten Link): verwerfen und die Bedienung neu abgleichen, die es
-  // sonst noch als laufende Erklärung zählt (Sperren von Füllen und Lupe)
+  // sonst noch als laufende Erklärung zählt (Füllen und Zoom ruhen)
   if (z.erkl && !erklaerung) { z.erkl = null; aktualisieren(); }
   grafik('bild-a').innerHTML = a.svg;
   grafik('bild-b').innerHTML = tafelB(z.gruppe, z, f).svg;
@@ -353,7 +346,7 @@ function legende(f) {
     items.push(`<span class="lg"><i class="sw" style="background:${f.fc4}"></i>${erklaerung.erzeugende ? 'C' : 'A, dann'}</span>`);
     items.push(`<span class="lg"><i class="sw" style="background:${f.accent}"></i>Element von C</span>`);
   }
-  if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Lupe ruhen, ${SOLANGE_ERKLAERT}</span>`);
+  if (erklaerend(z)) items.push(`<span class="lg hint">Füllen und Zoom ruhen, ${SOLANGE_ERKLAERT}</span>`);
   if (!z.objekt) items.push(`<span class="lg hint">Einrasten${z.schritt > 0 ? '' : ' und „Schritt für Schritt“'} nur mit „Objekt in allgemeiner Lage“</span>`);
   // Grund gesperrter Erklärungen, die nicht gewählt sind (gewählte nennen ihn in der Leiste; Leitfaden Abschn. 5.2)
   if (!z.elemente) items.push(`<span class="lg hint">${z.aufbau > 0 ? '' : '„Aufbau aus Erzeugenden“ und '}„Herkunft der Elemente“ nur mit „Symmetrieelemente“</span>`);
@@ -485,9 +478,11 @@ function setzePunkt(p, { rasten = z.einrasten && z.objekt, toleranzPx = coarse.m
   aktualisieren();
 }
 
-/** Bildpunkt (viewBox von Tafel A) unter dem Zeiger. @param {{ clientX: number, clientY: number }} e @returns {Vec2} */
-function svgPunkt(e) {
-  const svg = grafik('bild-a');
+/**
+ * Bildpunkt (viewBox einer Tafel, ohne Angabe Tafel A) unter dem Zeiger.
+ * @param {{ clientX: number, clientY: number }} e @param {SVGSVGElement} [svg] @returns {Vec2}
+ */
+function svgPunkt(e, svg = grafik('bild-a')) {
   const pt = svg.createSVGPoint();
   pt.x = e.clientX; pt.y = e.clientY;
   const q = pt.matrixTransform(/** @type {DOMMatrix} */ (svg.getScreenCTM()).inverse());
@@ -604,12 +599,15 @@ function zeigerEinrichten() {
   }, { passive: false });
   svg.addEventListener('pointerdown', (e) => {
     bewegt = false;
-    if (z.modus !== 'eg') { sUI.down(e); return; }
+    // zweiter Finger: Zoom (zoom.js); Leertaste + Ziehen: verschieben
+    if (!e.isPrimary || zoom?.geste()) return;
+    if (zoom?.leertaste() && zoom.zugBeginnen(e)) return;
+    if (z.modus !== 'eg') { if (sUI.down(e) === 'leer') zoom?.zugBeginnen(e); return; }
     if (herkunftAktiv()) { elementWaehlen(e); return; }
     if (!z.objekt) return;
     start = [e.clientX, e.clientY];
     if (e.pointerType === 'mouse' || naheObjekt(e)) {
-      ziehen = true;
+      ziehen = true; festA = ansichtA;
       svg.setPointerCapture(e.pointerId);
       const sp = svgPunkt(e); const fuss = /** @type {Ansicht} */ (ansichtA).zuBild(ausgangsstelle(z.punkt, z.zellen));
       const nahe = naheObjekt(e);
@@ -618,6 +616,8 @@ function zeigerEinrichten() {
     }
   });
   svg.addEventListener('pointermove', (e) => {
+    if (zoom?.zugBewegen(e)) return;
+    if (zoom?.geste()) return;
     if (sUI.move(e)) return;
     if (!ziehen) return;
     const s0 = /** @type {Vec2} */ (start); // beim Ziehen gesetzt
@@ -626,8 +626,13 @@ function zeigerEinrichten() {
     const sp = svgPunkt(e);
     setzePunkt(/** @type {Ansicht} */ (ansichtA).vonBild([sp[0] + versatz[0], sp[1] + versatz[1]]));
   });
-  // nach dem Ziehen neu zeichnen, damit die Lupe dem losgelassenen Objekt folgt
-  const loslassen = () => { const war = ziehen; ziehen = false; sUI.up(); if (war && z.lupe) aktualisieren(); };
+  // nach dem Ziehen neu zeichnen: Mit Zoom folgt der Ausschnitt dem losgelassenen Objekt (ohne eigene Mitte)
+  /** @param {PointerEvent} e */
+  const loslassen = (e) => {
+    if (zoom?.zugEnde(e)) return;
+    const war = ziehen; ziehen = false; festA = null; sUI.up();
+    if (war && z.zoomA > 1) aktualisieren();
+  };
   svg.addEventListener('pointerup', loslassen);
   svg.addEventListener('pointercancel', loslassen);
   // Touch: Antippen setzt das Objekt an die Stelle
@@ -700,7 +705,6 @@ function init() {
   }
   $('reset-objekt').addEventListener('click', () => { z.punkt = startzustand().punkt; z.objGroesse = 1; aktualisieren(); });
   $('obj-groesse').addEventListener('input', () => { z.objGroesse = Number(eingabe('obj-groesse').value); aktualisieren(); });
-  $('v-zoom').addEventListener('input', () => { z.zoomB = Number(eingabe('v-zoom').value); aktualisieren(); });
   for (const k of /** @type {('ba' | 'gamma')[]} */ (['ba', 'gamma'])) {
     $(`lat-${k}`).addEventListener('input', () => {
       const v = Number(eingabe(`lat-${k}`).value);
@@ -739,7 +743,6 @@ function init() {
     const wahl = naechstes('[data-erkl]');
     if (wahl) { z.erkl = /** @type {string} */ (wahl.dataset.erkl); stoppeSchritte(); abspielen(); }
   });
-  $('werkzeug-lupe').addEventListener('click', () => { z.lupe = !z.lupe; lupeBox = null; aktualisieren(); });
   $('opt-fuell').addEventListener('change', () => { z.aeFuell = eingabe('opt-fuell').checked; aktualisieren(); });
   $('opt-herkunft').addEventListener('change', () => {
     z.herkunft = eingabe('opt-herkunft').checked;
@@ -766,6 +769,7 @@ function init() {
     stoppeSchritte(); z.schritt = 0; z.aufbau = 0; aktualisieren(); knopf(war).focus();
   });
   zeigerEinrichten();
+  zoom = zoomEinrichten({ z, ansichtA: () => (z.modus === 'eg' ? ansichtA : sUI.ansichtA()), ruht: zoomRuht, aktualisieren, svgPunkt });
   // Telefon: eine Tafel oben, Umschalter
   /** @param {string} fig */
   const tafelZeigen = (fig) => {
