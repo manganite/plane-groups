@@ -8,7 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
-- **Gemeinsame Grundlage** auf crystallography-common v0.23.0: Abschnittsnummern im Skript in Überschriften, Inhaltsverzeichnis und PDF, Verweise wie „Abschnitt 4.5“ als Links (ein einzelner mit Titel, in Listen der Titel als Tooltip), geprüft in `tests/skript.test.mjs`; Touch-Ziele und Trefferkreise auf der Zeichnung nach dem zuletzt benutzten Gerät, auch auf Laptops mit Touchscreen; breiter Einzug der Experimente nur bei zweistelligen Nummern; Tooltips aller sichtbaren Bedienelemente je Modus im Browserlauf (`tools/entwurf-pruefen.mjs`); Bilder der Hilfeseite mit Nummern links neben den Bausteinen; im README der Ablauf, wenn der Deploy beim Laden des Artefakts scheitert.
+- **Gemeinsame Grundlage** auf crystallography-common v0.23.0: Abschnittsnummern im Skript in Überschriften, Inhaltsverzeichnis und PDF, Verweise wie „Abschnitt 4.5“ als Links (ein einzelner mit Titel, in Listen der Titel als Tooltip), geprüft in `tests/skript.test.mjs`; Verweise wie „nächster Abschnitt“ nennen jetzt die Nummer (1.3, 1.5, 2.3, 2.4, 4.2); Touch-Ziele und Trefferkreise auf der Zeichnung nach dem zuletzt benutzten Gerät, auch auf Laptops mit Touchscreen; breiter Einzug der Experimente nur bei zweistelligen Nummern; Tooltips aller sichtbaren Bedienelemente je Modus im Browserlauf (`tools/entwurf-pruefen.mjs`); Bilder der Hilfeseite mit Nummern links neben den Bausteinen; im README der Ablauf, wenn der Deploy beim Laden des Artefakts scheitert.
 
 ## [1.7.0] - 2026-11-15
 
