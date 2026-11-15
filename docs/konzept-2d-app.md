@@ -4,15 +4,15 @@
 > - Abschn. 10: Das erste Release enthielt bereits Quiz-Stufe 3 (100 Fragen, 11 Generatoren), das Skript-PDF und den Moodle-Export; „Danach: Quiz Stufe 3, PDF, Moodle-Export“ ist damit erledigt.
 > - Entscheidung 20 nennt 20 Vorgaben; heute sind es 25 (`js/vorgaben.js`).
 > - Grundlage „Leitfaden (claude/leitfaden-familie.md)“: heute `LEITFADEN.md` in crystallography-common.
-> - „Warum ist das da?“ heisst seit #72 „Herkunft der Elemente“ und ist ein Schalter im Abschnitt „Aufbau aus Erzeugenden“, nicht mehr ein Knopf über dem Symmetriegerüst.
+> - „Warum ist das da?“ heisst seit #72 „Herkunft der Elemente“; seit dem 13.11.2026 ist es eine der drei Erklärungen im Kopf von Tafel A (`CLAUDE.md`, „Erklärungen in Tafel A“).
 > - Die Statusabsätze am Ende sind ein Verlauf bis 3.11.2026; Fortschritt steht künftig in Issues und PRs, nicht hier.
-> - Offene Punkte als Issues: geführte Bestimmung #38 (Teil App), Escher-artige Vorgaben #86, Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Hilfeseite #56 (ersetzt das Tutorial).
+> - Offene Punkte als Issues: geführte Bestimmung #38 (Teil App), Escher-artige Vorgaben #86, Escher-Kacheln #37, Oberflächen #39, zweifarbige Muster #40, Hilfeseite crystallography-common#114 (ersetzt das Tutorial; #56 ist darin aufgegangen).
 > - **Überholt am 5.11.2026** (Thomas; Entscheidungen mit Grund in `CLAUDE.md`, „Modi und Umfang“, Planung in den Issues):
 >   - **Beugung** kommt in eine eigene App (crystallography-common#73). Überholt sind damit hier alle Stellen zur Beugung: Abschn. 3.2 (Tafel B), 3.3, 5 (`beugung=1`), 6 (Kap. 9), 7 (Generator Beugungsbild), 8 (Tests), 10 (zweites Release), 12 (Entscheidungen 6, 12, 13, 16) und 13 (offene Frage 1, Formelsatz). Abschn. 3.3 bleibt nur Quelle; Entwurfsentscheidungen zur Beugung kommen in das Konzept der neuen App bzw. vorerst nach common#73.
 >   - **Bestimmen:** kein eigener Modus (Abschn. 3.4, 10, Entscheidung 8), sondern #38. Die Signatur nach Conway bestimmen nur im Skript: Abschn. 3.6 Punkt 4 und Entscheidung 24 dazu entfallen. Abschn. 6 (Kapitel) ist überholt: Kap. 8 „Ebenengruppen bestimmen“ (Flussdiagramm nach Sanderson) und Kap. 9 „Die Signatur nach Conway“ (Vertiefungskapitel) sind umgesetzt, die Vertiefung zu Conway in Kap. 7 ist darin aufgegangen.
 >   - Abschn. 3.6 Punkte 3 und 5 und Abschn. 3.7: siehe #86, #37, #40, #39.
 > 
-> Dieses Konzept wird für die noch offenen Teile („Bestimmen“, Erweiterungen) weiter genutzt: Neue Entwurfsentscheidungen kommen hier hinzu, der Fortschritt nicht.
+> Dieses Konzept wird nicht mehr nachgeführt (Thomas, 15.11.2026, #132). Neue Entwurfsentscheidungen, auch zu den offenen Teilen („Bestimmen“, Erweiterungen), stehen in `CLAUDE.md`, offene Punkte in den Issues (z. B. #38).
 >
 > Bei Widerspruch gelten `CLAUDE.md` und der `LEITFADEN.md` von crystallography-common; offene Punkte stehen in den GitHub Issues.
 
