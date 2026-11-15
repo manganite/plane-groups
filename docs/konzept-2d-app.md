@@ -23,7 +23,7 @@ Grundlage:
 - Hoffmann, *Faszination Kristalle und Symmetrie* (2016), Kap. 4, mit Abschn. 1.9, 2.3, 2.7 und 6.1: Didaktik und Anregungen
 - Borchardt-Ott & Sowa (2018), Abschn. 7.1–7.2, 10.1–10.2: Begriffe
 - ITA Vol. A (2006), Abschn. 2.2.6.1 und Part 6 (die 17 Ebenengruppen, S. 92–109): Konventionen und Daten
-- Python-App `oxrd.py` aus dem Beugungsexperiment der Vorlesung (Tzschaschel, Lehmann, 2018): Punktmuster für die Laserbeugung, nur als Anregung für Abschnitt 3.3
+- Python-App `oxrd.py` aus dem Beugungsexperiment der Vorlesung (Artikel: Lehmann u. a. 2019, Angabe in `CLAUDE.md`, „Literatur“): Punktmuster für die Laserbeugung, nur als Anregung für Abschnitt 3.3
 - Leitfaden der App-Familie (claude/leitfaden-familie.md)
 - Conway, Burgiel, Goodman-Strauss, *The Symmetries of Things* (A K Peters/CRC Press 2016, E-Book der Ausgabe von 2008; in Zotero), Kap. 1–3, 5 und 11: visueller Zugang über Ornamente, Orbifold-Signatur (Abschnitt 1c)
 
