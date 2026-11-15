@@ -6,6 +6,7 @@ import { ablaufKarte } from '../lib/common/js/ablauf.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik, exportMenue, herunterladen, inZwischenablage } from '../lib/common/js/seite.js';
 import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE, GITTER_FEST } from './hilfetexte.js';
 import { EXPERIMENTE } from './hilfe-daten.js';
+import { KAPITEL } from './quiz-kapitel.js';
 import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
 import { VERSION } from './version.js';
 import { EBENENGRUPPEN, ebenengruppe, SYSTEME, BRAVAIS, URSPRUNG } from './ebenengruppen.js';
@@ -819,8 +820,8 @@ function init() {
     experimente: () => { const d = abschnitt('sec-experimente'); d.open = true; d.scrollIntoView({ block: 'nearest' }); },
   };
   const einstieg = ablaufKarte($('ablauf'), ERSTE_SCHRITTE, { anwenden, adresse, aktionen, skriptUrl, liste: false, beiAbschluss: () => introZu() });
-  // Reihenfolge nach den Kapiteln des Skripts (EXPERIMENTE in js/hilfe-daten.js, gleich auf der Hilfeseite)
-  const experimente = ablaufKarte($('experimente'), EXPERIMENTE, { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente' });
+  // Reihenfolge nach den Kapiteln des Skripts (EXPERIMENTE in js/hilfe-daten.js, gleich auf der Hilfeseite), gegliedert nach KAPITEL
+  const experimente = ablaufKarte($('experimente'), EXPERIMENTE, { anwenden, adresse, aktionen, skriptUrl, speicher: 'ebenen-experimente', kapitel: KAPITEL });
   einstieg.modus(z.modus); experimente.modus(z.modus);
   introAbgleichen = () => {
     if (z.modus === introModus) return;

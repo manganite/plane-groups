@@ -186,7 +186,7 @@ const an = (x) => (x === 1 ? 'an einer' : `an ${x}`);
 
 /** @type {Erzeugt} */
 export const ZAEHLIGKEIT = {
-  id: 'zaehligkeit', modus: 'eg', titel: 'An wie vielen Stellen?',
+  id: 'zaehligkeit', modus: 'eg', kapitel: 6, titel: 'An wie vielen Stellen?',
   params: ZAEHLIGKEIT_PARAMS,
   make(param) {
     const d = zaehligkeitDaten(param);
