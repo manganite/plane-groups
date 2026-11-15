@@ -1,10 +1,10 @@
 // Steuerung der App: Zustand, Bedienelemente, Zeichnen der Tafeln, Kenndaten.
 
-import { initHelp } from '../lib/common/js/help.js';
+import { initHelp, setTip } from '../lib/common/js/help.js';
 import { zoomEinrichten } from './zoom.js';
 import { ablaufKarte } from '../lib/common/js/ablauf.js';
 import { offline, alleEinstellungenZuruecksetzen, $, eingabe, knopf, abschnitt, element, elemente, grafik, exportMenue, herunterladen, inZwischenablage } from '../lib/common/js/seite.js';
-import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE, GITTER_FEST } from './hilfetexte.js';
+import { TIPS, SECTIONS, LABELS, ERSTE_SCHRITTE, GITTER_FEST, FIG_TIPPS } from './hilfetexte.js';
 import { EXPERIMENTE } from './hilfe-daten.js';
 import { KAPITEL } from './quiz-kapitel.js';
 import { experimentAusAdresse } from '../lib/common/js/hilfe-seite.js';
@@ -153,7 +153,7 @@ function exportKnoepfe() {
 function baueAuswahl() {
   const systeme = [...new Set(EBENENGRUPPEN.map((g) => g.system))];
   $('picker').innerHTML = systeme.map((sys) => `<div class="sysrow"><span class="sys">${SYSTEME[sys].name}</span><div class="btns">${
-    EBENENGRUPPEN.filter((g) => g.system === sys).map((g) => `<button class="pgb" type="button" data-g="${g.symbol}" aria-pressed="false" title="Nr. ${g.nr}, Punktgruppe ${g.punktgruppe}">${symbolHTML(g.symbol)}</button>`).join('')
+    EBENENGRUPPEN.filter((g) => g.system === sys).map((g) => `<button class="pgb" type="button" data-g="${g.symbol}" aria-pressed="false" data-tip="Nr. ${g.nr}, Punktgruppe ${g.punktgruppe}">${symbolHTML(g.symbol)}</button>`).join('')
   }</div></div>`).join('');
 }
 function auswahlAbgleichen() {
@@ -379,13 +379,13 @@ const ursprungHTML = (u) => (URSPRUNG[u] ? URSPRUNG[u].replace(/ ([mg])\b/g, ' <
 function aeBedingungen(d) {
   const teile = d.ae.text.split(';').map((t) => t.trim());
   const wahl = z.aeTeile ?? [];
-  const knoepfe = teile.map((t, i) => `<button type="button" class="aeteil" data-aeteil="${i}" aria-pressed="${wahl.includes(i)}" title="Zeigen, wo diese Bedingung erfüllt ist">${aeHTML(t)}</button>`).join('<span class="sep">;</span> ');
+  const knoepfe = teile.map((t, i) => `<button type="button" class="aeteil" data-aeteil="${i}" aria-pressed="${wahl.includes(i)}" data-tip="Zeigen, wo diese Bedingung erfüllt ist.">${aeHTML(t)}</button>`).join('<span class="sep">;</span> ');
   const hinweis = !wahl.length
     ? 'Bedingung antippen: Das Symmetriegerüst zeigt, wo sie erfüllt ist.'
     : wahl.length === teile.length
       ? 'Alle Bedingungen zusammen: Das ist die asymmetrische Einheit.'
       : `Schattiert: wo ${wahl.length === 1 ? 'diese Bedingung' : 'diese Bedingungen zusammen'} erfüllt ${wahl.length === 1 ? 'ist' : 'sind'}. Weitere antippen, bis alle gewählt sind.`;
-  return `<span class="aeteile">${knoepfe}</span><span class="note aehinweis">${hinweis}${wahl.length ? ' <button type="button" class="linkbtn" data-aeteil-aus>keine</button>' : ''}</span>`;
+  return `<span class="aeteile">${knoepfe}</span><span class="note aehinweis">${hinweis}${wahl.length ? ' <button type="button" class="linkbtn" data-aeteil-aus data-tip="Auswahl der Bedingungen aufheben.">keine</button>' : ''}</span>`;
 }
 /** @param {string} t */
 const aeHTML = (t) => t.replace(/([xy])/g, '<i>$1</i>').replace(/(\d+)\/(\d+)/g, (m) => /** @type {Record<string, string>} */ ({ '1/2': '½', '1/4': '¼', '1/3': '⅓', '2/3': '⅔' })[m] ?? m);
@@ -441,10 +441,10 @@ function kenndaten() {
   const wyZeilen = d.wyckoff.map((w) => {
     return `<tr${w.b === l.buchstabe && z.objekt ? ' class="aktiv"' : ''}><td class="num">${w.n} <span class="wy">${w.b}</span></td><td>${lageHTML(w.sym)}</td>
       <td><div class="koords">${w.koord.map(koordHTML).join('')}</div></td>
-      <td><button class="setzen" type="button" data-wy="${w.b}" ${z.objekt ? '' : 'disabled'} title="Objekt auf diese Lage setzen">setzen</button></td></tr>`;
+      <td><button class="setzen" type="button" data-wy="${w.b}" ${z.objekt ? '' : 'disabled'} data-tip="Objekt auf diese Lage setzen.">setzen</button></td></tr>`;
   }).join('');
   const wyTab = `<div class="tabwrap"><table class="itatab"><thead><tr><th>Zähligkeit, Wyckoff-Buchstabe</th><th>Lagesymmetrie</th><th>Koordinaten${zentriert ? ' (0, 0)+ (½, ½)+' : ''}</th><th></th></tr></thead><tbody>${wyZeilen}</tbody></table></div>`;
-  const pgLink = `<a href="${stereoLink(d).replace(/&/g, '&amp;')}" target="_blank" rel="noopener" title="${stereoHinweis(d)}">${symbolHTML(d.punktgruppe)}</a>`;
+  const pgLink = `<a href="${stereoLink(d).replace(/&/g, '&amp;')}" target="_blank" rel="noopener" data-tip="${stereoHinweis(d)}">${symbolHTML(d.punktgruppe)}</a>`;
   const fokus = fokusMerken();
   $('info').innerHTML = `
     <div class="info-head">
@@ -831,12 +831,18 @@ function init() {
   };
   $('intro-close').addEventListener('click', introZu);
   // Von der Hilfeseite: „In der App ausprobieren“ startet ein Experiment (index.html?experiment=<id>#…)
-  experimentAusAdresse(experimente, EXPERIMENTE.map((x) => x.id), aktionen.experimente);
+  // (in den Modus des Experiments wechseln und die Erste Schritte schliessen, die ohne Hash sonst zugleich erschienen)
+  experimentAusAdresse(experimente, EXPERIMENTE, {
+    modusWaehlen: (m) => { if (m === 'eg' || m === 'struktur' || m === 'entwurf') { z.modus = m; aktualisieren(); } },
+    einstiegSchliessen: () => intro(false),
+    oeffnen: aktionen.experimente,
+  });
   $('copy-link').addEventListener('click', () => {
     const url = location.origin + location.pathname + location.search + hashVon(z);
     navigator.clipboard?.writeText(url);
   });
-  initHelp({ tips: TIPS, sections: SECTIONS, labels: LABELS });
+  initHelp({ tips: TIPS, sections: SECTIONS, labels: LABELS, hilfeModus: () => z.modus });
+  for (const b of elemente('.figswitch button')) { const t = FIG_TIPPS[/** @type {'a' | 'b'} */ (b.dataset.fig)]; if (t) setTip(b, t); }
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', aktualisieren);
   $('app-version').innerHTML = `<a href="${REPO}">Version ${VERSION}</a>`;
   aktualisieren();

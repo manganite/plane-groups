@@ -457,7 +457,7 @@ export function entwurfHTML(en, farben, umstellung = null) {
   const teile = [`
     <div class="info-head">
       <div class="hm-big">${symbolHTML(en.gruppe)}</div>
-      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>gewählt, nicht bestimmt · <button class="linkbtn" type="button" data-zu-eg="${en.gruppe}">im Modus „Ebenengruppen“ ansehen</button></span></div>
+      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>gewählt, nicht bestimmt · <button class="linkbtn" type="button" data-zu-eg="${en.gruppe}" data-tip="Die Gruppe mit Symmetriegerüst, Lagen und Operationen ansehen.">im Modus „Ebenengruppen“ ansehen</button></span></div>
     </div>`];
   if (umstellung && (umstellung.zelle || umstellung.ursprung)) {
     const zelle = umstellung.zelle ? zellText(umstellung.zelle) : null;
@@ -519,7 +519,7 @@ export function strukturHTML(st, r, vorher, farben, weiter = { knopf: '', hinwei
   return `
     <div class="info-head">
       <div class="hm-big">${symbolHTML(r.symbol)}</div>
-      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}">im Modus „Ebenengruppen“ ansehen</button>${weiter.knopf ? ` · ${weiter.knopf}` : ''}</span></div>
+      <div class="hm-meta"><span>Ebenengruppe Nr. ${d.nr} · ${SYSTEME[d.system].name}</span><span>bestimmt aus Gitter und Basis · <button class="linkbtn" type="button" data-zu-eg="${r.symbol}" data-tip="Die Gruppe mit Symmetriegerüst, Lagen und Operationen ansehen.">im Modus „Ebenengruppen“ ansehen</button>${weiter.knopf ? ` · ${weiter.knopf}` : ''}</span></div>
     </div>
     ${weiter.hinweis}
     ${aenderung}

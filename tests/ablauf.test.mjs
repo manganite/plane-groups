@@ -7,6 +7,7 @@ import { pruefeAblaeufe } from '../lib/common/js/ablauf.js';
 import { ABLAEUFE, ERSTE_SCHRITTE } from '../js/hilfetexte.js';
 import { KAPITEL } from '../js/quiz-kapitel.js';
 import { EXPERIMENTE } from '../js/hilfe-daten.js';
+import { ANLEITUNGEN, BEREICHE, FRAGEN, ZWECK, KONZEPTE, ERGAENZUNGEN } from '../js/hilfe-anleitung.js';
 import { startzustand, hashAnwenden, hashVon } from '../js/zustand.js';
 import { ERZEUGTE, ZAEHLIGKEIT, ZAEHLIGKEIT_PARAMS, zaehligkeitDaten, lageteile, ortText, punktImInnern, imInnernMoeglich, KNAPP } from '../js/experimente.js';
 import { variante } from '../lib/common/js/ablauf.js';
@@ -40,6 +41,20 @@ test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker beka
   for (const [m, min] of /** @type {[string, number][]} */ ([['eg', 8], ['struktur', 8], ['entwurf', 5]])) {
     const n = ABLAEUFE.filter((a) => a.modus === m).length;
     assert.ok(n >= min && n <= 12, `${m}: ${n} Experimente`);
+  }
+});
+
+test('Hilfeseite (js/hilfe-anleitung.js): Adressen der Anleitungen, Bilder und Fragen gültig, Skript-Anker vorhanden', () => {
+  // Schritte ohne Handlung sind auf der Hilfeseite Text, nicht Teil einer Karte; pruefeAblaeufe gilt deshalb nicht
+  for (const a of ANLEITUNGEN) {
+    assert.ok(['eg', 'struktur', 'entwurf'].includes(a.modus ?? ''), a.id);
+    for (const s of a.schritte) if (s.handlung?.hash) assert.ok(gueltig(s.handlung.hash), `${a.id}: ${s.handlung.hash}`);
+  }
+  for (const b of BEREICHE) if (b.adresse) assert.ok(gueltig(b.adresse), `${b.modus}-${b.id}: ${b.adresse}`);
+  for (const f of FRAGEN) if (f.app) assert.ok(gueltig(f.app), `${f.id}: ${f.app}`);
+  const texte = JSON.stringify([BEREICHE, FRAGEN, ANLEITUNGEN, ZWECK, KONZEPTE, ERGAENZUNGEN]);
+  for (const a of [...FRAGEN.flatMap((f) => (f.skript ? [f.skript] : [])), ...[...texte.matchAll(/skript\.html#([\w-]+)/g)].map((m) => m[1])]) {
+    assert.ok(ANKER.includes(a), `Skript-Anker ${a}`);
   }
 });
 
