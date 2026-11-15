@@ -81,7 +81,7 @@
 .itatab .setzen:hover { border-color: var(--muted); }
 .itatab tr.aktiv .setzen { border-color: var(--accent); color: var(--accent); }
 .itatab .zent td { color: var(--muted); font-size: 0.82rem; padding-top: 8px; }
-@media (pointer: coarse) { .itatab .setzen { min-height: 40px; } }
+.itatab .setzen { min-height: var(--ziel); }
 .tabwrap { overflow-x: auto; }
 body.herkunft #bild-a { cursor: pointer; }
 /* „Herkunft der Elemente“ in den Kenndaten */
@@ -108,7 +108,7 @@ body.herkunft #bild-a { cursor: pointer; }
 .phasen button:hover { border-color: var(--muted); }
 .phasen button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
 .phasen .linkbtn { margin-left: auto; }
-@media (pointer: coarse) { .phasen button { min-height: 40px; } }
+.phasen button { min-height: var(--ziel); }
 .lagebox { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; font-size: 0.92rem; }
 .lagebox strong { color: var(--accent); }
 .lagebox p { margin: 6px 0 0; }
@@ -145,14 +145,13 @@ body.verschiebt #bild-a { cursor: grabbing; }
 .erklwahl .check { min-height: 0; font-size: 0.85rem; }
 .erklleiste { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--line); background: var(--surface); font-size: 0.85rem; }
 .erklleiste[hidden] { display: none; }
-.erklleiste button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; min-width: 36px; }
+.erklleiste button { border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 4px 10px; font: inherit; cursor: pointer; }
 .erklleiste button:disabled { opacity: 0.45; cursor: not-allowed; }
 .erklleiste .erkl-x { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; padding: 2px 6px; }
 .erkl-stand { flex: 1; min-width: 0; text-align: center; }
 /* schmale Tafeln (iPad): nur „Schritt n von N“, der Rest steht in den Kenndaten */
 @media (max-width: 1100px) and (min-width: 720px) { .erkl-was { display: none; } }
-@media (pointer: coarse) { .erklleiste button { min-height: 40px; min-width: 40px; } }
-:root[data-zeiger="touch"] .erklleiste button { min-height: 40px; min-width: 40px; }
+.erklleiste button { min-height: var(--ziel); min-width: var(--ziel, 36px); }
 /* Hinweise zum Zustand nur, wenn es einen gibt; Eigenschaften, die das Motiv nicht hat, fehlen (#130) */
 .hintline:empty { display: none; }
 /* Übergang in „Muster entwerfen“ in den Kenndaten, bei der bestimmten Gruppe (#162) */

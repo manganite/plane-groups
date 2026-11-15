@@ -5,7 +5,7 @@
 // „gitter“, „zellen“, „koord“). Inhaltsverzeichnis, App-Links und Querstriche kommen aus
 // lib/common/js/skript-kern.js.
 
-import { appLink, inhaltsverzeichnis, querstriche } from '../lib/common/js/skript-kern.js';
+import { appLink, inhaltsverzeichnis, querstriche, abschnitte } from '../lib/common/js/skript-kern.js';
 import { versionEintragen, offline, elemente } from '../lib/common/js/seite.js';
 import { VERSION } from './version.js';
 import { startzustand, hashAnwenden } from './zustand.js';
@@ -390,6 +390,7 @@ function zuschneiden(svg) {
 
 versionEintragen(VERSION);
 abbildungen();
+abschnitte();
 inhaltsverzeichnis();
 document.fonts.ready.then(querstriche);
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { abbildungen(); querstriche(); });

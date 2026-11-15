@@ -11,6 +11,7 @@ import { createRequire } from 'node:module';
 import { vorgabe } from '../js/vorgaben.js';
 import { fileURLToPath } from 'node:url';
 import { server } from './common/server.mjs';
+import { fehlendeTooltips } from './common/tooltips-pruefen.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const require = createRequire(import.meta.url);
@@ -339,6 +340,13 @@ try {
   pruefe(await page.locator('#erkl-leiste').isHidden() && await page.evaluate(() => document.activeElement?.id) === 'erkl-schritt', '×: Leiste weg, Fokus auf der eben geschlossenen Erklärung');
   await page.locator('#erkl-herkunft').click(); await page.locator('#erkl-herkunft').click(); await page.waitForTimeout(250);
   pruefe(!(await adresse()).includes('herkunft=') && await page.locator('#erkl-leiste').isHidden(), 'Zweiter Klick auf „Herkunft“ wählt ab');
+
+  // Tooltips aller sichtbaren Bedienelemente je Modus, auch ohne id (Leitfaden 5.3, fehlendeTooltips)
+  for (const m of ['eg', 'struktur', 'entwurf']) {
+    await oeffnen(`#m=${m}`);
+    const fehlend = await fehlendeTooltips(page);
+    pruefe(fehlend.length === 0, `${m}: jedes Bedienelement hat einen Tooltip${fehlend.length ? ` (fehlt: ${fehlend.join(', ')})` : ''}`);
+  }
 
   pruefe(konsole.length === 0, `keine Fehler in der Konsole${konsole.length ? `: ${konsole.join(' | ')}` : ''}`);
 } finally {

@@ -31,7 +31,9 @@ import { schoenfliesHTML, CONWAY, CONWAY_HINWEIS } from './symbole.js';
 // Elemente der Seite (index.html) über die geprüften Helfer aus lib/common/js/seite.js
 // ($, eingabe, knopf, element, elemente, grafik)
 const REPO = 'https://github.com/manganite/plane-groups';
-const coarse = window.matchMedia('(pointer: coarse)');
+// Touch nach dem zuletzt benutzten Gerät (`data-zeiger` aus help.js, Leitfaden 5.2), vor der ersten Eingabe nach der Media Query
+const coarseMq = window.matchMedia('(pointer: coarse)');
+const coarse = { get matches() { const g = document.documentElement.dataset.zeiger; return g ? g === 'touch' : coarseMq.matches; } };
 
 // ------------------------------------------------------------------ Zustand
 const SPEICHER = 'ebenen-zustand';
