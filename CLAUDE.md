@@ -289,7 +289,8 @@ für diese App gilt.
   (`og=0.5`). Durch die Regel entfallen u. a. alle 6-zähligen Punkte und die Spiegellinien der c-Gruppen; die Liste
   steht in #108 als Grundstock für das anteilige Zählen.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
-  `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `vorgaben.js`. Je Fall entschieden:
+  `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
+  crystallography-common#114), `vorgaben.js`. Je Fall entschieden:
   - `vorgaben.js` ist eine Ausnahme (Entscheidung Thomas): Die Einträge entstehen mit Bauhelfern (`atom()`,
     `ziegel()`, Winkel aus Gittervektoren) und Ausdrücken wie 1/(1+√3); als reine Literale wären sie kaum
     lesbar. Abgesichert, weil `tests/struktur.test.mjs` jede Vorgabe gegen die erwartete Gruppe prüft.

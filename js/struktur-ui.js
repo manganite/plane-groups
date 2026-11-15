@@ -133,13 +133,13 @@ export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
     // je Motiv ein Knopf mit kleinem Bild; Name und Symmetrie im Tooltip und im Namen für Hilfstechnik
     // ein Raster je Zeile, der Name der Zeile als kleine Überschrift darüber (#130)
     $('s-motiv').innerHTML = MOTIVZEILEN.map((zeile, i) => `<p class="motivzeile" id="s-motiv-z${i}">${zeile.name}</p><div class="btns" role="group" aria-labelledby="s-motiv-z${i}">${
-      zeile.motive.map((k) => `<button class="pgb motivb" type="button" data-motiv="${k}" aria-pressed="false" aria-label="${MOTIVE[k].name}, Eigensymmetrie ${MOTIVE[k].symmetrie}" title="${MOTIVE[k].name} (${MOTIVE[k].symmetrie})">${motivSymbol(k, 'var(--mf)', 'var(--paper)')}</button>`).join('')
+      zeile.motive.map((k) => `<button class="pgb motivb" type="button" data-motiv="${k}" aria-pressed="false" aria-label="${MOTIVE[k].name}, Eigensymmetrie ${MOTIVE[k].symmetrie}" data-tip="${MOTIVE[k].name} (${MOTIVE[k].symmetrie})">${motivSymbol(k, 'var(--mf)', 'var(--paper)')}</button>`).join('')
     }</div>`).join('');
     // Gruppenwahl im Entwurf: Knöpfe je Kristallsystem wie in „Ebenengruppen“
     $('e-picker').innerHTML = [...new Set(EBENENGRUPPEN.map((d) => d.system))].map((sys) => `<div class="sysrow"><span class="sys">${SYSTEME[sys].name}</span><div class="btns">${
-      EBENENGRUPPEN.filter((d) => d.system === sys).map((d) => `<button class="pgb" type="button" data-g="${d.symbol}" aria-pressed="false" title="Nr. ${d.nr}, Punktgruppe ${d.punktgruppe}">${symbolHTML(d.symbol)}</button>`).join('')
+      EBENENGRUPPEN.filter((d) => d.system === sys).map((d) => `<button class="pgb" type="button" data-g="${d.symbol}" aria-pressed="false" data-tip="Nr. ${d.nr}, Punktgruppe ${d.punktgruppe}. Passt das Gitter nicht zum Kristallsystem, gilt dessen Startgitter.">${symbolHTML(d.symbol)}</button>`).join('')
     }</div></div>`).join('');
-    $('s-farbe').innerHTML = FARBNAMEN.map((n, i) => `<button type="button" data-farbe="${i}" aria-pressed="false" aria-label="${n}" title="${n}"><i class="sw"></i></button>`).join('');
+    $('s-farbe').innerHTML = FARBNAMEN.map((n, i) => `<button type="button" data-farbe="${i}" aria-pressed="false" aria-label="${n}" data-tip="${n}"><i class="sw"></i></button>`).join('');
   }
 
   /** Das gewählte Bild (mit festgehaltener Gruppe) bzw. Motiv, sonst null. @returns {Basiseintrag | null} */

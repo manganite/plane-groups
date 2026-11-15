@@ -6,6 +6,14 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Hilfeseite als Anleitung** (crystallography-common#114, Entscheidungen Thomas 15.11.2026): Überblick (Zweck, Teile, Modi, Aufbau der App), Bedienkonzepte, je Modus Seitenleiste, Tafeln und Kenndaten zum Nachschlagen mit nummerierten Bildern, die Erste Schritte und vier weitere Anleitungen (eine Gruppe Schritt für Schritt erklären lassen, asymmetrische Einheit über ihre Bedingungen, Struktur aufbauen und Gruppe bestimmen, Muster zeichnen), die Experimente, sieben typische Fragen und zuletzt Link, Speicher, offline, Export, Geräte und Tastatur. Texte in `js/hilfe-anleitung.js`.
+- **Verweis aus dem ⓘ:** Jede ⓘ-Erklärung endet mit „Mehr in der Hilfe“ an der passenden Stelle des Modus.
+- **Experiment von der Hilfeseite:** startet im richtigen Modus und ohne die Karte „Erste Schritte“ daneben.
+- **Tooltips statt `title`** (Lücken der Regel, Leitfaden 5.3): Gruppenwahl in „Ebenengruppen“ und „Muster entwerfen“, Motive und Atomsorten, „setzen“, Bedingungen der asymmetrischen Einheit, Link zur Punktgruppe, „im Modus „Ebenengruppen“ ansehen“; neu die Umschalter Zelle / Muster auf dem Telefon. Der native `title` erschien auf dem iPad nicht und bei Motiven neben dem Tooltip der Zeile.
+- **Gemeinsame Grundlage** auf crystallography-common vX.Y.Z: Hilfeseite als Anleitung, gemeinsame Texte, Verweise aus dem ⓘ.
+
 ## [1.6.0] - 2026-11-15
 
 Experimente ausgebaut: „Anteilig zählen“ in „Ebenengruppen“, vier neue in „Muster entwerfen“; Experimente nach Kapiteln gegliedert, wo im Schnitt mindestens 2 auf ein Kapitel kommen („Gitter und Basis“ bleibt flach); gemeinsame Grundlage v0.21.0. Link-Adressen und Speicher bleiben gültig.
