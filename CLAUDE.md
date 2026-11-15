@@ -373,7 +373,6 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
 ## Konzept
 
 `docs/konzept-2d-app.md` (Abschnitte, Entscheidungen 1–34) und `docs/konzept-muster-entwerfen.md` (dritter Modus) haben
-einen Statuskopf und werden nicht mehr nachgeführt, wie es die `CLAUDE.md` von common für umgesetzte Konzepte vorsieht.
-Neue Entwurfsentscheidungen, auch zu den offenen Teilen („Bestimmen“, Erweiterungen), stehen hier unter „Entscheidungen“,
-offene Punkte in den Issues (z. B. #38). Vorher sollten Entscheidungen zu den offenen Teilen ins Konzept; gelebt wurde
-seit dem 5.11.2026 schon diese Regel (Thomas, 15.11.2026, #132).
+einen Statuskopf und werden nicht mehr nachgeführt. Neue Entwurfsentscheidungen, auch zu den noch offenen Teilen
+(„Bestimmen“, Erweiterungen), stehen hier unter „Entscheidungen“, offene Punkte in den Issues (z. B. #38), nach der Regel
+von common „ein Ort je Art von Information“ (Thomas, 15.11.2026, #132; so schon seit dem 5.11.2026 gehandhabt).
