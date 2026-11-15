@@ -14,8 +14,9 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **README:** neues Bildschirmfoto, die Funktionen nach Modi gegliedert, je mit drei Bildern aus der App, dazu Skript, Quiz und Hilfeseite im Bild. Die Bilder erzeugt `tools/readme-bilder.mjs` aus Ansichten der App (neu).
 - **Tooltips statt `title`** (Lücken der Regel, Leitfaden 5.3): Gruppenwahl in „Ebenengruppen“ und „Muster entwerfen“, Motive und Atomsorten, „setzen“, Bedingungen der asymmetrischen Einheit, Link zur Punktgruppe, „im Modus „Ebenengruppen“ ansehen“; neu die Umschalter Zelle / Muster auf dem Telefon. Der native `title` erschien auf dem iPad nicht und bei Motiven neben dem Tooltip der Zeile.
-- **Gemeinsame Grundlage** auf crystallography-common vX.Y.Z: Hilfeseite als Anleitung, gemeinsame Texte, Verweise aus dem ⓘ.
+- **Gemeinsame Grundlage** auf crystallography-common v0.22.0: Hilfeseite als Anleitung, gemeinsame Texte, Verweise aus dem ⓘ.
 
 ## [1.6.0] - 2026-11-15
 
