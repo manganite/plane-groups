@@ -31,6 +31,11 @@ test('Lernexperimente: Daten vollständig, Adressen gültig, Modi und Anker beka
     const nr = EXPERIMENTE.filter((a) => a.modus === m).map((a) => KAPITEL.findIndex((k) => k.nr === a.kapitel));
     assert.ok(nr.every((x, i) => x >= 0 && (i === 0 || x >= nr[i - 1])), `${m}: Kapitel ${nr}`);
   }
+  // jede Handlung bleibt im Modus des Experiments: ein Wechsel des Modus beendet das laufende Experiment (ablaufKarte)
+  for (const a of ABLAEUFE) for (const sch of a.schritte) {
+    const h = sch.handlung?.hash;
+    if (h) assert.equal(new URLSearchParams(h.slice(1)).get('m') ?? 'eg', a.modus, `${a.id}: ${h}`);
+  }
   // Ziel (Thomas, 7.11.2026, #109): 8 bis 12 feste Experimente je Modus; in „Muster entwerfen“ etwa 6 (Thomas, 13.11.2026)
   for (const [m, min] of /** @type {[string, number][]} */ ([['eg', 8], ['struktur', 8], ['entwurf', 5]])) {
     const n = ABLAEUFE.filter((a) => a.modus === m).length;
@@ -258,14 +263,18 @@ test('Lernexperiment „anteilig“: Bilder auf dem Rand, Anteile ergeben die Z�
   // Kante in p4mm: 8 Stellen, alle auf dem Rand, je ½
   assert.deepEqual(zaehlen(0), [8, 4, 4]);
   assert.equal(lage(gruppe('p4mm'), z(0).punkt).buchstabe, 'd');
-  assert.deepEqual(zaehlen(2), [4, 1, 1]);
+  assert.deepEqual(zaehlen(1), [4, 1, 1]);
   // p6mm: Raute mit 120° bei (0, 0) und (1, 1), 60° an den anderen Ecken
-  assert.equal(Number(z(3).gitter.hexagonal.gamma), 120);
-  assert.deepEqual(zaehlen(3), [4, 1, 1]);
-  // die Vermutungen: 8 sichtbar, 4 gehören dazu
+  assert.equal(Number(z(2).gitter.hexagonal.gamma), 120);
+  assert.deepEqual(zaehlen(2), [4, 1, 1]);
+  // die Vermutungen: richtig ist die Summe der Anteile, nicht die Zahl der Stellen im Bild
   const s = /** @type {import('../lib/common/js/ablauf.js').Ablauf} */ (ABLAEUFE.find((a) => a.id === 'anteilig')).schritte;
-  assert.equal(s[1].vermutung?.[/** @type {number} */ (s[1].richtig)], '4');
-  assert.equal(s[2].vermutung?.[/** @type {number} */ (s[2].richtig)], '1');
+  for (const i of [0, 1]) {
+    const [stellen, anteil] = zaehlen(i);
+    assert.equal(Number(s[i].vermutung?.[/** @type {number} */ (s[i].richtig)]), anteil, `Schritt ${i + 1}`);
+    assert.ok(s[i].vermutung?.includes(String(stellen)), `Schritt ${i + 1}: Zahl im Bild als Ablenker`);
+  }
+  assert.equal(s[2].vermutung, undefined, 'p6mm ohne Vermutung: die Summe ist immer 1');
 });
 
 // Muster entwerfen: Bilder je Zelle (bahnen.js), Lagen und die in „Gitter und Basis“ bestimmte Gruppe
@@ -284,14 +293,18 @@ test('Lernexperimente in „Muster entwerfen“: Bilder, Lagen und Gruppe wie di
     const l = lage(g, e.p, 1e-4);
     return { gruppe: en.gruppe, bilder: b.length, stellen: new Set(b.map((x) => x.p.map((v) => v.toFixed(6)).join())).size, lage: `${l.zaehligkeit}${l.buchstabe}`, symbol: l.symbol, punkte: b.map((x) => x.p) };
   };
-  // ein Atom in p1, in „Gitter und Basis“ bestimmt: p2 (gleiches Gitter wie das Startgitter von p1 im Entwurf)
-  const p1 = entwurf('entwurf-gitter', 0);
-  assert.deepEqual([p1.gruppe, p1.bilder], ['p1', 1]);
-  const st = z('entwurf-gitter', 1).struktur;
-  const en = z('entwurf-gitter', 0).entwurf;
-  assert.deepEqual([st.ba, Number(st.gamma)], [en.ba, Number(en.gamma)]);
-  assert.deepEqual(st.basis.map((e) => e.p), en.basis.map((e) => e.p));
+  // ein Atom in p1 und dasselbe Muster in p2 (gleiches Gitter, ein Bild, Lage 1d); die Symmetrie des Musters,
+  // unabhängig vom Entwurf in „Gitter und Basis“ bestimmt, ist p2
+  const [p1, p2] = [0, 1].map((i) => entwurf('entwurf-gitter', i));
+  assert.deepEqual([p1.gruppe, p1.bilder, p2.gruppe, p2.bilder, p2.lage], ['p1', 1, 'p2', 1, '1d']);
+  assert.deepEqual(p1.punkte, p2.punkte);
+  const [e1, e2] = [0, 1].map((i) => z('entwurf-gitter', i).entwurf);
+  assert.deepEqual([e1.ba, Number(e1.gamma)], [e2.ba, Number(e2.gamma)]);
+  const st = startzustand().struktur;
+  Object.assign(st, { ba: e1.ba, gamma: e1.gamma, basis: e1.basis });
   assert.equal(strukturSymmetrie(st)?.symbol, 'p2');
+  const sg = /** @type {import('../lib/common/js/ablauf.js').Ablauf} */ (ABLAEUFE.find((a) => a.id === 'entwurf-gitter')).schritte[1];
+  assert.match(String(sg.vermutung?.[/** @type {number} */ (sg.richtig)]), /2-zählige Drehpunkte/);
   // pm: Atom auf der Spiegellinie einmal (1b); pg: auf der Gleitspiegellinie zweimal (2a, Lagesymmetrie 1), beide auf x = ½
   assert.deepEqual([entwurf('entwurf-gleitlinie', 0).bilder, entwurf('entwurf-gleitlinie', 0).lage], [1, '1b']);
   const pg = entwurf('entwurf-gleitlinie', 1);
@@ -307,4 +320,12 @@ test('Lernexperimente in „Muster entwerfen“: Bilder, Lagen und Gruppe wie di
   assert.deepEqual([entwurf('entwurf-ausrichtung', 0).bilder, entwurf('entwurf-ausrichtung', 0).stellen], [2, 1]);
   assert.deepEqual([entwurf('entwurf-ausrichtung', 1).bilder, entwurf('entwurf-ausrichtung', 1).stellen], [1, 1]);
   assert.equal(entwurf('entwurf-ausrichtung', 0).symbol, '.m.');
+  // die als richtig markierten Vermutungen nennen diese Zahlen
+  /** @param {string} id @param {number} i */
+  const richtig = (id, i) => { const sch = /** @type {import('../lib/common/js/ablauf.js').Ablauf} */ (ABLAEUFE.find((a) => a.id === id)).schritte[i]; return String(sch.vermutung?.[/** @type {number} */ (sch.richtig)]); };
+  assert.equal(Number(richtig('entwurf-gleitlinie', 0)), entwurf('entwurf-gleitlinie', 0).bilder);
+  assert.equal(Number(richtig('entwurf-gleitlinie', 1)), pg.bilder);
+  assert.equal(Number(richtig('entwurf-zentriert', 0)), cm.bilder);
+  assert.equal(richtig('entwurf-ausrichtung', 0), 'zwei übereinander');
+  assert.equal(richtig('entwurf-ausrichtung', 1), 'eines');
 });

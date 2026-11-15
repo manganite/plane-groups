@@ -8,11 +8,12 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Hinzugefügt
 
-- **Experimente ausgebaut** (#109, #108, Thomas, 13. und 15.11.2026): „Anteilig zählen“ in „Ebenengruppen“ (Fähnchen auf Kante und Ecke einer quadratischen Zelle, Ecke der hexagonalen Zelle mit ⅙ und ⅓). In „Muster entwerfen“ vier neue, zusammen sechs: „Ein Atom in *p*1“ (jedes Gitter hat 2-zählige Drehpunkte; bestimmt in „Gitter und Basis“), „Atom auf der Gleitspiegellinie“ (keine spezielle Lage), „Zentrierte Zelle, mehr Bilder“ (*cm*: vier Fähnchen je Zelle) und „Spiegelsymmetrisch, aber quer“ (Ausrichtung eines Motivs auf einer Spiegellinie). Texte als Entwurf zur Freigabe.
+- **Experimente ausgebaut** (#109, #108, Thomas, 13. und 15.11.2026): „Anteilig zählen“ in „Ebenengruppen“ (Fähnchen auf Kante und Ecke einer quadratischen Zelle, Ecke der hexagonalen Zelle mit ⅙ und ⅓). In „Muster entwerfen“ vier neue, zusammen sechs: „Ein Atom in *p*1“ (jedes Gitter hat 2-zählige Drehpunkte; dasselbe Muster in *p*2), „Atom auf der Gleitspiegellinie“ (keine spezielle Lage), „Zentrierte Zelle, mehr Bilder“ (*cm*: vier Fähnchen je Zelle) und „Spiegelsymmetrisch, aber quer“ (Ausrichtung eines Motivs auf einer Spiegellinie).
 
 ### Geändert
 
-- **Experimente nach Kapiteln** (crystallography-common#107): Jedes Experiment nennt sein Kapitel; die Liste gliedert danach, sobald ein Modus 6 Experimente hat (ab der nächsten gemeinsamen Grundlage nur noch mit im Schnitt 2 je Kapitel, crystallography-common#146). Die Reihenfolge in „Ebenengruppen“ folgt jetzt den Kapiteln: „*p*3*m*1 oder *p*31*m*“ und „Spiegellinie oder Gleitspiegellinie“ (Kap. 5) stehen vor „Allgemeine und spezielle Lage“ (Kap. 6). Die Hilfeseite gliedert gleich.
+- **Experimente nach Kapiteln** (crystallography-common#107): Jedes Experiment nennt sein Kapitel; die Liste gliedert danach, sobald ein Modus 6 Experimente hat (ab der nächsten gemeinsamen Grundlage nur noch mit im Schnitt 2 je Kapitel, crystallography-common#146). Die Reihenfolge in „Ebenengruppen“ folgt jetzt den Kapiteln: „*p*3*m*1 oder *p*31*m*“ und „Spiegellinie oder Gleitspiegellinie“ (Kap. 5) stehen vor „Allgemeine und spezielle Lage“ (Kap. 6); „Spiegellinie oder Gleitspiegellinie“ verweist auf Abschn. 5.2 statt auf die Leitfragen. Die Hilfeseite gliedert gleich.
+- **Skript, Abschn. 1.3:** Der Anteil einer Ecke ist ihr Winkel geteilt durch 360° (Raute mit 60° und 120°: ⅙ und ⅓).
 
 ## [1.5.0] - 2026-11-13
 

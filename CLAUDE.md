@@ -264,16 +264,20 @@ für diese App gilt.
   Geprüft in `tests/ablauf.test.mjs`. Das anteilige Zählen selbst übt das Experiment „Anteilig zählen“ (#108, Thomas,
   15.11.2026): handgeschrieben, in „Ebenengruppen“ (dort zeigt das Symmetriegerüst genau eine Zelle mit allen Bildern auf
   dem Rand), Kante und Ecke in *p*4*mm*, dann die Ecke in *p*6*mm*, weil eine Ecke nur in einer rechtwinkligen Zelle ¼
-  zählt (Anteil = Winkel/360°, wie im Skript, Abschn. 1.3; Zahlen im Test unabhängig von der Zähligkeit nachgerechnet).
+  zählt (Anteil = Winkel/360°, im Skript Abschn. 1.3; Zahlen im Test unabhängig von der Zähligkeit nachgerechnet). Der
+  Schritt zu *p*6*mm* ist ohne Vermutung: Die Summe ist immer 1, gleich wie man die Ecken teilt, die App kann die Anteile
+  also nicht zeigen (Review PR #171).
   Kapitel 1, weil es das Zählen aus Abschn. 1.3 übt. Erzeugte Varianten über die Lagen in #108 sind möglich, aber nicht
   beauftragt.
 - **Experimente nach Kapiteln** (Thomas, 15.11.2026, #109, crystallography-common#107): Jedes Experiment hat ein
   `kapitel` (das, in dem es vor allem übt), je Modus stehen sie in der Reihenfolge der Kapitel; „Spiegellinie oder
   Gleitspiegellinie“ steht in Kap. 5 (Unterschied *p*4*gm*/*p*4*mm*), nicht in Kap. 8. Gegliedert wird nach common ab 6
-  Experimenten und im Schnitt 2 je Kapitel; „Gitter und Basis“ (8 in 5 Kapiteln) bleibt deshalb flach.
+  Experimenten und im Schnitt 2 je Kapitel (Leitfaden Abschn. 5.3, ab der Fassung von common mit crystallography-common#146);
+  „Gitter und Basis“ (8 in 5 Kapiteln) bleibt dann flach. Mit common v0.20.0 ist sie noch gegliedert.
 - **Experimente in „Muster entwerfen“** (Thomas, 13. und 15.11.2026, #109): je eine Fehlvorstellung zur gewählten Gruppe
-  (ein Atom in *p*1 hat die Symmetrie *p*2, bestimmt mit einem Wechsel nach „Gitter und Basis“, weil nur dort bestimmt
-  wird), zur Gleitspiegellinie (keine spezielle Lage), zur Zentrierung (mehr Bilder als Operationen der Punktgruppe) und
+  (ein Atom in *p*1 hat schon die Symmetrie *p*2; gezeigt durch die Wahl von *p*2 mit unverändertem Muster, weil eine
+  Handlung im Modus bleiben muss: Ein Wechsel des Modus beendet das laufende Experiment, `ablaufKarte`, Review PR #171),
+  zur Gleitspiegellinie (keine spezielle Lage), zur Zentrierung (mehr Bilder als Operationen der Punktgruppe) und
   zur Ausrichtung eines Motivs auf einer Spiegellinie. Atome dort mit `bind=0`, sonst verdecken die Bindungen die Linie.
 - **Erzeugte Experimente** (7.11.2026, Thomas, crystallography-common#92, #109): Code in `js/experimente.js`.
   „An wie vielen Stellen?“ fragt je Wyckoff-Lage jeder Ebenengruppe (ausser p1) nach der Zähligkeit, mit der
