@@ -4,6 +4,7 @@
 
 import { ERSTE_SCHRITTE, ABLAEUFE } from './hilfetexte.js';
 import { ERZEUGTE } from './experimente.js';
+import { KAPITEL } from './quiz-kapitel.js';
 
 /** @import { HilfeDaten } from '../lib/common/js/hilfe-seite.js' */
 /** @import { Experiment } from '../lib/common/js/ablauf.js' */
@@ -23,4 +24,5 @@ export const HILFE = {
   ],
   ersteSchritte: ERSTE_SCHRITTE,
   experimente: EXPERIMENTE,
+  kapitel: KAPITEL,
 };

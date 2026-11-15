@@ -162,8 +162,8 @@ für diese App gilt.
     Operationen der Gruppe vervielfältigt, Farbe wie bei den Motiven (Thomas, 12.11.2026). **Nur im Speicher, nicht im Link**
     (Thomas, 12.11.2026): Eine Zeichnung kann mehr als tausend Punkte haben; ein Link lässt die Striche stehen.
   - **Prüfung der Bedienung** im Browser (`tools/entwurf-pruefen.mjs`, CI-Job `pdf`), weil die Tests ohne Browser laufen.
-  - **Hilfen, Skript und Quiz:** Die Zahl der Experimente je Modus (8 bis 12) prüft der Test nur für „Ebenengruppen“ und
-    „Gitter und Basis“. Das Quiz fragt allgemeine Konventionen ab; dass ein Motiv auf spezieller Lage deren Lagesymmetrie
+  - **Hilfen, Skript und Quiz:** Die Zahl der Experimente je Modus prüft der Test: 8 bis 12 in „Ebenengruppen“ und „Gitter
+    und Basis“, in „Muster entwerfen“ mindestens 5 (Ziel etwa 6, Thomas, 13.11.2026; der Modus hat weniger Themen). Das Quiz fragt allgemeine Konventionen ab; dass ein Motiv auf spezieller Lage deren Lagesymmetrie
     braucht, prüfen schon Fragen zu Kap. 6. Abbildungen in Kap. 7 und 9 laufen über `m=entwurf` mit einem Motiv in allgemeiner
     Lage als Tapete; Abb. 7.1a bleibt in „Ebenengruppen“.
 - **Seitenleiste und Tafel** (crystallography-common#130, Thomas, 12.11.2026; Grundsatz im Leitfaden Abschn. 5.1; Höhen
@@ -261,7 +261,20 @@ für diese App gilt.
 - **Lernexperimente zur Zähligkeit** (7.11.2026, Thomas): Das Objekt liegt nach Möglichkeit auf einem
   Symmetrieelement im Innern der Zelle, nicht auf ihrem Rand. Sonst zeigt das Bild mehr Objekte als die
   Zähligkeit; Studierende sind nicht gewohnt, Objekte auf Kanten und Ecken nur anteilig zur Zelle zu zählen.
-  Geprüft in `tests/ablauf.test.mjs`. Das anteilige Zählen selbst ist als Übung vorgemerkt (#108).
+  Geprüft in `tests/ablauf.test.mjs`. Das anteilige Zählen selbst übt das Experiment „Anteilig zählen“ (#108, Thomas,
+  15.11.2026): handgeschrieben, in „Ebenengruppen“ (dort zeigt das Symmetriegerüst genau eine Zelle mit allen Bildern auf
+  dem Rand), Kante und Ecke in *p*4*mm*, dann die Ecke in *p*6*mm*, weil eine Ecke nur in einer rechtwinkligen Zelle ¼
+  zählt (Anteil = Winkel/360°, wie im Skript, Abschn. 1.3; Zahlen im Test unabhängig von der Zähligkeit nachgerechnet).
+  Kapitel 1, weil es das Zählen aus Abschn. 1.3 übt. Erzeugte Varianten über die Lagen in #108 sind möglich, aber nicht
+  beauftragt.
+- **Experimente nach Kapiteln** (Thomas, 15.11.2026, #109, crystallography-common#107): Jedes Experiment hat ein
+  `kapitel` (das, in dem es vor allem übt), je Modus stehen sie in der Reihenfolge der Kapitel; „Spiegellinie oder
+  Gleitspiegellinie“ steht in Kap. 5 (Unterschied *p*4*gm*/*p*4*mm*), nicht in Kap. 8. Gegliedert wird nach common ab 6
+  Experimenten und im Schnitt 2 je Kapitel; „Gitter und Basis“ (8 in 5 Kapiteln) bleibt deshalb flach.
+- **Experimente in „Muster entwerfen“** (Thomas, 13. und 15.11.2026, #109): je eine Fehlvorstellung zur gewählten Gruppe
+  (ein Atom in *p*1 hat die Symmetrie *p*2, bestimmt mit einem Wechsel nach „Gitter und Basis“, weil nur dort bestimmt
+  wird), zur Gleitspiegellinie (keine spezielle Lage), zur Zentrierung (mehr Bilder als Operationen der Punktgruppe) und
+  zur Ausrichtung eines Motivs auf einer Spiegellinie. Atome dort mit `bind=0`, sonst verdecken die Bindungen die Linie.
 - **Erzeugte Experimente** (7.11.2026, Thomas, crystallography-common#92, #109): Code in `js/experimente.js`.
   „An wie vielen Stellen?“ fragt je Wyckoff-Lage jeder Ebenengruppe (ausser p1) nach der Zähligkeit, mit der
   Regel oben: Lagen, deren Punkte immer ein Bild auf Kante oder Ecke haben (z. B. 0,0 oder x,0), entfallen. Unter

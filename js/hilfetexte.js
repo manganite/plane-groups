@@ -176,15 +176,50 @@ export const ERSTE_SCHRITTE = [
 /**
  * Lernexperimente im Abschnitt „Experimente“ (lib/common/js/ablauf.js, Leitfaden Abschn. 5.3): erst vermuten,
  * dann die Handlung (Link-Adresse), dann Beobachtung und Erklärung. Je Modus 8 bis 12 Einträge zusammen mit den
- * erzeugten (js/experimente.js), geordnet nach den Kapiteln des Skripts; jedes spricht eine Fehlvorstellung an,
- * die im Kursmaterial auftaucht (#109). tests/ablauf.test.mjs prüft Adressen, Anker und den Inhalt (Zähligkeit,
+ * erzeugten (js/experimente.js), in „Muster entwerfen“ etwa 6; jedes spricht eine Fehlvorstellung an, die im
+ * Kursmaterial auftaucht (#109, #108). kapitel: Kapitel des Skripts, in dem das Experiment vor allem übt; je Modus
+ * stehen die Einträge in der Reihenfolge der Kapitel (Leitfaden Abschn. 5.3). tests/ablauf.test.mjs prüft Adressen, Anker und den Inhalt (Zähligkeit,
  * Gruppe, Lage der Elemente) gegen die App.
  * @type {Ablauf[]}
  */
 export const ABLAEUFE = [
   // ------------------------------------------------------------------ Modus „Ebenengruppen“
   {
-    id: 'gleitung', modus: 'eg', titel: 'Wohin führt eine Gleitspiegelung?',
+    id: 'anteilig', modus: 'eg', kapitel: 1, titel: 'Anteilig zählen',
+    schritte: [
+      {
+        frage: 'In <i>p</i>4<i>mm</i> sitzt das Fähnchen auf der Spiegellinie entlang einer Zellkante, bei (⅕, 0).',
+        handlung: { text: 'Fähnchen auf die Kante setzen', hash: '#m=eg&g=p4mm&x=1/5&y=0' },
+        beobachtung: 'Im Symmetriegerüst liegen Fähnchen an 8 Stellen, an jeder Kante zwei. An jeder Stelle liegen das Fähnchen und sein Spiegelbild übereinander.',
+        skript: 'elementarzelle',
+      },
+      {
+        frage: 'Wie viele dieser Fähnchen gehören zur Zelle?',
+        vermutung: ['8', '4', '2'], richtig: 1,
+        beobachtung: 'Die Kenndaten nennen die Lage 4<i>d</i>: 4 Stellen je Zelle.',
+        erklaerung: 'Ein Fähnchen auf einer Kante gehört zu den beiden Zellen, die dort aneinanderstossen, und zählt zur Hälfte: 8 · ½ = 4. Die Fähnchen auf gegenüberliegenden Kanten gehen durch eine Gittertranslation auseinander hervor.',
+        skript: 'elementarzelle',
+      },
+      {
+        frage: 'Nun sitzt das Fähnchen auf dem 4-zähligen Drehpunkt in der Ecke der Zelle, bei (0, 0). Wie viele Fähnchen gehören jetzt zur Zelle?',
+        vermutung: ['4', '1'], richtig: 1,
+        handlung: { text: 'Fähnchen in die Ecke setzen', hash: '#m=eg&g=p4mm&x=0&y=0' },
+        beobachtung: 'Fähnchen liegen an den 4 Ecken. Die Kenndaten nennen die Lage 1<i>a</i>: eine Stelle je Zelle.',
+        erklaerung: 'Eine Ecke gehört zu den vier Zellen, die sich dort treffen. In einer quadratischen Zelle zählt jede Ecke ¼: 4 · ¼ = 1.',
+        skript: 'elementarzelle',
+      },
+      {
+        frage: 'In <i>p</i>6<i>mm</i> ist die Zelle eine Raute mit zwei spitzen Ecken (60°) und zwei stumpfen (120°). Das Fähnchen sitzt auf der Ecke bei (0, 0). Zählt auch hier jede Ecke ¼?',
+        vermutung: ['ja', 'nein, eine spitze Ecke weniger, eine stumpfe mehr'], richtig: 1,
+        handlung: { text: '<i>p</i>6<i>mm</i>, Fähnchen in die Ecke setzen', hash: '#m=eg&g=p6mm&x=0&y=0' },
+        beobachtung: 'Fähnchen liegen an den 4 Ecken. Die Kenndaten nennen die Lage 1<i>a</i>: eine Stelle je Zelle.',
+        erklaerung: 'Um eine Ecke liegen so viele Zellen, dass ihre Winkel zusammen 360° ergeben. Jede Zelle erhält den Anteil ihres Winkels: 60°/360° = ⅙ an einer spitzen, 120°/360° = ⅓ an einer stumpfen Ecke, zusammen 2 · ⅙ + 2 · ⅓ = 1.',
+        skript: 'elementarzelle',
+      },
+    ],
+  },
+  {
+    id: 'gleitung', modus: 'eg', kapitel: 4, titel: 'Wohin führt eine Gleitspiegelung?',
     schritte: [
       {
         frage: 'In <i>pg</i> liegt ein Fähnchen nahe der Gleitspiegellinie bei <i>x</i> = ½. Wo liegt sein Bild unter der Gleitspiegelung an dieser Linie?',
@@ -197,7 +232,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'zwei-spiegel', modus: 'eg', titel: 'Zwei Spiegelungen nacheinander',
+    id: 'zwei-spiegel', modus: 'eg', kapitel: 4, titel: 'Zwei Spiegelungen nacheinander',
     schritte: [
       {
         frage: 'In <i>pm</i> laufen parallele Spiegellinien bei <i>x</i> = 0 und <i>x</i> = ½. Was ergibt die Spiegelung an der einen, gefolgt von der Spiegelung an der anderen?',
@@ -210,7 +245,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'drehpunkte-p6', modus: 'eg', titel: 'Drehpunkte verschiedener Zähligkeit',
+    id: 'drehpunkte-p6', modus: 'eg', kapitel: 4, titel: 'Drehpunkte verschiedener Zähligkeit',
     schritte: [
       {
         frage: 'In <i>p</i>6 liegen auf den Ecken der Zelle 6-zählige Drehpunkte. Welche Zähligkeit hat der Drehpunkt bei (⅔, ⅓) im Innern der Zelle?',
@@ -231,7 +266,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'punktgruppe', modus: 'eg', titel: 'Punktgruppe einer Ebenengruppe',
+    id: 'punktgruppe', modus: 'eg', kapitel: 5, titel: 'Punktgruppe einer Ebenengruppe',
     schritte: [
       {
         frage: '<i>pg</i> hat keine einzige Spiegellinie, nur Gleitspiegellinien. Welche Punktgruppe hat <i>pg</i>?',
@@ -252,49 +287,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'lage', modus: 'eg', titel: 'Allgemeine und spezielle Lage',
-    schritte: [
-      {
-        frage: 'In <i>p</i>4<i>mm</i> liegen die Bilder eines Objekts in allgemeiner Lage an 8 Stellen je Elementarzelle. An wie vielen Stellen liegen sie, wenn das Objekt auf einer Spiegellinie liegt?',
-        vermutung: ['an 8', 'an 4', 'an 2'], richtig: 1,
-        handlung: { text: 'Objekt auf eine Spiegellinie setzen', hash: '#m=eg&g=p4mm&x=1/5&y=1/5' },
-        beobachtung: 'An 4 Stellen, alle auf den diagonalen Spiegellinien: An jeder liegen das Fähnchen und sein Spiegelbild übereinander.',
-        erklaerung: 'Die Spiegelung hält das Objekt fest, seine Lagesymmetrie ist <i>m</i>. Zähligkeit mal Ordnung der Lagesymmetrie ergibt die 8 Operationen je Zelle: 4 · 2 = 8.',
-        skript: 'allgemein-speziell',
-      },
-      {
-        frage: 'Und wenn das Objekt auf dem 4-zähligen Drehpunkt in der Mitte der Zelle liegt, durch den vier Spiegellinien gehen?',
-        vermutung: ['an 4', 'an 2', 'an einer'], richtig: 2,
-        handlung: { text: 'Objekt auf den Drehpunkt setzen', hash: '#m=eg&g=p4mm&x=1/2&y=1/2' },
-        beobachtung: 'An einer Stelle: Alle 8 Bilder liegen übereinander, denn alle 8 Operationen halten das Objekt fest.',
-        erklaerung: 'Lagesymmetrie 4<i>mm</i> mit 8 Operationen, also 8 / 8 = 1.',
-        skript: 'wyckoff',
-      },
-    ],
-  },
-  {
-    id: 'ae', modus: 'eg', titel: 'Asymmetrische Einheit',
-    schritte: [
-      {
-        frage: 'Welcher Teil der Elementarzelle von <i>p</i>4<i>mm</i> genügt, damit die Operationen der Gruppe daraus das ganze Muster erzeugen?',
-        vermutung: ['ein Viertel', 'ein Achtel', 'ein Sechzehntel'], richtig: 1,
-        handlung: { text: 'Asymmetrische Einheit einblenden', hash: '#m=eg&g=p4mm&ae=1' },
-        beobachtung: 'Ein Achtel der Zelle, ein Dreieck.',
-        erklaerung: 'Die Gruppe hat 8 Operationen je Zelle; ihre Bilder der asymmetrischen Einheit füllen die Zelle ohne Lücken und Überlappungen.',
-        skript: 'asymmetrische-einheit',
-      },
-      {
-        frage: 'Die Punktgruppe von <i>c</i>2<i>mm</i> hat nur 4 Operationen. Welcher Teil der konventionellen, zentrierten Zelle ist die asymmetrische Einheit?',
-        vermutung: ['ein Viertel', 'ein Achtel'], richtig: 1,
-        handlung: { text: '<i>c</i>2<i>mm</i> zeigen', hash: '#m=eg&g=c2mm&ae=1' },
-        beobachtung: 'Ein Achtel der konventionellen Zelle.',
-        erklaerung: 'Die Zentrierung verdoppelt die Operationen je Zelle: 4 · 2 = 8.',
-        skript: 'zentriert',
-      },
-    ],
-  },
-  {
-    id: 'p3m1-p31m', modus: 'eg', titel: '<i>p</i>3<i>m</i>1 oder <i>p</i>31<i>m</i>',
+    id: 'p3m1-p31m', modus: 'eg', kapitel: 5, titel: '<i>p</i>3<i>m</i>1 oder <i>p</i>31<i>m</i>',
     schritte: [
       {
         frage: '<i>p</i>31<i>m</i> hat 3-zählige Drehpunkte und Spiegellinien. Liegen alle 3-zähligen Drehpunkte auf Spiegellinien?',
@@ -315,7 +308,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'gleitspiegel', modus: 'eg', titel: 'Spiegellinie oder Gleitspiegellinie',
+    id: 'gleitspiegel', modus: 'eg', kapitel: 5, titel: 'Spiegellinie oder Gleitspiegellinie',
     schritte: [
       {
         frage: 'In <i>p</i>4<i>gm</i> gehen durch jeden 4-zähligen Drehpunkt zwei diagonale Linien. Sind es Spiegellinien?',
@@ -327,9 +320,51 @@ export const ABLAEUFE = [
       },
     ],
   },
+  {
+    id: 'lage', modus: 'eg', kapitel: 6, titel: 'Allgemeine und spezielle Lage',
+    schritte: [
+      {
+        frage: 'In <i>p</i>4<i>mm</i> liegen die Bilder eines Objekts in allgemeiner Lage an 8 Stellen je Elementarzelle. An wie vielen Stellen liegen sie, wenn das Objekt auf einer Spiegellinie liegt?',
+        vermutung: ['an 8', 'an 4', 'an 2'], richtig: 1,
+        handlung: { text: 'Objekt auf eine Spiegellinie setzen', hash: '#m=eg&g=p4mm&x=1/5&y=1/5' },
+        beobachtung: 'An 4 Stellen, alle auf den diagonalen Spiegellinien: An jeder liegen das Fähnchen und sein Spiegelbild übereinander.',
+        erklaerung: 'Die Spiegelung hält das Objekt fest, seine Lagesymmetrie ist <i>m</i>. Zähligkeit mal Ordnung der Lagesymmetrie ergibt die 8 Operationen je Zelle: 4 · 2 = 8.',
+        skript: 'allgemein-speziell',
+      },
+      {
+        frage: 'Und wenn das Objekt auf dem 4-zähligen Drehpunkt in der Mitte der Zelle liegt, durch den vier Spiegellinien gehen?',
+        vermutung: ['an 4', 'an 2', 'an einer'], richtig: 2,
+        handlung: { text: 'Objekt auf den Drehpunkt setzen', hash: '#m=eg&g=p4mm&x=1/2&y=1/2' },
+        beobachtung: 'An einer Stelle: Alle 8 Bilder liegen übereinander, denn alle 8 Operationen halten das Objekt fest.',
+        erklaerung: 'Lagesymmetrie 4<i>mm</i> mit 8 Operationen, also 8 / 8 = 1.',
+        skript: 'wyckoff',
+      },
+    ],
+  },
+  {
+    id: 'ae', modus: 'eg', kapitel: 6, titel: 'Asymmetrische Einheit',
+    schritte: [
+      {
+        frage: 'Welcher Teil der Elementarzelle von <i>p</i>4<i>mm</i> genügt, damit die Operationen der Gruppe daraus das ganze Muster erzeugen?',
+        vermutung: ['ein Viertel', 'ein Achtel', 'ein Sechzehntel'], richtig: 1,
+        handlung: { text: 'Asymmetrische Einheit einblenden', hash: '#m=eg&g=p4mm&ae=1' },
+        beobachtung: 'Ein Achtel der Zelle, ein Dreieck.',
+        erklaerung: 'Die Gruppe hat 8 Operationen je Zelle; ihre Bilder der asymmetrischen Einheit füllen die Zelle ohne Lücken und Überlappungen.',
+        skript: 'asymmetrische-einheit',
+      },
+      {
+        frage: 'Die Punktgruppe von <i>c</i>2<i>mm</i> hat nur 4 Operationen. Welcher Teil der konventionellen, zentrierten Zelle ist die asymmetrische Einheit?',
+        vermutung: ['ein Viertel', 'ein Achtel'], richtig: 1,
+        handlung: { text: '<i>c</i>2<i>mm</i> zeigen', hash: '#m=eg&g=c2mm&ae=1' },
+        beobachtung: 'Ein Achtel der konventionellen Zelle.',
+        erklaerung: 'Die Zentrierung verdoppelt die Operationen je Zelle: 4 · 2 = 8.',
+        skript: 'zentriert',
+      },
+    ],
+  },
   // ------------------------------------------------------------------ Modus „Gitter und Basis“
   {
-    id: 'gitterpunkte', modus: 'struktur', titel: 'Gitterpunkte in der Zelle zählen',
+    id: 'gitterpunkte', modus: 'struktur', kapitel: 1, titel: 'Gitterpunkte in der Zelle zählen',
     schritte: [
       {
         frage: 'Im rechteckig zentrierten Gitter liegt ein Gitterpunkt auf jeder Ecke der konventionellen Zelle und einer in ihrer Mitte. Wie viele Gitterpunkte gehören zur Zelle?',
@@ -342,7 +377,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'graphen', modus: 'struktur', titel: 'Atome und Gitterpunkte',
+    id: 'graphen', modus: 'struktur', kapitel: 1, titel: 'Atome und Gitterpunkte',
     schritte: [
       {
         frage: 'Graphen besteht nur aus Kohlenstoffatomen. Liegt auf jedem Atom ein Gitterpunkt?',
@@ -355,7 +390,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'zentrierung', modus: 'struktur', titel: 'Gleiche Atome, zentrierte Zelle',
+    id: 'zentrierung', modus: 'struktur', kapitel: 1, titel: 'Gleiche Atome, zentrierte Zelle',
     schritte: [
       {
         frage: 'Zwei Dreiecke verschiedener Farbe in einer rechteckigen Zelle. Welche Symmetrie bestimmt die App?',
@@ -376,7 +411,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'erniedrigen', modus: 'struktur', titel: 'Motive entfernen',
+    id: 'erniedrigen', modus: 'struktur', kapitel: 3, titel: 'Motive entfernen',
     schritte: [
       {
         frage: 'Vier Fähnchen je Zelle, um die Zellmitte jeweils um 90° gedreht. Welche Ebenengruppe hat das Muster?',
@@ -397,7 +432,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'metrik', modus: 'struktur', titel: 'Quadratische Metrik, rechteckiges System',
+    id: 'metrik', modus: 'struktur', kapitel: 3, titel: 'Quadratische Metrik, rechteckiges System',
     schritte: [
       {
         frage: 'Im Läuferverband sind die kürzesten Translationen gleich lang und stehen senkrecht aufeinander: Das Gitter hat die Metrik eines quadratischen Gitters. Hat der Verband deshalb 4-zählige Drehpunkte?',
@@ -410,7 +445,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'drehen', modus: 'struktur', titel: 'Motiv drehen',
+    id: 'drehen', modus: 'struktur', kapitel: 4, titel: 'Motiv drehen',
     schritte: [
       {
         frage: 'Zwei gleiche Dreiecke in einer rechteckigen Zelle, bei (0, 0) und (½, ½), beide mit der Spitze entlang <i>b</i>: <i>cm</i>. Nun wird das Dreieck in der Mitte um 180° gedreht. Was entsteht?',
@@ -423,7 +458,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'versatz', modus: 'struktur', titel: 'Versetzte Reihen',
+    id: 'versatz', modus: 'struktur', kapitel: 7, titel: 'Versetzte Reihen',
     schritte: [
       {
         frage: 'Ziegel ohne Versatz haben <i>p</i>2<i>mm</i>. Jede zweite Reihe wird um eine halbe Steinlänge versetzt. Bleiben die senkrechten Spiegellinien durch die Steinmitten?',
@@ -444,7 +479,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'farbe', modus: 'struktur', titel: 'Farbe gehört zum Muster',
+    id: 'farbe', modus: 'struktur', kapitel: 8, titel: 'Farbe gehört zum Muster',
     schritte: [
       {
         frage: 'Eine Bienenwabe aus zwei Sorten Atomen im Wechsel (h-BN). Ist die Mitte eines Sechsecks ein 6-zähliger Drehpunkt?',
@@ -466,7 +501,26 @@ export const ABLAEUFE = [
   },
   // ------------------------------------------------------------------ Modus „Muster entwerfen“
   {
-    id: 'entwurf-lage', modus: 'entwurf', titel: 'Motiv auf einem Drehpunkt',
+    id: 'entwurf-gitter', modus: 'entwurf', kapitel: 3, titel: 'Ein Atom in <i>p</i>1',
+    schritte: [
+      {
+        frage: 'Gewählt ist <i>p</i>1, die Gruppe nur aus Translationen. In die Zelle kommt ein Atom.',
+        handlung: { text: 'Atom in <i>p</i>1 setzen', hash: '#m=entwurf&g=p1&basis=atom,0,1/5,1/3,0' },
+        beobachtung: 'Ein Atom je Zelle. Die Kenndaten nennen <i>p</i>1, „gewählt, nicht bestimmt“.',
+        skript: 'gitter-und-motiv',
+      },
+      {
+        frage: 'Hat dieses Muster ausser den Translationen weitere Symmetrie?',
+        vermutung: ['nein, es bleibt <i>p</i>1', 'ja, 2-zählige Drehpunkte', 'ja, Spiegellinien'], richtig: 1,
+        handlung: { text: 'Symmetrie in „Gitter und Basis“ bestimmen lassen', hash: '#m=struktur&v=dreieck1&ba=1.25&gamma=105&basis=atom,0,1/5,1/3,0' },
+        beobachtung: 'Die App bestimmt <i>p</i>2: 2-zählige Drehpunkte auf den Atomen und in der Mitte zwischen je zwei Atomen.',
+        erklaerung: 'Jedes Gitter hat 2-zählige Drehpunkte auf den Gitterpunkten, den Kantenmitten und den Zellmitten. Ein rundes Atom hat selbst jede Symmetrie und nimmt dem Gitter keine davon. Im Entwurf zeigt die App nur die gewählte Gruppe; welche Symmetrie das Muster tatsächlich hat, bestimmt „Gitter und Basis“.',
+        skript: 'gitter-und-motiv',
+      },
+    ],
+  },
+  {
+    id: 'entwurf-lage', modus: 'entwurf', kapitel: 6, titel: 'Motiv auf einem Drehpunkt',
     schritte: [
       {
         frage: 'In <i>p</i>4 sitzt ein Fähnchen mit dem Fuss auf dem 4-zähligen Drehpunkt in der Zellmitte. Wie viele verschiedene Fähnchen liegen dort?',
@@ -487,7 +541,7 @@ export const ABLAEUFE = [
     ],
   },
   {
-    id: 'entwurf-gruppen', modus: 'entwurf', titel: 'Dasselbe Motiv, andere Gruppe',
+    id: 'entwurf-gruppen', modus: 'entwurf', kapitel: 6, titel: 'Dasselbe Motiv, andere Gruppe',
     schritte: [
       {
         frage: 'In <i>p</i>4 steht ein Fähnchen in allgemeiner Lage. Wie viele Fähnchen erscheinen je Zelle?',
@@ -504,6 +558,61 @@ export const ABLAEUFE = [
         beobachtung: 'Acht Fähnchen: die vier Drehbilder und ihre Spiegelbilder.',
         erklaerung: '<i>p</i>4<i>mm</i> hat acht Operationen je Zelle, doppelt so viele wie <i>p</i>4. Dasselbe Motiv ergibt in einer anderen Gruppe ein anderes Muster.',
         skript: 'punktlagen',
+      },
+    ],
+  },
+  {
+    id: 'entwurf-gleitlinie', modus: 'entwurf', kapitel: 6, titel: 'Atom auf der Gleitspiegellinie',
+    schritte: [
+      {
+        frage: 'In <i>pm</i> sitzt ein Atom auf der Spiegellinie bei <i>x</i> = ½. Wie viele Atome gibt es je Zelle?',
+        vermutung: ['1', '2'], richtig: 0,
+        handlung: { text: 'Atom auf die Spiegellinie setzen', hash: '#m=entwurf&g=pm&basis=atom,0,1/2,1/3,0&bind=0' },
+        beobachtung: 'Ein Atom je Zelle: Atom und Spiegelbild fallen zusammen. Die Kenndaten nennen die Lage 1<i>b</i>.',
+        erklaerung: 'Die Spiegelung hält das Atom fest; die Lage ist speziell, mit der Lagesymmetrie <i>m</i>.',
+        skript: 'allgemein-speziell',
+      },
+      {
+        frage: 'In <i>pg</i> liegt an dieser Stelle eine Gleitspiegellinie. Das Atom sitzt auf ihr, bei (½, ¼). Wie viele Atome gibt es je Zelle?',
+        vermutung: ['1', '2'], richtig: 1,
+        handlung: { text: 'Atom auf die Gleitspiegellinie setzen', hash: '#m=entwurf&g=pg&basis=atom,0,1/2,1/4,0&bind=0' },
+        beobachtung: 'Zwei Atome, beide auf der Linie, um <i>b</i>/2 gegeneinander verschoben. Die Kenndaten nennen die Lage 2<i>a</i> mit der Lagesymmetrie 1.',
+        erklaerung: 'Die Gleitspiegelung bringt einen Punkt auf der Linie an eine andere Stelle, um die halbe Translation entlang der Linie verschoben; sie hält ihn nicht fest. Eine Gleitspiegellinie macht eine Lage deshalb nicht speziell. <i>pg</i> hat nur die allgemeine Lage.',
+        skript: 'allgemein-speziell',
+      },
+    ],
+  },
+  {
+    id: 'entwurf-zentriert', modus: 'entwurf', kapitel: 6, titel: 'Zentrierte Zelle, mehr Bilder',
+    schritte: [
+      {
+        frage: 'Die Punktgruppe <i>m</i> von <i>cm</i> hat zwei Operationen. Ein Fähnchen steht in allgemeiner Lage. Wie viele Fähnchen liegen in der konventionellen Zelle?',
+        vermutung: ['2', '4', '8'], richtig: 1,
+        handlung: { text: 'Fähnchen in <i>cm</i> setzen', hash: '#m=entwurf&g=cm&basis=fahne,0,2/5,1/3,0' },
+        beobachtung: 'Vier Fähnchen: das Fähnchen und sein Spiegelbild, dazu beide um (½, ½) verschoben. Die Kenndaten nennen die Lage 4<i>b</i>.',
+        erklaerung: 'Die konventionelle Zelle von <i>cm</i> ist zentriert: Zu jedem Punkt gehört auch der um (½, ½) verschobene. Die zwei Operationen der Punktgruppe ergeben deshalb vier Punkte je Zelle; die allgemeine Lage ist 4-zählig.',
+        skript: 'wyckoff',
+      },
+    ],
+  },
+  {
+    id: 'entwurf-ausrichtung', modus: 'entwurf', kapitel: 6, titel: 'Spiegelsymmetrisch, aber quer',
+    schritte: [
+      {
+        frage: 'In <i>pm</i> sitzt ein gleichschenkliges Dreieck mit seiner Mitte auf der Spiegellinie bei <i>x</i> = ½, die Spitze quer zur Linie. Das Dreieck ist selbst spiegelsymmetrisch. Wie viele Dreiecke liegen an dieser Stelle?',
+        vermutung: ['eines', 'zwei übereinander'], richtig: 1,
+        handlung: { text: 'Dreieck quer auf die Spiegellinie setzen', hash: '#m=entwurf&g=pm&basis=dreieck,0,1/2,1/3,0' },
+        beobachtung: 'Zwei Dreiecke übereinander, die Spitzen in entgegengesetzte Richtungen. Die Kenndaten nennen sie „überlagert“.',
+        erklaerung: 'Die Spiegellinie der Gruppe bildet das Dreieck auf sein Spiegelbild ab. Liegt die eigene Spiegellinie des Dreiecks quer zu ihr, ist das Spiegelbild ein zweites Dreieck an derselben Stelle (in einem Kristall wäre das Fehlordnung).',
+        skript: 'allgemein-speziell',
+      },
+      {
+        frage: 'Nun wird das Dreieck um 90° gedreht; die Spitze zeigt entlang der Linie. Wie viele Dreiecke liegen jetzt dort?',
+        vermutung: ['eines', 'zwei übereinander'], richtig: 0,
+        handlung: { text: 'Dreieck um 90° drehen', hash: '#m=entwurf&g=pm&basis=dreieck,0,1/2,1/3,90' },
+        beobachtung: 'Ein Dreieck.',
+        erklaerung: 'Jetzt liegt die Spiegellinie des Dreiecks auf der Spiegellinie der Gruppe; sein Spiegelbild fällt auf es selbst. Ein Motiv auf einer speziellen Lage muss mindestens deren Lagesymmetrie haben und passend ausgerichtet sein.',
+        skript: 'allgemein-speziell',
       },
     ],
   },
