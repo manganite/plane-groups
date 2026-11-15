@@ -41,7 +41,7 @@ Auswahl der 17 Ebenengruppen nach Kristallsystem.
 ### Gitter und Basis
 
 <table>
-<tr><td width="33%"><img src="docs/readme/struktur-hbn.png" alt="Struktur von h-BN mit bestimmter Gruppe p3m1"></td><td width="33%"><img src="docs/readme/struktur-parkett.png" alt="Archimedische Parkettierung 3.4.6.4"></td><td width="33%"><img src="docs/readme/struktur-mauer.png" alt="Fischgrätverband aus Ziegeln"></td></tr>
+<tr><td width="33%"><img src="docs/readme/struktur-hbn.png" alt="Struktur von h-BN mit den Symmetrieelementen der bestimmten Gruppe p3m1"></td><td width="33%"><img src="docs/readme/struktur-parkett.png" alt="Archimedische Parkettierung 3.4.6.4"></td><td width="33%"><img src="docs/readme/struktur-mauer.png" alt="Fischgrätverband aus Ziegeln"></td></tr>
 <tr><td>h-BN: Gruppe aus Gitter und Basis bestimmt</td><td>Parkettierung 3.4.6.4</td><td>Fischgrätverband</td></tr>
 </table>
 
@@ -72,7 +72,7 @@ Ein eigenes Muster in einer gegebenen Ebenengruppe gestalten. Die Gruppe wählt 
 
 <table>
 <tr><td width="33%"><img src="docs/readme/skript.png" alt="Skript, Abschnitt Gleitspiegelung, mit Inhaltsverzeichnis"></td><td width="33%"><img src="docs/readme/quiz.png" alt="Startseite des Quiz mit Stufen und Kapiteln"></td><td width="33%"><img src="docs/readme/hilfe.png" alt="Hilfeseite mit nummeriertem Bild der Tafel Entwurf"></td></tr>
-<tr><td>Skript mit Abbildungen aus der App</td><td>Quiz in drei Stufen</td><td>Hilfeseite: Anleitung zur Bedienung</td></tr>
+<tr><td>Skript zum Nachlesen, mit Lernzielen je Kapitel</td><td>Quiz in drei Stufen</td><td>Hilfeseite: Anleitung zur Bedienung</td></tr>
 </table>
 
 - **[Skript](https://manganite.github.io/plane-groups/skript.html)** mit neun Kapiteln: Gitter, Elementarzelle und Basis; Symmetrie des Gitters; Gitter und Motiv; Gleitspiegelung und Verknüpfung; die 17 Ebenengruppen; Punktlagen; Tapeten, Ornamente und Kunst; Ebenengruppen bestimmen; die Signatur nach Conway (Vertiefung). Die Abbildungen zeichnet der Code der App, jede mit Link in die App; Vertiefungen sind gekennzeichnet. Auch als [PDF](https://manganite.github.io/plane-groups/skript.pdf) und als Anhang jedes Releases.
