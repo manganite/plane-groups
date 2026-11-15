@@ -272,8 +272,8 @@ für diese App gilt.
 - **Experimente nach Kapiteln** (Thomas, 15.11.2026, #109, crystallography-common#107): Jedes Experiment hat ein
   `kapitel` (das, in dem es vor allem übt), je Modus stehen sie in der Reihenfolge der Kapitel; „Spiegellinie oder
   Gleitspiegellinie“ steht in Kap. 5 (Unterschied *p*4*gm*/*p*4*mm*), nicht in Kap. 8. Gegliedert wird nach common ab 6
-  Experimenten und im Schnitt 2 je Kapitel (Leitfaden Abschn. 5.3, ab der Fassung von common mit crystallography-common#146);
-  „Gitter und Basis“ (8 in 5 Kapiteln) bleibt dann flach. Mit common v0.20.0 ist sie noch gegliedert.
+  Experimenten und im Schnitt 2 je Kapitel (Leitfaden Abschn. 5.3, seit common v0.21.0);
+  „Gitter und Basis“ (8 in 5 Kapiteln) bleibt deshalb flach.
 - **Experimente in „Muster entwerfen“** (Thomas, 13. und 15.11.2026, #109): je eine Fehlvorstellung zur gewählten Gruppe
   (ein Atom in *p*1 hat schon die Symmetrie *p*2; gezeigt durch die Wahl von *p*2 mit unverändertem Muster, weil eine
   Handlung im Modus bleiben muss: Ein Wechsel des Modus beendet das laufende Experiment, `ablaufKarte`, Review PR #171),
