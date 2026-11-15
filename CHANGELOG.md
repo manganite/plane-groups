@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-11-15
+
+Experimente ausgebaut: „Anteilig zählen“ in „Ebenengruppen“, vier neue in „Muster entwerfen“; Experimente nach Kapiteln gegliedert, wo im Schnitt mindestens 2 auf ein Kapitel kommen („Gitter und Basis“ bleibt flach); gemeinsame Grundlage v0.21.0. Link-Adressen und Speicher bleiben gültig.
+
 ### Hinzugefügt
 
 - **Experimente ausgebaut** (#109, #108, Thomas, 13. und 15.11.2026): „Anteilig zählen“ in „Ebenengruppen“ (Fähnchen auf Kante und Ecke einer quadratischen Zelle, Ecke der hexagonalen Zelle mit ⅙ und ⅓). In „Muster entwerfen“ vier neue, zusammen sechs: „Ein Atom in *p*1“ (jedes Gitter hat 2-zählige Drehpunkte; dasselbe Muster in *p*2), „Atom auf der Gleitspiegellinie“ (keine spezielle Lage), „Zentrierte Zelle, mehr Bilder“ (*cm*: vier Fähnchen je Zelle) und „Spiegelsymmetrisch, aber quer“ (Ausrichtung eines Motivs auf einer Spiegellinie).
@@ -225,7 +229,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/manganite/plane-groups/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/manganite/plane-groups/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/manganite/plane-groups/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/manganite/plane-groups/compare/v1.2.0...v1.3.0
