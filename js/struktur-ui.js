@@ -36,7 +36,7 @@ const VERLAUF_GRENZE = 50;
  * ctx: { z, farben(), aktualisieren(), svgPunkt(e), coarse }.
  * Rückgabe: Funktionen, die main.js aufruft.
  * @param {{ z: Zustand, farben: () => Farben, aktualisieren: () => void,
- *   svgPunkt: (e: { clientX: number, clientY: number }) => Vec2, coarse: MediaQueryList }} ctx
+ *   svgPunkt: (e: { clientX: number, clientY: number }) => Vec2, coarse: { matches: boolean } }} ctx
  */
 export function strukturUI({ z, farben, aktualisieren, svgPunkt, coarse }) {
   let werkzeug = 'verschieben'; // oder 'hinzufuegen', im Entwurf auch 'zeichnen', 'radieren'

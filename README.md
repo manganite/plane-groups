@@ -265,6 +265,14 @@ Die App folgt [Semantic Versioning](https://semver.org/lang/de/); Änderungen st
 
 Der Tag startet zwei Workflows: `release.yml` legt das GitHub-Release mit den Notizen aus dem Changelog und dem Skript als PDF an, `deploy.yml` prüft und veröffentlicht den Stand auf GitHub Pages.
 
+Scheitert `deploy.yml` im Schritt „Deploy to GitHub Pages“ mit „Fetching artifact metadata failed“, obwohl „Upload artifact“ gelang, hilft „Re-run“ nicht: Der wiederholte Job (im selben Lauf) lädt das Artefakt noch einmal hoch und scheitert dann mit „Multiple artifacts named "github-pages"“. Stattdessen einen neuen Lauf auf den Tag starten: unter Actions den Workflow „Deploy to GitHub Pages“ wählen, „Run workflow“, bei „Use workflow from“ unter „Tags“ den Tag, oder mit
+
+```bash
+gh api -X POST repos/manganite/plane-groups/actions/workflows/deploy.yml/dispatches -f ref=vX.Y.Z   # Antwort 204 ohne Inhalt
+```
+
+(aufgetreten beim Release am 12.11.2026, crystallography-common#142).
+
 ## Grundlagen und Quellen
 
 - International Tables for Crystallography, Vol. A, 5. Aufl., hrsg. von Th. Hahn, Springer, Dordrecht 2006, Abschn. 2.2 und Part 6: Diagramme, Symbole, Symmetrieoperationen, Wyckoff-Lagen, asymmetrische Einheit; Grundlage der Daten und Tests.

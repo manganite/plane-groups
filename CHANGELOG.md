@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Gemeinsame Grundlage** auf crystallography-common v0.23.0: Abschnittsnummern im Skript in Überschriften, Inhaltsverzeichnis und PDF, Verweise wie „Abschnitt 4.5“ als Links (ein einzelner mit Titel, in Listen der Titel als Tooltip), geprüft in `tests/skript.test.mjs`; Touch-Ziele und Trefferkreise auf der Zeichnung nach dem zuletzt benutzten Gerät, auch auf Laptops mit Touchscreen; breiter Einzug der Experimente nur bei zweistelligen Nummern; Tooltips aller sichtbaren Bedienelemente je Modus im Browserlauf (`tools/entwurf-pruefen.mjs`); Bilder der Hilfeseite mit Nummern links neben den Bausteinen; im README der Ablauf, wenn der Deploy beim Laden des Artefakts scheitert.
+
 ## [1.7.0] - 2026-11-15
 
 Hilfeseite als Anleitung zur Bedienung: Überblick, Bedienkonzepte, je Modus Seitenleiste, beide Tafeln und Kenndaten mit nummerierten Bildern, Anleitungen, Experimente, typische Fragen; jedes ⓘ verweist an die passende Stelle; Tooltips statt `title`. README mit Bildern zu den Funktionen; gemeinsame Grundlage v0.22.0. Link-Adressen und Speicher bleiben gültig.
