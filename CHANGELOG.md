@@ -12,7 +12,8 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
-- **Experimente nach Kapiteln** (crystallography-common#107): Jedes Experiment nennt sein Kapitel; die Liste gliedert danach, sobald ein Modus 6 Experimente hat (ab der nächsten gemeinsamen Grundlage nur noch mit im Schnitt 2 je Kapitel, crystallography-common#146). Die Reihenfolge in „Ebenengruppen“ folgt jetzt den Kapiteln: „*p*3*m*1 oder *p*31*m*“ und „Spiegellinie oder Gleitspiegellinie“ (Kap. 5) stehen vor „Allgemeine und spezielle Lage“ (Kap. 6); „Spiegellinie oder Gleitspiegellinie“ verweist auf Abschn. 5.2 statt auf die Leitfragen. Die Hilfeseite gliedert gleich.
+- **Gemeinsame Grundlage** auf crystallography-common v0.21.0: Experimente gliedern nach Kapiteln nur noch, wenn im Schnitt mindestens 2 auf ein Kapitel kommen; „Gitter und Basis“ bleibt damit flach (8 Experimente in 5 Kapiteln), „Ebenengruppen“ und „Muster entwerfen“ sind gegliedert, in der App und auf der Hilfeseite gleich.
+- **Experimente nach Kapiteln** (crystallography-common#107): Jedes Experiment nennt sein Kapitel; die Liste gliedert danach, sobald ein Modus 6 Experimente hat und im Schnitt mindestens 2 auf ein Kapitel kommen (gemeinsame Grundlage v0.21.0, unten). Die Reihenfolge in „Ebenengruppen“ folgt jetzt den Kapiteln: „*p*3*m*1 oder *p*31*m*“ und „Spiegellinie oder Gleitspiegellinie“ (Kap. 5) stehen vor „Allgemeine und spezielle Lage“ (Kap. 6); „Spiegellinie oder Gleitspiegellinie“ verweist auf Abschn. 5.2 statt auf die Leitfragen. Die Hilfeseite gliedert gleich.
 - **Skript, Abschn. 1.3:** Der Anteil einer Ecke ist ihr Winkel geteilt durch 360° (Raute mit 60° und 120°: ⅙ und ⅓).
 
 ## [1.5.0] - 2026-11-13
