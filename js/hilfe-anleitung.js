@@ -8,7 +8,7 @@
 // steht einmal als Konstante und als Bereich je Modus (Reihenfolge der Seite).
 
 /** @import { HilfeBereich, HilfeEintrag, HilfeFrage, HilfeText } from '../lib/common/js/hilfe-seite.js' */
-/** @import { Ablauf } from '../lib/common/js/ablauf.js' */
+/** @import { Ablauf, BildHandlung } from '../lib/common/js/ablauf.js' */
 
 /** Zweck der App (Überblick). */
 export const ZWECK = `<p>Die App zeigt, wie sich ein ebenes Muster aus Gitter und Motiv aufbaut und welche Symmetrie es hat. Man kann
@@ -44,9 +44,10 @@ export const KONZEPTE = [
   {
     id: 'einrasten',
     titel: 'Einrasten',
-    text: `<p>Der Schalter „Einrasten“ im Kopf von Tafel A lässt beim Ziehen springen: das Objekt in „Ebenengruppen“ und ein
-      Motiv im Entwurf auf Drehpunkte und Spiegellinien, ein Motiv in „Gitter und Basis“ auf Zwölftel der Zelle. In
-      „Ebenengruppen“ ruht er ohne Objekt.</p>`,
+    text: `<p>Der Schalter „Einrasten“ im Kopf von Tafel A lässt beim Ziehen springen: das Objekt in „Ebenengruppen“ auf
+      Drehpunkte und Spiegellinien, ein Motiv im Entwurf zuerst dorthin, sonst auf Zwölftel der Zelle, ein Motiv in
+      „Gitter und Basis“ auf Zwölftel. In beiden Modi mit Basis rastet zudem die Drehung eines Motivs am Regler auf 15°
+      ein. In „Ebenengruppen“ ruht der Schalter ohne Objekt.</p>`,
   },
   {
     id: 'bahn',
@@ -61,8 +62,8 @@ export const KONZEPTE = [
     titel: 'Zwischen den Modi',
     text: `<p>Aus „Gitter und Basis“ und „Muster entwerfen“ öffnet „im Modus „Ebenengruppen“ ansehen“ in den Kenndaten die
       Gruppe mit Symmetriegerüst, Lagen und Operationen. „In „Muster entwerfen“ weiterbearbeiten“ übernimmt eine Struktur
-      mit ihrer bestimmten Gruppe in den Entwurf und ersetzt ihn; einen Weg zurück gibt es nicht. Jeder Modus behält
-      seinen eigenen Stand.</p>`,
+      mit ihrer bestimmten Gruppe in den Entwurf und ersetzt ihn; einen Weg zurück gibt es nicht. Ein Wechsel über die Tabs
+      lässt den Stand jedes Modus stehen.</p>`,
   },
 ];
 
@@ -73,7 +74,7 @@ const RESET_E = { zeige: '#reset-alles', name: 'Alle Einstellungen zurücksetzen
 const ZOOM_A = { zeige: '.p-a .zoomtools', name: 'Zoom', text: 'Verkleinern, Vergrössern, ganze Zeichnung (auch Mausrad oder zwei Finger). Mit Zoom verschieben Leertaste + Ziehen, zwei Finger oder die Pfeiltasten den Ausschnitt.' };
 const EINRASTEN = { zeige: '#werkzeug-einrasten', name: 'Einrasten', text: 'Schalter: beim Ziehen auf besondere Stellen springen (siehe Bedienkonzepte).' };
 const EXPORT_A = { zeige: '#export-a', name: 'Export', text: 'Zeichnung kopieren oder als SVG- bzw. PNG-Datei speichern.' };
-const LEGENDE = { zeige: '#legend', name: 'Legende', text: 'Zeichen und Farben der Zeichnung und was ein Klick oder Tippen tut; was die Zeichen fachlich bedeuten, erklärt das <a href="skript.html#diagramme">Skript, Abschn. 5</a>.' };
+const LEGENDE = { zeige: '#legend', name: 'Legende', text: 'Zeichen und Farben der Zeichnung und was ein Klick oder Tippen tut; was die Zeichen fachlich bedeuten, erklärt das <a href="skript.html#diagramme">Skript, Abschn. 5.3</a>.' };
 const ENTWURF = '#m=entwurf&g=p4mm&basis=fahne,0,1/10,1/5,0';
 /** Tafel B ist in allen Modi gleich; je Modus ein Bereich, damit sie nach Tafel A steht. @type {HilfeEintrag[]} */
 const TAFEL_B = [
@@ -109,7 +110,7 @@ export const BEREICHE = [
   { id: 'tafel-b', modus: 'eg', titel: 'Tafel Muster', ausschnitt: '.p-b', eintraege: TAFEL_B },
   {
     id: 'kenndaten', modus: 'eg', titel: 'Kenndaten', ausschnitt: '#info',
-    text: '<p>Aufgebaut wie eine Seite der International Tables (siehe <a href="skript.html#ita-seite">Skript, Abschn. 6</a>).</p>',
+    text: '<p>Aufgebaut wie eine Seite der International Tables (siehe <a href="skript.html#ita-seite">Skript, Abschn. 6.4</a>).</p>',
     eintraege: [
       { zeige: '#info .info-head', name: 'Symbol', text: 'Hermann-Mauguin-Symbol, Nummer und Kristallsystem der Gruppe.' },
       { zeige: '#info .lagebox', name: 'Lage des Objekts', text: 'Wyckoff-Lage, Lagesymmetrie und wie oft das Objekt je Zelle erscheint.' },
@@ -183,12 +184,15 @@ export const BEREICHE = [
   },
 ];
 
+/** Ein Strich in der Zelle für die Bilder der Anleitung „zeichnen“ (Werkzeug und Striche stehen nicht in der Adresse). @type {BildHandlung[]} */
+const STRICH = [{ klick: '#s-werkzeug-zeichnen' }, { ziehen: '#bild-a', punkte: [[0.42, 0.3], [0.5, 0.36], [0.56, 0.46], [0.58, 0.56]] }];
+
 /** Weitere Anleitungen (nur auf der Hilfeseite). @type {Ablauf[]} */
 export const ANLEITUNGEN = [
   {
     id: 'erklaeren', modus: 'eg', titel: 'Eine Gruppe Schritt für Schritt erklären lassen',
     schritte: [
-      { frage: '<b>„Schritt für Schritt“ wählen.</b> Das Objekt wird mit der ersten Operation der Liste abgebildet.', handlung: { text: 'In <i>p</i>4<i>mm</i> starten', hash: '#m=eg&g=p4mm&schritt=1' }, zeige: '#erkl-schritt' },
+      { frage: '<b>„Schritt für Schritt“ wählen.</b> Schritt 1 zeigt das Objekt selbst (Identität); jeder weitere bildet es mit der nächsten Operation der Liste ab, zuletzt mit den Gittertranslationen.', handlung: { text: 'In <i>p</i>4<i>mm</i> starten', hash: '#m=eg&g=p4mm&schritt=1' }, zeige: '#erkl-schritt' },
       { frage: '<b>Durchschalten.</b> ◀ und ▶ unter der Zeichnung gehen einen Schritt zurück oder weiter, „Abspielen“ läuft alle ab. Die Kenndaten markieren die Zeile der Operation.', handlung: { text: 'Schritt 4 zeigen', hash: '#m=eg&g=p4mm&schritt=4' }, zeige: '#erkl-leiste' },
       { frage: '<b>„Herkunft der Elemente“.</b> Ein Symmetrieelement antippen: Die App zeigt, aus welchen zwei Operationen es folgt, und das Fähnchen läuft die Schritte ab.', handlung: { text: 'Herkunft eines Drehpunkts', hash: '#m=eg&g=p4mm&herkunft=1&erkl=4;1/2,1/2' }, zeige: '#erkl-herkunft' },
       { frage: '<b>Beenden.</b> × in der Leiste schliesst die Erklärung, ebenso ein zweiter Klick auf den gewählten Knopf.', zeige: '#erkl-leiste' },
@@ -205,7 +209,7 @@ export const ANLEITUNGEN = [
     id: 'bestimmen', modus: 'struktur', titel: 'Eine Struktur aufbauen und ihre Gruppe bestimmen lassen',
     schritte: [
       { frage: '<b>Von einer Vorgabe ausgehen.</b> Die Auswahl „Vorgabe“ lädt Gitter und Basis; „Vorgabe wiederherstellen“ kehrt zu ihr zurück.', handlung: { text: 'Dreiecksbeispiel laden', hash: '#m=struktur&v=dreieck1' }, zeige: '#s-vorgabe' },
-      { frage: '<b>Motive setzen.</b> Mit „Hinzufügen“ eine Stelle antippen; Form, Farbe, Drehung und Grösse stehen im Abschnitt „Basis“.', zeige: '#s-werkzeug-hinzufuegen' },
+      { frage: '<b>Motive setzen.</b> Mit „Hinzufügen“ eine Stelle antippen; Form, Farbe, Drehung und Grösse stehen im Abschnitt „Basis“.', vorher: [{ klick: '#s-werkzeug-hinzufuegen' }], zeige: '#s-werkzeug-hinzufuegen' },
       { frage: '<b>Motive verschieben.</b> Mit „Wählen und ziehen“ ein Motiv antippen und ziehen; „Einrasten“ hilft, Zwölftel der Zelle zu treffen.', zeige: '#bild-a' },
       { frage: '<b>Gruppe ablesen.</b> Die Kenndaten nennen nach jeder Änderung die bestimmte Gruppe, ihre konventionelle Zelle und je Motiv die Lage.', zeige: '#info .info-head' },
       { frage: '<b>Weiterbearbeiten.</b> „In „Muster entwerfen“ weiterbearbeiten“ übernimmt die Struktur mit ihrer Gruppe in den Entwurf.', zeige: '#info #s-weiter' },
@@ -215,9 +219,9 @@ export const ANLEITUNGEN = [
     id: 'zeichnen', modus: 'entwurf', titel: 'Ein Muster in einer Gruppe zeichnen',
     schritte: [
       { frage: '<b>Gruppe wählen.</b> Gruppe und Zelle bleiben danach fest.', handlung: { text: '<i>p</i>4<i>gm</i> wählen', hash: '#m=entwurf&g=p4gm' }, zeige: '#ctl-entwurf > h2' },
-      { frage: '<b>Werkzeug „Zeichnen“ wählen</b> und eine Farbe (Atomsorte) im Abschnitt „Basis“.', zeige: '#s-werkzeug-zeichnen' },
-      { frage: '<b>In der Zelle ziehen.</b> Jeder Strich erscheint sofort mit allen Operationen der Gruppe, in der Zelle und im Muster.', zeige: '#bild-a' },
-      { frage: '<b>Korrigieren.</b> „Radieren“ entfernt überfahrene Stücke, „Rückgängig“ den letzten Schritt. Eine andere Gruppe wählen behält die Striche; ihre Bilder entstehen neu.', zeige: '#rueckgaengig' },
+      { frage: '<b>Werkzeug „Zeichnen“ wählen</b> und eine Farbe (Atomsorte) im Abschnitt „Basis“.', vorher: [{ klick: '#s-werkzeug-zeichnen' }], zeige: '#s-werkzeug-zeichnen' },
+      { frage: '<b>In der Zelle ziehen.</b> Jeder Strich erscheint sofort mit allen Operationen der Gruppe, in der Zelle und im Muster.', vorher: STRICH, zeige: '#bild-a' },
+      { frage: '<b>Korrigieren.</b> „Radieren“ entfernt überfahrene Stücke, „Rückgängig“ den letzten Schritt. Eine andere Gruppe wählen behält die Striche; ihre Bilder entstehen neu.', vorher: STRICH, zeige: '#rueckgaengig' },
     ],
   },
 ];
@@ -226,8 +230,13 @@ export const ANLEITUNGEN = [
 export const FRAGEN = [
   {
     id: 'weniger-bilder', frage: 'Warum sehe ich weniger Bilder des Objekts als erwartet?',
-    antwort: '<p>Das Objekt liegt auf einem Symmetrieelement (spezielle Lage); dann fallen Bilder zusammen. Die Kenndaten nennen Wyckoff-Lage, Lagesymmetrie und Zähligkeit. Liegt ein Bild auf einer Kante oder Ecke der Zelle, gehört es nur anteilig zu ihr.</p>',
+    antwort: '<p>Das Objekt liegt auf einem Symmetrieelement (spezielle Lage); dann fallen Bilder zusammen. Die Kenndaten nennen Wyckoff-Lage, Lagesymmetrie und Zähligkeit.</p>',
     app: '#m=eg&g=p4mm&x=1/2&y=1/2', skript: 'allgemein-speziell',
+  },
+  {
+    id: 'mehr-bilder', frage: 'Warum sehe ich in der Zelle mehr Bilder, als die Zähligkeit sagt?',
+    antwort: '<p>Bilder auf einer Kante oder Ecke der Zelle gehören auch zur Nachbarzelle und zählen nur anteilig: auf einer Kante zur Hälfte, an den Ecken zusammen einmal. Das Experiment „Anteilig zählen“ übt das.</p>',
+    app: '#m=eg&g=p4mm&x=1/2&y=0', skript: 'elementarzelle',
   },
   {
     id: 'gitter-gesperrt', frage: 'Warum lässt sich γ oder b/a nicht verändern?',
@@ -261,5 +270,5 @@ export const FRAGEN = [
 /** Ergänzungen der gemeinsamen Texte (nach Kennung in hilfe-gemeinsam.js). */
 export const ERGAENZUNGEN = {
   export: '<p>Hier: beide Tafeln als Kopie, SVG oder PNG.</p>',
-  tastatur: '<p>Tafel A nimmt den Fokus an: Dann verschieben die Pfeiltasten bei Zoom den Ausschnitt, + und − zoomen. Das Objekt in „Ebenengruppen“ stellen statt des Ziehens die Regler x und y im Abschnitt „Objekt“ ein.</p>',
+  tastatur: '<p>Tafel A nimmt den Fokus an: Dann verschieben die Pfeiltasten bei Zoom den Ausschnitt, + und − zoomen, 0 zeigt wieder die ganze Zeichnung. Das Objekt in „Ebenengruppen“ stellen statt des Ziehens die Regler x und y im Abschnitt „Objekt“ ein.</p>',
 };
