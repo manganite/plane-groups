@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-11-15
+
+Hilfeseite als Anleitung zur Bedienung: Überblick, Bedienkonzepte, je Modus Seitenleiste, beide Tafeln und Kenndaten mit nummerierten Bildern, Anleitungen, Experimente, typische Fragen; jedes ⓘ verweist an die passende Stelle; Tooltips statt `title`. README mit Bildern zu den Funktionen; gemeinsame Grundlage v0.22.0. Link-Adressen und Speicher bleiben gültig.
+
 ### Hinzugefügt
 
 - **Hilfeseite als Anleitung** (crystallography-common#114, Entscheidungen Thomas 15.11.2026): Überblick (Zweck, Teile, Modi, Aufbau der App), Bedienkonzepte, je Modus Seitenleiste, Tafeln und Kenndaten zum Nachschlagen mit nummerierten Bildern, die Erste Schritte und vier weitere Anleitungen (eine Gruppe Schritt für Schritt erklären lassen, asymmetrische Einheit über ihre Bedingungen, Struktur aufbauen und Gruppe bestimmen, Muster zeichnen), die Experimente, acht typische Fragen und zuletzt Link, Speicher, offline, Export, Geräte und Tastatur. Texte in `js/hilfe-anleitung.js`.
@@ -241,7 +245,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.6.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/manganite/plane-groups/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/manganite/plane-groups/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/manganite/plane-groups/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/manganite/plane-groups/compare/v1.3.0...v1.4.0
