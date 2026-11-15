@@ -348,8 +348,9 @@ Quellen je Kapitel in `skript.html` (`.quellen`). Darüber hinaus für Konzept, 
   AMS 53, 670–673 (2006) (Alhambra); ITA Vol. E (Friesgruppen); Lexikon der Geowissenschaften,
   „Antisymmetriegruppen“ (2000).
 - **Vorlesung HS 2026** nur zum Abgleich, nie zitiert.
-- **`oxrd.py`** (Laserbeugung, Tzschaschel, Lehmann 2018): Ideen für Konzept 3.3 (Quelle für
-  die Beugungs-App), nicht die Oberfläche.
+- **`oxrd.py`** (Laserbeugung; Thomas' Fassung für die Vorlesung von `oXRDsimu.py` aus Lehmann,
+  Tzschaschel, Fiebig, Weber, *J. Appl. Cryst.* 52, 457–462 (2019), doi:10.1107/S1600576719001948,
+  Supporting Information): Ideen für Konzept 3.3 (Quelle für die Beugungs-App), nicht die Oberfläche.
 
 ## Konzept
 
