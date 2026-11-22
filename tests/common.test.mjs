@@ -11,7 +11,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 /** @param {string} p */
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), 'utf8');
 
-test('lib/common und tools/common entsprechen dem Manifest (Änderungen gehören nach crystallography-common)', () => {
+test('lib/common, tools/common und lib/kern entsprechen ihrem Manifest (Änderungen gehören nach crystallography-common bzw. symcrys)', () => {
   assert.deepEqual(pruefen(ROOT), []);
 });
 

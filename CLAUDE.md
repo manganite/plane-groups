@@ -291,6 +291,16 @@ für diese App gilt.
   Bilder trotzdem eng liegen (allgemeine Lagen in p4mm, p3m1, p6mm …), zeigt die Aufgabe das Objekt halb so gross
   (`og=0.5`). Durch die Regel entfallen u. a. alle 6-zähligen Punkte und die Spiegellinien der c-Gruppen; die Liste
   steht in #108 als Grundstock für das anteilige Zählen.
+- **Rechenkern symcrys** (Thomas, 22.11.2026, symcrys#31, crystallography-common#99): Die Berechnungen der
+  Ebenengruppen wandern Rechnung für Rechnung nach symcrys (`symcrys/plane`, Kopie in `lib/kern/`, Anbindung in
+  `js/kern.js`), wie bei stereography die Punktgruppen. Die bisherige Rechnung der App bleibt jeweils in
+  `tests/kern.test.mjs` als unabhängige Gegenprobe (symcrys prüft gegen die ITA 2016, Kap. 2.2, die App gegen ihre
+  Abschrift der ITA 2006, Part 6). Was der App in symcrys fehlt, wird ein Issue in symcrys, keine Rechnung in der App.
+  In der App bleiben Darstellung und deutsche Texte, die Form `{ R, t }` der Operationen und die Bestimmung der Gruppe
+  eines Musters (`js/bestimmung.js`), bis symcrys sie in einer zweiten MINOR hat (symcrys#31). Erster Schritt: die
+  Operationen, die Zentrierung und die Erzeugenden (`gruppe`, `erzeugende` in `js/symmetrie.js`); die Erzeugenden in
+  der Reihenfolge der App (Zentrierung zuletzt; symcrys nennt sie wie die ITA zuerst), weil der Aufbau aus Erzeugenden
+  ihr folgt.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
   `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
   crystallography-common#114), `vorgaben.js`. Je Fall entschieden:

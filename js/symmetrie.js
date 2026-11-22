@@ -6,6 +6,7 @@
 // der Operationen Abschn. 11.1.2, orientierte Lagesymmetrie Abschn. 2.2.12.
 
 import { ebenengruppe, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
+import { kernErzeugende, kernOperationen } from './kern.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Ebenengruppe, Wyckoff } from './ebenengruppen.js' */
@@ -200,8 +201,8 @@ export function abschluss(erzeugende) {
 const cache = new Map();
 
 /**
- * Ebenengruppe mit ihren Operationen:
- *   ops        die Operationen aus ITA in derselben Reihenfolge (nur (0,0)+ Satz)
+ * Ebenengruppe mit ihren Operationen aus symcrys (js/kern.js):
+ *   ops        die Operationen der allgemeinen Lage in der Reihenfolge der ITA (nur (0,0)+ Satz)
  *   zentr      Zentrierungstranslationen (immer mit [0, 0])
  *   alle       alle Nebenklassen nach den ganzzahligen Translationen: ops × zentr, t in [0, 1)
  * @param {string | number} id Symbol (z. B. 'p2mg') oder Nummer
@@ -211,22 +212,15 @@ export function gruppe(id) {
   const daten = ebenengruppe(id);
   const da = cache.get(daten.nr);
   if (da) return da;
-  const ops = daten.ops.map(liesOp);
-  /** @type {Vec2[]} */
-  const zentr = daten.zentrierung ?? [[0, 0]];
-  /** @type {Op[]} */
-  const alle = [];
-  for (const z of zentr) for (const op of ops) alle.push(reduziert(verknuepfen(translation(z), op)));
+  const { ops, alle, zentr } = kernOperationen(daten.symbol);
   const g = { daten, ops, zentr, alle, ordnung: alle.length };
   cache.set(daten.nr, g);
   return g;
 }
 
-/** Erzeugende nach ITA („Generators selected“) als Operationen, mit Zentrierung. @param {Gruppe} g */
+/** Erzeugende nach ITA („Generators selected“) als Operationen, mit Zentrierung zuletzt (aus symcrys). @param {Gruppe} g */
 export function erzeugende(g) {
-  const out = g.daten.erzeugende.map((i) => g.ops[i - 1]);
-  for (const z of g.zentr) if (z[0] !== 0 || z[1] !== 0) out.push(translation(z));
-  return out;
+  return kernErzeugende(g.daten.symbol);
 }
 
 /** Punktgruppe: die Matrizen der Operationen ohne Translation. @param {Gruppe} g */
