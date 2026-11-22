@@ -59,3 +59,17 @@ for (const d of EBENENGRUPPEN) {
     }
   });
 }
+
+// Asymmetrische Einheit: die Ecken aus symcrys (aus den gedruckten Ungleichungen der ITA 2016) gegen die Ecken der
+// Abschrift der ITA 2006 in js/ebenengruppen.js, als Menge und mit gleichem Umlaufsinn; Fläche 1/|G|.
+for (const d of EBENENGRUPPEN) {
+  test(`${d.symbol}: Ecken der asymmetrischen Einheit aus symcrys wie in der Abschrift`, () => {
+    const g = gruppe(d.symbol);
+    const schluessel = (/** @type {readonly number[]} */ p) => p.map((v) => v.toFixed(9)).join(',');
+    assert.deepEqual(new Set(g.ae.map(schluessel)), new Set(d.ae.ecken.map(schluessel)));
+    /** @param {readonly (readonly number[])[]} poly */
+    const flaeche = (poly) => poly.reduce((s, p, i) => { const q = poly[(i + 1) % poly.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2;
+    assert.ok(Math.abs(flaeche(g.ae) - 1 / g.ordnung) < 1e-12, 'Fläche, gegen den Uhrzeigersinn positiv');
+    assert.ok(Math.abs(Math.abs(flaeche(d.ae.ecken)) - 1 / g.ordnung) < 1e-12, 'Fläche der Abschrift');
+  });
+}

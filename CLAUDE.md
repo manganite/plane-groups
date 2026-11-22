@@ -305,7 +305,10 @@ für diese App gilt.
   der App** (Thomas, 22.11.2026, symcrys#85): Die App rastet auf die speziellste Lage nach dem Abstand des Punktes zur
   Lage, symcrys prüft den Abstand der Bilder (bei Spiegellinien und 2-zähligen Punkten halber Radius, in hexagonalen
   Gittern andere Projektion); symcrys bekommt eine Funktion mit dem Kriterium der App, dann wechselt das Einrasten.
-  Ebenso bleibt `art()` (Beschreibung beliebiger Operationen, Normale der Linien) bis symcrys#84.
+  Ebenso bleibt `art()` (Beschreibung beliebiger Operationen, Normale der Linien) bis symcrys#84. Dritter Schritt:
+  die Ecken der asymmetrischen Einheit (`gruppe().ae`). Die Bedingungen der ITA einzeln (Erklärung der gedruckten
+  Ungleichungen, `js/asymmetrie.js`, Link `aet`) bleiben in der App: Sie zeigen den gedruckten Text Teil für Teil,
+  symcrys gibt nur das Vieleck mit einer Ungleichung je Kante.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
   `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
   crystallography-common#114), `vorgaben.js`. Je Fall entschieden:

@@ -328,7 +328,7 @@ export function strukturTafelA(st, anzeige, farben, auswahl = null, fest = null,
     const Ak = konvAnsicht(A, r);
     const zelle = /** @type {Vec2[]} */ ([[0, 0], [1, 0], [1, 1], [0, 1]]).map((p) => pt(Ak.zuBild(p))).join(' ');
     if (anzeige.ae) {
-      const ae = r.gruppe.ae.ecken.map((p) => pt(Ak.zuBild(p))).join(' ');
+      const ae = gruppe(r.symbol).ae.map((p) => pt(Ak.zuBild(p))).join(' ');
       teile.push(`<polygon points="${ae}" fill="${farben.crystal}" fill-opacity="0.6" stroke="${farben.accent}" stroke-width="1.4" stroke-dasharray="5 3"/>`);
     }
     if (anzeige.fuell) {

@@ -6,7 +6,7 @@
 // der Operationen Abschn. 11.1.2, orientierte Lagesymmetrie Abschn. 2.2.12.
 
 import { ebenengruppe } from './ebenengruppen.js';
-import { kernBahn, kernErzeugende, kernLage, kernOperationen } from './kern.js';
+import { kernAsymmetrischeEinheit, kernBahn, kernErzeugende, kernLage, kernOperationen } from './kern.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Ebenengruppe, Wyckoff } from './ebenengruppen.js' */
@@ -20,7 +20,7 @@ import { kernBahn, kernErzeugende, kernLage, kernOperationen } from './kern.js';
  */
 /**
  * Ebenengruppe als Rechenobjekt (gruppe()).
- * @typedef {{ daten: Ebenengruppe, ops: Op[], zentr: Vec2[], alle: Op[], ordnung: number }} Gruppe
+ * @typedef {{ daten: Ebenengruppe, ops: Op[], zentr: Vec2[], alle: Op[], ordnung: number, ae: Vec2[] }} Gruppe
  */
 /** Drehpunkt in der Zelle mit der höchsten Zähligkeit an diesem Punkt. @typedef {{ punkt: Vec2, n: number }} Drehpunkt */
 /**
@@ -205,6 +205,7 @@ const cache = new Map();
  *   ops        die Operationen der allgemeinen Lage in der Reihenfolge der ITA (nur (0,0)+ Satz)
  *   zentr      Zentrierungstranslationen (immer mit [0, 0])
  *   alle       alle Nebenklassen nach den ganzzahligen Translationen: ops × zentr, t in [0, 1)
+ *   ae         Ecken der asymmetrischen Einheit (Gegenuhrzeigersinn, ab der untersten)
  * @param {string | number} id Symbol (z. B. 'p2mg') oder Nummer
  * @returns {Gruppe}
  */
@@ -213,7 +214,7 @@ export function gruppe(id) {
   const da = cache.get(daten.nr);
   if (da) return da;
   const { ops, alle, zentr } = kernOperationen(daten.symbol);
-  const g = { daten, ops, zentr, alle, ordnung: alle.length };
+  const g = { daten, ops, zentr, alle, ordnung: alle.length, ae: kernAsymmetrischeEinheit(daten.symbol) };
   cache.set(daten.nr, g);
   return g;
 }

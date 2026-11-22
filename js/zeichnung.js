@@ -636,7 +636,7 @@ export function aeFuellung(g, A, lo, hi, farben, einfarbig = null, nurSichtbar =
   const teile = [];
   /** @param {Vec2[]} pts */
   const pfad = (pts) => pts.map((p, i) => `${i ? 'L' : 'M'}${pt(A.zuBild(p))}`).join('');
-  for (const k of kopien(g, g.daten.ae.ecken, lo, hi, 0)) {
+  for (const k of kopien(g, g.ae, lo, hi, 0)) {
     if (nurSichtbar && !imBild(A, k.punkte)) continue;
     const farbe = einfarbig ?? (k.eigentlich ? farben.upper : farben.accent2);
     teile.push(`<path d="${pfad(k.punkte)}Z" fill="${farbe}" fill-opacity="${k.urbild ? 0.45 : 0.16}" stroke="${farbe}" stroke-width="${k.urbild ? 2 : 0.8}" stroke-linejoin="round"/>`);
@@ -839,7 +839,7 @@ export function tafelA(id, z, farben, { phase = 3, k = 1, mitte = null, fest = n
   const massObjekt = ruhig ? k : objektMassstab(M, A, z.objGroesse ?? 1);
   const teile = [`<rect width="520" height="520" fill="${farben.paper}"/>`];
   if (z.ae) {
-    const ecken = g.daten.ae.ecken.map((p) => pt(A.zuBild(p))).join(' ');
+    const ecken = g.ae.map((p) => pt(A.zuBild(p))).join(' ');
     teile.push(`<polygon class="ae" points="${ecken}" fill="${farben.crystal}" fill-opacity="0.55" stroke="${farben.accent}" stroke-width="1.6" stroke-dasharray="5 3"/>`);
   }
   if (z.aeTeile?.length) teile.push(aeTeileSVG(g, z.aeTeile, A, n, farben));
