@@ -6,7 +6,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import { kernErzeugende, kernOperationen } from '../js/kern.js';
-import { liesOp, reduziert, translation, verknuepfen } from '../js/symmetrie.js';
+import { anwenden, bahn, gruppe, lage, liesOp, mod1, reduziert, stabilisator, translation, verknuepfen } from '../js/symmetrie.js';
+import { bahnBisher, lagesymbolBisher, stabilisatorBisher } from './bisher.mjs';
 
 /** @import { Op } from '../js/symmetrie.js' */
 
@@ -33,3 +34,35 @@ for (const d of EBENENGRUPPEN) {
     assert.deepEqual(kernErzeugende(d.symbol), alt.erz);
   });
 }
+
+// Lagen und Bahnen: Bahn, Lagesymmetrie (Operationen), Zähligkeit und orientiertes Symbol aus symcrys gegen die frühere
+// Rechnung der App (tests/bisher.mjs) an jedem gedruckten Punkt jeder Wyckoff-Lage (freie Parameter allgemein gewählt)
+// und an einem allgemeinen Punkt; das Symbol zudem gegen die Abschrift der ITA 2006 (`sym`).
+for (const d of EBENENGRUPPEN) {
+  test(`${d.symbol}: Bahn, Lagesymmetrie, Zähligkeit und Symbol aus symcrys wie bisher`, () => {
+    const g = gruppe(d.symbol);
+    for (const w of d.wyckoff) {
+      for (const z of g.zentr) for (const k of w.koord) {
+        const p = /** @type {[number, number]} */ (anwenden(liesOp(k), [0.137, 0.291]).map((v, i) => mod1(v + z[i])));
+        const stab = stabilisator(g, p);
+        assert.deepEqual(stab, stabilisatorBisher(g, p), `${w.b} ${k}: Lagesymmetrie`);
+        const l = lage(g, p);
+        assert.equal(l.buchstabe, w.b);
+        assert.equal(l.zaehligkeit, g.ordnung / stabilisatorBisher(g, p).length, `${w.b}: Zähligkeit`);
+        assert.equal(l.symbol, lagesymbolBisher(g, stab), `${w.b}: Symbol wie bisher berechnet`);
+        assert.equal(l.symbol, w.sym, `${w.b}: Symbol wie ITA 2006`);
+        const neu = bahn(g, p);
+        const alt = bahnBisher(g, p);
+        assert.equal(neu.length, alt.length, `${w.b}: Länge der Bahn`);
+        neu.forEach((q, i) => assert.ok(Math.abs(q[0] - alt[i][0]) < 1e-12 && Math.abs(q[1] - alt[i][1]) < 1e-12, `${w.b}: Bild ${i + 1}`));
+      }
+    }
+  });
+}
+
+// Am Rand der Zelle: Koordinaten nahe 1 werden in der Bahn wie bisher zu 0.
+test('Bahn am Rand der Zelle wie bisher', () => {
+  for (const [sym, p] of /** @type {[string, [number, number]][]} */ ([['p2mm', [1 - 1e-12, 0.3]], ['p2', [1e-12, 0]], ['p4mm', [0.5, 1 - 1e-11]], ['p6mm', [1 - 1e-12, 1 - 1e-12]], ['c2mm', [0.25, 1 - 1e-12]]])) {
+    assert.deepEqual(bahn(gruppe(sym), p), bahnBisher(gruppe(sym), p), sym);
+  }
+});

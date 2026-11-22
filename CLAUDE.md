@@ -300,7 +300,12 @@ für diese App gilt.
   eines Musters (`js/bestimmung.js`), bis symcrys sie in einer zweiten MINOR hat (symcrys#31). Erster Schritt: die
   Operationen, die Zentrierung und die Erzeugenden (`gruppe`, `erzeugende` in `js/symmetrie.js`); die Erzeugenden in
   der Reihenfolge der App (Zentrierung zuletzt; symcrys nennt sie wie die ITA zuerst), damit `erzeugende()` gleich
-  bleibt wie bisher.
+  bleibt wie bisher. Zweiter Schritt: Bahn, Lagesymmetrie, Zähligkeit und orientiertes Symbol eines Punktes
+  (`bahn`, `stabilisator`, `lage`); die frühere Rechnung steht in `tests/bisher.mjs`. **Einrasten bleibt vorerst in
+  der App** (Thomas, 22.11.2026, symcrys#85): Die App rastet auf die speziellste Lage nach dem Abstand des Punktes zur
+  Lage, symcrys prüft den Abstand der Bilder (bei Spiegellinien und 2-zähligen Punkten halber Radius, in hexagonalen
+  Gittern andere Projektion); symcrys bekommt eine Funktion mit dem Kriterium der App, dann wechselt das Einrasten.
+  Ebenso bleibt `art()` (Beschreibung beliebiger Operationen, Normale der Linien) bis symcrys#84.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
   `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
   crystallography-common#114), `vorgaben.js`. Je Fall entschieden:

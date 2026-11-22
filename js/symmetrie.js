@@ -5,8 +5,8 @@
 // Begriffe und Konventionen nach ITA Vol. A (2006): Symmetrierichtungen Tab. 2.2.4.1, Beschreibung
 // der Operationen Abschn. 11.1.2, orientierte Lagesymmetrie Abschn. 2.2.12.
 
-import { ebenengruppe, SYMMETRIERICHTUNGEN } from './ebenengruppen.js';
-import { kernErzeugende, kernOperationen } from './kern.js';
+import { ebenengruppe } from './ebenengruppen.js';
+import { kernBahn, kernErzeugende, kernLagesymmetrie, kernOperationen, kernWyckoff } from './kern.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Ebenengruppe, Wyckoff } from './ebenengruppen.js' */
@@ -444,9 +444,6 @@ export function elemente(g) {
 // Lagen: Lagesymmetrie, Zähligkeit, Wyckoff-Lage (ITA Abschn. 2.2.11–2.2.12)
 // ---------------------------------------------------------------------------------------------
 
-/** @param {Vec2} u @param {Vec2} v */
-const parallel = (u, v) => nahe(u[0] * v[1] - u[1] * v[0], 0);
-
 /**
  * Toleranz für das Einrasten auf eine spezielle Lage (in Bruchkoordinaten). Ein Punkt, der
  * näher an einer speziellen Lage liegt, gilt als auf ihr; lage() rastet ihn dorthin ein.
@@ -455,71 +452,28 @@ export const TOL_LAGE = 1e-6;
 /** Toleranz für exakte Vergleiche an bereits eingerasteten Punkten (nur Rundungsfehler). */
 const TOL_EXAKT = 1e-9;
 
-/** Abstand zweier Punkte modulo Gitter (komponentenweise, in Bruchkoordinaten). @param {Vec2} p @param {Vec2} q */
-const abstandModGitter = (p, q) => {
-  const d0 = p[0] - q[0]; const d1 = p[1] - q[1];
-  return Math.max(Math.abs(d0 - Math.round(d0)), Math.abs(d1 - Math.round(d1)));
-};
-
 /**
- * Operationen der Gruppe, die p festhalten (mit passender ganzzahliger Translation).
- * Gedacht für exakte Punkte; einen gezogenen oder gerundeten Punkt erst mit lage() einrasten,
- * sonst bilden die gefundenen Operationen nicht sicher eine Untergruppe.
+ * Operationen der Gruppe, die p festhalten, jede mit der ganzzahligen Translation, die sie p festhalten lässt; welche,
+ * sagt symcrys (js/kern.js). Gedacht für exakte Punkte; einen gezogenen oder gerundeten Punkt erst mit lage()
+ * einrasten.
  * @param {Gruppe} g
  * @param {Vec2} p
  * @returns {Op[]}
  */
 export function stabilisator(g, p, tol = TOL_EXAKT) {
-  /** @type {Op[]} */
-  const out = [];
-  for (const op of g.alle) {
+  return kernLagesymmetrie(g.daten.symbol, p, tol).map((i) => {
+    const op = g.alle[i];
     const q = anwenden(op, p);
-    if (abstandModGitter(q, p) >= tol) continue;
-    out.push({ R: op.R, t: [op.t[0] - Math.round(q[0] - p[0]), op.t[1] - Math.round(q[1] - p[1])] });
-  }
-  return out;
+    return { R: op.R, t: [op.t[0] - Math.round(q[0] - p[0]), op.t[1] - Math.round(q[1] - p[1])] };
+  });
 }
 
 /**
- * Orientiertes Symbol der Lagesymmetrie (ITA Abschn. 2.2.12): Drehung an Position 1, dann je
- * Menge von Symmetrierichtungen ein Zeichen; „.“ wenn die Menge nichts beiträgt. Zerfällt eine
- * Menge unter der Lagesymmetrie, steht ein Zeichen je Bahn (z. B. „2mm.“ in p4mm).
- * @param {Gruppe} g
- * @param {readonly Op[]} stab Stabilisator (stabilisator())
+ * Bahn von p: alle äquivalenten Punkte in [0, 1)², ohne Doppelte (modulo Gitter verglichen; aus symcrys). Koordinaten
+ * näher als 10⁻⁹ an 1 werden wie in der ganzen App zu 0 (mod1). @param {Gruppe} g @param {Vec2} p
  */
-export function lagesymbol(g, stab) {
-  if (stab.length === 1) return '1';
-  const system = g.daten.system;
-  const drehungen = stab.filter((o) => nahe(det(o.R), 1));
-  const n = Math.max(...drehungen.map((o) => drehZaehligkeit(o.R)));
-  if (system === 'schiefwinklig') return String(n);
-  // Operationen mit det −1 sind Spiegelungen oder Gleitspiegelungen, ihre Art hat eine Normale
-  const normalen = stab.filter((o) => nahe(det(o.R), -1)).map((o) => /** @type {Extract<Art, { normale: Vec2 }>} */ (art(o)).normale);
-  let s = n > 1 ? String(n) : '.';
-  for (const menge of SYMMETRIERICHTUNGEN[system]) {
-    const mitSpiegel = menge.filter((r) => normalen.some((nv) => parallel(nv, r)));
-    if (mitSpiegel.length === 0) { s += '.'; continue; }
-    // Bahnen der Richtungen mit Spiegel unter den Drehungen der Lagesymmetrie
-    /** @type {Vec2[]} */
-    const bahnen = [];
-    for (const r of mitSpiegel) {
-      if (bahnen.some((b) => drehungen.some((o) => parallel(matVec(o.R, b), r)))) continue;
-      bahnen.push(r);
-    }
-    s += 'm'.repeat(bahnen.length);
-  }
-  return s;
-}
-
-/** Bahn von p: alle äquivalenten Punkte in [0, 1)², ohne Doppelte (modulo Gitter verglichen). @param {Gruppe} g @param {Vec2} p */
 export function bahn(g, p, tol = TOL_EXAKT) {
-  /** @type {Vec2[]} */
-  const out = [];
-  for (const op of g.alle) {
-    const q = /** @type {Vec2} */ (anwenden(op, p).map(mod1));
-    if (!out.some((r) => abstandModGitter(r, q) < tol)) out.push(q);
-  }
-  return out;
+  return kernBahn(g.daten.symbol, p, tol).map((q) => /** @type {Vec2} */ ([mod1(q[0]), mod1(q[1])]));
 }
 
 /** Ausdruck einer Wyckoff-Koordinate („x,1/2“, „-x+1/2,x“) als { M (2×2), c }. @param {string} text */
@@ -587,10 +541,12 @@ export function lage(g, p, tol = TOL_LAGE) {
       const { M, c } = liesKoord(k);
       const punkt = einrasten(M, [c[0] + z[0], c[1] + z[1]], p0, tol);
       if (!punkt) continue;
-      const stab = stabilisator(g, punkt);
+      // Zähligkeit, Buchstabe und Symbol des eingerasteten Punktes aus symcrys (wie die ITA sie druckt)
+      const kern = kernWyckoff(g.daten.symbol, punkt, TOL_EXAKT);
+      if (kern.buchstabe !== w.b) throw new Error(`Lage ${w.b} in ${g.daten.symbol}: symcrys nennt ${kern.buchstabe}`);
       return {
-        punkt, wyckoff: w, buchstabe: w.b, zaehligkeit: g.ordnung / stab.length, symbol: lagesymbol(g, stab),
-        freiheitsgrade: freiheitsgrade(w.koord[0]), allgemein: stab.length === 1,
+        punkt, wyckoff: w, buchstabe: w.b, zaehligkeit: kern.zaehligkeit, symbol: kern.symbol,
+        freiheitsgrade: freiheitsgrade(w.koord[0]), allgemein: kern.zaehligkeit === g.ordnung,
       };
     }
   }
