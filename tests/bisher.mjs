@@ -1,5 +1,7 @@
 // Die frühere Rechnung der App für Lagen und Bahnen (bis zur Umstellung auf symcrys, js/symmetrie.js). Sie bleibt als
 // unabhängige Gegenprobe zu symcrys in den Tests (CLAUDE.md, „Rechenkern symcrys“); die App selbst nutzt sie nicht mehr.
+// Sie läuft über `g.alle`, das inzwischen aus symcrys kommt; dass es gleich der Abschrift der ITA 2006 ist, prüft der
+// erste Test in tests/kern.test.mjs.
 
 import { SYMMETRIERICHTUNGEN } from '../js/ebenengruppen.js';
 import { anwenden, art, mod1 } from '../js/symmetrie.js';

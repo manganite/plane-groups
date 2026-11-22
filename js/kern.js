@@ -1,7 +1,7 @@
 // Ebenengruppen aus dem Rechenkern symcrys (lib/kern/plane.js, symcrys#31, crystallography-common#99). Hier steht nur,
 // was die App daraus macht: die Operationen in ihrer Form { R, t } und die Zentrierung mit [0, 0] vorne. Die Daten
 // der ITA (6. Aufl., 2016, Kap. 2.2) liegen in symcrys und werden dort gegen den Druck geprüft; die bisherige Rechnung
-// der App aus js/ebenengruppen.js bleibt in tests/kern.test.mjs als unabhängige Gegenprobe.
+// der App aus js/ebenengruppen.js bleibt in tests/bisher.mjs und tests/kern.test.mjs als unabhängige Gegenprobe.
 
 import { generators, operations, orbit, planeGroup, siteSymmetry, wyckoffPositionOf } from '../lib/kern/plane.js';
 
@@ -57,12 +57,20 @@ export function kernBahn(symbol, p, tol) {
 
 /**
  * Lagesymmetrie eines Punktes: die Nummern der Operationen (in `alle` von kernOperationen), die ihn modulo Gitter
- * festhalten, die Zähligkeit und Buchstabe und orientiertes Symbol seiner Wyckoff-Lage, wie die ITA sie druckt.
+ * festhalten; symcrys schliesst sie zu einer Gruppe ab und setzt den Punkt auf deren Fixraum (bei tol > 0).
  * @param {string} symbol @param {Vec2} p @param {number} tol
- * @returns {{ operationen: number[], zaehligkeit: number, buchstabe: string, symbol: string }}
+ * @returns {number[]}
  */
-export function kernLage(symbol, p, tol) {
-  const s = siteSymmetry(schluessel(symbol), p, { tolerance: tol });
+export function kernLagesymmetrie(symbol, p, tol) {
+  return [...siteSymmetry(schluessel(symbol), p, { tolerance: tol }).operations];
+}
+
+/**
+ * Wyckoff-Lage eines Punktes, wie die ITA sie druckt: Buchstabe, Zähligkeit und orientiertes Symbol.
+ * @param {string} symbol @param {Vec2} p @param {number} tol
+ * @returns {{ buchstabe: string, zaehligkeit: number, symbol: string }}
+ */
+export function kernWyckoff(symbol, p, tol) {
   const w = wyckoffPositionOf(schluessel(symbol), p, { tolerance: tol });
-  return { operationen: [...s.operations], zaehligkeit: s.multiplicity, buchstabe: w.letter, symbol: w.siteSymmetry };
+  return { buchstabe: w.letter, zaehligkeit: w.multiplicity, symbol: w.siteSymmetry };
 }
