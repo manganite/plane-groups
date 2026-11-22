@@ -309,10 +309,13 @@ für diese App gilt.
   die Ecken der asymmetrischen Einheit (`gruppe().ae`). Die Bedingungen der ITA einzeln (Erklärung der gedruckten
   Ungleichungen, `js/asymmetrie.js`, Link `aet`) bleiben in der App: Sie zeigen den gedruckten Text Teil für Teil,
   symcrys gibt nur das Vieleck mit einer Ungleichung je Kante. **Abschrift der ITA in `js/ebenengruppen.js`**
-  (Koordinaten und Texte der Operationen, Erzeugende, Zentrierung, Ecken, Wyckoff-Lagen; Thomas, 22.11.2026): bleibt,
-  bis symcrys#84, #85 und #86 umgesetzt sind; dann ziehen die Koordinaten (`wyckoffPositions`), die Texte der
-  Operationen (`describeOperations`) und das Einrasten in einem Schritt um, und was nur noch die Tests brauchen, wandert
-  nach `tests/`. Bis dahin ist sie die Gegenprobe in `tests/kern.test.mjs`.
+  (Thomas, 22.11.2026): `ops`, `opsText`, `zentrText`, `erzeugende` und die Koordinaten der Wyckoff-Lagen zeigt die App
+  heute an (Tabellen der Kenndaten, „Schritt für Schritt“, Experimente); dazu sind sie mit `zentrierung` und `ae.ecken`
+  die Gegenprobe in `tests/kern.test.mjs`. Sie ziehen in einem Schritt um, statt in dreien, wenn symcrys#84 (Beschreibung
+  beliebiger Operationen), #85 (Einrasten) und #86 (Tempo) umgesetzt sind: dann kommen die Koordinaten der allgemeinen
+  und der speziellen Lagen aus `wyckoffPositions`, die Texte der Operationen werden aus `describeOperations` geschrieben,
+  und was nur noch die Tests brauchen (schon heute `ae.ecken`), wandert nach `tests/`. Was symcrys nicht hat (Nummer,
+  Namen, Kristallsystem, Seite, Ursprung, `ae.text` u. a.), bleibt in der Datei.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
   `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
   crystallography-common#114), `vorgaben.js`. Je Fall entschieden:
