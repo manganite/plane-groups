@@ -3,7 +3,7 @@
 // der ITA (6. Aufl., 2016, Kap. 2.2) liegen in symcrys und werden dort gegen den Druck geprüft; die bisherige Rechnung
 // der App aus js/ebenengruppen.js bleibt in tests/bisher.mjs und tests/kern.test.mjs als unabhängige Gegenprobe.
 
-import { generators, operations, orbit, planeGroup, siteSymmetry, wyckoffPositionOf } from '../lib/kern/plane.js';
+import { asymmetricUnit, generators, operations, orbit, planeGroup, siteSymmetry, wyckoffPositionOf } from '../lib/kern/plane.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { PlaneGroupKey, PlaneOperation } from '../lib/kern/plane.js' */
@@ -73,4 +73,14 @@ export function kernLagesymmetrie(symbol, p, tol) {
 export function kernWyckoff(symbol, p, tol) {
   const w = wyckoffPositionOf(schluessel(symbol), p, { tolerance: tol });
   return { buchstabe: w.letter, zaehligkeit: w.multiplicity, symbol: w.siteSymmetry };
+}
+
+/**
+ * Ecken der asymmetrischen Einheit, wie die ITA sie als Ungleichungen druckt, im Gegenuhrzeigersinn (von a nach b)
+ * ab der untersten.
+ * @param {string} symbol
+ * @returns {Vec2[]}
+ */
+export function kernAsymmetrischeEinheit(symbol) {
+  return asymmetricUnit(schluessel(symbol)).vertices.map((v) => /** @type {Vec2} */ ([v[0], v[1]]));
 }

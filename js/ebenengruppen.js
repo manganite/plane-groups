@@ -10,7 +10,8 @@
 //   opsText     ITA „Symmetry operations“ zu ops, in derselben Reihenfolge
 //   zentrText   bei c-Gruppen: ITA „Symmetry operations“ für den (1/2,1/2)+ Satz
 //   erzeugende  ITA „Generators selected“ ohne (1) und die Gittertranslationen (Nummern in ops)
-//   ae          asymmetrische Einheit: Ungleichungen wie in ITA und Ecken des Polygons
+//   ae          asymmetrische Einheit: Ungleichungen wie in ITA und Ecken des Polygons (die Ecken nutzt die App aus
+//               symcrys; hier stehen sie als Gegenprobe für tests/kern.test.mjs)
 //   wyckoff     Buchstabe, Zähligkeit, orientierte Lagesymmetrie, Koordinaten (nur der (0,0)+ Satz)
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */

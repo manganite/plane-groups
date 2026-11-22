@@ -60,6 +60,15 @@ for (const d of EBENENGRUPPEN) {
   });
 }
 
+// Asymmetrische Einheit: die Ecken aus symcrys (aus den gedruckten Ungleichungen der ITA 2016) gegen die Ecken der
+// Abschrift der ITA 2006 in js/ebenengruppen.js, der Reihe nach (dieselbe Folge, derselbe Anfang).
+for (const d of EBENENGRUPPEN) {
+  test(`${d.symbol}: Ecken der asymmetrischen Einheit aus symcrys wie in der Abschrift`, () => {
+    const runden = (/** @type {readonly (readonly number[])[]} */ poly) => poly.map((p) => p.map((v) => Math.round(v * 1e9) / 1e9));
+    assert.deepEqual(runden(gruppe(d.symbol).ae), runden(d.ae.ecken));
+  });
+}
+
 // Am Rand der Zelle: Koordinaten nahe 1 werden in der Bahn wie bisher zu 0.
 test('Bahn am Rand der Zelle wie bisher', () => {
   for (const [sym, p] of /** @type {[string, [number, number]][]} */ ([['p2mm', [1 - 1e-12, 0.3]], ['p2', [1e-12, 0]], ['p4mm', [0.5, 1 - 1e-11]], ['p6mm', [1 - 1e-12, 1 - 1e-12]], ['c2mm', [0.25, 1 - 1e-12]]])) {
