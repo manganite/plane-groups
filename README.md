@@ -210,7 +210,7 @@ Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere
 | `tools/entwurf-pruefen.mjs` | Browserlauf für „Muster entwerfen“ (Bedienung mit der Maus) |
 | `tools/quiz-quelle.mjs` | Fragen und Bilder für die gemeinsame Fragenliste der App-Familie (crystallography-common, `fragenliste/`) |
 | `js/version.js`, `sw.js` | Versionsnummer, Service Worker für den Offline-Betrieb |
-| `manifest.webmanifest`, `icons/` | Favicon und Homescreen-Icons |
+| `manifest.webmanifest`, `icons/` | Favicon, Homescreen-Icons und Vorschaubild geteilter Links (`vorschau.png`, Open Graph) |
 | `lib/common/`, `tools/common/` | Gemeinsame Grundlage aus [crystallography-common](https://github.com/manganite/crystallography-common) als Kopie mit fester Version (`lib/common/MANIFEST.json`): Stile, Schriften, Hilfen, Quiz, Skript-Bausteine, Formatierung, Werkzeuge. Nicht von Hand ändern. |
 | `tests/` | Automatische Tests (Node, ohne Abhängigkeiten); gemeinsame Helfer der Tests in `tests/hilfen.mjs` |
 | `tsconfig.json` | Typprüfung mit TypeScript (JSDoc-Typen, kein Build-Schritt) |

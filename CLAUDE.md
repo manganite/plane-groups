@@ -201,6 +201,9 @@ für diese App gilt.
 - **Bilder:** nur selbst erzeugte, keine Fotos. Escher nur beschreiben und verlinken (Werke geschützt).
 - **Dreiecksbeispiel:** Spitzen entlang *b*, damit die Symbole ohne Umrechnung der ITA-Standardaufstellung
   entsprechen. Drei Stufen pm → cm → p2mg (fester Testfall).
+- **Titel der Seiten** (Thomas, 22.11.2026, crystallography-common#164, Leitfaden Abschn. 9): „Symmetrie in der Ebene – die
+  17 Ebenengruppen interaktiv“, Skript, Quiz und Hilfe mit „– die 17 Ebenengruppen“, damit die Begriffe, nach denen gesucht
+  wird, im Titel stehen. Der Name der App (Kopfzeile, Manifest, Moodle, Skript-PDF) bleibt „Symmetrie in der Ebene“.
 - **Begriff „rechteckig“** (wie Hoffmann); „rechtwinklig“ nur als Bezeichnung bei Borchardt-Ott.
 - **Quizbilder:** Symbole, Linien und Achsennamen einheitlich: `K_FRAGE` 1,8, `K_ANTWORT` 2,
   `K_MUSTER` 1,15, `K_SKIZZE` 1,25 (Kachel 1, sie füllt das Bild) in `js/quiz-bild.js`; Fähnchen nur im Muster (Tafel B) mit `K_MUSTER`,
