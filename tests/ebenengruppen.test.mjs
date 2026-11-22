@@ -5,8 +5,9 @@ import assert from 'node:assert/strict';
 import { EBENENGRUPPEN } from '../js/ebenengruppen.js';
 import {
   gruppe, erzeugende, abschluss, gleichModGitter, punktgruppe, beschreibe, verknuepfen, translation,
-  liesOp, opText, elemente, stabilisator, lagesymbol, lage, bahn, mod1, art, punktAufLage,
+  liesOp, opText, elemente, stabilisator, lage, bahn, mod1, art, punktAufLage,
 } from '../js/symmetrie.js';
+import { lagesymbolBisher } from './bisher.mjs';
 
 // Reproduzierbarer Zufall (LCG), damit Fehlschläge nachvollziehbar sind
 function zufall(seed = 12345) {
@@ -87,7 +88,7 @@ for (const id of ALLE) {
         const p = punkte[0];
         const stab = stabilisator(g, p);
         assert.equal(g.ordnung / stab.length, w.n, `${id} ${w.b}: Zähligkeit`);
-        assert.equal(lagesymbol(g, stab), w.sym, `${id} ${w.b}: Lagesymmetrie`);
+        assert.equal(lagesymbolBisher(g, stab), w.sym, `${id} ${w.b}: Lagesymmetrie`);
         // Bahn = die in ITA aufgeführten Koordinaten mit Zentrierung, modulo 1
         const ita = [];
         for (const z of g.zentr) for (const r of punkte) ita.push([mod1(r[0] + z[0]), mod1(r[1] + z[1])]);

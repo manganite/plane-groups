@@ -3,7 +3,7 @@
 // der ITA (6. Aufl., 2016, Kap. 2.2) liegen in symcrys und werden dort gegen den Druck geprüft; die bisherige Rechnung
 // der App aus js/ebenengruppen.js bleibt in tests/kern.test.mjs als unabhängige Gegenprobe.
 
-import { generators, operations, planeGroup } from '../lib/kern/plane.js';
+import { generators, operations, orbit, planeGroup, siteSymmetry, wyckoffPositionOf } from '../lib/kern/plane.js';
 
 /** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { PlaneGroupKey, PlaneOperation } from '../lib/kern/plane.js' */
@@ -43,4 +43,26 @@ export function kernErzeugende(symbol) {
   const erz = generators(schluessel(symbol)).map(alsOp);
   const istTranslation = (/** @type {Op} */ op) => op.R[0][0] === 1 && op.R[0][1] === 0 && op.R[1][0] === 0 && op.R[1][1] === 1;
   return [...erz.filter((op) => !istTranslation(op)), ...erz.filter(istTranslation)];
+}
+
+/**
+ * Bahn eines Punktes: die verschiedenen Bilder in [0, 1)², in der Reihenfolge der Operationen, die sie zuerst
+ * ergeben; Bilder näher als tol (je Koordinate modulo Gitter) gelten als gleich.
+ * @param {string} symbol @param {Vec2} p @param {number} tol
+ * @returns {Vec2[]}
+ */
+export function kernBahn(symbol, p, tol) {
+  return orbit(schluessel(symbol), p, { tolerance: tol }).map((q) => /** @type {Vec2} */ ([q[0], q[1]]));
+}
+
+/**
+ * Lagesymmetrie eines Punktes: die Nummern der Operationen (in `alle` von kernOperationen), die ihn modulo Gitter
+ * festhalten, die Zähligkeit und Buchstabe und orientiertes Symbol seiner Wyckoff-Lage, wie die ITA sie druckt.
+ * @param {string} symbol @param {Vec2} p @param {number} tol
+ * @returns {{ operationen: number[], zaehligkeit: number, buchstabe: string, symbol: string }}
+ */
+export function kernLage(symbol, p, tol) {
+  const s = siteSymmetry(schluessel(symbol), p, { tolerance: tol });
+  const w = wyckoffPositionOf(schluessel(symbol), p, { tolerance: tol });
+  return { operationen: [...s.operations], zaehligkeit: s.multiplicity, buchstabe: w.letter, symbol: w.siteSymmetry };
 }
