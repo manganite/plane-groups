@@ -6,7 +6,7 @@
 // der Operationen Abschn. 11.1.2, orientierte Lagesymmetrie Abschn. 2.2.12.
 
 import { ebenengruppe } from './ebenengruppen.js';
-import { kernAsymmetrischeEinheit, kernBahn, kernErzeugende, kernLage, kernOperationen } from './kern.js';
+import { kernAsymmetrischeEinheit, kernBahn, kernErzeugende, kernLagesymmetrie, kernOperationen, kernWyckoff } from './kern.js';
 
 /** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
 /** @import { Ebenengruppe, Wyckoff } from './ebenengruppen.js' */
@@ -462,16 +462,19 @@ const TOL_EXAKT = 1e-9;
  * @returns {Op[]}
  */
 export function stabilisator(g, p, tol = TOL_EXAKT) {
-  return kernLage(g.daten.symbol, p, tol).operationen.map((i) => {
+  return kernLagesymmetrie(g.daten.symbol, p, tol).map((i) => {
     const op = g.alle[i];
     const q = anwenden(op, p);
     return { R: op.R, t: [op.t[0] - Math.round(q[0] - p[0]), op.t[1] - Math.round(q[1] - p[1])] };
   });
 }
 
-/** Bahn von p: alle äquivalenten Punkte in [0, 1)², ohne Doppelte (modulo Gitter verglichen; aus symcrys). @param {Gruppe} g @param {Vec2} p */
+/**
+ * Bahn von p: alle äquivalenten Punkte in [0, 1)², ohne Doppelte (modulo Gitter verglichen; aus symcrys). Koordinaten
+ * näher als 10⁻⁹ an 1 werden wie in der ganzen App zu 0 (mod1). @param {Gruppe} g @param {Vec2} p
+ */
 export function bahn(g, p, tol = TOL_EXAKT) {
-  return kernBahn(g.daten.symbol, p, tol);
+  return kernBahn(g.daten.symbol, p, tol).map((q) => /** @type {Vec2} */ ([mod1(q[0]), mod1(q[1])]));
 }
 
 /** Ausdruck einer Wyckoff-Koordinate („x,1/2“, „-x+1/2,x“) als { M (2×2), c }. @param {string} text */
@@ -540,11 +543,11 @@ export function lage(g, p, tol = TOL_LAGE) {
       const punkt = einrasten(M, [c[0] + z[0], c[1] + z[1]], p0, tol);
       if (!punkt) continue;
       // Zähligkeit, Buchstabe und Symbol des eingerasteten Punktes aus symcrys (wie die ITA sie druckt)
-      const kern = kernLage(g.daten.symbol, punkt, TOL_EXAKT);
+      const kern = kernWyckoff(g.daten.symbol, punkt, TOL_EXAKT);
       if (kern.buchstabe !== w.b) throw new Error(`Lage ${w.b} in ${g.daten.symbol}: symcrys nennt ${kern.buchstabe}`);
       return {
         punkt, wyckoff: w, buchstabe: w.b, zaehligkeit: kern.zaehligkeit, symbol: kern.symbol,
-        freiheitsgrade: freiheitsgrade(w.koord[0]), allgemein: kern.operationen.length === 1,
+        freiheitsgrade: freiheitsgrade(w.koord[0]), allgemein: kern.zaehligkeit === g.ordnung,
       };
     }
   }

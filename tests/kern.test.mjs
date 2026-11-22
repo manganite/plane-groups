@@ -48,7 +48,7 @@ for (const d of EBENENGRUPPEN) {
         assert.deepEqual(stab, stabilisatorBisher(g, p), `${w.b} ${k}: Lagesymmetrie`);
         const l = lage(g, p);
         assert.equal(l.buchstabe, w.b);
-        assert.equal(l.zaehligkeit, g.ordnung / stab.length, `${w.b}: Zähligkeit`);
+        assert.equal(l.zaehligkeit, g.ordnung / stabilisatorBisher(g, p).length, `${w.b}: Zähligkeit`);
         assert.equal(l.symbol, lagesymbolBisher(g, stab), `${w.b}: Symbol wie bisher berechnet`);
         assert.equal(l.symbol, w.sym, `${w.b}: Symbol wie ITA 2006`);
         const neu = bahn(g, p);
@@ -68,3 +68,10 @@ for (const d of EBENENGRUPPEN) {
     assert.deepEqual(runden(gruppe(d.symbol).ae), runden(d.ae.ecken));
   });
 }
+
+// Am Rand der Zelle: Koordinaten nahe 1 werden in der Bahn wie bisher zu 0.
+test('Bahn am Rand der Zelle wie bisher', () => {
+  for (const [sym, p] of /** @type {[string, [number, number]][]} */ ([['p2mm', [1 - 1e-12, 0.3]], ['p2', [1e-12, 0]], ['p4mm', [0.5, 1 - 1e-11]], ['p6mm', [1 - 1e-12, 1 - 1e-12]], ['c2mm', [0.25, 1 - 1e-12]]])) {
+    assert.deepEqual(bahn(gruppe(sym), p), bahnBisher(gruppe(sym), p), sym);
+  }
+});
