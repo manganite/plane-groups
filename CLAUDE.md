@@ -308,7 +308,11 @@ für diese App gilt.
   Ebenso bleibt `art()` (Beschreibung beliebiger Operationen, Normale der Linien) bis symcrys#84. Dritter Schritt:
   die Ecken der asymmetrischen Einheit (`gruppe().ae`). Die Bedingungen der ITA einzeln (Erklärung der gedruckten
   Ungleichungen, `js/asymmetrie.js`, Link `aet`) bleiben in der App: Sie zeigen den gedruckten Text Teil für Teil,
-  symcrys gibt nur das Vieleck mit einer Ungleichung je Kante.
+  symcrys gibt nur das Vieleck mit einer Ungleichung je Kante. **Abschrift der ITA in `js/ebenengruppen.js`**
+  (Koordinaten und Texte der Operationen, Erzeugende, Zentrierung, Ecken, Wyckoff-Lagen; Thomas, 22.11.2026): bleibt,
+  bis symcrys#84, #85 und #86 umgesetzt sind; dann ziehen die Koordinaten (`wyckoffPositions`), die Texte der
+  Operationen (`describeOperations`) und das Einrasten in einem Schritt um, und was nur noch die Tests brauchen, wandert
+  nach `tests/`. Bis dahin ist sie die Gegenprobe in `tests/kern.test.mjs`.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
   `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
   crystallography-common#114), `vorgaben.js`. Je Fall entschieden:
