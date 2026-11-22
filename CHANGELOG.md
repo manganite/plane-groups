@@ -6,6 +6,11 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+### Geändert
+
+- **Auffindbarkeit** (crystallography-common#164; Leitfaden Abschn. 9): Titel mit den Begriffen, nach denen gesucht wird: „Symmetrie in der Ebene – die 17 Ebenengruppen interaktiv“, Skript, Quiz und Hilfe mit „– die 17 Ebenengruppen“ (Wortlaut Thomas, 22.11.2026); Beschreibung des Skripts gekürzt (höchstens 160 Zeichen); im Kopf jeder Seite kanonische Adresse, Open Graph für die Vorschau geteilter Links (Bild `icons/vorschau.png`, das Vorschaubild des Repositorys, in der Offline-Liste) und strukturierte Daten (JSON-LD, schema.org `LearningResource`), geprüft in `tests/common.test.mjs`. Link-Adressen und Speicher bleiben gültig.
+- **Gemeinsame Grundlage** auf crystallography-common v0.25.0 (über v0.24.0): Prüfung des Kopfs (`tools/common/kopf-pruefen.mjs`); Übernahme des Rechenkerns symcrys mit `sync.mjs --kern` (für diese App noch ohne Wirkung, symcrys#31).
+
 ## [1.8.0] - 2026-11-15
 
 Skript mit Abschnittsnummern und Verweisen als Links (gemeinsame Grundlage crystallography-common v0.23.0); Touch-Ziele und Trefferkreise nach dem zuletzt benutzten Gerät, auch auf Laptops mit Touchscreen; Tooltips im Browserlauf geprüft.
