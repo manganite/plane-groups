@@ -8,6 +8,7 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ### Geändert
 
+- **Rechenkern** auf symcrys v0.9.0 (symcrys#31): Die Operationen der 17 Ebenengruppen, ihre Zentrierung und die Erzeugenden kommen aus symcrys (`lib/kern/`, `js/kern.js`) statt aus den Koordinaten in `js/ebenengruppen.js`; `tests/kern.test.mjs` vergleicht sie mit der bisherigen Rechnung. Bedienung, Bilder, Link-Adressen und Speicher bleiben gleich.
 - **README:** „Versionen und Releases“ verweist für die Stelle der Version auf den Leitfaden der Familie, Abschn. 9 (crystallography-common#167).
 
 ## [1.8.1] - 2026-11-22
