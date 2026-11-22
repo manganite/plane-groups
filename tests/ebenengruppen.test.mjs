@@ -115,7 +115,7 @@ for (const id of ALLE) {
 
   test(`${id}: asymmetrische Einheit: Fläche und lückenlose Zerlegung der Zelle`, () => {
     const g = gruppe(id);
-    const e = g.daten.ae.ecken;
+    const e = g.ae;
     let flaeche = 0;
     for (let i = 0; i < e.length; i++) { const [a, b] = e[i]; const [c, d] = e[(i + 1) % e.length]; flaeche += a * d - b * c; }
     assert.ok(Math.abs(Math.abs(flaeche) / 2 - 1 / g.ordnung) < 1e-12, `${id}: Fläche ${Math.abs(flaeche) / 2}`);

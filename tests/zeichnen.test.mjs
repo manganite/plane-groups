@@ -30,7 +30,7 @@ function innen(p, poly) {
 for (const d of EBENENGRUPPEN) {
   test(`${d.symbol}: Die Bilder der asymmetrischen Einheit pflastern die Zelle lückenlos und ohne Überlappung`, () => {
     const g = gruppe(d.symbol);
-    const polys = kopien(g, d.ae.ecken, 0, 1, 0).map((k) => k.punkte);
+    const polys = kopien(g, g.ae, 0, 1, 0).map((k) => k.punkte);
     // Rasterpunkte mit krummen Versätzen, damit keiner auf einer Grenze liegt
     for (let i = 0; i < 23; i++) for (let j = 0; j < 29; j++) {
       const p = [(i + 0.317) / 23, (j + 0.581) / 29];
