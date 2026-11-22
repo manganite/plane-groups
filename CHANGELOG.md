@@ -6,6 +6,10 @@ Das Format folgt [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die V
 
 ## [Unreleased]
 
+## [1.8.1] - 2026-11-22
+
+Besser auffindbar: Titel mit den Begriffen, nach denen gesucht wird, dazu kanonische Adresse, Vorschau geteilter Links (Open Graph) und strukturierte Daten im Kopf jeder Seite (gemeinsame Grundlage crystallography-common v0.25.0). Bedienung, Inhalte, Link-Adressen und Speicher bleiben gleich.
+
 ### Geändert
 
 - **Auffindbarkeit** (crystallography-common#164; Leitfaden Abschn. 9): Titel mit den Begriffen, nach denen gesucht wird: „Symmetrie in der Ebene – die 17 Ebenengruppen interaktiv“, Skript, Quiz und Hilfe mit „– die 17 Ebenengruppen“ (Wortlaut Thomas, 22.11.2026); Beschreibungen von Skript und Quiz nennen die Bestimmung der Ebenengruppe, die des Skripts gekürzt (höchstens 160 Zeichen); im Kopf jeder Seite kanonische Adresse, Open Graph für die Vorschau geteilter Links (Bild `icons/vorschau.png`, das Vorschaubild des Repositorys, in der Offline-Liste) und strukturierte Daten (JSON-LD, schema.org `LearningResource`), geprüft in `tests/common.test.mjs`. Link-Adressen und Speicher bleiben gültig.
@@ -258,7 +262,8 @@ Erstes Release: App mit den Modi „Ebenengruppen“ und „Gitter und Basis“,
 
 - Gerüst aus der Vorlage von crystallography-common.
 
-[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.8.0...HEAD
+[Unreleased]: https://github.com/manganite/plane-groups/compare/v1.8.1...HEAD
+[1.8.1]: https://github.com/manganite/plane-groups/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/manganite/plane-groups/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/manganite/plane-groups/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/manganite/plane-groups/compare/v1.5.0...v1.6.0
