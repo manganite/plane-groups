@@ -5,9 +5,9 @@
 
 import { generators, operations, planeGroup } from '../lib/kern/plane.js';
 
-/** @import { Vec2, Mat2 } from '../lib/common/js/typen.js' */
+/** @import { Vec2 } from '../lib/common/js/typen.js' */
 /** @import { PlaneGroupKey, PlaneOperation } from '../lib/kern/plane.js' */
-/** Operation x' = R·x + t (Bruchkoordinaten), wie in js/symmetrie.js. @typedef {{ R: Mat2, t: Vec2 }} Op */
+/** @import { Op } from './symmetrie.js' */
 
 /** @param {PlaneOperation} op @returns {Op} */
 const alsOp = (op) => ({

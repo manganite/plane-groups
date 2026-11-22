@@ -190,7 +190,7 @@ Im Modus „Muster entwerfen“ (`m=entwurf`; ohne gültige Gruppe `g` der leere
 | `index.html`, `js/main.js` | Oberfläche und Steuerung der App: Zustand, Bedienelemente, Tafeln, Kenndaten |
 | `js/zustand.js` | Zustand und Link-Adresse (Schnittstelle, siehe oben) |
 | `js/zoom.js` | Zoom und Verschieben der Tafeln (Mausrad, zwei Finger, Knöpfe, Leertaste, Pfeiltasten) |
-| `js/ebenengruppen.js` | Die 17 Ebenengruppen nach ITA Part 6 (nur Angaben, die sich nicht berechnen lassen) |
+| `js/ebenengruppen.js` | Die 17 Ebenengruppen nach ITA Part 6: Angaben, die sich nicht berechnen lassen, und die Abschrift der ITA (2006), die die Texte der Schritte nutzen und `tests/kern.test.mjs` als Gegenprobe zu symcrys |
 | `js/symmetrie.js` | Rechnung der App: Operationen, Verknüpfung, Symmetrieelemente, Lagen; die Operationen der Gruppen kommen aus symcrys (`js/kern.js`) |
 | `js/kern.js` | Ebenengruppen aus dem Rechenkern symcrys (`lib/kern/plane.js`) in der Form der App |
 | `js/asymmetrie.js` | Asymmetrische Einheit aus den Bedingungen der ITA-Seite |
@@ -232,7 +232,7 @@ Ebenso der Rechenkern [symcrys](https://github.com/manganite/symcrys) nach `lib/
 node tools/common/sync.mjs --kern ../symcrys-X.Y.Z.tgz
 ```
 
-`tests/common.test.mjs` prüft, dass die Kopie der gemeinsamen Grundlage ihrem Manifest entspricht. Änderungen an gemeinsamen Dateien gehören nach crystallography-common, an Berechnungen nach symcrys, nicht in die Kopie.
+`tests/common.test.mjs` prüft, dass beide Kopien ihrem Manifest entsprechen. Änderungen an gemeinsamen Dateien gehören nach crystallography-common, an Berechnungen nach symcrys, nicht in die Kopie.
 
 ### Tests
 
@@ -240,7 +240,7 @@ node tools/common/sync.mjs --kern ../symcrys-X.Y.Z.tgz
 node --test tests/*.test.mjs
 ```
 
-Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Zeichnen“ im Modus „Muster entwerfen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung und anderem Massstab; Toleranzen knapp neben speziellen Metriken und Lagen), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopie der gemeinsamen Dateien und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit Typprüfung, ESLint und der PDF-Fassung des Skripts.
+Geprüft werden die Daten aller 17 Ebenengruppen gegen die Rechnung (ITA Part 6), die Zeichnungen (Metrik, Zuordnung der Linien zu den Blickrichtungen), Schoenflies-Symbole und Signaturen, „Schritt für Schritt“, die Herkunft der Elemente aus den Erzeugenden, „Zeichnen“ im Modus „Muster entwerfen“, der Modus „Gitter und Basis“ (Strukturen aus allen 17 Gruppen werden wiedererkannt, auch mit verschobenem Ursprung und anderem Massstab; Toleranzen knapp neben speziellen Metriken und Lagen), die Link-Adressen (hin und zurück), die Quizfragen (Aufbau, Bezug zum Skript, Bilder, Antworten nach Büchern nachgerechnet, Moodle-Export) sowie die Release-Konsistenz (Version, Changelog, Offline-Liste), die Kopien der gemeinsamen Dateien und des Rechenkerns, die Ebenengruppen aus symcrys gegen die bisherige Rechnung der App und dass App, Skript und README keine Verweise auf Lehrveranstaltungen enthalten. Dieselben Tests laufen bei jedem Pull Request in GitHub Actions, zusammen mit Typprüfung, ESLint und der PDF-Fassung des Skripts.
 
 Typprüfung und ESLint (die Typen stehen als JSDoc-Kommentare im Code, die Regeln für ESLint in `tools/common/eslint-basis.mjs`; Versionen wie in den Jobs `typen` und `lint` in `.github/workflows/ci.yml`, alle Pakete in einem Befehl, sonst entfernt npm die zuvor installierten):
 

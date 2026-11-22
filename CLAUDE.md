@@ -299,8 +299,8 @@ für diese App gilt.
   In der App bleiben Darstellung und deutsche Texte, die Form `{ R, t }` der Operationen und die Bestimmung der Gruppe
   eines Musters (`js/bestimmung.js`), bis symcrys sie in einer zweiten MINOR hat (symcrys#31). Erster Schritt: die
   Operationen, die Zentrierung und die Erzeugenden (`gruppe`, `erzeugende` in `js/symmetrie.js`); die Erzeugenden in
-  der Reihenfolge der App (Zentrierung zuletzt; symcrys nennt sie wie die ITA zuerst), weil der Aufbau aus Erzeugenden
-  ihr folgt.
+  der Reihenfolge der App (Zentrierung zuletzt; symcrys nennt sie wie die ITA zuerst), damit `erzeugende()` gleich
+  bleibt wie bisher.
 - **Daten getrennt vom Code** (6.11.2026, #55, Leitfaden Abschn. 9): Datendateien sind `ebenengruppen.js`,
   `symbole.js`, `bestimmen.js`, `quiz-bank.js`, `hilfetexte.js`, `hilfe-anleitung.js` (Texte der Hilfeseite,
   crystallography-common#114), `vorgaben.js`. Je Fall entschieden:
